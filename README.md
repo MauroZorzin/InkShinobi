@@ -1,93 +1,242 @@
-# Ink-Shinobi
+# Ink-Shinobi — Technical Documentation
+**Version:** 1.0 · **Engine:** Unity (URP) · **Genre:** 2.5D Stealth
 
+---
 
+## 1. Project Overview
 
-## Getting started
+**Ink-Shinobi** is a 2.5D stealth game set in feudal Japan during the Sengoku/Shogunate era. The player controls a ninja navigating fully three-dimensional environments, while the camera rotates dynamically through 3D space to always maintain a fixed side-on perspective — preserving the feel and readability of a classic 2D platformer within a living, volumetric world. Characters and enemies are represented as 2D ink-illustrated sprites inhabiting a 3D environment, blending the expressiveness of hand-drawn animation with genuine spatial depth.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The visual identity is rooted in the aesthetic of sumi-e (ink wash painting): a stark black-and-white palette, high-contrast silhouettes, and brush-stroke-inspired UI elements evoke traditional Japanese woodblock prints and shadow theatre. Environments span feudal castles, bamboo forests, moonlit temple courtyards, and rooftop districts of a Shogunate city.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Core gameplay pillars:
+- **Shadow stealth** — hide in darkness, behind objects, and exploit patrol blind spots.
+- **Vertical traversal** — wall-climb, grapple, and drop-attack across multi-level stages.
+- **Camera-driven puzzles** — the rotating camera is both a mechanical and narrative device; some paths only become visible from a new angle.
 
-## Add your files
+---
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## 2. Architecture Overview
+
+```mermaid
+graph TD
+    subgraph Core ["⚙️ Core Systems"]
+        GM[GameManager<br/>Singleton]
+        SM[SceneManager<br/>Loader]
+        EM[EventBus<br/>Pub/Sub]
+    end
+
+    subgraph Rendering ["🎨 Rendering — URP"]
+        URP[Universal Render Pipeline]
+        CAM[CameraRig<br/>Orbit Controller]
+        PP[Post-Processing<br/>Volume]
+        SH[Custom URP Shaders<br/>Ink / Silhouette]
+        BB[SpriteBillboard<br/>2D chars in 3D world]
+    end
+
+    subgraph Gameplay ["🥷 Gameplay Layer"]
+        PC[PlayerController<br/>CharacterMotor]
+        SC[StealthController<br/>Visibility / Shadow]
+        AI[EnemyAI<br/>State Machine]
+        PT[PatrolSystem<br/>Waypoints]
+    end
+
+    subgraph Input ["🎮 Input"]
+        NIS[Input System<br/>New Input System Package]
+        IA[InputActions<br/>Asset]
+    end
+
+    subgraph Audio ["🔊 Audio"]
+        AM[AudioManager]
+        MX[Music Mixer<br/>Adaptive Layers]
+    end
+
+    subgraph Data ["📦 Data Layer"]
+        SO[ScriptableObjects<br/>LevelConfig / EnemyDef]
+        SAV[SaveSystem<br/>JSON / PlayerPrefs]
+    end
+
+    subgraph Testing ["🧪 Unity Test Framework"]
+        EM_T[Edit Mode Tests<br/>Logic / Data Validation]
+        PM_T[Play Mode Tests<br/>Integration / Runtime]
+        TC[Test Runner<br/>GitLab CI]
+    end
+
+    GM --> SM
+    GM --> EM
+    EM --> Gameplay
+    EM --> Audio
+
+    NIS --> IA --> PC
+    PC --> SC
+    PC --> CAM
+    AI --> PT
+    AI --> SC
+
+    URP --> CAM
+    URP --> PP
+    URP --> SH
+    URP --> BB
+    BB --> PC
+    BB --> AI
+
+    SO --> Gameplay
+    SO --> AI
+    GM --> SAV
+
+    Testing --> Gameplay
+    Testing --> Data
+    Testing --> Core
+```
+
+---
+
+## 3. Technology Stack
+
+| Domain | Technology | Notes |
+|---|---|---|
+| Engine | Unity 6 (LTS) | Primary development environment |
+| Render Pipeline | Universal Render Pipeline (URP) | 2D lighting, custom passes, shadow casters |
+| Input | Unity Input System (new) | Action-based; gamepad & keyboard |
+| Physics | Unity Physics 2D + Rigidbody3D | Hybrid — 3D colliders, 2D-axis movement |
+| Audio | Unity Audio Mixer | Adaptive layered music; FMOD-ready |
+| Testing | Unity Test Framework (UTF) | Edit Mode & Play Mode test suites |
+| Version Control | Git + Git LFS (GitLab) | Large assets (textures, audio) via LFS |
+| CI | GitLab CI/CD | Runs UTF suites on push via `.gitlab-ci.yml` |
+| Scripting | C# (.NET Standard 2.1) | |
+
+---
+
+## 4. Rendering — Universal Render Pipeline (URP)
+
+The URP is the cornerstone of Ink-Shinobi's visual identity. It was chosen over the Built-in Pipeline for its scriptable render passes, 2D lighting compatibility, and superior post-processing support on a range of target platforms.
+
+### 4.1 Camera Rig & 2.5D Illusion
+
+The `CameraRig` is the central technical device of the game. It wraps the main camera in a pivot-point transform that orbits around the player in 3D space. The camera's local position is fixed to a side-on offset; only the rig's Y-axis rotation changes. This means:
+
+- Gameplay always reads as 2D to the player.
+- Environments are fully 3D — depth, parallax, and occlusion are real.
+- Stage transitions trigger a smooth orbital rotation, revealing a new "face" of the level.
+
+**Projection mode is currently under active investigation.** Depth is intended to be a first-class visual and gameplay element — environmental layers, foreground/background parallax, and the sense of a three-dimensional world are all desirable — so a purely orthographic projection may not be the right fit. The two approaches being evaluated are:
+
+- **Perspective projection** — natural depth falloff; foreground geometry appears larger and the world feels volumetric. Requires careful field-of-view tuning to preserve 2D movement readability at the chosen play distance.
+- **Orthographic projection** — enforces a flat, graphic read consistent with the ink-print aesthetic, but sacrifices inherent depth cues. Parallax layers and post-processing depth-of-field would need to compensate.
+
+A hybrid approach — a very low perspective FOV (near-orthographic) — is also being prototyped to balance both goals.
+
+#### 2D Sprites in a 3D Environment
+
+Characters (player and enemies) are rendered as **2D billboard sprites** positioned in the 3D world. This is a deliberate aesthetic and production choice: it reinforces the ink-illustration identity and substantially reduces animation authoring cost compared to 3D rigs. The `SpriteBillboard` component keeps each character sprite facing the camera at all times, while the surrounding environment remains fully three-dimensional geometry. Key considerations for this approach:
+
+- **Sprite sorting** is managed via URP's Sorting Layer and `Renderer.sortingOrder`, taking world-space Z depth into account.
+- **Shadow casting** from sprites onto 3D geometry is handled by URP's 2D shadow caster system, keeping characters grounded in the scene.
+- **Lighting** on sprites uses URP's Sprite Lit shader, allowing the global light rig (point lights, shadows) to affect character sprites consistently with the environment.
+
+### 4.2 Custom URP Shader Passes
+
+Two custom URP render feature passes drive the ink aesthetic:
+
+- **Ink Outline Pass** — a screen-space edge detection pass that draws thick brush-like outlines around geometry using depth and normal buffers.
+- **Silhouette Fill Pass** — enemies and interactive objects behind foreground geometry are rendered as flat silhouettes, maintaining readability without breaking occlusion.
+
+### 4.3 Post-Processing
+
+A global URP Post-Processing Volume applies:
+- High-contrast **Color Grading** (near-monochrome, slight sepia wash).
+- **Vignette** to focus attention on the play corridor.
+- **Film Grain** to simulate ink-on-paper texture.
+
+---
+
+## 5. Gameplay Systems
+
+### 5.1 Player Controller
+
+`PlayerController` drives character movement along the camera-relative 2D axis. It delegates to:
+- `CharacterMotor` — physics integration, jump, wall-slide.
+- `StealthController` — computes real-time visibility score based on light exposure, distance to enemies, and movement speed.
+
+### 5.2 Enemy AI
+
+Each enemy runs a lightweight **Finite State Machine** with states: `Patrol → Alert → Investigate → Chase → Combat`. Transitions are driven by the `PerceptionSystem`, which aggregates line-of-sight raycasts and the player's visibility score from `StealthController`. Enemy definitions (patrol paths, perception radii, reaction times) are authored as **ScriptableObjects**, keeping tuning out of code.
+
+### 5.3 Camera-Driven Level Design
+
+Levels are structured as a series of **Planes** — discrete lateral corridors arranged around a central Y-axis. A `PlaneTransitionTrigger` in the environment fires an event on the `EventBus` when the player crosses a threshold; the `CameraRig` receives this event and rotates to the next plane. This is the primary mechanic that differentiates Ink-Shinobi from a flat 2D stealth game.
+
+---
+
+## 6. Data & Configuration
+
+Game data is decoupled from logic via **ScriptableObjects**:
+
+- `LevelConfig` — spawn points, plane definitions, ambient audio reference.
+- `EnemyDefinition` — stat block, AI parameters, visual variant.
+- `AbilityDefinition` — player abilities (grapple, smoke bomb) with cooldown and cost data.
+
+This architecture allows designers to create and tune content without modifying C# source files.
+
+---
+
+## 7. Testing — Unity Test Framework (UTF)
+
+The Unity Test Framework is integrated as a first-class part of the development pipeline. Tests are split into two assemblies:
+
+### 7.1 Edit Mode Tests
+Run without entering Play Mode; suited for fast, isolated logic checks:
+- `StealthCalculatorTests` — unit tests for visibility score calculations.
+- `LevelConfigValidationTests` — ensures all `LevelConfig` assets have valid plane counts and non-null references.
+- `EnemyDefinitionTests` — validates stat ranges on all `EnemyDefinition` assets.
+
+### 7.2 Play Mode Tests
+Run inside a live Unity runtime; suited for integration and behavioural checks:
+- `PlayerMovementIntegrationTest` — verifies `CharacterMotor` resolves collisions correctly across standard geometry.
+- `CameraRigRotationTest` — asserts that orbital transitions complete within the expected frame window and land on the correct angle.
+- `AIStateTransitionTest` — drives a mock player through perception thresholds and asserts correct FSM state changes in sequence.
+
+### 7.3 CI Integration
+A **GitLab CI/CD** pipeline defined in `.gitlab-ci.yml` triggers the UTF suites on every push to `main` and `develop`, using the `game-ci/unity3d` Docker image. Test result XMLs are published as GitLab pipeline artefacts and visible in the Merge Request test summary panel.
+
+---
+
+## 8. Project Structure
 
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/MauroZorzin/ink-shinobi.git
-git branch -M main
-git push -uf origin main
+Assets/
+├── _Game/
+│   ├── Scripts/
+│   │   ├── Core/          # GameManager, EventBus, SceneLoader
+│   │   ├── Player/        # PlayerController, CharacterMotor, StealthController
+│   │   ├── Enemy/         # EnemyAI, PatrolSystem, PerceptionSystem
+│   │   ├── Camera/        # CameraRig, PlaneTransitionTrigger
+│   │   └── Data/          # ScriptableObject definitions
+│   ├── Rendering/
+│   │   ├── URP/           # Pipeline asset, Renderer assets
+│   │   └── Shaders/       # Ink outline, silhouette, post-processing
+│   ├── Audio/
+│   ├── Prefabs/
+│   └── Levels/
+├── Tests/
+│   ├── EditMode/
+│   └── PlayMode/
+└── ThirdParty/
 ```
 
-## Integrate with your tools
+---
 
-* [Set up project integrations](https://gitlab.com/MauroZorzin/ink-shinobi/-/settings/integrations)
+## 9. Key Design Decisions & Trade-offs
 
-## Collaborate with your team
+| Decision | Rationale | Trade-off |
+|---|---|---|
+| Projection mode (under investigation) | Depth is a gameplay element; perspective preserves volumetric feel, orthographic enforces graphic flatness | Final choice affects FOV, parallax design, and overall readability — prototyping both |
+| 2D billboard sprites for characters | Reinforces ink-illustration aesthetic; reduces animation production cost vs full 3D rigs | Sprite sorting and shadow casting in a 3D scene require careful URP configuration |
+| ScriptableObjects for all data | Designer-friendly; no code changes to tune levels | Requires asset validation tests to catch authoring errors |
+| URP over HDRP | Broader platform target; lighter runtime cost; native 2D sprite lighting support | Fewer out-of-box lighting features; custom passes needed |
+| Hybrid 2D/3D physics | Accurate 3D collision; simplified movement axis | Requires careful layer configuration to avoid unexpected interactions |
+| Event Bus (Pub/Sub) | Loose coupling between systems | Debugging event chains requires tooling discipline |
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+---
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+*Ink-Shinobi Technical Documentation — Internal Use*
