@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +10,12 @@ public class PlayerMovementController : MonoBehaviour
     public float acceleration = 20f;
     public float deceleration = 25f;
 
+    [Header("Gravity")]
+    public float gravity = -20f;
+    private const String IS_RUNNING_ANIMATOR_PARAMETER = "isRunning";
+
+    private const String VELOCITY_ANIMATOR_PARAMETER = "Velocity";
+
     private CharacterController _cc;
     private Camera _cam;
     private Animator _animator;
@@ -15,6 +23,7 @@ public class PlayerMovementController : MonoBehaviour
 
     private Vector3 _velocity;
     private float _moveInput = 0f;
+    private float _verticalVelocity;
 
     void Start()
     {
@@ -33,16 +42,30 @@ public class PlayerMovementController : MonoBehaviour
     void Update()
     {
         HandleMovement();
+        ApplyGravity();
     }
 
     void HandleMovement()
     {
-        // Derive direction from input sign instead of a hardcoded vector
         Vector3 targetVelocity = Vector3.right * _moveInput * moveSpeed;
         float rate = (_moveInput != 0f) ? acceleration : deceleration;
         _velocity = Vector3.MoveTowards(_velocity, targetVelocity, rate * Time.deltaTime);
-
-        // Actually apply the velocity to the CharacterController
-        _cc.Move(_velocity * Time.deltaTime);
+        if (_moveInput != 0f ){
+            _animator.SetBool(IS_RUNNING_ANIMATOR_PARAMETER, true);
+        } else{
+            _animator.SetBool(IS_RUNNING_ANIMATOR_PARAMETER, false);
+        }
+        _animator.SetFloat(VELOCITY_ANIMATOR_PARAMETER, moveSpeed/Mathf.Abs(_velocity.x)+ 0.2f);
+        if (_sr != null)
+        {
+            if (_moveInput > 0f) _sr.flipX = false;
+            if (_moveInput < 0f) _sr.flipX = true;
+        }
+    }
+    void ApplyGravity()
+    {
+        _verticalVelocity += gravity * Time.deltaTime;
+        Vector3 finalMove = _velocity + Vector3.up * _verticalVelocity;
+        _cc.Move(finalMove * Time.deltaTime);
     }
 }
