@@ -1,5 +1,9 @@
 {
-    "recommendations": [
-      "visualstudiotoolsforunity.vstuc"
-    ]
+  "recommendations": [
+    "visualstudiotoolsforunity.vstuc",
+    "ms-dotnettools.csdevkit",
+    "ms-dotnettools.csharp",
+    "editorconfig.editorconfig",
+    "redhat.vscode-yaml"
+  ]
 }
