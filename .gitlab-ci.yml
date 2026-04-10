@@ -1,0 +1,8 @@
+stages:
+  - bootstrap
+
+bootstrap_ci:
+  stage: bootstrap
+  script:
+    - echo "GitLab CI/CD is enabled for this project."
+    - echo "This is a temporary bootstrap pipeline."
