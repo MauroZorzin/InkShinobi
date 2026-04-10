@@ -1,0 +1,149 @@
+workflow:
+  rules:
+    # Manual runs from GitLab's UI are allowed on any branch for dry-runs.
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+
+    # Task branch -> sprint integration branch.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^dev-sprint-/'
+
+    # Sprint integration branch -> main at the end of the sprint.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
+
+    # Validate the shared sprint branch after merges land there.
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH =~ /^dev-sprint-/'
+
+    # Final validation after the sprint lands in main.
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+    - when: never
+
+stages:
+  - lint
+  - verify
+  - test
+  - audit
+
+variables:
+  UNITY_DIR: "."
+  UNITY_VERSION: "6000.3.10f1"
+  IMAGE_VERSION: "3"
+  UNITY_DOCKER_IMAGE: "unityci/editor:${UNITY_VERSION}-base-${IMAGE_VERSION}"
+  DOTNET_IMAGE: "mcr.microsoft.com/dotnet/sdk:10.0"
+  DOTNET_FORMAT_TARGET: "Ink-Shinobi.slnx"
+  ARTIFACTS_DIR: "artifacts"
+  STATIC_ANALYSIS_DIR: "artifacts/static-analysis"
+  TEST_RESULTS_DIR: "artifacts/test-results"
+  PROJECT_AUDITOR_DIR: "artifacts/project-auditor"
+  GIT_STRATEGY: fetch
+
+.unity_job:
+  image: "$UNITY_DOCKER_IMAGE"
+  cache:
+    key: "unity-library-${UNITY_VERSION}-${CI_COMMIT_REF_SLUG}"
+    paths:
+      - Library/
+  before_script:
+    - chmod +x ci/*.sh
+    - mkdir -p "$ARTIFACTS_DIR" "$STATIC_ANALYSIS_DIR" "$TEST_RESULTS_DIR" "$PROJECT_AUDITOR_DIR"
+    - ./ci/activate_unity.sh "$ARTIFACTS_DIR"
+
+.shell_job:
+  image: debian:12-slim
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends ca-certificates grep sed gawk findutils
+    - rm -rf /var/lib/apt/lists/*
+    - chmod +x ci/*.sh
+    - mkdir -p "$ARTIFACTS_DIR" "$STATIC_ANALYSIS_DIR"
+
+format_csharp:
+  stage: lint
+  image: "$DOTNET_IMAGE"
+  before_script:
+    - chmod +x ci/*.sh
+    - mkdir -p "$ARTIFACTS_DIR/format"
+  script:
+    - ./ci/check_csharp_format.sh "$CI_PROJECT_DIR" "$ARTIFACTS_DIR/format"
+  artifacts:
+    when: always
+    paths:
+      - "$ARTIFACTS_DIR/format/"
+
+static_rules_unity:
+  stage: lint
+  extends: .shell_job
+  script:
+    - ./ci/check_unity_patterns.sh "$CI_PROJECT_DIR" "$STATIC_ANALYSIS_DIR/unity-pattern-report.txt"
+  artifacts:
+    when: always
+    paths:
+      - "$STATIC_ANALYSIS_DIR/unity-pattern-report.txt"
+
+compile_project:
+  stage: verify
+  extends: .unity_job
+  script:
+    - |
+      xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' \
+        unity-editor \
+        -batchmode \
+        -nographics \
+        -accept-apiupdate \
+        -quit \
+        -projectPath "$UNITY_DIR" \
+        -logFile "$ARTIFACTS_DIR/compile.log"
+    - cat "$ARTIFACTS_DIR/compile.log"
+  artifacts:
+    when: always
+    paths:
+      - "$ARTIFACTS_DIR/compile.log"
+
+editmode_tests:
+  stage: test
+  extends: .unity_job
+  needs: ["compile_project"]
+  script:
+    - ./ci/run_unity_suite.sh EditMode "$UNITY_DIR" "$TEST_RESULTS_DIR"
+  artifacts:
+    when: always
+    paths:
+      - "$TEST_RESULTS_DIR/EditMode.xml"
+      - "$TEST_RESULTS_DIR/EditMode.log"
+    reports:
+      junit: "$TEST_RESULTS_DIR/EditMode.xml"
+
+playmode_tests:
+  stage: test
+  extends: .unity_job
+  needs: ["compile_project"]
+  script:
+    - ./ci/run_unity_suite.sh PlayMode "$UNITY_DIR" "$TEST_RESULTS_DIR"
+  artifacts:
+    when: always
+    paths:
+      - "$TEST_RESULTS_DIR/PlayMode.xml"
+      - "$TEST_RESULTS_DIR/PlayMode.log"
+    reports:
+      junit: "$TEST_RESULTS_DIR/PlayMode.xml"
+
+project_auditor:
+  stage: audit
+  extends: .unity_job
+  needs: ["compile_project"]
+  script:
+    - |
+      xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' \
+        unity-editor \
+        -batchmode \
+        -nographics \
+        -accept-apiupdate \
+        -quit \
+        -projectPath "$UNITY_DIR" \
+        -executeMethod ProjectAuditorCI.AuditAndExport \
+        -logFile "$PROJECT_AUDITOR_DIR/project-auditor.log"
+    - cat "$PROJECT_AUDITOR_DIR/project-auditor.log"
+  artifacts:
+    when: always
+    paths:
+      - "$PROJECT_AUDITOR_DIR/"
+  allow_failure: true
