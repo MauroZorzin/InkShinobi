@@ -176,4 +176,79 @@ public class PlayerTestSuit {
 
     Assert.AreEqual(startX, _playerGO.transform.position.x, 0.001f, "X position should not change with no horizontal input.");
   }
+  // 13. Jump sets positive vertical velocity when grounded
+  [UnityTest]
+  public IEnumerator Jump_WhenGrounded_SetsPositiveVerticalVelocity() {
+    // Let the player settle on the ground first
+    yield return _waitForSeconds1;
+
+    typeof(PlayerMovementController)
+      .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
+      .SetValue(_controller, true);
+
+    yield return null;
+
+    Assert.Greater(GetVerticalVelocity(), 0f, "Jumping should set a positive vertical velocity.");
+  }
+
+  // 14. Jump vertical velocity peaks then decreases due to gravity
+  [UnityTest]
+  public IEnumerator Jump_VerticalVelocity_PeaksThenDecreases() {
+    yield return _waitForSeconds1;
+
+    typeof(PlayerMovementController)
+      .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
+      .SetValue(_controller, true);
+
+    yield return null;
+    float peakVelocity = GetVerticalVelocity();
+
+    yield return _waitForSeconds0_3;
+    float laterVelocity = GetVerticalVelocity();
+
+    Assert.Less(laterVelocity, peakVelocity, "Vertical velocity should decrease after jump peak due to gravity.");
+  }
+
+  // 15. Jump is ignored when already airborne
+  [UnityTest]
+  public IEnumerator Jump_WhenAirborne_IsIgnored() {
+    // Let player settle on ground first
+    yield return _waitForSeconds1;
+
+    // Trigger a real jump to get airborne
+    typeof(PlayerMovementController)
+      .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
+      .SetValue(_controller, true);
+
+    yield return null;
+    float risingVelocity = GetVerticalVelocity();
+
+    // Try to jump again while airborne
+    typeof(PlayerMovementController)
+      .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
+      .SetValue(_controller, true);
+
+    yield return null;
+    float velocityAfterSecondJump = GetVerticalVelocity();
+
+    // Gravity should have reduced velocity, not reset it to a fresh jump
+    Assert.Less(velocityAfterSecondJump, risingVelocity, "A second jump while airborne should be ignored — velocity should not reset upward.");
+  }
+
+  // 16. Player Y position increases immediately after jump
+  [UnityTest]
+  public IEnumerator Jump_PlayerYPosition_IncreasesAfterJump() {
+    yield return _waitForSeconds1;
+
+    float preJumpY = _playerGO.transform.position.y;
+
+    typeof(PlayerMovementController)
+      .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
+      .SetValue(_controller, true);
+
+    yield return null;
+    float postJumpY = _playerGO.transform.position.y;
+
+    Assert.Greater(postJumpY, preJumpY, "Player Y should be higher the frame after jump is requested.");
+  }
 }
