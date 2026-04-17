@@ -44,6 +44,10 @@ public class PlayerTestSuit {
     _sr = _playerGO.AddComponent<SpriteRenderer>();
     _controller = _playerGO.AddComponent<PlayerMovementController>();
 
+    // Create a camPivot so HandleMovement doesn't throw a NullReferenceException
+    GameObject camPivotGO = new GameObject("CamPivot");
+    _controller.camPivot = camPivotGO.transform;
+
     _controller.moveSpeed = 5f;
     _controller.acceleration = 100f;
     _controller.deceleration = 100f;
@@ -52,6 +56,7 @@ public class PlayerTestSuit {
 
   [TearDown]
   public void TearDown() {
+    Object.Destroy(_controller.camPivot.gameObject);
     Object.Destroy(_playerGO);
   }
 
@@ -250,5 +255,85 @@ public class PlayerTestSuit {
     float postJumpY = _playerGO.transform.position.y;
 
     Assert.Greater(postJumpY, preJumpY, "Player Y should be higher the frame after jump is requested.");
+  }
+  // 17. RotateRight increments rotation index by 1
+  [UnityTest]
+  public IEnumerator RotateWorld_Right_IncrementsRotationIndex() {
+    int startIndex = (int)typeof(PlayerMovementController)
+        .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetValue(_controller);
+
+    typeof(PlayerMovementController)
+        .GetMethod("StartCoroutine", BindingFlags.Public | BindingFlags.Instance, null,
+            new[] { typeof(IEnumerator) }, null)
+        .Invoke(_controller, new object[] {
+            (IEnumerator)typeof(PlayerMovementController)
+                .GetMethod("RotateWorld", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(_controller, new object[] { 1 })
+        });
+
+    yield return new WaitForSeconds(0.5f); // longer than rotationDuration (0.3f)
+
+    int newIndex = (int)typeof(PlayerMovementController)
+        .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetValue(_controller);
+
+    Assert.AreEqual((startIndex + 1) % 4, newIndex, "Rotating right should increment rotation index by 1 (wrapping at 4).");
+  }
+
+  // 18. RotateLeft decrements rotation index by 1
+  [UnityTest]
+  public IEnumerator RotateWorld_Left_DecrementsRotationIndex() {
+    int startIndex = (int)typeof(PlayerMovementController)
+        .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetValue(_controller);
+
+    typeof(PlayerMovementController)
+        .GetMethod("StartCoroutine", BindingFlags.Public | BindingFlags.Instance, null,
+            new[] { typeof(IEnumerator) }, null)
+        .Invoke(_controller, new object[] {
+            (IEnumerator)typeof(PlayerMovementController)
+                .GetMethod("RotateWorld", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(_controller, new object[] { -1 })
+        });
+
+    yield return new WaitForSeconds(0.5f);
+
+    int newIndex = (int)typeof(PlayerMovementController)
+        .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetValue(_controller);
+
+    Assert.AreEqual((startIndex + 3) % 4, newIndex, "Rotating left should decrement rotation index by 1 (wrapping at 0).");
+  }
+
+  // 19. _isRotating is true during rotation and false after completion
+  [UnityTest]
+  public IEnumerator RotateWorld_IsRotating_TrueWhileRotating_FalseAfter() {
+    typeof(PlayerMovementController)
+        .GetMethod("StartCoroutine", BindingFlags.Public | BindingFlags.Instance, null,
+            new[] { typeof(IEnumerator) }, null)
+        .Invoke(_controller, new object[] {
+            (IEnumerator)typeof(PlayerMovementController)
+                .GetMethod("RotateWorld", BindingFlags.NonPublic | BindingFlags.Instance)
+                .Invoke(_controller, new object[] { 1 })
+        });
+
+    // Mid-rotation: _isRotating should be true
+    yield return new WaitForSeconds(0.1f);
+
+    bool duringRotation = (bool)typeof(PlayerMovementController)
+        .GetField("_isRotating", BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetValue(_controller);
+
+    Assert.IsTrue(duringRotation, "_isRotating should be true while rotation is in progress.");
+
+    // After rotation completes
+    yield return new WaitForSeconds(0.4f);
+
+    bool afterRotation = (bool)typeof(PlayerMovementController)
+        .GetField("_isRotating", BindingFlags.NonPublic | BindingFlags.Instance)
+        .GetValue(_controller);
+
+    Assert.IsFalse(afterRotation, "_isRotating should be false after rotation completes.");
   }
 }
