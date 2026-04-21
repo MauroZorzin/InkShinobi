@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 
 public class PlayerTestSuit {
+  private const string PlayerAnimatorControllerPath = "Assets/Animations/_PlayerAnim.controller";
   private static readonly WaitForSeconds _waitForSeconds1 = new(1f);
   private static readonly WaitForSeconds _waitForSeconds0_3 = new(0.3f);
   private static readonly WaitForSeconds _waitForSeconds0_2 = new(0.2f);
@@ -40,7 +42,11 @@ public class PlayerTestSuit {
     cc.height = 2f;
     cc.radius = 0.5f;
 
-    _playerGO.AddComponent<Animator>();
+    Animator animator = _playerGO.AddComponent<Animator>();
+    RuntimeAnimatorController animatorController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(PlayerAnimatorControllerPath);
+    Assert.IsNotNull(animatorController, $"Expected animator controller at '{PlayerAnimatorControllerPath}'.");
+    animator.runtimeAnimatorController = animatorController;
+
     _sr = _playerGO.AddComponent<SpriteRenderer>();
     _controller = _playerGO.AddComponent<PlayerMovementController>();
 
