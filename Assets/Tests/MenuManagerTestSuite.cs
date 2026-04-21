@@ -9,6 +9,7 @@ public class MenuManagerTestSuite {
   private const string MainMenuSceneName = "MainMenu";
   private const string SettingsSceneName = "SettingsMenu";
   private const string FirstSceneName = "ProtoScene";
+  private const float SceneLoadTimeoutSeconds = 5f;
   private GameObject _menuManagerGO;
   private MenuManager _menuManager;
 
@@ -34,7 +35,7 @@ public class MenuManagerTestSuite {
   public IEnumerator StartGame_LoadsConfiguredFirstScene() {
     _menuManager.StartGame();
 
-    yield return WaitForActiveScene(FirstSceneName);
+    yield return WaitForActiveScene(FirstSceneName, SceneLoadTimeoutSeconds);
 
     Assert.AreEqual(FirstSceneName, SceneManager.GetActiveScene().name);
   }
@@ -43,7 +44,7 @@ public class MenuManagerTestSuite {
   public IEnumerator OpenSettings_LoadsConfiguredSettingsScene() {
     _menuManager.OpenSettings();
 
-    yield return WaitForActiveScene(SettingsSceneName);
+    yield return WaitForActiveScene(SettingsSceneName, SceneLoadTimeoutSeconds);
 
     Assert.AreEqual(SettingsSceneName, SceneManager.GetActiveScene().name);
   }
@@ -72,11 +73,13 @@ public class MenuManagerTestSuite {
     Assert.IsNotNull(loadOperation, $"Failed to start loading scene '{sceneName}'.");
 
     yield return loadOperation;
-    yield return WaitForActiveScene(sceneName);
+    yield return WaitForActiveScene(sceneName, SceneLoadTimeoutSeconds);
   }
 
-  private static IEnumerator WaitForActiveScene(string sceneName, int maxFrames = 120) {
-    for (int frame = 0; frame < maxFrames; frame++) {
+  private static IEnumerator WaitForActiveScene(string sceneName, float timeoutSeconds) {
+    float deadline = Time.realtimeSinceStartup + timeoutSeconds;
+
+    while (Time.realtimeSinceStartup < deadline) {
       if (SceneManager.GetActiveScene().name == sceneName) {
         yield break;
       }
@@ -84,6 +87,6 @@ public class MenuManagerTestSuite {
       yield return null;
     }
 
-    Assert.Fail($"Timed out waiting for scene '{sceneName}'. Active scene: '{SceneManager.GetActiveScene().name}'.");
+    Assert.Fail($"Timed out waiting {timeoutSeconds:0.##} seconds for scene '{sceneName}'. Active scene: '{SceneManager.GetActiveScene().name}'.");
   }
 }

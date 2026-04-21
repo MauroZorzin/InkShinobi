@@ -8,6 +8,7 @@ using UnityEngine.TestTools;
 public class SettingsManagerTestSuite {
   private const string SettingsSceneName = "SettingsMenu";
   private const string PreviousSceneName = "MainMenu";
+  private const float SceneLoadTimeoutSeconds = 5f;
   private GameObject _settingsManagerGO;
   private SettingsManager _settingsManager;
 
@@ -34,7 +35,7 @@ public class SettingsManagerTestSuite {
   public IEnumerator Done_LoadsConfiguredPreviousScene() {
     _settingsManager.Done();
 
-    yield return WaitForActiveScene(PreviousSceneName);
+    yield return WaitForActiveScene(PreviousSceneName, SceneLoadTimeoutSeconds);
 
     Assert.AreEqual(PreviousSceneName, SceneManager.GetActiveScene().name);
   }
@@ -45,11 +46,13 @@ public class SettingsManagerTestSuite {
     Assert.IsNotNull(loadOperation, $"Failed to start loading scene '{sceneName}'.");
 
     yield return loadOperation;
-    yield return WaitForActiveScene(sceneName);
+    yield return WaitForActiveScene(sceneName, SceneLoadTimeoutSeconds);
   }
 
-  private static IEnumerator WaitForActiveScene(string sceneName, int maxFrames = 120) {
-    for (int frame = 0; frame < maxFrames; frame++) {
+  private static IEnumerator WaitForActiveScene(string sceneName, float timeoutSeconds) {
+    float deadline = Time.realtimeSinceStartup + timeoutSeconds;
+
+    while (Time.realtimeSinceStartup < deadline) {
       if (SceneManager.GetActiveScene().name == sceneName) {
         yield break;
       }
@@ -57,6 +60,6 @@ public class SettingsManagerTestSuite {
       yield return null;
     }
 
-    Assert.Fail($"Timed out waiting for scene '{sceneName}'. Active scene: '{SceneManager.GetActiveScene().name}'.");
+    Assert.Fail($"Timed out waiting {timeoutSeconds:0.##} seconds for scene '{sceneName}'. Active scene: '{SceneManager.GetActiveScene().name}'.");
   }
 }
