@@ -10,6 +10,7 @@ public class PlayerTestSuit {
   private static readonly WaitForSeconds _waitForSeconds1 = new(1f);
   private static readonly WaitForSeconds _waitForSeconds0_3 = new(0.3f);
   private static readonly WaitForSeconds _waitForSeconds0_2 = new(0.2f);
+  private GameObject _groundGO;
   private GameObject _playerGO;
   private PlayerMovementController _controller;
   private SpriteRenderer _sr;
@@ -27,6 +28,12 @@ public class PlayerTestSuit {
       .GetValue(_controller);
   }
 
+  private void SetVerticalVelocity(float value) {
+    typeof(PlayerMovementController)
+      .GetField("_verticalVelocity", BindingFlags.NonPublic | BindingFlags.Instance)
+      .SetValue(_controller, value);
+  }
+
   private Vector3 GetVelocity() {
     return (Vector3)typeof(PlayerMovementController)
       .GetField("_velocity", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -36,7 +43,13 @@ public class PlayerTestSuit {
   // ── Setup / Teardown ──────────────────────────────────────────────────────
   [SetUp]
   public void Setup() {
+    _groundGO = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    _groundGO.name = "Ground";
+    _groundGO.transform.position = new Vector3(0f, -0.5f, 0f);
+    _groundGO.transform.localScale = new Vector3(20f, 1f, 20f);
+
     _playerGO = new GameObject("Player");
+    _playerGO.transform.position = Vector3.up;
 
     CharacterController cc = _playerGO.AddComponent<CharacterController>();
     cc.height = 2f;
@@ -62,8 +75,17 @@ public class PlayerTestSuit {
 
   [TearDown]
   public void TearDown() {
-    Object.Destroy(_controller.camPivot.gameObject);
-    Object.Destroy(_playerGO);
+    if (_controller != null && _controller.camPivot != null) {
+      Object.Destroy(_controller.camPivot.gameObject);
+    }
+
+    if (_playerGO != null) {
+      Object.Destroy(_playerGO);
+    }
+
+    if (_groundGO != null) {
+      Object.Destroy(_groundGO);
+    }
   }
 
   // ── Tests ─────────────────────────────────────────────────────────────────
@@ -112,6 +134,9 @@ public class PlayerTestSuit {
   // 5. Gravity increases vertical velocity over time (makes it more negative)
   [UnityTest]
   public IEnumerator ApplyGravity_IncreasesNegativeVerticalVelocity() {
+    _playerGO.transform.position = new Vector3(0f, 5f, 0f);
+    SetVerticalVelocity(0f);
+
     var initial = GetVerticalVelocity();
     yield return _waitForSeconds0_2;
 
