@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(SpriteRenderer))]
@@ -89,6 +90,14 @@ public class PlayerMovementController : MonoBehaviour {
   void OnRotateRight(InputValue value) {
     if (value.isPressed && !_isRotating)
       StartCoroutine(RotateWorld(1));
+  }
+
+  // Temporary method to force return to main menu for testing purposes
+  // TODO: Remove this method and its input binding later
+  void OnExit(InputValue value) {
+    if (value.isPressed) {
+      SceneManager.LoadSceneAsync("MainMenu");
+    }
   }
 #pragma warning restore IDE0051
 
