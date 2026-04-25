@@ -77,7 +77,7 @@ public class MenuManagerTestSuite {
   }
 
   private static IEnumerator WaitForActiveScene(string sceneName, float timeoutSeconds) {
-    float deadline = Time.realtimeSinceStartup + timeoutSeconds;
+    var deadline = Time.realtimeSinceStartup + timeoutSeconds;
 
     while (Time.realtimeSinceStartup < deadline) {
       if (SceneManager.GetActiveScene().name == sceneName) {
