@@ -45,7 +45,6 @@ public class MockPassagewayDoor : MonoBehaviour {
     IsOpen = startsOpen;
     hingeTransform.localRotation = IsOpen ? openRotation : closedRotation;
 
-    SetPassageBlocked(!IsOpen);
     SetHighlighted(false, false);
   }
 
@@ -110,6 +109,15 @@ public class MockPassagewayDoor : MonoBehaviour {
     }
   }
 
+  public float GetInteractionDistance(Vector3 worldPosition) {
+    if (blockingCollider != null) {
+      Vector3 closestPoint = blockingCollider.ClosestPoint(worldPosition);
+      return Vector3.Distance(worldPosition, closestPoint);
+    }
+
+    return Vector3.Distance(worldPosition, transform.position);
+  }
+
   private bool PlayerHasRequiredItem(MockInventory inventory) {
     if (inventory == null) {
       return false;
@@ -119,10 +127,6 @@ public class MockPassagewayDoor : MonoBehaviour {
   }
 
   private IEnumerator AnimateDoor(bool open) {
-    if (!open) {
-      SetPassageBlocked(true);
-    }
-
     Quaternion startRotation = hingeTransform.localRotation;
     Quaternion targetRotation = open ? openRotation : closedRotation;
 
@@ -142,21 +146,6 @@ public class MockPassagewayDoor : MonoBehaviour {
     hingeTransform.localRotation = targetRotation;
     IsOpen = open;
 
-    if (open) {
-      SetPassageBlocked(false);
-    }
-
     animationCoroutine = null;
-  }
-
-  private void SetPassageBlocked(bool blocked) {
-    if (blockingCollider != null) {
-      blockingCollider.enabled = blocked;
-    }
-
-    if (navMeshObstacle != null) {
-      navMeshObstacle.carving = true;
-      navMeshObstacle.enabled = blocked;
-    }
   }
 }

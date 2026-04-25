@@ -12,7 +12,7 @@ public class PlayerDoorInteractor : MonoBehaviour {
 
   [Header("Debug UI")]
   [SerializeField] private bool showDebugUI = true;
-  private MockPassagewayDoor highlightedDoor;
+  private MockPassagewayDoor currentDoor;
 
   private void Update() {
     MockPassagewayDoor nearestDoor = FindNearestDoorInRange();
@@ -43,7 +43,7 @@ public class PlayerDoorInteractor : MonoBehaviour {
         continue;
       }
 
-      var distance = Vector3.Distance(transform.position, door.transform.position);
+      var distance = door.GetInteractionDistance(transform.position);
 
       if (distance <= nearestDistance) {
         nearestDistance = distance;
@@ -55,15 +55,15 @@ public class PlayerDoorInteractor : MonoBehaviour {
   }
 
   private void UpdateHighlight(MockPassagewayDoor nearestDoor) {
-    if (highlightedDoor != null && highlightedDoor != nearestDoor) {
-      highlightedDoor.SetHighlighted(false, false);
+    if (currentDoor != null && currentDoor != nearestDoor) {
+      currentDoor.SetHighlighted(false, false);
     }
 
-    highlightedDoor = nearestDoor;
+    currentDoor = nearestDoor;
 
-    if (highlightedDoor != null) {
-      var canUse = highlightedDoor.CanToggle(inventory);
-      highlightedDoor.SetHighlighted(true, canUse);
+    if (currentDoor != null) {
+      var canUse = currentDoor.CanToggle(inventory);
+      currentDoor.SetHighlighted(true, canUse);
     }
   }
 
@@ -74,12 +74,10 @@ public class PlayerDoorInteractor : MonoBehaviour {
 
     string text;
 
-    if (highlightedDoor == null) {
+    if (currentDoor == null) {
       text = $"Move close to a door\n{interactKey}: Interact";
     } else {
-      var canUse = highlightedDoor.CanToggle(inventory);
-
-      text = canUse ? $"{interactKey}: Toggle {highlightedDoor.name}" : $"{highlightedDoor.name} is locked";
+      text = currentDoor.CanToggle(inventory) ? $"{interactKey}: Toggle {currentDoor.name}" : $"{currentDoor.name} is locked";
     }
 
     GUI.Box(new Rect(10, 180, 300, 70), text);

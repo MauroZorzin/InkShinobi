@@ -252,7 +252,7 @@ MonoBehaviour:
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 55
   m_UseGeometry: 0
   m_DefaultArea: 0
   m_GenerateLinks: 0
@@ -277,7 +277,7 @@ GameObject:
   - component: {fileID: 239892077}
   - component: {fileID: 239892076}
   - component: {fileID: 239892075}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: DoorVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -434,7 +434,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 362368244}
-  - {fileID: 2066019806}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &362368243
@@ -468,6 +467,7 @@ Transform:
   m_Children:
   - {fileID: 239892074}
   - {fileID: 907899050}
+  - {fileID: 2066019806}
   m_Father: {fileID: 336218121}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &560416038
@@ -501,6 +501,7 @@ Transform:
   m_Children:
   - {fileID: 698497387}
   - {fileID: 1355003626}
+  - {fileID: 1748391409}
   m_Father: {fileID: 1229976001}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &698497386
@@ -515,7 +516,7 @@ GameObject:
   - component: {fileID: 698497390}
   - component: {fileID: 698497389}
   - component: {fileID: 698497388}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: DoorVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -745,7 +746,7 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.125, y: 0.5, z: 0.375}
+  m_Extents: {x: 0.125, y: 0.5, z: 0.3875}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
@@ -1287,6 +1288,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::PlayerDoorInteractor
   interactionRange: 1
   inventory: {fileID: 1928287310}
+  doors:
+  - {fileID: 336218120}
+  - {fileID: 1229976000}
   showDebugUI: 1
 --- !u!1 &907899049
 GameObject:
@@ -2136,7 +2140,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 560416039}
-  - {fileID: 1748391409}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1332430474
@@ -2503,7 +2506,7 @@ NavMeshObstacle:
   m_Enabled: 1
   serializedVersion: 3
   m_Shape: 1
-  m_Extents: {x: 0.125, y: 0.5, z: 0.375}
+  m_Extents: {x: 0.125, y: 0.5, z: 0.3875}
   m_MoveThreshold: 0.1
   m_Carve: 1
   m_CarveOnlyStationary: 1
@@ -3139,7 +3142,7 @@ NavMeshObstacle:
   m_Extents: {x: 0.25, y: 0.5, z: 0.125}
   m_MoveThreshold: 0.1
   m_Carve: 1
-  m_CarveOnlyStationary: 1
+  m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
 --- !u!23 &1748391407
@@ -3207,12 +3210,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1748391405}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.625}
   m_LocalScale: {x: 0.125, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1229976001}
+  m_Father: {fileID: 560416039}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1748391410
 BoxCollider:
@@ -3794,7 +3797,7 @@ NavMeshObstacle:
   m_Extents: {x: 0.25, y: 0.5, z: 0.125}
   m_MoveThreshold: 0.1
   m_Carve: 1
-  m_CarveOnlyStationary: 1
+  m_CarveOnlyStationary: 0
   m_Center: {x: 0, y: 0, z: 0}
   m_TimeToStationary: 0.5
 --- !u!23 &2066019804
@@ -3863,11 +3866,11 @@ Transform:
   m_GameObject: {fileID: 2066019802}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.125, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.625}
+  m_LocalScale: {x: 0.12499997, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 336218121}
+  m_Father: {fileID: 362368244}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &2066019807
 BoxCollider:
