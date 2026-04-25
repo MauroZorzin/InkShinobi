@@ -13,7 +13,7 @@ public class GuardPatrol : MonoBehaviour {
   [SerializeField] private int maxPointAttempts = 30;
 
   [Header("Debug")]
-  [SerializeField] private bool debugLogs = true;
+  [SerializeField] private bool debugLogs = false;
 
   private NavMeshAgent agent;
   private NavMeshPath path;
@@ -74,20 +74,17 @@ public class GuardPatrol : MonoBehaviour {
   private void ChooseNewDestination() {
     for (var i = 0; i < maxPointAttempts; i++) {
       var foundPoint = patrolArea.TryGetRandomPointOnNavMesh(
-          out Vector3 destination,
-          navMeshSearchRadius,
-          agent.areaMask,
-          maxPointAttempts);
+        out Vector3 destination,
+        navMeshSearchRadius,
+        agent.areaMask,
+        maxPointAttempts
+      );
 
       if (!foundPoint) {
         continue;
       }
 
-      var pathExists = NavMesh.CalculatePath(
-          transform.position,
-          destination,
-          agent.areaMask,
-          path);
+      var pathExists = NavMesh.CalculatePath(transform.position, destination, agent.areaMask, path);
 
       if (!pathExists || path.status != NavMeshPathStatus.PathComplete) {
         continue;

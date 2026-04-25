@@ -1,11 +1,18 @@
 using System.Collections.Generic;
+using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.TestTools;
 
 public class GuardSpriteFacingTestSuite {
+  private const string GuardAnimatorControllerPath = "Assets/Animators/GuardAnimatorController.controller";
+
+  private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
+  private static readonly int FacingHash = Animator.StringToHash("Facing");
+
   private GameObject _guardGO;
   private GameObject _cameraGO;
   private GameObject _spriteVisualGO;
@@ -14,20 +21,8 @@ public class GuardSpriteFacingTestSuite {
 
   private GuardSpriteFacing _guardSpriteFacing;
   private Camera _camera;
-  private SpriteRenderer _spriteRenderer;
-
-  private Sprite[] _frontFrames;
-  private Sprite[] _backFrames;
-  private Sprite[] _leftFrames;
-  private Sprite[] _rightFrames;
-
-  private Sprite _frontA;
-  private Sprite _backA;
-  private Sprite _leftA;
-  private Sprite _leftB;
-  private Sprite _rightA;
-  private Sprite _rightB;
-  private Sprite _rightC;
+  private NavMeshAgent _agent;
+  private Animator _spriteAnimator;
 
   [SetUp]
   public void Setup() {
@@ -44,51 +39,29 @@ public class GuardSpriteFacingTestSuite {
 
     _guardGO = new GameObject("Guard");
     _guardGO.transform.position = hit.position;
-    _guardGO.AddComponent<NavMeshAgent>();
+    _agent = _guardGO.AddComponent<NavMeshAgent>();
 
     _spriteVisualGO = new GameObject("SpriteVisual");
     _spriteVisualGO.transform.SetParent(_guardGO.transform);
-    _spriteRenderer = _spriteVisualGO.AddComponent<SpriteRenderer>();
+    _spriteAnimator = _spriteVisualGO.AddComponent<Animator>();
+
+    RuntimeAnimatorController guardController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(GuardAnimatorControllerPath);
+    Assert.IsNotNull(guardController, $"Expected animator controller at '{GuardAnimatorControllerPath}'.");
+    _spriteAnimator.runtimeAnimatorController = guardController;
 
     _guardSpriteFacing = _guardGO.AddComponent<GuardSpriteFacing>();
-
-    _frontA = CreateSprite("frontA");
-    _backA = CreateSprite("backA");
-    _leftA = CreateSprite("leftA");
-    _leftB = CreateSprite("leftB");
-    _rightA = CreateSprite("rightA");
-    _rightB = CreateSprite("rightB");
-    _rightC = CreateSprite("rightC");
-
-    _frontFrames = new[] { _frontA };
-    _backFrames = new[] { _backA };
-    _leftFrames = new[] { _leftA, _leftB };
-    _rightFrames = new[] { _rightA, _rightB, _rightC };
+    _guardSpriteFacing.enabled = false;
 
     SetPrivateField("gameCamera", _camera);
     SetPrivateField("spriteVisual", _spriteVisualGO.transform);
-    SetPrivateField("spriteRenderer", _spriteRenderer);
-    SetPrivateField("frontFrames", _frontFrames);
-    SetPrivateField("backFrames", _backFrames);
-    SetPrivateField("leftFrames", _leftFrames);
-    SetPrivateField("rightFrames", _rightFrames);
-    SetPrivateField("framesPerSecond", 10f);
+    SetPrivateField("spriteAnimator", _spriteAnimator);
     SetPrivateField("minimumMoveSpeed", 0.05f);
+    SetPrivateField("idleDelay", 0.1f);
     SetPrivateField("rotateSpriteToFaceCamera", true);
-
-    InvokePrivate("Awake");
   }
 
   [TearDown]
   public void TearDown() {
-    DestroySprite(_frontA);
-    DestroySprite(_backA);
-    DestroySprite(_leftA);
-    DestroySprite(_leftB);
-    DestroySprite(_rightA);
-    DestroySprite(_rightB);
-    DestroySprite(_rightC);
-
     if (_cameraGO != null) {
       Object.Destroy(_cameraGO);
     }
@@ -109,62 +82,123 @@ public class GuardSpriteFacingTestSuite {
   }
 
   [Test]
-  public void GetFramesForCameraRelativeDirection_ForwardMovement_UsesBackFrames() {
+  public void GetCameraRelativeDirection_ForwardMovement_ReturnsBack() {
     SetPrivateField("lastMoveDirection", Vector3.forward);
 
-    Sprite[] frames = InvokePrivateWithResult<Sprite[]>("GetFramesForCameraRelativeDirection");
+    var direction = GetFacingDirectionValue();
 
-    Assert.AreSame(_backFrames, frames, "Moving along camera forward should show back frames.");
+    Assert.AreEqual(1, direction, "Moving along camera forward should map to Back.");
   }
 
   [Test]
-  public void GetFramesForCameraRelativeDirection_BackwardMovement_UsesFrontFrames() {
+  public void GetCameraRelativeDirection_BackwardMovement_ReturnsFront() {
     SetPrivateField("lastMoveDirection", Vector3.back);
 
-    Sprite[] frames = InvokePrivateWithResult<Sprite[]>("GetFramesForCameraRelativeDirection");
+    var direction = GetFacingDirectionValue();
 
-    Assert.AreSame(_frontFrames, frames, "Moving opposite camera forward should show front frames.");
+    Assert.AreEqual(0, direction, "Moving opposite camera forward should map to Front.");
   }
 
   [Test]
-  public void GetFramesForCameraRelativeDirection_RightMovement_UsesRightFrames() {
+  public void GetCameraRelativeDirection_RightMovement_ReturnsRight() {
     SetPrivateField("lastMoveDirection", Vector3.right);
 
-    Sprite[] frames = InvokePrivateWithResult<Sprite[]>("GetFramesForCameraRelativeDirection");
+    var direction = GetFacingDirectionValue();
 
-    Assert.AreSame(_rightFrames, frames, "Moving along camera right should show right frames.");
+    Assert.AreEqual(3, direction, "Moving along camera right should map to Right.");
   }
 
   [Test]
-  public void GetFramesForCameraRelativeDirection_LeftMovement_UsesLeftFrames() {
+  public void GetCameraRelativeDirection_LeftMovement_ReturnsLeft() {
     SetPrivateField("lastMoveDirection", Vector3.left);
 
-    Sprite[] frames = InvokePrivateWithResult<Sprite[]>("GetFramesForCameraRelativeDirection");
+    var direction = GetFacingDirectionValue();
 
-    Assert.AreSame(_leftFrames, frames, "Moving opposite camera right should show left frames.");
+    Assert.AreEqual(2, direction, "Moving opposite camera right should map to Left.");
+  }
+
+  [UnityTest]
+  public IEnumerator UpdateLastMoveDirection_WhenVelocityAboveThreshold_UpdatesDirectionAndTimestamp() {
+    SetPrivateField("minimumMoveSpeed", 0.05f);
+    SetPrivateField("lastMoveDirection", Vector3.forward);
+    SetPrivateField("lastMovingTime", -999f);
+
+    _agent.Warp(Vector3.zero);
+    _agent.isStopped = false;
+    _agent.speed = 6f;
+    _agent.acceleration = 100f;
+    _agent.angularSpeed = 0f;
+
+    yield return null;
+    Assert.IsTrue(_agent.SetDestination(new Vector3(5f, 0f, 0f)), "Expected test agent destination to be accepted.");
+
+    yield return WaitForAgentVelocity(0.2f, 60);
+
+    var moved = InvokePrivateWithResult<bool>("UpdateLastMoveDirection");
+
+    Assert.IsTrue(moved, "Velocity above threshold should be treated as moving.");
+    Assert.AreEqual(Vector3.right, GetPrivateField<Vector3>("lastMoveDirection"), "lastMoveDirection should track normalized velocity.");
+    Assert.GreaterOrEqual(GetPrivateField<float>("lastMovingTime"), 0f, "A moving update should refresh lastMovingTime.");
+  }
+
+  [UnityTest]
+  public IEnumerator UpdateLastMoveDirection_WhenVelocityBelowThreshold_LeavesDirectionUnchanged() {
+    SetPrivateField("lastMoveDirection", Vector3.left);
+
+    _agent.Warp(Vector3.zero);
+    _agent.isStopped = false;
+    _agent.speed = 2f;
+    _agent.acceleration = 100f;
+    _agent.angularSpeed = 0f;
+
+    yield return null;
+    Assert.IsTrue(_agent.SetDestination(new Vector3(5f, 0f, 0f)), "Expected test agent destination to be accepted.");
+
+    yield return WaitForAgentVelocity(0.2f, 60);
+    var currentSpeed = _agent.velocity.magnitude;
+    SetPrivateField("minimumMoveSpeed", currentSpeed + 0.5f);
+
+    var moved = InvokePrivateWithResult<bool>("UpdateLastMoveDirection");
+
+    Assert.IsFalse(moved, "Velocity below threshold should be treated as not moving.");
+    Assert.AreEqual(Vector3.left, GetPrivateField<Vector3>("lastMoveDirection"), "lastMoveDirection should remain unchanged when not moving.");
   }
 
   [Test]
-  public void Animate_WhenNotMoving_UsesFirstFrame() {
-    SetPrivateField("frameIndex", 1);
+  public void Update_WhenWithinIdleDelay_KeepsWalkAnimationTrue() {
+    SetPrivateField("idleDelay", 0.5f);
+    SetPrivateField("lastMovingTime", Time.time);
+    SetPrivateField("lastMoveDirection", Vector3.right);
+    _agent.velocity = Vector3.zero;
 
-    InvokePrivate("Animate", _leftFrames, false);
+    InvokePrivate("Update");
 
-    var frameIndex = GetPrivateField<int>("frameIndex");
-    Assert.AreEqual(0, frameIndex, "Idle animation should reset to the first frame.");
-    Assert.AreSame(_leftA, _spriteRenderer.sprite, "Idle animation should render the first frame.");
+    Assert.IsTrue(_spriteAnimator.GetBool(IsMovingHash), "Recent movement should keep IsMoving true during idle delay.");
+    Assert.AreEqual(3, _spriteAnimator.GetInteger(FacingHash), "Facing should reflect the last movement direction.");
   }
 
   [Test]
-  public void Animate_WhenMoving_AdvancesFrameBasedOnTimer() {
-    InvokePrivate("Animate", _rightFrames, false);
-    SetPrivateField("frameTimer", 0.21f);
+  public void Update_WhenIdleDelayElapsed_SetsWalkAnimationFalse() {
+    SetPrivateField("idleDelay", 0.1f);
+    SetPrivateField("lastMovingTime", Time.time - 1f);
+    SetPrivateField("lastMoveDirection", Vector3.left);
+    _agent.velocity = Vector3.zero;
 
-    InvokePrivate("Animate", _rightFrames, true);
+    InvokePrivate("Update");
 
-    var frameIndex = GetPrivateField<int>("frameIndex");
-    Assert.AreEqual(2, frameIndex, "Animation timer should advance multiple frames when enough time has accumulated.");
-    Assert.AreSame(_rightC, _spriteRenderer.sprite, "Renderer should display the advanced frame.");
+    Assert.IsFalse(_spriteAnimator.GetBool(IsMovingHash), "When idle delay has elapsed, IsMoving should be false.");
+    Assert.AreEqual(2, _spriteAnimator.GetInteger(FacingHash), "Facing should still follow lastMoveDirection while idle.");
+  }
+
+  [Test]
+  public void Update_WhenBillboardDisabled_DoesNotRotateSpriteVisual() {
+    SetPrivateField("rotateSpriteToFaceCamera", false);
+    _spriteVisualGO.transform.rotation = Quaternion.Euler(0f, 20f, 0f);
+    _cameraGO.transform.rotation = Quaternion.Euler(0f, 135f, 0f);
+
+    InvokePrivate("Update");
+
+    Assert.AreEqual(20f, _spriteVisualGO.transform.eulerAngles.y, 0.01f, "Sprite visual yaw should remain unchanged when billboard mode is disabled.");
   }
 
   [Test]
@@ -175,18 +209,6 @@ public class GuardSpriteFacingTestSuite {
 
     var visualYaw = _spriteVisualGO.transform.eulerAngles.y;
     Assert.AreEqual(73f, visualYaw, 0.01f, "Sprite visual should rotate to match camera yaw.");
-  }
-
-  private static Sprite CreateSprite(string name) {
-    var sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f);
-    sprite.name = name;
-    return sprite;
-  }
-
-  private static void DestroySprite(Sprite sprite) {
-    if (sprite != null) {
-      Object.Destroy(sprite);
-    }
   }
 
   private void SetPrivateField(string fieldName, object value) {
@@ -213,6 +235,23 @@ public class GuardSpriteFacingTestSuite {
       .Invoke(_guardSpriteFacing, args);
   }
 
+  private int GetFacingDirectionValue() {
+    var facing = InvokePrivateWithResult<object>("GetCameraRelativeDirection");
+    return System.Convert.ToInt32(facing);
+  }
+
+  private IEnumerator WaitForAgentVelocity(float minimumMagnitude, int maxFrames) {
+    for (var i = 0; i < maxFrames; i++) {
+      yield return null;
+
+      if (_agent != null && _agent.velocity.magnitude >= minimumMagnitude) {
+        yield break;
+      }
+    }
+
+    Assert.Fail($"Agent velocity did not reach {minimumMagnitude} within {maxFrames} frames.");
+  }
+
   private void CreateTestNavMesh() {
     _navMeshFloorGO = GameObject.CreatePrimitive(PrimitiveType.Plane);
     _navMeshFloorGO.name = "TestNavMeshFloor";
@@ -237,7 +276,8 @@ public class GuardSpriteFacingTestSuite {
       sources,
       bounds,
       Vector3.zero,
-      Quaternion.identity);
+      Quaternion.identity
+    );
 
     Assert.IsNotNull(navMeshData, "Expected NavMeshBuilder to create test NavMeshData.");
     _navMeshDataInstance = NavMesh.AddNavMeshData(navMeshData);

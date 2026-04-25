@@ -35,7 +35,7 @@ public class PatrolAreaTestSuite {
 
     InvokePrivate("Reset");
 
-    var assigned = GetPrivateField<BoxCollider>("boxCollider");
+    BoxCollider assigned = GetPrivateField<BoxCollider>("boxCollider");
     Assert.AreSame(_boxCollider, assigned, "Reset should cache the existing BoxCollider.");
     Assert.IsTrue(_boxCollider.isTrigger, "Reset should configure the collider as a trigger.");
   }
@@ -46,7 +46,7 @@ public class PatrolAreaTestSuite {
 
     InvokePrivate("Awake");
 
-    var assigned = GetPrivateField<BoxCollider>("boxCollider");
+    BoxCollider assigned = GetPrivateField<BoxCollider>("boxCollider");
     Assert.AreSame(_boxCollider, assigned, "Awake should cache the existing BoxCollider when missing.");
   }
 
@@ -79,7 +79,7 @@ public class PatrolAreaTestSuite {
 
   [Test]
   public void TryGetRandomPointOnNavMesh_MaxAttemptsZero_ReturnsFalseAndFallbackPosition() {
-    var found = _patrolArea.TryGetRandomPointOnNavMesh(out var point, 1f, NavMesh.AllAreas, 0);
+    var found = _patrolArea.TryGetRandomPointOnNavMesh(out Vector3 point, 1f, NavMesh.AllAreas, 0);
 
     Assert.IsFalse(found, "The method should fail immediately when maxAttempts is zero.");
     Assert.AreEqual(_areaGO.transform.position, point, "Failure path should return the patrol area's transform position.");

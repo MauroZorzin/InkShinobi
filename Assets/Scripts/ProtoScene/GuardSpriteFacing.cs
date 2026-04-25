@@ -4,47 +4,30 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class GuardSpriteFacing : MonoBehaviour {
   private enum FacingDirection {
-    Front,
-    Back,
-    Left,
-    Right
+    Front = 0,
+    Back = 1,
+    Left = 2,
+    Right = 3
   }
 
   [Header("References")]
   [SerializeField] private Camera gameCamera;
   [SerializeField] private Transform spriteVisual;
-  [SerializeField] private SpriteRenderer spriteRenderer;
+  [SerializeField] private Animator spriteAnimator;
 
-  [Header("Front")]
-  [SerializeField] private Sprite[] frontIdleFrames;
-  [SerializeField] private Sprite[] frontFrames;
-
-  [Header("Back")]
-  [SerializeField] private Sprite[] backIdleFrames;
-  [SerializeField] private Sprite[] backFrames;
-
-  [Header("Left")]
-  [SerializeField] private Sprite[] leftIdleFrames;
-  [SerializeField] private Sprite[] leftFrames;
-
-  [Header("Right")]
-  [SerializeField] private Sprite[] rightIdleFrames;
-  [SerializeField] private Sprite[] rightFrames;
-
-  [Header("Animation")]
-  [SerializeField] private float walkFramesPerSecond = 6f;
-  [SerializeField] private float idleFramesPerSecond = 3f;
+  [Header("Movement Detection")]
   [SerializeField] private float minimumMoveSpeed = 0.05f;
   [SerializeField] private float idleDelay = 0.1f;
+
+  [Header("Billboard")]
   [SerializeField] private bool rotateSpriteToFaceCamera = true;
 
   private NavMeshAgent agent;
-
   private Vector3 lastMoveDirection = Vector3.forward;
-  private Sprite[] currentFrames;
-  private int frameIndex;
-  private float frameTimer;
-  private float lastMovingTime;
+  private float lastMovingTime = -999f;
+
+  private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
+  private static readonly int FacingHash = Animator.StringToHash("Facing");
 
   private void Awake() {
     agent = GetComponent<NavMeshAgent>();
@@ -53,13 +36,13 @@ public class GuardSpriteFacing : MonoBehaviour {
       gameCamera = Camera.main;
     }
 
-    if (spriteRenderer == null && spriteVisual != null) {
-      spriteRenderer = spriteVisual.GetComponent<SpriteRenderer>();
+    if (spriteAnimator == null && spriteVisual != null) {
+      spriteAnimator = spriteVisual.GetComponent<Animator>();
     }
   }
 
   private void Update() {
-    if (gameCamera == null || spriteRenderer == null) {
+    if (gameCamera == null || spriteAnimator == null) {
       return;
     }
 
@@ -67,33 +50,15 @@ public class GuardSpriteFacing : MonoBehaviour {
       RotateVisualTowardCamera();
     }
 
-    var isMoving = UpdateLastMoveDirection();
+    var isCurrentlyMoving = UpdateLastMoveDirection();
+
+    // Small delay prevents flickering between walk and idle when the agent slows down.
+    var shouldUseWalkAnimation = isCurrentlyMoving || Time.time < lastMovingTime + idleDelay;
+
     FacingDirection facingDirection = GetCameraRelativeDirection();
 
-    var shouldUseWalkAnimation = isMoving || Time.time < lastMovingTime + idleDelay;
-
-    Sprite[] wantedFrames;
-    bool shouldAdvanceFrames;
-    float wantedFps;
-
-    if (shouldUseWalkAnimation) {
-      wantedFrames = GetWalkFrames(facingDirection);
-      shouldAdvanceFrames = true;
-      wantedFps = walkFramesPerSecond;
-    } else {
-      wantedFrames = GetIdleFrames(facingDirection);
-
-      if (wantedFrames == null || wantedFrames.Length == 0) {
-        wantedFrames = GetWalkFrames(facingDirection);
-        shouldAdvanceFrames = false;
-      } else {
-        shouldAdvanceFrames = true;
-      }
-
-      wantedFps = idleFramesPerSecond;
-    }
-
-    Animate(wantedFrames, shouldAdvanceFrames, wantedFps);
+    spriteAnimator.SetBool(IsMovingHash, shouldUseWalkAnimation);
+    spriteAnimator.SetInteger(FacingHash, (int)facingDirection);
   }
 
   private bool UpdateLastMoveDirection() {
@@ -135,73 +100,13 @@ public class GuardSpriteFacing : MonoBehaviour {
       if (forwardDot > 0f) {
         return FacingDirection.Back;
       }
-
       return FacingDirection.Front;
     }
 
     if (rightDot > 0f) {
       return FacingDirection.Right;
     }
-
     return FacingDirection.Left;
-  }
-
-  private Sprite[] GetWalkFrames(FacingDirection direction) {
-    switch (direction) {
-      case FacingDirection.Front:
-        return frontFrames;
-
-      case FacingDirection.Back:
-        return backFrames;
-
-      case FacingDirection.Left:
-        return leftFrames;
-
-      case FacingDirection.Right:
-        return rightFrames;
-
-      default:
-        return frontFrames;
-    }
-  }
-
-  private Sprite[] GetIdleFrames(FacingDirection direction) {
-    return direction switch {
-      FacingDirection.Front => frontIdleFrames,
-      FacingDirection.Back => backIdleFrames,
-      FacingDirection.Left => leftIdleFrames,
-      FacingDirection.Right => rightIdleFrames,
-      _ => frontIdleFrames,
-    };
-  }
-
-  private void Animate(Sprite[] wantedFrames, bool shouldAdvanceFrames, float framesPerSecond) {
-    if (wantedFrames == null || wantedFrames.Length == 0) {
-      return;
-    }
-
-    if (currentFrames != wantedFrames) {
-      currentFrames = wantedFrames;
-      frameIndex = 0;
-      frameTimer = 0f;
-    }
-
-    if (shouldAdvanceFrames && currentFrames.Length > 1) {
-      frameTimer += Time.deltaTime;
-
-      var safeFps = Mathf.Max(0.01f, framesPerSecond);
-      var secondsPerFrame = 1f / safeFps;
-
-      while (frameTimer >= secondsPerFrame) {
-        frameTimer -= secondsPerFrame;
-        frameIndex = (frameIndex + 1) % currentFrames.Length;
-      }
-    } else {
-      frameIndex = 0;
-      frameTimer = 0f;
-    }
-
-    spriteRenderer.sprite = currentFrames[frameIndex];
   }
 
   private void RotateVisualTowardCamera() {

@@ -28,11 +28,7 @@ public class PatrolArea : MonoBehaviour {
     return insideX && insideZ;
   }
 
-  public bool TryGetRandomPointOnNavMesh(
-      out Vector3 result,
-      float navMeshSearchRadius,
-      int navMeshAreaMask,
-      int maxAttempts = 30) {
+  public bool TryGetRandomPointOnNavMesh(out Vector3 result, float navMeshSearchRadius, int navMeshAreaMask, int maxAttempts = 30) {
     Vector3 center = boxCollider.center;
     Vector3 halfSize = boxCollider.size * 0.5f;
 

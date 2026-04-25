@@ -141,7 +141,7 @@ public class PlayerMovementController : MonoBehaviour {
     camRight.y = 0f;
     camRight.Normalize();
 
-    Vector3 targetVelocity = camRight * _moveInput * moveSpeed;
+    Vector3 targetVelocity = _moveInput * moveSpeed * camRight;
     var rate = (_moveInput != 0f) ? acceleration : deceleration;
     _velocity = Vector3.MoveTowards(_velocity, targetVelocity, rate * Time.deltaTime);
 

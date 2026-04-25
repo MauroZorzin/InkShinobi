@@ -6,13 +6,13 @@ using UnityEngine;
 using UnityEngine.TestTools;
 
 public class PlayerTestSuit {
-  private static WaitForSeconds _waitForSeconds0_1 = new WaitForSeconds(0.1f);
-  private static WaitForSeconds _waitForSeconds0_4 = new WaitForSeconds(0.4f);
-  private static WaitForSeconds _waitForSeconds0_5 = new WaitForSeconds(0.5f);
-  private const string PlayerAnimatorControllerPath = "Assets/Animations/_PlayerAnim.controller";
-  private static readonly WaitForSeconds _waitForSeconds1 = new(1f);
-  private static readonly WaitForSeconds _waitForSeconds0_3 = new(0.3f);
+  private static readonly WaitForSeconds _waitForSeconds0_1 = new(0.1f);
   private static readonly WaitForSeconds _waitForSeconds0_2 = new(0.2f);
+  private static readonly WaitForSeconds _waitForSeconds0_3 = new(0.3f);
+  private static readonly WaitForSeconds _waitForSeconds0_4 = new(0.4f);
+  private static readonly WaitForSeconds _waitForSeconds0_5 = new(0.5f);
+  private static readonly WaitForSeconds _waitForSeconds1 = new(1f);
+  private const string PlayerAnimatorControllerPath = "Assets/Animators/PlayerAnimatorController.controller";
   private GameObject _groundGO;
   private GameObject _playerGO;
   private PlayerMovementController _controller;
@@ -67,7 +67,7 @@ public class PlayerTestSuit {
     _controller = _playerGO.AddComponent<PlayerMovementController>();
 
     // Create a camPivot so HandleMovement doesn't throw a NullReferenceException
-    GameObject camPivotGO = new GameObject("CamPivot");
+    var camPivotGO = new GameObject("CamPivot");
     _controller.camPivot = camPivotGO.transform;
 
     _controller.moveSpeed = 5f;
