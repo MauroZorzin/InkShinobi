@@ -8,20 +8,11 @@ public class PlayerDoorInteractor : MonoBehaviour {
   [Header("Interaction")]
   [SerializeField] private float interactionRange = 2f;
   [SerializeField] private MockInventory inventory;
+  [SerializeField] private MockPassagewayDoor[] doors;
 
   [Header("Debug UI")]
   [SerializeField] private bool showDebugUI = true;
-
-  private MockPassagewayDoor[] doors;
   private MockPassagewayDoor highlightedDoor;
-
-  private void Start() {
-    doors = FindObjectsByType<MockPassagewayDoor>(FindObjectsSortMode.None);
-
-    if (inventory == null) {
-      inventory = FindAnyObjectByType<MockInventory>();
-    }
-  }
 
   private void Update() {
     MockPassagewayDoor nearestDoor = FindNearestDoorInRange();
