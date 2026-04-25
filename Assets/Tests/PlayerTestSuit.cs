@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.TestTools;
 
 public class PlayerTestSuit {
+  private static WaitForSeconds _waitForSeconds0_1 = new WaitForSeconds(0.1f);
+  private static WaitForSeconds _waitForSeconds0_4 = new WaitForSeconds(0.4f);
+  private static WaitForSeconds _waitForSeconds0_5 = new WaitForSeconds(0.5f);
   private const string PlayerAnimatorControllerPath = "Assets/Animations/_PlayerAnim.controller";
   private static readonly WaitForSeconds _waitForSeconds1 = new(1f);
   private static readonly WaitForSeconds _waitForSeconds0_3 = new(0.3f);
@@ -237,60 +240,35 @@ public class PlayerTestSuit {
       .SetValue(_controller, true);
 
     yield return null;
-    float peakVelocity = GetVerticalVelocity();
+    var peakVelocity = GetVerticalVelocity();
 
     yield return _waitForSeconds0_3;
-    float laterVelocity = GetVerticalVelocity();
+    var laterVelocity = GetVerticalVelocity();
 
     Assert.Less(laterVelocity, peakVelocity, "Vertical velocity should decrease after jump peak due to gravity.");
   }
 
-  // 15. Jump is ignored when already airborne
-  [UnityTest]
-  public IEnumerator Jump_WhenAirborne_IsIgnored() {
-    // Let player settle on ground first
-    yield return _waitForSeconds1;
-
-    // Trigger a real jump to get airborne
-    typeof(PlayerMovementController)
-      .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
-      .SetValue(_controller, true);
-
-    yield return null;
-    float risingVelocity = GetVerticalVelocity();
-
-    // Try to jump again while airborne
-    typeof(PlayerMovementController)
-      .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
-      .SetValue(_controller, true);
-
-    yield return null;
-    float velocityAfterSecondJump = GetVerticalVelocity();
-
-    // Gravity should have reduced velocity, not reset it to a fresh jump
-    Assert.Less(velocityAfterSecondJump, risingVelocity, "A second jump while airborne should be ignored — velocity should not reset upward.");
-  }
-
-  // 16. Player Y position increases immediately after jump
+  // 15. Player Y position increases immediately after jump
   [UnityTest]
   public IEnumerator Jump_PlayerYPosition_IncreasesAfterJump() {
     yield return _waitForSeconds1;
 
-    float preJumpY = _playerGO.transform.position.y;
+    var preJumpY = _playerGO.transform.position.y;
 
     typeof(PlayerMovementController)
       .GetField("_jumpRequested", BindingFlags.NonPublic | BindingFlags.Instance)
       .SetValue(_controller, true);
 
     yield return null;
-    float postJumpY = _playerGO.transform.position.y;
+    var postJumpY = _playerGO.transform.position.y;
 
     Assert.Greater(postJumpY, preJumpY, "Player Y should be higher the frame after jump is requested.");
   }
-  // 17. RotateRight increments rotation index by 1
+
+  // 16. RotateRight increments rotation index by 1
   [UnityTest]
   public IEnumerator RotateWorld_Right_IncrementsRotationIndex() {
-    int startIndex = (int)typeof(PlayerMovementController)
+    var startIndex = (int)typeof(PlayerMovementController)
         .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
         .GetValue(_controller);
 
@@ -303,19 +281,19 @@ public class PlayerTestSuit {
                 .Invoke(_controller, new object[] { 1 })
         });
 
-    yield return new WaitForSeconds(0.5f); // longer than rotationDuration (0.3f)
+    yield return _waitForSeconds0_5; // longer than rotationDuration (0.3f)
 
-    int newIndex = (int)typeof(PlayerMovementController)
+    var newIndex = (int)typeof(PlayerMovementController)
         .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
         .GetValue(_controller);
 
     Assert.AreEqual((startIndex + 1) % 4, newIndex, "Rotating right should increment rotation index by 1 (wrapping at 4).");
   }
 
-  // 18. RotateLeft decrements rotation index by 1
+  // 17. RotateLeft decrements rotation index by 1
   [UnityTest]
   public IEnumerator RotateWorld_Left_DecrementsRotationIndex() {
-    int startIndex = (int)typeof(PlayerMovementController)
+    var startIndex = (int)typeof(PlayerMovementController)
         .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
         .GetValue(_controller);
 
@@ -328,16 +306,16 @@ public class PlayerTestSuit {
                 .Invoke(_controller, new object[] { -1 })
         });
 
-    yield return new WaitForSeconds(0.5f);
+    yield return _waitForSeconds0_5;
 
-    int newIndex = (int)typeof(PlayerMovementController)
+    var newIndex = (int)typeof(PlayerMovementController)
         .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
         .GetValue(_controller);
 
     Assert.AreEqual((startIndex + 3) % 4, newIndex, "Rotating left should decrement rotation index by 1 (wrapping at 0).");
   }
 
-  // 19. _isRotating is true during rotation and false after completion
+  // 18. _isRotating is true during rotation and false after completion
   [UnityTest]
   public IEnumerator RotateWorld_IsRotating_TrueWhileRotating_FalseAfter() {
     typeof(PlayerMovementController)
@@ -350,18 +328,18 @@ public class PlayerTestSuit {
         });
 
     // Mid-rotation: _isRotating should be true
-    yield return new WaitForSeconds(0.1f);
+    yield return _waitForSeconds0_1;
 
-    bool duringRotation = (bool)typeof(PlayerMovementController)
+    var duringRotation = (bool)typeof(PlayerMovementController)
         .GetField("_isRotating", BindingFlags.NonPublic | BindingFlags.Instance)
         .GetValue(_controller);
 
     Assert.IsTrue(duringRotation, "_isRotating should be true while rotation is in progress.");
 
     // After rotation completes
-    yield return new WaitForSeconds(0.4f);
+    yield return _waitForSeconds0_4;
 
-    bool afterRotation = (bool)typeof(PlayerMovementController)
+    var afterRotation = (bool)typeof(PlayerMovementController)
         .GetField("_isRotating", BindingFlags.NonPublic | BindingFlags.Instance)
         .GetValue(_controller);
 

@@ -1,0 +1,185 @@
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+
+[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator))]
+public class PlayerMovementController : MonoBehaviour {
+  [Header("Movement")]
+  public float moveSpeed = 5f;
+  public float acceleration = 20f;
+  public float deceleration = 25f;
+
+  [Header("Gravity")]
+  public float gravity = -20f;
+
+  [Header("Jump")]
+  public float jumpHeight = 2.5f;
+
+  [Header("Rotation")]
+  public float rotationDuration = 0.3f;
+
+  [Header("References")]
+  public Transform camPivot;
+
+  [Header("Animation")]
+  public float velocityMargin = 0.1f;
+
+  // Constants
+  private const string IS_RUNNING_ANIMATOR_PARAMETER = "isRunning";
+  private const string VELOCITY_ANIMATOR_PARAMETER = "Velocity";
+  private const string IS_JUMPING_ANIMATOR_PARAMETER = "isJumping";
+  private const string IS_FALLING_ANIMATOR_PARAMETER = "isFalling";
+
+  // Private
+  private CharacterController _cc;
+  private Camera _cam;
+  private Animator _animator;
+  private SpriteRenderer _sr;
+
+  private Vector3 _velocity;
+  private float _verticalVelocity;
+  private float _moveInput = 0f;
+  private bool _jumpRequested = false;
+
+  private int _currentRotationIndex = 0;
+  private bool _isRotating = false;
+
+  private static readonly Vector3[] Directions = new Vector3[] {
+    Vector3.right,
+    Vector3.forward,
+    Vector3.left,
+    Vector3.back
+  };
+
+  private static readonly float[] CameraYAngles = new float[] {
+    0f,
+    90f,
+    180f,
+    270f
+  };
+
+  void Start() {
+    _cc = GetComponent<CharacterController>();
+    _cam = Camera.main;
+    _animator = GetComponent<Animator>();
+    _sr = GetComponent<SpriteRenderer>();
+
+    if (camPivot == null && _cam != null) {
+      camPivot = _cam.transform.parent != null ? _cam.transform.parent : _cam.transform;
+    }
+  }
+
+#pragma warning disable IDE0051
+  void OnMove(InputValue value) {
+    _moveInput = value.Get<float>();
+  }
+
+  void OnJump(InputValue value) {
+    if (value.isPressed && _cc.isGrounded) {
+      _jumpRequested = true;
+    }
+  }
+
+  void OnRotateLeft(InputValue value) {
+    if (value.isPressed && !_isRotating) {
+      StartCoroutine(RotateWorld(-1));
+    }
+  }
+
+  void OnRotateRight(InputValue value) {
+    if (value.isPressed && !_isRotating) {
+      StartCoroutine(RotateWorld(1));
+    }
+  }
+
+  // Temporary method to force return to main menu for testing purposes
+  // TODO: Remove this method and its input binding later
+  void OnExit(InputValue value) {
+    if (value.isPressed) {
+      SceneManager.LoadSceneAsync("MainMenu");
+    }
+  }
+#pragma warning restore IDE0051
+
+  void Update() {
+    if (!_isRotating) {
+      HandleMovement();
+      ApplyGravity();
+    }
+  }
+
+  System.Collections.IEnumerator RotateWorld(int direction) {
+    _isRotating = true;
+    _velocity = Vector3.zero;
+
+    var newIndex = (_currentRotationIndex + direction + Directions.Length) % Directions.Length;
+
+    var elapsed = 0f;
+    var startAngle = camPivot.eulerAngles.y;
+    var targetAngle = startAngle + direction * 90f;
+
+    while (elapsed < rotationDuration) {
+      elapsed += Time.deltaTime;
+      var t = Mathf.SmoothStep(0f, 1f, elapsed / rotationDuration);
+      var angle = Mathf.Lerp(startAngle, targetAngle, t);
+      camPivot.eulerAngles = new Vector3(0f, angle, 0f);
+      camPivot.position = transform.position;
+      yield return null;
+    }
+
+    camPivot.eulerAngles = new Vector3(0f, CameraYAngles[newIndex], 0f);
+    camPivot.position = transform.position;
+
+    _currentRotationIndex = newIndex;
+    _isRotating = false;
+  }
+
+  void HandleMovement() {
+    Vector3 camRight = camPivot.right;
+    camRight.y = 0f;
+    camRight.Normalize();
+
+    Vector3 targetVelocity = camRight * _moveInput * moveSpeed;
+    var rate = (_moveInput != 0f) ? acceleration : deceleration;
+    _velocity = Vector3.MoveTowards(_velocity, targetVelocity, rate * Time.deltaTime);
+
+    _animator.SetBool(IS_RUNNING_ANIMATOR_PARAMETER, _moveInput != 0f);
+
+    var speedRatio = Mathf.Abs(_velocity.magnitude) / moveSpeed;
+    var animValue = speedRatio > velocityMargin ? Mathf.Clamp(1f / speedRatio, 0f, 1f / velocityMargin) : 1f / velocityMargin;
+    _animator.SetFloat(VELOCITY_ANIMATOR_PARAMETER, animValue);
+
+    var airborne = !_cc.isGrounded;
+    _animator.SetBool(IS_JUMPING_ANIMATOR_PARAMETER, airborne && _verticalVelocity > 0f);
+    _animator.SetBool(IS_FALLING_ANIMATOR_PARAMETER, airborne && _verticalVelocity <= 0f);
+
+    if (_sr != null) {
+      if (_moveInput > 0f) {
+        _sr.flipX = false;
+      }
+      if (_moveInput < 0f) {
+        _sr.flipX = true;
+      }
+    }
+  }
+
+  void ApplyGravity() {
+    if (_cc.isGrounded && _verticalVelocity < 0f) {
+      _verticalVelocity = -2f;
+    }
+
+    if (_jumpRequested) {
+      _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+      _jumpRequested = false;
+    }
+
+    _verticalVelocity += gravity * Time.deltaTime;
+    Vector3 finalMove = _velocity + Vector3.up * _verticalVelocity;
+    _cc.Move(finalMove * Time.deltaTime);
+  }
+
+  public int GetRotationIndex() => _currentRotationIndex;
+  public bool IsRotating() => _isRotating;
+}
