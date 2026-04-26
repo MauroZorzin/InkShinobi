@@ -1,15 +1,11 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-/// <summary>
-/// Guard brain: patrols waypoints, reacts to vision alerts, and handles takedowns.
-/// Requires: NavMeshAgent, GuardVisionCone on the same GameObject (or child).
-/// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
 public class GuardController : MonoBehaviour
 {
   // ── States ────────────────────────────────────────────────────────────────
-  public enum GuardState { Patrol, Suspicious, Alerted }
+  public enum GuardState { Patrol, Suspicious, Alerted, TakenDown }
 
   [Header("Patrol")]
   [Tooltip("World-space waypoints the guard walks between")]
@@ -50,9 +46,6 @@ public class GuardController : MonoBehaviour
 
     if (visionCone == null)
       Debug.LogWarning($"[Guard] {name}: No GuardVisionCone found!", this);
-
-    if (_agent == null)
-      Debug.LogWarning($"[Guard] {name}: No NavMeshAgent found!", this);
   }
 
   private void Start()
@@ -63,6 +56,7 @@ public class GuardController : MonoBehaviour
 
   private void Update()
   {
+    if (CurrentState == GuardState.TakenDown) return;
 
     // Always check vision
     if (visionCone != null && visionCone.PlayerDetected)
@@ -101,6 +95,18 @@ public class GuardController : MonoBehaviour
         _agent.speed = alertMoveSpeed;
         _agent.SetDestination(_lastKnownPosition);
         _investigateTimer = investigateDuration;
+        break;
+
+      case GuardState.TakenDown:
+        if (_agent != null && _agent.isOnNavMesh)
+        {
+          _agent.isStopped = true;
+          _agent.enabled = false;
+        }
+        foreach (Collider c in GetComponentsInChildren<Collider>())
+          c.enabled = false;
+        if (visionCone != null) visionCone.enabled = false;
+        Debug.Log($"[Guard] {name} has been taken down.");
         break;
     }
   }
@@ -169,37 +175,48 @@ public class GuardController : MonoBehaviour
       SetState(GuardState.Suspicious);
   }
 
+  // ── Takedown ──────────────────────────────────────────────────────────────
+  /// <summary>Called by PlayerStealthController when a valid takedown is executed.</summary>
+  public void PerformTakedown()
+  {
+    SetState(GuardState.TakenDown);
+  }
 
   // ── Gizmos ────────────────────────────────────────────────────────────────
 #if UNITY_EDITOR
-  private void OnDrawGizmosSelected() {
-    if (patrolWaypoints == null) return;
-    Gizmos.color = Color.cyan;
-    for (int i = 0; i < patrolWaypoints.Length; i++) {
-      if (patrolWaypoints[i] == null) continue;
-      Gizmos.DrawSphere(patrolWaypoints[i].position, 0.15f);
-      int next = (i + 1) % patrolWaypoints.Length;
-      if (patrolWaypoints[next] != null)
-        Gizmos.DrawLine(patrolWaypoints[i].position, patrolWaypoints[next].position);
+    private void OnDrawGizmosSelected()
+    {
+        if (patrolWaypoints == null) return;
+        Gizmos.color = Color.cyan;
+        for (int i = 0; i < patrolWaypoints.Length; i++)
+        {
+            if (patrolWaypoints[i] == null) continue;
+            Gizmos.DrawSphere(patrolWaypoints[i].position, 0.15f);
+            int next = (i + 1) % patrolWaypoints.Length;
+            if (patrolWaypoints[next] != null)
+                Gizmos.DrawLine(patrolWaypoints[i].position, patrolWaypoints[next].position);
+        }
     }
-  }
 
-  private void OnGUI() {
-    if (!showStateLabel || Camera.main == null) return;
-    Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2f);
-    if (screenPos.z < 0) return;
+    private void OnGUI()
+    {
+        if (!showStateLabel || Camera.main == null) return;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2f);
+        if (screenPos.z < 0) return;
 
-    string label = $"[{name}] {CurrentState}";
-    Color col = CurrentState switch {
-      GuardState.Patrol => Color.green,
-      GuardState.Suspicious => Color.yellow,
-      GuardState.Alerted => Color.red,
-      _ => Color.white
-    };
+        string label = $"[{name}] {CurrentState}";
+        Color  col   = CurrentState switch
+        {
+            GuardState.Patrol    => Color.green,
+            GuardState.Suspicious => Color.yellow,
+            GuardState.Alerted   => Color.red,
+            GuardState.TakenDown => Color.gray,
+            _                    => Color.white
+        };
 
-    GUI.color = col;
-    GUI.Label(new Rect(screenPos.x - 60, Screen.height - screenPos.y - 20, 160, 25), label);
-    GUI.color = Color.white;
-  }
+        GUI.color = col;
+        GUI.Label(new Rect(screenPos.x - 60, Screen.height - screenPos.y - 20, 160, 25), label);
+        GUI.color = Color.white;
+    }
 #endif
 }
