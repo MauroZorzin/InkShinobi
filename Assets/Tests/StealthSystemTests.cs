@@ -61,7 +61,7 @@ public class StealthSystemTests
 
   // -- 1. Stealth State --------------------------------------------------------
 
-  // T01 — player starts hidden with no guards around
+  // 01 — player starts hidden with no guards around
   [UnityTest]
   public IEnumerator Stealth_StartsHidden_WithNoGuardsDetecting()
   {
@@ -73,7 +73,7 @@ public class StealthSystemTests
     Object.Destroy(player.gameObject);
   }
 
-  // T02 — player re-hides after guard stops detecting and timeToHide elapses
+  // 02 — player re-hides after guard stops detecting and timeToHide elapses
   [UnityTest]
   public IEnumerator Stealth_BecomesHiddenAgain_AfterGuardStopsDetecting()
   {
@@ -94,7 +94,7 @@ public class StealthSystemTests
 
   // -- 2. Light Zone -----------------------------------------------------------
 
-  // T03 — entering a zone sets IsInLight, exiting clears it
+  // 03 — entering a zone sets IsInLight, exiting clears it
   [UnityTest]
   public IEnumerator LightZone_EnterSetsInLight_ExitClearsIt()
   {
@@ -114,7 +114,7 @@ public class StealthSystemTests
     Object.Destroy(zone.gameObject);
   }
 
-  // T04 — exiting a zone the player never entered must not clear the light state
+  // 04 — exiting a zone the player never entered must not clear the light state
   [UnityTest]
   public IEnumerator LightZone_ExitDifferentZone_DoesNotClearLight()
   {
@@ -135,7 +135,7 @@ public class StealthSystemTests
 
   // -- 3. Vision Cone ----------------------------------------------------------
 
-  // T05 — player directly in front within short range is detected
+  // 05 — player directly in front within short range is detected
   [UnityTest]
   public IEnumerator VisionCone_DetectsPlayer_DirectlyInFront()
   {
@@ -151,7 +151,7 @@ public class StealthSystemTests
     Object.Destroy(guardGO);
   }
 
-  // T06 — player directly behind the guard is not detected
+  // 06 — player directly behind the guard is not detected
   [UnityTest]
   public IEnumerator VisionCone_DoesNotDetect_PlayerBehindGuard()
   {
@@ -167,7 +167,7 @@ public class StealthSystemTests
     Object.Destroy(guardGO);
   }
 
-  // T07 — lit player beyond short range is detected via long cone
+  // 07 — lit player beyond short range is detected via long cone
   [UnityTest]
   public IEnumerator VisionCone_DetectsLitPlayer_BeyondShortRange_ViaLongCone()
   {
@@ -187,7 +187,7 @@ public class StealthSystemTests
     Object.Destroy(zone.gameObject);
   }
 
-  // T08 — unlit player beyond short range is NOT detected
+  // 08 — unlit player beyond short range is NOT detected
   [UnityTest]
   public IEnumerator VisionCone_DoesNotDetect_UnlitPlayer_BeyondShortRange()
   {
