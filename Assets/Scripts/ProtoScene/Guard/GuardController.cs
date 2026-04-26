@@ -6,9 +6,10 @@ using UnityEngine.AI;
 /// Requires: NavMeshAgent, GuardVisionCone on the same GameObject (or child).
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
-public class GuardController : MonoBehaviour {
+public class GuardController : MonoBehaviour
+{
   // ── States ────────────────────────────────────────────────────────────────
-  public enum GuardState { Patrol, Suspicious, Alerted, TakenDown }
+  public enum GuardState { Patrol, Suspicious, Alerted }
 
   [Header("Patrol")]
   [Tooltip("World-space waypoints the guard walks between")]
@@ -40,7 +41,8 @@ public class GuardController : MonoBehaviour {
   private bool _waitingAtWaypoint = false;
 
   // ── Unity Messages ────────────────────────────────────────────────────────
-  private void Awake() {
+  private void Awake()
+  {
     _agent = GetComponent<NavMeshAgent>();
 
     if (visionCone == null)
@@ -53,21 +55,24 @@ public class GuardController : MonoBehaviour {
       Debug.LogWarning($"[Guard] {name}: No NavMeshAgent found!", this);
   }
 
-  private void Start() {
+  private void Start()
+  {
     if (patrolWaypoints.Length > 0)
       GoToWaypoint(_waypointIndex);
   }
 
-  private void Update() {
-    if (CurrentState == GuardState.TakenDown) return;
+  private void Update()
+  {
 
     // Always check vision
-    if (visionCone != null && visionCone.PlayerDetected) {
+    if (visionCone != null && visionCone.PlayerDetected)
+    {
       _lastKnownPosition = visionCone.DetectedPlayer.transform.position;
       SetState(GuardState.Alerted);
     }
 
-    switch (CurrentState) {
+    switch (CurrentState)
+    {
       case GuardState.Patrol: UpdatePatrol(); break;
       case GuardState.Suspicious: UpdateSuspicious(); break;
       case GuardState.Alerted: UpdateAlerted(); break;
@@ -75,11 +80,13 @@ public class GuardController : MonoBehaviour {
   }
 
   // ── State Machine ─────────────────────────────────────────────────────────
-  private void SetState(GuardState newState) {
+  private void SetState(GuardState newState)
+  {
     if (CurrentState == newState) return;
     CurrentState = newState;
 
-    switch (newState) {
+    switch (newState)
+    {
       case GuardState.Patrol:
         _agent.speed = patrolMoveSpeed;
         GoToWaypoint(_waypointIndex);
@@ -95,26 +102,19 @@ public class GuardController : MonoBehaviour {
         _agent.SetDestination(_lastKnownPosition);
         _investigateTimer = investigateDuration;
         break;
-
-      case GuardState.TakenDown:
-        _agent.isStopped = true;
-        _agent.enabled = false;
-        // Disable colliders so they don't block anything
-        foreach (Collider c in GetComponentsInChildren<Collider>())
-          c.enabled = false;
-        if (visionCone != null) visionCone.enabled = false;
-        Debug.Log($"[Guard] {name} has been taken down.");
-        break;
     }
   }
 
   // ── Patrol ────────────────────────────────────────────────────────────────
-  private void UpdatePatrol() {
+  private void UpdatePatrol()
+  {
     if (patrolWaypoints.Length == 0) return;
 
-    if (_waitingAtWaypoint) {
+    if (_waitingAtWaypoint)
+    {
       _waitTimer -= Time.deltaTime;
-      if (_waitTimer <= 0f) {
+      if (_waitTimer <= 0f)
+      {
         _waitingAtWaypoint = false;
         _waypointIndex = (_waypointIndex + 1) % patrolWaypoints.Length;
         GoToWaypoint(_waypointIndex);
@@ -122,28 +122,33 @@ public class GuardController : MonoBehaviour {
       return;
     }
 
-    if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance) {
+    if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
+    {
       _waitingAtWaypoint = true;
       _waitTimer = waypointWaitTime;
     }
   }
 
-  private void GoToWaypoint(int index) {
+  private void GoToWaypoint(int index)
+  {
     if (patrolWaypoints.Length == 0) return;
     _agent.isStopped = false;
     _agent.SetDestination(patrolWaypoints[index].position);
   }
 
   // ── Suspicious ────────────────────────────────────────────────────────────
-  private void UpdateSuspicious() {
+  private void UpdateSuspicious()
+  {
     _investigateTimer -= Time.deltaTime;
     if (_investigateTimer <= 0f)
       SetState(GuardState.Patrol);
   }
 
   // ── Alerted ───────────────────────────────────────────────────────────────
-  private void UpdateAlerted() {
-    if (visionCone != null && visionCone.PlayerDetected) {
+  private void UpdateAlerted()
+  {
+    if (visionCone != null && visionCone.PlayerDetected)
+    {
       // Keep chasing live position
       _lastKnownPosition = visionCone.DetectedPlayer.transform.position;
       _agent.SetDestination(_lastKnownPosition);
@@ -154,7 +159,8 @@ public class GuardController : MonoBehaviour {
     // Player lost – investigate last known position
     _investigateTimer -= Time.deltaTime;
 
-    if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance) {
+    if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
+    {
       // Arrived at last known pos; look around then go suspicious
       _investigateTimer -= Time.deltaTime * 2f;
     }
@@ -163,11 +169,6 @@ public class GuardController : MonoBehaviour {
       SetState(GuardState.Suspicious);
   }
 
-  // ── Takedown ──────────────────────────────────────────────────────────────
-  /// <summary>Called by PlayerStealthController when a valid takedown is executed.</summary>
-  public void PerformTakedown() {
-    SetState(GuardState.TakenDown);
-  }
 
   // ── Gizmos ────────────────────────────────────────────────────────────────
 #if UNITY_EDITOR
@@ -193,7 +194,6 @@ public class GuardController : MonoBehaviour {
       GuardState.Patrol => Color.green,
       GuardState.Suspicious => Color.yellow,
       GuardState.Alerted => Color.red,
-      GuardState.TakenDown => Color.gray,
       _ => Color.white
     };
 
