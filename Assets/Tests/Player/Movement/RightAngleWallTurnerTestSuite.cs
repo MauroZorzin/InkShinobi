@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
 public class RightAngleWallTurnerTestSuite {
+  private readonly List<GameObject> _retaggedMainCameras = new();
   private GameObject _cameraPivotGO;
   private GameObject _cameraGO;
   private GameObject _playerGO;
@@ -15,6 +16,8 @@ public class RightAngleWallTurnerTestSuite {
 
   [SetUp]
   public void Setup() {
+    RetagExistingMainCameras();
+
     _cameraPivotGO = new GameObject("TestCameraPivot");
     _cameraGO = new GameObject("Main Camera");
     _cameraGO.tag = "MainCamera";
@@ -40,6 +43,8 @@ public class RightAngleWallTurnerTestSuite {
     if (_cameraPivotGO != null) {
       Object.DestroyImmediate(_cameraPivotGO);
     }
+
+    RestoreRetaggedMainCameras();
   }
 
   [Test]
@@ -93,6 +98,29 @@ public class RightAngleWallTurnerTestSuite {
     return (T)typeof(RightAngleWallTurner)
       .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
       .GetValue(_turner);
+  }
+
+  private void RetagExistingMainCameras() {
+    _retaggedMainCameras.Clear();
+
+    foreach (Camera camera in Object.FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None)) {
+      if (!camera.CompareTag("MainCamera")) {
+        continue;
+      }
+
+      _retaggedMainCameras.Add(camera.gameObject);
+      camera.tag = "Untagged";
+    }
+  }
+
+  private void RestoreRetaggedMainCameras() {
+    foreach (GameObject cameraGO in _retaggedMainCameras) {
+      if (cameraGO != null) {
+        cameraGO.tag = "MainCamera";
+      }
+    }
+
+    _retaggedMainCameras.Clear();
   }
 }
 
