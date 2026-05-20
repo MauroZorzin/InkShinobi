@@ -1,5 +1,5 @@
 ﻿<Solution>
-  <Project Path="GameScripts.csproj" />
   <Project Path="Tests.csproj" />
+  <Project Path="GameScripts.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
 </Solution>
