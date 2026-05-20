@@ -176,12 +176,7 @@ public class RightAngleWallTurner : MonoBehaviour {
       return;
     }
 
-    Vector3 worldLeftDir = -rightDir;
-    Vector3 worldRightDir = rightDir;
-
-    // Requested inversion: logical left maps to world right, logical right maps to world left.
-    Vector3 logicalLeftDir = worldRightDir;
-    Vector3 logicalRightDir = worldLeftDir;
+    GetLogicalTurnProbeDirections(rightDir, out Vector3 logicalLeftDir, out Vector3 logicalRightDir);
 
     Vector3 probeOrigin = transform.position;
     var lateralLen = Mathf.Max(0.05f, lateralRayLength);
@@ -229,7 +224,6 @@ public class RightAngleWallTurner : MonoBehaviour {
       return;
     }
 
-    // Rearm after a completed transition only when both back rays are true again.
     if (_awaitingPostTurnReady) {
       if (_debugLeftBackHit && _debugRightBackHit) {
         _awaitingPostTurnReady = false;
@@ -282,6 +276,16 @@ public class RightAngleWallTurner : MonoBehaviour {
     LogTurnTriggered(turnCornerKind, turnLeft ? "left" : "right", turnNormal, turnContact);
     StartCoroutine(DoCornerTurn(turnNormal, turnContact, moveDir, turnLeft));
     return true;
+  }
+
+  /// <summary>
+  /// Converts camera-right space into the logical left/right probe directions used by the turn
+  /// detector, which intentionally swaps world-left and world-right to match the wall-following
+  /// convention used by the controller.
+  /// </summary>
+  private static void GetLogicalTurnProbeDirections(Vector3 rightDir, out Vector3 logicalLeftDir, out Vector3 logicalRightDir) {
+    logicalLeftDir = rightDir;
+    logicalRightDir = -rightDir;
   }
 
   private void ClearPostSwitchDecision() {
@@ -469,20 +473,12 @@ public class RightAngleWallTurner : MonoBehaviour {
   }
 
   private bool TryGetInnerTurnTarget(out Vector3 nextNormal, out Vector3 nextContact, out bool isLeftTurn) {
-    // Rule 2: left hit always means inner-left corner.
-    if (_debugLeftHit) {
-      nextNormal = Flatten(_debugLeftHitInfo.normal);
-      nextContact = _debugLeftHitInfo.point;
-      isLeftTurn = false;
-      return nextNormal.sqrMagnitude > 0.0001f;
+    if (TryGetInnerCornerFromSideHit(_debugLeftHit, _debugLeftHitInfo, false, out nextNormal, out nextContact, out isLeftTurn)) {
+      return true;
     }
 
-    // Rule 3: right hit always means inner-right corner.
-    if (_debugRightHit) {
-      nextNormal = Flatten(_debugRightHitInfo.normal);
-      nextContact = _debugRightHitInfo.point;
-      isLeftTurn = true;
-      return nextNormal.sqrMagnitude > 0.0001f;
+    if (TryGetInnerCornerFromSideHit(_debugRightHit, _debugRightHitInfo, true, out nextNormal, out nextContact, out isLeftTurn)) {
+      return true;
     }
 
     nextNormal = Vector3.zero;
@@ -492,19 +488,31 @@ public class RightAngleWallTurner : MonoBehaviour {
   }
 
   /// <summary>
+  /// Interprets a single lateral wall hit as an inner-corner target and translates the hit into
+  /// the wall normal, contact point, and turn direction used by the corner-turn coroutine.
+  /// </summary>
+  private bool TryGetInnerCornerFromSideHit(bool hasHit, RaycastHit hitInfo, bool turnLeftOnHit, out Vector3 nextNormal, out Vector3 nextContact, out bool isLeftTurn) {
+    if (!hasHit) {
+      nextNormal = Vector3.zero;
+      nextContact = Vector3.zero;
+      isLeftTurn = false;
+      return false;
+    }
+
+    nextNormal = Flatten(hitInfo.normal);
+    nextContact = hitInfo.point;
+    isLeftTurn = turnLeftOnHit;
+    return nextNormal.sqrMagnitude > 0.0001f;
+  }
+
+  /// <summary>
   /// Interprets the side and back ray pattern for exposed outside corners, including overshoot
   /// frames where the player has already moved past the one-hot back-ray state.
   /// </summary>
   private bool TryGetOuterTurnTarget(Vector3 leftDir, Vector3 rightDir, Vector3 cameraForward, Vector3 moveDir, out Vector3 nextNormal, out Vector3 nextContact, out bool isLeftTurn) {
     var noSideHits = !_debugLeftHit && !_debugRightHit;
-
-    // Rule 4: no side hits, LB=false, RB=true => outer-left.
     var outwardLeft = noSideHits && !_debugLeftBackHit && _debugRightBackHit;
-
-    // Rule 5: no side hits, LB=true, RB=false => outer-right.
     var outwardRight = noSideHits && _debugLeftBackHit && !_debugRightBackHit;
-
-    // Overshoot case: sampled frame is already beyond the one-hot threshold.
     var overshotOuter = noSideHits && !_debugLeftBackHit && !_debugRightBackHit;
 
     if (!outwardLeft && !outwardRight && !overshotOuter) {
@@ -515,35 +523,7 @@ public class RightAngleWallTurner : MonoBehaviour {
     }
 
     if (overshotOuter && !outwardLeft && !outwardRight) {
-      var preferLeft = Vector3.Dot(moveDir, leftDir) >= Vector3.Dot(moveDir, rightDir);
-
-      if (TryResolveOuterTargetForSide(preferLeft ? leftDir : rightDir, preferLeft ? _debugLeftTip : _debugRightTip, cameraForward, out nextNormal, out nextContact)) {
-        isLeftTurn = preferLeft;
-        return true;
-      }
-
-      if (TryResolveOuterTargetForSide(preferLeft ? rightDir : leftDir, preferLeft ? _debugRightTip : _debugLeftTip, cameraForward, out nextNormal, out nextContact)) {
-        isLeftTurn = !preferLeft;
-        return true;
-      }
-
-      // Last-resort late-turn fallback for true overshoot frames with no concrete side hit.
-      // Use movement direction to infer the skipped corner and bias contact ahead along motion,
-      // so toward-corner checks still behave consistently.
-      Vector3 inferredSideDir = preferLeft ? leftDir : rightDir;
-      Vector3 inferredSideTip = preferLeft ? _debugLeftTip : _debugRightTip;
-      Vector3 moveDirFlat = Flatten(moveDir);
-      if (moveDirFlat.sqrMagnitude < 0.0001f) {
-        moveDirFlat = GetHorizontalMoveDirection();
-      }
-      if (moveDirFlat.sqrMagnitude < 0.0001f) {
-        moveDirFlat = preferLeft ? leftDir : rightDir;
-      }
-
-      nextNormal = inferredSideDir;
-      nextContact = inferredSideTip + moveDirFlat.normalized * Mathf.Max(0.05f, backRayLength);
-      isLeftTurn = preferLeft;
-      return true;
+      return TryResolveOvershotOuterTurn(leftDir, rightDir, cameraForward, moveDir, out nextNormal, out nextContact, out isLeftTurn);
     }
 
     isLeftTurn = outwardLeft;
@@ -553,11 +533,43 @@ public class RightAngleWallTurner : MonoBehaviour {
     return TryResolveOuterTargetForSide(sideDir, sideTip, cameraForward, out nextNormal, out nextContact);
   }
 
+  /// <summary>
+  /// Resolves outer-corner frames where the player has already advanced beyond the one-hot back-ray
+  /// pattern and the detector must infer the skipped corner side from the current movement vector.
+  /// </summary>
+  private bool TryResolveOvershotOuterTurn(Vector3 leftDir, Vector3 rightDir, Vector3 cameraForward, Vector3 moveDir, out Vector3 nextNormal, out Vector3 nextContact, out bool isLeftTurn) {
+    var preferLeft = Vector3.Dot(moveDir, leftDir) >= Vector3.Dot(moveDir, rightDir);
+
+    if (TryResolveOuterTargetForSide(preferLeft ? leftDir : rightDir, preferLeft ? _debugLeftTip : _debugRightTip, cameraForward, out nextNormal, out nextContact)) {
+      isLeftTurn = preferLeft;
+      return true;
+    }
+
+    if (TryResolveOuterTargetForSide(preferLeft ? rightDir : leftDir, preferLeft ? _debugRightTip : _debugLeftTip, cameraForward, out nextNormal, out nextContact)) {
+      isLeftTurn = !preferLeft;
+      return true;
+    }
+
+    Vector3 inferredSideDir = preferLeft ? leftDir : rightDir;
+    Vector3 inferredSideTip = preferLeft ? _debugLeftTip : _debugRightTip;
+    Vector3 moveDirFlat = Flatten(moveDir);
+    if (moveDirFlat.sqrMagnitude < 0.0001f) {
+      moveDirFlat = GetHorizontalMoveDirection();
+    }
+    if (moveDirFlat.sqrMagnitude < 0.0001f) {
+      moveDirFlat = preferLeft ? leftDir : rightDir;
+    }
+
+    nextNormal = inferredSideDir;
+    nextContact = inferredSideTip + moveDirFlat.normalized * Mathf.Max(0.05f, backRayLength);
+    isLeftTurn = preferLeft;
+    return true;
+  }
+
   private bool TryResolveOuterTargetForSide(Vector3 sideDir, Vector3 sideTip, Vector3 cameraForward, out Vector3 nextNormal, out Vector3 nextContact) {
     var backLen = Mathf.Max(0.05f, backRayLength);
     var lateralLen = Mathf.Max(0.05f, lateralRayLength);
 
-    // Find the new wall around the exposed outer edge.
     Vector3 searchOrigin = sideTip + cameraForward * backLen;
     if (Physics.Raycast(searchOrigin, -sideDir, out RaycastHit sideSearchHit, lateralLen * 2f, wallLayer, QueryTriggerInteraction.Ignore)) {
       nextNormal = Flatten(sideSearchHit.normal);
