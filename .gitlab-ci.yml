@@ -1,20 +1,10 @@
 workflow:
+  auto_cancel:
+    on_new_commit: interruptible
   rules:
-    # Manual runs from GitLab's UI are allowed on any branch for dry-runs.
     - if: '$CI_PIPELINE_SOURCE == "web"'
-
-    # Task branch -> sprint integration branch.
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^sprint-/'
-
-    # Sprint integration branch -> main at the end of the sprint.
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH'
-
-    # Validate the shared sprint branch after merges land there.
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH =~ /^sprint-/'
-
-    # Final validation after the sprint lands in main.
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-
     - when: never
 
 stages:
@@ -36,12 +26,26 @@ variables:
   PROJECT_AUDITOR_DIR: "artifacts/project-auditor"
   GIT_STRATEGY: fetch
 
+.unity_cache_pull: &unity_cache_pull
+  key: "unity-library-${UNITY_VERSION}-${CI_COMMIT_REF_SLUG}"
+  fallback_keys:
+    - "unity-library-${UNITY_VERSION}-${CI_DEFAULT_BRANCH}"
+  paths:
+    - Library/
+  policy: pull
+
+.unity_cache_pull_push: &unity_cache_pull_push
+  key: "unity-library-${UNITY_VERSION}-${CI_COMMIT_REF_SLUG}"
+  fallback_keys:
+    - "unity-library-${UNITY_VERSION}-${CI_DEFAULT_BRANCH}"
+  paths:
+    - Library/
+  policy: pull-push
+
 .unity_job:
   image: "$UNITY_DOCKER_IMAGE"
-  cache:
-    key: "unity-library-${UNITY_VERSION}-${CI_COMMIT_REF_SLUG}"
-    paths:
-      - Library/
+  interruptible: true
+  cache: *unity_cache_pull
   before_script:
     - chmod +x ci/*.sh
     - mkdir -p "$ARTIFACTS_DIR" "$STATIC_ANALYSIS_DIR" "$TEST_RESULTS_DIR" "$PROJECT_AUDITOR_DIR"
@@ -49,6 +53,7 @@ variables:
 
 .shell_job:
   image: debian:12-slim
+  interruptible: true
   before_script:
     - apt-get update
     - apt-get install -y --no-install-recommends ca-certificates grep sed gawk findutils
@@ -59,6 +64,7 @@ variables:
 format_csharp:
   stage: lint
   image: "$DOTNET_IMAGE"
+  interruptible: true
   before_script:
     - chmod +x ci/*.sh
     - mkdir -p "$ARTIFACTS_DIR/format"
@@ -82,6 +88,7 @@ static_rules_unity:
 compile_project:
   stage: verify
   extends: .unity_job
+  cache: *unity_cache_pull_push
   script:
     - |
       xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' \
@@ -101,7 +108,9 @@ compile_project:
 editmode_tests:
   stage: test
   extends: .unity_job
-  needs: ["compile_project"]
+  needs:
+    - job: compile_project
+      artifacts: false
   script:
     - ./ci/run_unity_suite.sh EditMode "$UNITY_DIR" "$TEST_RESULTS_DIR"
   artifacts:
@@ -115,7 +124,9 @@ editmode_tests:
 playmode_tests:
   stage: test
   extends: .unity_job
-  needs: ["compile_project"]
+  needs:
+    - job: compile_project
+      artifacts: false
   script:
     - ./ci/run_unity_suite.sh PlayMode "$UNITY_DIR" "$TEST_RESULTS_DIR"
   artifacts:
@@ -129,7 +140,9 @@ playmode_tests:
 project_auditor:
   stage: audit
   extends: .unity_job
-  needs: ["compile_project"]
+  needs:
+    - job: compile_project
+      artifacts: false
   script:
     - |
       xvfb-run --auto-servernum --server-args='-screen 0 640x480x24' \
@@ -146,4 +159,3 @@ project_auditor:
     when: always
     paths:
       - "$PROJECT_AUDITOR_DIR/"
-  allow_failure: true
