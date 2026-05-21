@@ -76,12 +76,6 @@ public class PlayerMovementController : MonoBehaviour {
     _moveInput = value.Get<float>();
   }
 
-  void OnJump(InputValue value) {
-    if (value.isPressed && _cc.isGrounded) {
-      _jumpRequested = true;
-    }
-  }
-
   void OnRotateLeft(InputValue value) {
     if (value.isPressed && !_isRotating) {
       StartCoroutine(RotateWorld(-1));
@@ -182,4 +176,18 @@ public class PlayerMovementController : MonoBehaviour {
 
   public int GetRotationIndex() => _currentRotationIndex;
   public bool IsRotating() => _isRotating;
+
+  public void ReorientHorizontalVelocity(int quarterTurns) {
+    if (quarterTurns == 0) {
+      return;
+    }
+
+    var angle = 90f * quarterTurns;
+    _velocity = Quaternion.AngleAxis(angle, Vector3.up) * _velocity;
+    _velocity.y = 0f;
+  }
+
+  public void ResetHorizontalVelocity() {
+    _velocity = Vector3.zero;
+  }
 }
