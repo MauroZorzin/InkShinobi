@@ -1621,7 +1621,7 @@ GameObject:
   - component: {fileID: 759177115}
   - component: {fileID: 759177116}
   - component: {fileID: 759177117}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: SpriteVisual1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1891,7 +1891,7 @@ GameObject:
   - component: {fileID: 886249021}
   - component: {fileID: 886249025}
   - component: {fileID: 886249023}
-  - component: {fileID: 886249024}
+  - component: {fileID: 886249026}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -2111,26 +2111,6 @@ MonoBehaviour:
   - {fileID: 336218120}
   - {fileID: 1229976000}
   showDebugUI: 1
---- !u!114 &886249024
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 886249014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bc871986718e4a8a234668c413122, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::PlayerStealthController
-  timeToHide: 1
-  takedownRange: 1.5
-  takedownAngle: 60
-  guardLayerMask:
-    serializedVersion: 2
-    m_Bits: 128
-  showDebugGizmos: 1
-  verboseLogging: 0
 --- !u!114 &886249025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2138,7 +2118,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886249014}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c9fdedb761ccd7419b567d01bbd3c61, type: 3}
   m_Name: 
@@ -2163,6 +2143,20 @@ MonoBehaviour:
   postTurnWallSearchDistance: 2.5
   drawRayGizmos: 1
   logRayHits: 1
+--- !u!114 &886249026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886249014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d152f3701fc81834698fe95cfd980f18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameScripts::PlayerStealthController
+  timeToHide: 1
+  takedownController: {fileID: 0}
 --- !u!1 &907899049
 GameObject:
   m_ObjectHideFlags: 0
@@ -5367,7 +5361,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4667900ab6cc9ab47a064f6d99575284, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GameScripts::StealthHUD
-  player: {fileID: 886249024}
+  player: {fileID: 0}
   statusText: {fileID: 1334862908}
   statusIcon: {fileID: 615741256}
   lightIndicator: {fileID: 24072900}
