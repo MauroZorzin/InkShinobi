@@ -66,7 +66,10 @@ public class RightAngleWallTurner : MonoBehaviour {
   public float targetContactTolerance = 0.25f;
 
   [Header("Debug")]
+  [Tooltip("Draws corner-detection rays and post-turn debug helpers in the Scene view.")]
   public bool drawRayGizmos = true;
+
+  [Tooltip("Writes corner ray hit state and turn diagnostics to the console.")]
   public bool logRayHits = true;
 
   private const float MIN_MOVE_MAGNITUDE = 0.03f;

@@ -43,7 +43,10 @@ public class WallSwitcher : MonoBehaviour {
   public float wallHugDistance = 0.25f;
 
   [Header("Debug")]
+  [Tooltip("Draws wall-switch detection rays and target points in the Scene view.")]
   public bool drawDebugGizmos = true;
+
+  [Tooltip("Writes wall-switch ray hit diagnostics to the console.")]
   public bool logRayHits = true;
 
   private const float SWITCH_COOLDOWN = 1f;

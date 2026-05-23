@@ -11,23 +11,33 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(WallSwitcher))]
 public class PlayerMovementController : MonoBehaviour {
   [Header("Movement")]
+  [Tooltip("Maximum horizontal movement speed.")]
   public float moveSpeed = 5f;
+
+  [Tooltip("Rate at which horizontal velocity approaches move speed while input is held.")]
   public float acceleration = 20f;
+
+  [Tooltip("Rate at which horizontal velocity returns to zero when input is released.")]
   public float deceleration = 25f;
 
   [Header("Gravity")]
+  [Tooltip("Downward acceleration applied while airborne.")]
   public float gravity = -20f;
 
   [Header("Jump")]
+  [Tooltip("Peak jump height used to calculate initial jump velocity.")]
   public float jumpHeight = 2.5f;
 
   [Header("Rotation")]
+  [Tooltip("Seconds used for each 90-degree world rotation.")]
   public float rotationDuration = 0.3f;
 
   [Header("References")]
+  [Tooltip("Pivot that rotates the camera around the player.")]
   public Transform camPivot;
 
   [Header("Animation")]
+  [Tooltip("Minimum horizontal speed needed before running animation is considered active.")]
   public float velocityMargin = 0.1f;
 
   // Constants
