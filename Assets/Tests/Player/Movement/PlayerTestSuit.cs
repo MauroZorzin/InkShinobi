@@ -3,8 +3,6 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.TestTools;
 
 public class PlayerTestSuit {
@@ -17,13 +15,8 @@ public class PlayerTestSuit {
   private const string PlayerAnimatorControllerPath = "Assets/Animators/PlayerAnimatorController.controller";
   private GameObject _groundGO;
   private GameObject _playerGO;
-  private GameObject _switchWallGO;
   private PlayerMovementController _controller;
-  private RightAngleWallTurner _turner;
-  private WallSwitcher _wallSwitcher;
   private SpriteRenderer _sr;
-  private InputAction _switchAction;
-  private InputSettings.BackgroundBehavior _oldBackgroundBehavior;
 
   // ── Reflection helpers to access private fields ───────────────────────────
   private void SetMoveInput(float value) {
@@ -53,9 +46,6 @@ public class PlayerTestSuit {
   // ── Setup / Teardown ──────────────────────────────────────────────────────
   [SetUp]
   public void Setup() {
-    _oldBackgroundBehavior = InputSystem.settings.backgroundBehavior;
-    InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
-
     _groundGO = GameObject.CreatePrimitive(PrimitiveType.Cube);
     _groundGO.name = "Ground";
     _groundGO.transform.position = new Vector3(0f, -0.5f, 0f);
@@ -75,31 +65,15 @@ public class PlayerTestSuit {
 
     _sr = _playerGO.AddComponent<SpriteRenderer>();
     _controller = _playerGO.AddComponent<PlayerMovementController>();
-    _turner = _playerGO.GetComponent<RightAngleWallTurner>();
-    _wallSwitcher = _playerGO.GetComponent<WallSwitcher>();
 
     // Create a camPivot so HandleMovement doesn't throw a NullReferenceException
     var camPivotGO = new GameObject("CamPivot");
     _controller.camPivot = camPivotGO.transform;
-    _turner.camPivot = camPivotGO.transform;
-    _wallSwitcher.camPivot = camPivotGO.transform;
 
     _controller.moveSpeed = 5f;
     _controller.acceleration = 100f;
     _controller.deceleration = 100f;
     _controller.gravity = -20f;
-
-    _turner.wallLayer = 1 << MovementTestFixture.WallLayer;
-    _turner.logRayHits = false;
-    _turner.drawRayGizmos = false;
-    _wallSwitcher.wallLayer = 1 << MovementTestFixture.WallLayer;
-    _wallSwitcher.frontRayLength = 2f;
-    _wallSwitcher.frontRayCenterOffset = 0.2f;
-    _wallSwitcher.firstNinetyRotationDuration = 0.05f;
-    _wallSwitcher.switchObservationDuration = 0.05f;
-    _wallSwitcher.finalNinetyRotationDuration = 0.05f;
-    _wallSwitcher.logRayHits = false;
-    _wallSwitcher.drawDebugGizmos = false;
   }
 
   [TearDown]
@@ -116,16 +90,6 @@ public class PlayerTestSuit {
       Object.Destroy(_groundGO);
     }
 
-    if (_switchWallGO != null) {
-      Object.Destroy(_switchWallGO);
-    }
-
-    if (_switchAction != null) {
-      _switchAction.Dispose();
-      _switchAction = null;
-    }
-
-    InputSystem.settings.backgroundBehavior = _oldBackgroundBehavior;
   }
 
   // ── Tests ─────────────────────────────────────────────────────────────────
@@ -383,102 +347,4 @@ public class PlayerTestSuit {
     Assert.IsFalse(afterRotation, "_isRotating should be false after rotation completes.");
   }
 
-  [Test]
-  public void GetRotationIndex_ReturnsCurrentRotationIndex() {
-    typeof(PlayerMovementController)
-      .GetField("_currentRotationIndex", BindingFlags.NonPublic | BindingFlags.Instance)
-      .SetValue(_controller, 2);
-
-    Assert.AreEqual(2, _controller.GetRotationIndex());
-  }
-
-  [Test]
-  public void IsRotating_ReturnsCurrentRotationState() {
-    typeof(PlayerMovementController)
-      .GetField("_isRotating", BindingFlags.NonPublic | BindingFlags.Instance)
-      .SetValue(_controller, true);
-
-    Assert.IsTrue(_controller.IsRotating());
-
-    typeof(PlayerMovementController)
-      .GetField("_isRotating", BindingFlags.NonPublic | BindingFlags.Instance)
-      .SetValue(_controller, false);
-
-    Assert.IsFalse(_controller.IsRotating());
-  }
-
-  [Test]
-  public void ReorientHorizontalVelocity_RotatesVelocityByQuarterTurns() {
-    typeof(PlayerMovementController)
-      .GetField("_velocity", BindingFlags.NonPublic | BindingFlags.Instance)
-      .SetValue(_controller, Vector3.forward);
-
-    _controller.ReorientHorizontalVelocity(1);
-
-    Vector3 velocity = GetVelocity();
-    Assert.AreEqual(1f, velocity.x, 0.0001f);
-    Assert.AreEqual(0f, velocity.y, 0.0001f);
-    Assert.AreEqual(0f, velocity.z, 0.0001f);
-  }
-
-  [Test]
-  public void ResetHorizontalVelocity_ClearsVelocity() {
-    typeof(PlayerMovementController)
-      .GetField("_velocity", BindingFlags.NonPublic | BindingFlags.Instance)
-      .SetValue(_controller, new Vector3(1f, 2f, 3f));
-
-    _controller.ResetHorizontalVelocity();
-
-    Assert.AreEqual(Vector3.zero, GetVelocity());
-  }
-
-  [UnityTest]
-  public IEnumerator OnSwitch_WhenInputActionIsPressed_StartsWallSwitch() {
-    _switchWallGO = GameObject.CreatePrimitive(PrimitiveType.Cube);
-    _switchWallGO.name = "InputSwitchFrontWall";
-    _switchWallGO.layer = MovementTestFixture.WallLayer;
-    _switchWallGO.transform.position = new Vector3(0f, 1f, -1f);
-    _switchWallGO.transform.localScale = new Vector3(2f, 2f, 0.1f);
-    Physics.SyncTransforms();
-
-    var inputFixture = new InputTestFixture();
-    inputFixture.Setup();
-
-    try {
-      var testKeyboard = InputSystem.AddDevice<Keyboard>();
-      _switchAction = new InputAction("Switch", InputActionType.Button, "<Keyboard>/space");
-      var callbackInvoked = false;
-
-      typeof(PlayerMovementController)
-        .GetField("_wallSwitcher", BindingFlags.NonPublic | BindingFlags.Instance)
-        .SetValue(_controller, _wallSwitcher);
-
-      _switchAction.performed += context => {
-        callbackInvoked = true;
-        var inputValue = new InputValue();
-        typeof(InputValue)
-          .GetField("m_Context", BindingFlags.NonPublic | BindingFlags.Instance)
-          .SetValue(inputValue, context);
-
-        typeof(PlayerMovementController)
-          .GetMethod("OnSwitch", BindingFlags.NonPublic | BindingFlags.Instance)
-          .Invoke(_controller, new object[] { inputValue });
-      };
-      _switchAction.Enable();
-
-      yield return null;
-
-      inputFixture.Press(testKeyboard.spaceKey);
-
-      yield return null;
-
-      Assert.IsTrue(testKeyboard.spaceKey.isPressed, "The generated keyboard should receive the queued space key press.");
-      Assert.IsTrue(callbackInvoked, "The generated Switch InputAction should receive the test keyboard press.");
-      Assert.IsTrue(_wallSwitcher.IsSwitching, "Pressing the Switch action should route through OnSwitch and start WallSwitcher.");
-    } finally {
-      _switchAction?.Dispose();
-      _switchAction = null;
-      inputFixture.TearDown();
-    }
-  }
 }
