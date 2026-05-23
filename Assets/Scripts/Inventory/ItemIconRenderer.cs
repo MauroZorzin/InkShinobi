@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 /// <summary>
@@ -51,7 +52,10 @@ public class ItemIconRenderer : MonoBehaviour {
     previewCamera.orthographicSize = item.iconOrthographicSize;
     previewCamera.targetTexture = renderTexture;
     previewCamera.enabled = true;
-    previewCamera.Render();
+
+    if (CanRenderPreviewImmediately()) {
+      previewCamera.Render();
+    }
   }
 
   /// <summary>
@@ -104,5 +108,13 @@ public class ItemIconRenderer : MonoBehaviour {
       return 0;
     }
     return Mathf.RoundToInt(Mathf.Log(value, 2));
+  }
+
+  /// <summary>
+  /// Checks whether the current runtime can safely force a camera render for the preview texture.
+  /// </summary>
+  /// <returns>True when an immediate preview render should be attempted.</returns>
+  private static bool CanRenderPreviewImmediately() {
+    return !Application.isBatchMode && SystemInfo.graphicsDeviceType != GraphicsDeviceType.Null;
   }
 }
