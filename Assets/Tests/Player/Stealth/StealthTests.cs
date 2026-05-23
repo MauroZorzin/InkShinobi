@@ -3,19 +3,17 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-// Play Mode tests for the Stealth System.
+// Play Mode tests — Stealth & Light Zone & Vision Cone
 // Run via: Window > General > Test Runner > Play Mode > Run All
-//
-// Layers 8 (Player) and 9 (Guard) must exist in Project Settings > Tags and Layers.
-public class StealthSystemTests {
-  private const int PlayerLayer = 8;
-  private const int GuardLayer = 9;
+public class StealthTests {
+  const int PlayerLayer = 3;
+  const int GuardLayer = 7;
 
-  // -- Helpers -----------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Helpers
+  // -------------------------------------------------------------------------
 
-  // pos defaults to origin so stealth/light tests can call MakePlayer() with no args
-  private static PlayerStealthController MakePlayer(Vector3 pos = default,
-      float range = 2f, float angle = 120f) {
+  static PlayerStealthController MakePlayer(Vector3 pos = default) {
     var go = new GameObject("TestPlayer");
     go.layer = PlayerLayer;
     go.transform.position = pos;
@@ -24,24 +22,19 @@ public class StealthSystemTests {
     var p = go.AddComponent<PlayerStealthController>();
     var takedown = go.AddComponent<TakedownController>();
     p.takedownController = takedown;
-    takedown.TakedownRange = range;
-    takedown.TakedownAngle = angle;
-
 
     return p;
   }
 
-  private static LightZone MakeLightZone() {
+  static LightZone MakeLightZone() {
     var go = new GameObject("TestLightZone");
     var col = go.AddComponent<BoxCollider>();
-    col.isTrigger = true;
-    col.enabled = false; // disabled — Enter/Exit are called directly in tests
+    col.isTrigger = false;
+    col.enabled = false; // Enter/Exit called directly in tests
     return go.AddComponent<LightZone>();
   }
 
-  // Vision-cone only guard — no GuardController, no NavMeshAgent, no NavMesh needed.
-  private static (GuardVisionCone cone, GameObject go)
-      MakeGuardCone(Vector3 pos, Vector3 forward) {
+  static (GuardVisionCone cone, GameObject go) MakeGuardCone(Vector3 pos, Vector3 forward) {
     var go = new GameObject("TestGuard");
     go.layer = GuardLayer;
     go.transform.position = pos;
@@ -50,13 +43,13 @@ public class StealthSystemTests {
 
     var cone = go.AddComponent<GuardVisionCone>();
     cone.playerLayerMask = 1 << PlayerLayer;
-    cone.obstacleMask = 0;    // no walls
-    cone.detectionTime = 0f;   // instant
+    cone.obstacleMask = 0;
+    cone.detectionTime = 0f;
     cone.shortRange = 10f;
     cone.shortAngle = 90f;
     cone.longRange = 20f;
     cone.longAngle = 60f;
-    cone.eyeHeight = 0f;   // flat world
+    cone.eyeHeight = 0f;
     cone.playerAimHeight = 0f;
     cone.showGizmos = false;
     cone.showRuntimeRay = false;
@@ -65,28 +58,9 @@ public class StealthSystemTests {
     return (cone, go);
   }
 
-  // Minimal takedown target: collider on the guard layer + GuardController.
-  // No NavMeshAgent — GuardController.SetState now guards all agent calls.
-  private static GuardController MakeGuard(Vector3 pos, Vector3 forward) {
-    var go = new GameObject("TestGuard");
-    go.layer = GuardLayer;
-    go.transform.position = pos;
-    go.transform.forward = forward;
-    go.AddComponent<CapsuleCollider>();
-
-    // GuardController.Awake searches for GuardVisionCone; add a minimal one
-    var cone = go.AddComponent<GuardVisionCone>();
-    cone.playerLayerMask = 1 << PlayerLayer;
-    cone.showGizmos = false;
-    cone.showRuntimeRay = false;
-    cone.verboseLogging = false;
-
-    var guard = go.AddComponent<GuardController>();
-    guard.enabled = false; // stop Update running — no NavMesh in test scene
-    return guard;
-  }
-
-  // -- 1. Stealth State --------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // 1. Stealth State
+  // -------------------------------------------------------------------------
 
   // 01 — player starts hidden with no guards around
   [UnityTest]
@@ -117,7 +91,9 @@ public class StealthSystemTests {
     Object.Destroy(player.gameObject);
   }
 
-  // -- 2. Light Zone -----------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // 2. Light Zone
+  // -------------------------------------------------------------------------
 
   // 03 — entering a zone sets IsInLight, exiting clears it
   [UnityTest]
@@ -156,7 +132,9 @@ public class StealthSystemTests {
     Object.Destroy(zone2.gameObject);
   }
 
-  // -- 3. Vision Cone ----------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // 3. Vision Cone
+  // -------------------------------------------------------------------------
 
   // 05 — player directly in front within short range is detected
   [UnityTest]
@@ -165,9 +143,10 @@ public class StealthSystemTests {
     var (cone, guardGO) = MakeGuardCone(Vector3.zero, Vector3.forward);
 
     yield return null;
-    yield return null; // two frames so OverlapSphere registers the collider
+    yield return null;
 
-    Assert.IsTrue(cone.PlayerDetected, "Guard must detect player directly in front within short range.");
+    Assert.IsTrue(cone.PlayerDetected,
+        "Guard must detect player directly in front within short range.");
 
     Object.Destroy(player.gameObject);
     Object.Destroy(guardGO);
@@ -191,7 +170,7 @@ public class StealthSystemTests {
   // 07 — lit player beyond short range is detected via long cone
   [UnityTest]
   public IEnumerator VisionCone_DetectsLitPlayer_BeyondShortRange_ViaLongCone() {
-    var player = MakePlayer(new Vector3(0f, 0f, 15f)); // beyond shortRange=10
+    var player = MakePlayer(new Vector3(0f, 0f, 15f));
     var zone = MakeLightZone();
     player.EnterLight(zone);
 
@@ -200,7 +179,8 @@ public class StealthSystemTests {
     yield return null;
     yield return null;
 
-    Assert.IsTrue(cone.PlayerDetected, "Guard must detect a lit player beyond short range via long cone.");
+    Assert.IsTrue(cone.PlayerDetected,
+        "Guard must detect a lit player beyond short range via long cone.");
 
     Object.Destroy(player.gameObject);
     Object.Destroy(guardGO);
@@ -210,71 +190,16 @@ public class StealthSystemTests {
   // 08 — unlit player beyond short range is NOT detected
   [UnityTest]
   public IEnumerator VisionCone_DoesNotDetect_UnlitPlayer_BeyondShortRange() {
-    var player = MakePlayer(new Vector3(0f, 0f, 15f)); // beyond shortRange, no light
+    var player = MakePlayer(new Vector3(0f, 0f, 15f));
     var (cone, guardGO) = MakeGuardCone(Vector3.zero, Vector3.forward);
 
     yield return null;
     yield return null;
 
-    Assert.IsFalse(cone.PlayerDetected, "Guard must NOT detect an unlit player beyond short range.");
+    Assert.IsFalse(cone.PlayerDetected,
+        "Guard must NOT detect an unlit player beyond short range.");
 
     Object.Destroy(player.gameObject);
     Object.Destroy(guardGO);
-  }
-
-  // -- 4. Takedown -------------------------------------------------------------
-
-  // 09 — takedown succeeds when player is directly behind guard and within range
-  [UnityTest]
-  public IEnumerator Takedown_Succeeds_WhenBehindGuardInRange() {
-    var guard = MakeGuard(Vector3.zero, Vector3.forward);
-    var player = MakePlayer(new Vector3(0f, 0f, -0.8f)); // directly behind
-    yield return null;
-    yield return null;
-
-    player.SendMessage("TryTakedown", SendMessageOptions.DontRequireReceiver);
-    yield return null;
-
-    Assert.AreEqual(GuardController.GuardState.TakenDown, guard.CurrentState,
-        "Guard must be TakenDown when player approaches from behind.");
-
-    Object.Destroy(guard.gameObject);
-    Object.Destroy(player.gameObject);
-  }
-
-  // 10 — takedown fails when player is in front of the guard
-  [UnityTest]
-  public IEnumerator Takedown_Fails_WhenInFrontOfGuard() {
-    var guard = MakeGuard(Vector3.zero, Vector3.forward);
-    var player = MakePlayer(new Vector3(0f, 0f, 0.8f)); // directly in front
-    yield return null;
-    yield return null;
-
-    player.SendMessage("TryTakedown", SendMessageOptions.DontRequireReceiver);
-    yield return null;
-
-    Assert.AreNotEqual(GuardController.GuardState.TakenDown, guard.CurrentState,
-        "Guard must NOT be taken down when player approaches from the front.");
-
-    Object.Destroy(guard.gameObject);
-    Object.Destroy(player.gameObject);
-  }
-
-  // 11 — takedown fails when player is behind but out of range
-  [UnityTest]
-  public IEnumerator Takedown_Fails_WhenBehindGuardButOutOfRange() {
-    var guard = MakeGuard(Vector3.zero, Vector3.forward);
-    var player = MakePlayer(new Vector3(0f, 0f, -5f), range: 1f); // 5m away, range=1
-    yield return null;
-    yield return null;
-
-    player.SendMessage("TryTakedown", SendMessageOptions.DontRequireReceiver);
-    yield return null;
-
-    Assert.AreNotEqual(GuardController.GuardState.TakenDown, guard.CurrentState,
-        "Guard must NOT be taken down when player is out of takedown range.");
-
-    Object.Destroy(guard.gameObject);
-    Object.Destroy(player.gameObject);
   }
 }

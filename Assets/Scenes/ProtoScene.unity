@@ -1972,7 +1972,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e086fc3b58441414080bdf175a9d4ef9, type: 2}
+  - {fileID: 2100000, guid: ec1e9e03abfb2654dadda7c221faeb48, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2119,7 +2119,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886249014}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3c9fdedb761ccd7419b567d01bbd3c61, type: 3}
   m_Name: 
@@ -2697,7 +2697,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1092712517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3221,7 +3221,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1332430475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4216,7 +4216,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: a969f0d84f46e2a43bbe2c61769d393b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4837,7 +4837,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1786917038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5648,7 +5648,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!195 &2090635018
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5842,14 +5842,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::GuardController
   patrolWaypoints:
   - {fileID: 1359933574}
-  - {fileID: 1932822789}
-  - {fileID: 384004912}
-  - {fileID: 108564190}
   waypointWaitTime: 2
   patrolMoveSpeed: 2
   alertMoveSpeed: 4
   investigateDuration: 5
   visionCone: {fileID: 2105388752}
+  destroyOnTakedown: 1
   showStateLabel: 1
 --- !u!136 &2105388754
 CapsuleCollider:
