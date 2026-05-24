@@ -2,28 +2,42 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// Drives player movement, gravity, camera-relative world rotation, and movement animation state.
+/// </summary>
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(WallSwitcher))]
 public class PlayerMovementController : MonoBehaviour {
   [Header("Movement")]
+  [Tooltip("Maximum horizontal movement speed.")]
   public float moveSpeed = 5f;
+
+  [Tooltip("Rate at which horizontal velocity approaches move speed while input is held.")]
   public float acceleration = 20f;
+
+  [Tooltip("Rate at which horizontal velocity returns to zero when input is released.")]
   public float deceleration = 25f;
 
   [Header("Gravity")]
+  [Tooltip("Downward acceleration applied while airborne.")]
   public float gravity = -20f;
 
   [Header("Jump")]
+  [Tooltip("Peak jump height used to calculate initial jump velocity.")]
   public float jumpHeight = 2.5f;
 
   [Header("Rotation")]
+  [Tooltip("Seconds used for each 90-degree world rotation.")]
   public float rotationDuration = 0.3f;
 
   [Header("References")]
+  [Tooltip("Pivot that rotates the camera around the player.")]
   public Transform camPivot;
 
   [Header("Animation")]
+  [Tooltip("Minimum horizontal speed needed before running animation is considered active.")]
   public float velocityMargin = 0.1f;
 
   // Constants
@@ -37,6 +51,7 @@ public class PlayerMovementController : MonoBehaviour {
   private Camera _cam;
   private Animator _animator;
   private SpriteRenderer _sr;
+  private WallSwitcher _wallSwitcher;
 
   private Vector3 _velocity;
   private float _verticalVelocity;
@@ -60,11 +75,12 @@ public class PlayerMovementController : MonoBehaviour {
     270f
   };
 
-  void Start() {
+  private void Start() {
     _cc = GetComponent<CharacterController>();
     _cam = Camera.main;
     _animator = GetComponent<Animator>();
     _sr = GetComponent<SpriteRenderer>();
+    _wallSwitcher = GetComponent<WallSwitcher>();
 
     if (camPivot == null && _cam != null) {
       camPivot = _cam.transform.parent != null ? _cam.transform.parent : _cam.transform;
@@ -72,17 +88,23 @@ public class PlayerMovementController : MonoBehaviour {
   }
 
 #pragma warning disable IDE0051
-  void OnMove(InputValue value) {
+  private void OnMove(InputValue value) {
     _moveInput = value.Get<float>();
   }
 
-  void OnRotateLeft(InputValue value) {
+  private void OnSwitch(InputValue value) {
+    if (value.isPressed) {
+      _wallSwitcher.RequestSwitch();
+    }
+  }
+
+  private void OnRotateLeft(InputValue value) {
     if (value.isPressed && !_isRotating) {
       StartCoroutine(RotateWorld(-1));
     }
   }
 
-  void OnRotateRight(InputValue value) {
+  private void OnRotateRight(InputValue value) {
     if (value.isPressed && !_isRotating) {
       StartCoroutine(RotateWorld(1));
     }
@@ -90,21 +112,26 @@ public class PlayerMovementController : MonoBehaviour {
 
   // Temporary method to force return to main menu for testing purposes
   // TODO: Remove this method and its input binding later
-  void OnExit(InputValue value) {
+  private void OnExit(InputValue value) {
     if (value.isPressed) {
       SceneManager.LoadSceneAsync("MainMenu");
     }
   }
 #pragma warning restore IDE0051
 
-  void Update() {
+  private void Update() {
     if (!_isRotating) {
       HandleMovement();
       ApplyGravity();
     }
   }
 
-  System.Collections.IEnumerator RotateWorld(int direction) {
+  /// <summary>
+  /// Animates a signed 90-degree camera/world rotation and updates the logical rotation index.
+  /// </summary>
+  /// <param name="direction">Rotation direction in quarter turns, where negative rotates left and positive rotates right.</param>
+  /// <returns>Coroutine enumerator used by Unity while the rotation is in progress.</returns>
+  private System.Collections.IEnumerator RotateWorld(int direction) {
     _isRotating = true;
     _velocity = Vector3.zero;
 
@@ -130,7 +157,10 @@ public class PlayerMovementController : MonoBehaviour {
     _isRotating = false;
   }
 
-  void HandleMovement() {
+  /// <summary>
+  /// Builds camera-relative horizontal velocity and updates movement animation parameters.
+  /// </summary>
+  private void HandleMovement() {
     Vector3 camRight = camPivot.right;
     camRight.y = 0f;
     camRight.Normalize();
@@ -159,7 +189,10 @@ public class PlayerMovementController : MonoBehaviour {
     }
   }
 
-  void ApplyGravity() {
+  /// <summary>
+  /// Applies vertical gravity and combines it with the current horizontal velocity for the controller move.
+  /// </summary>
+  private void ApplyGravity() {
     if (_cc.isGrounded && _verticalVelocity < 0f) {
       _verticalVelocity = -2f;
     }
@@ -174,9 +207,22 @@ public class PlayerMovementController : MonoBehaviour {
     _cc.Move(finalMove * Time.deltaTime);
   }
 
+  /// <summary>
+  /// Returns the index of the current 90-degree camera/world orientation.
+  /// </summary>
+  /// <returns>The current rotation index in the four-entry direction table.</returns>
   public int GetRotationIndex() => _currentRotationIndex;
+
+  /// <summary>
+  /// Returns whether a 90-degree world rotation is currently being animated.
+  /// </summary>
+  /// <returns>True while the rotate coroutine owns movement and camera rotation.</returns>
   public bool IsRotating() => _isRotating;
 
+  /// <summary>
+  /// Rotates any carried horizontal velocity after an external wall turn changes orientation.
+  /// </summary>
+  /// <param name="quarterTurns">Signed number of 90-degree turns to apply.</param>
   public void ReorientHorizontalVelocity(int quarterTurns) {
     if (quarterTurns == 0) {
       return;
@@ -187,6 +233,9 @@ public class PlayerMovementController : MonoBehaviour {
     _velocity.y = 0f;
   }
 
+  /// <summary>
+  /// Clears horizontal momentum after scripted movement has repositioned the player.
+  /// </summary>
   public void ResetHorizontalVelocity() {
     _velocity = Vector3.zero;
   }
