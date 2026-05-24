@@ -4,6 +4,10 @@ using UnityEngine.InputSystem;
 
 public class TakedownController : MonoBehaviour, ITakedownSystem {
 
+  private const string TAKEDOWN_ANIMATION_PARAMETER = "Takedown";
+  private Animator _animator;
+  private float _takedownAnimationTimer = 0f;
+
   // -------------------------------------------------------------------------
   // Inspector
   // -------------------------------------------------------------------------
@@ -13,6 +17,12 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
   public float takedownRange = 1.5f;
   public float takedownAngle = 60f;
   public LayerMask guardLayerMask;
+
+  [Header("Animation")]
+  [Tooltip("If enabled, play a takedown animation on the player")]
+  public bool playTakedownAnimation = false;
+  [Tooltip("If true, player can move during takedown animation. If false, player is locked in place.")]
+  public bool canMoveWhileTakingDown = false;
 
   [Header("Debug")]
   public bool verboseLogging = false;
@@ -25,6 +35,9 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
   public float TakedownRange { get; set; }
   public float TakedownAngle { get; set; }
   public LayerMask GuardLayerMask { get; set; }
+
+  /// <summary>Indicates if a takedown is currently in progress (for movement control).</summary>
+  public bool IsTakingDown { get; private set; } = false;
 
   public IReadOnlyList<GuardController> GetCandidates() {
     List<GuardController> result = new();
@@ -88,7 +101,11 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
   // Unity lifecycle
   // -------------------------------------------------------------------------
 
-  void Awake() { _block = new MaterialPropertyBlock(); IsEnabled = enabledAtStart; }
+  void Awake() {
+    _block = new MaterialPropertyBlock();
+    IsEnabled = enabledAtStart;
+    _animator = GetComponent<Animator>();
+  }
 
   void Update() {
     if (IsEnabled) UpdateOutlines();
@@ -130,6 +147,17 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
 
     SetGuardOutline(best!, false);
     _outlined.Remove(best);
+
+    // Play takedown animation if enabled
+    if (playTakedownAnimation) {
+      PlayTakedownAnimation();
+    }
+
+    // Lock movement if canMoveWhileTakingDown is false
+    if (!canMoveWhileTakingDown) {
+      IsTakingDown = true;
+    }
+
     best!.PerformTakedown();
     if (verboseLogging) Debug.Log($"[Takedown] SUCCESS on '{best.name}'.");
   }
@@ -137,6 +165,22 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
   // -------------------------------------------------------------------------
   // Helpers
   // -------------------------------------------------------------------------
+
+  private void PlayTakedownAnimation() {
+    if (_animator == null) {
+      _animator = GetComponent<Animator>();
+      if (_animator == null) {
+        Debug.LogWarning("[Takedown] No Animator found on player. Animation will not play.");
+        return;
+      }
+    }
+
+    // Set the parameter to true to trigger animation
+    _animator.SetTrigger(TAKEDOWN_ANIMATION_PARAMETER);
+
+    if (verboseLogging) Debug.Log($"[Takedown] Animation triggered: {TAKEDOWN_ANIMATION_PARAMETER} (duration: {_takedownAnimationTimer}s)");
+  }
+
 
   public bool IsBehindGuard(Vector3 playerPosition, GuardController guard) {
     Vector3 toPlayerFlat = new(playerPosition.x - guard.transform.position.x, 0f,

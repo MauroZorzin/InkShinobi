@@ -2094,6 +2094,8 @@ MonoBehaviour:
   guardLayerMask:
     serializedVersion: 2
     m_Bits: 128
+  playTakedownAnimation: 1
+  canMoveWhileTakingDown: 1
   verboseLogging: 0
 --- !u!114 &886249031
 MonoBehaviour:
@@ -2127,6 +2129,8 @@ MonoBehaviour:
   guardLayerMask:
     serializedVersion: 2
     m_Bits: 0
+  playTakedownAnimation: 1
+  canMoveWhileTakingDown: 0
   verboseLogging: 0
 --- !u!1 &932157375
 GameObject:
