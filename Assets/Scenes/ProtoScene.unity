@@ -1344,7 +1344,7 @@ GameObject:
   - component: {fileID: 759177115}
   - component: {fileID: 759177116}
   - component: {fileID: 759177117}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: SpriteVisual1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1744,10 +1744,12 @@ GameObject:
   - component: {fileID: 886249025}
   - component: {fileID: 886249026}
   - component: {fileID: 886249023}
-  - component: {fileID: 886249024}
   - component: {fileID: 886249029}
   - component: {fileID: 886249028}
   - component: {fileID: 886249027}
+  - component: {fileID: 886249032}
+  - component: {fileID: 886249031}
+  - component: {fileID: 886249030}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -1970,26 +1972,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   showInteractionRangeGizmo: 1
---- !u!114 &886249024
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 886249014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 474bc871986718e4a8a234668c413122, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::PlayerStealthController
-  timeToHide: 1
-  takedownRange: 1.5
-  takedownAngle: 60
-  guardLayerMask:
-    serializedVersion: 2
-    m_Bits: 128
-  showDebugGizmos: 1
-  verboseLogging: 0
 --- !u!114 &886249025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2023,42 +2005,9 @@ MonoBehaviour:
   postTurnWallSearchDistance: 2.5
   targetContactTolerance: 0.25
   drawRayGizmos: 1
-  logRayHits: 1
+  logRayHits: 0
 --- !u!114 &886249026
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 886249014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d152f3701fc81834698fe95cfd980f18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::PlayerStealthController
-  timeToHide: 1
-  takedownController: {fileID: 886249027}
---- !u!114 &886249027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 886249014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59cc53cda97e5f04092e77c2eaf2af4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::TakedownController
-  enabledAtStart: 1
-  takedownRange: 1.5
-  takedownAngle: 60
-  guardLayerMask:
-    serializedVersion: 2
-    m_Bits: 136
-  verboseLogging: 1
---- !u!1 &907899049
-GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -2127,6 +2076,58 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GameScripts::PlayerInventory
   maxItems: 1
+--- !u!114 &886249030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886249014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59cc53cda97e5f04092e77c2eaf2af4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameScripts::TakedownController
+  enabledAtStart: 1
+  takedownRange: 1.5
+  takedownAngle: 60
+  guardLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  verboseLogging: 0
+--- !u!114 &886249031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886249014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d152f3701fc81834698fe95cfd980f18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameScripts::PlayerStealthController
+  timeToHide: 1
+  takedownController: {fileID: 886249032}
+--- !u!114 &886249032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 886249014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59cc53cda97e5f04092e77c2eaf2af4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameScripts::TakedownController
+  enabledAtStart: 1
+  takedownRange: 1.5
+  takedownAngle: 60
+  guardLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  verboseLogging: 0
 --- !u!1 &932157375
 GameObject:
   m_ObjectHideFlags: 0
@@ -2468,55 +2469,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::LightZone
   linkedLight: {fileID: 0}
   gizmoColor: {r: 1, g: 0.92, b: 0.016, a: 0.25}
---- !u!1 &1069034063
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1069034065}
-  - component: {fileID: 1069034064}
-  m_Layer: 0
-  m_Name: Global Volume
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1069034064
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069034063}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
-  m_IsGlobal: 1
-  priority: 0
-  blendDistance: 0
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: b51229f5beadecf4d85ca30c2905eb03, type: 2}
---- !u!4 &1069034065
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069034063}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 956.20013, y: 536.8, z: 3.5000002}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1092712516
 GameObject:
   m_ObjectHideFlags: 0
@@ -2535,7 +2487,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1092712517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3000,7 +2952,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1332430475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4241,7 +4193,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 1
+  m_RenderPostProcessing: 0
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -4386,7 +4338,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1786917038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5022,7 +4974,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!195 &2090635018
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5216,6 +5168,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::GuardController
   patrolWaypoints:
   - {fileID: 1359933574}
+  - {fileID: 1932822789}
+  - {fileID: 384004912}
+  - {fileID: 108564190}
   waypointWaitTime: 2
   patrolMoveSpeed: 2
   alertMoveSpeed: 4
@@ -5344,4 +5299,3 @@ SceneRoots:
   - {fileID: 1599815682}
   - {fileID: 326621506}
   - {fileID: 1007020068}
-  - {fileID: 1069034065}
