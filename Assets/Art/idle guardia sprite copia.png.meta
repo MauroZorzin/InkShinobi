@@ -1,0 +1,1121 @@
+fileFormatVersion: 2
+guid: 0bd603b26d44b7c4dac0d13741ce737e
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1000
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: idle guardia sprite copia_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8bdf63b21044a1748b1e94282aab9887
+      internalID: 1232776379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_1
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f38e74131d93b3e4f852e38ab11e382a
+      internalID: -815141270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_2
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a773ea8cc7e0b414a8e77703f591b9d3
+      internalID: 1429078291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_3
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6e0787b89bbdf1f458693d5c9e2d6fc1
+      internalID: -1777998401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_4
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4df7a2c33d569754896c30a0f15e5079
+      internalID: 123197192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_5
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ff87538845178a4783b0cd402972989
+      internalID: -1210716705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_6
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 76379e30131d8464990ba54fd22fbde0
+      internalID: -1007407246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_7
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4d85543d0478155499a16e2e66a48a6c
+      internalID: -1335896913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 26640c70f1ab7464290d91a68e75266c
+      internalID: -685878145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_9
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b00c6ef2e2873524f935ffe04b6005b9
+      internalID: -1552157250
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_10
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c3b34cbcfe706094e8cba2c28c1a1a94
+      internalID: -1601299779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_11
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39968710cef003b46be8964c1c67e9d0
+      internalID: 314221076
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_12
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f957c428e88a7134bbab91d1c74ceb05
+      internalID: 16298790
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_13
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 036ce7afe75b3c64c88d562343cd850e
+      internalID: 2128100294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_14
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e9b0630f48653b48b9fda60542da2f4
+      internalID: -663885847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_15
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5b183ca811a74714c99d1ac5bd911695
+      internalID: -845573033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2402d895f88904340978efdd83a2d750
+      internalID: 251706485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_17
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5a57df13d6e6edd48a6ca163db2e6f17
+      internalID: -1766146407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_18
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7b50c4edf38d97e45b512d12f815e906
+      internalID: 1641222802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_19
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e93ffea647cbd404ea5b343d432ed049
+      internalID: -2067853792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_20
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6ef993883cc71c542a7df47a70807146
+      internalID: -1762745304
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_21
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f84b4a8e0b29900408373e9a3fbcda40
+      internalID: 942445720
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_22
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4bf90bef14a1fa44a7821296122ecf3
+      internalID: 1862348527
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_23
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86fb0d12bd70b224ba67ee6500d329b5
+      internalID: -229165140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 84465aad07906514caa4f8013c060e3b
+      internalID: -859392889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_25
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f33c4c83c60fda439b0b42b2d49bd6b
+      internalID: 2050319651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_26
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c9c948c8e9c8d6459bc8ffe2073b61c
+      internalID: -1976579138
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_27
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 565d181f8dc3d3f489fd1931b39ac74b
+      internalID: 1042976930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_28
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c2dff62adb25f074abaf1d124f278525
+      internalID: -577148353
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_29
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd94a8574818ad540b6bdda8cf2a2e74
+      internalID: -606890716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_30
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9811532e24a0c0e4885d5dc5f5109bcf
+      internalID: -650003912
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_31
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 223d3aa30b28c0d46b65d2db7bb722da
+      internalID: -2097045229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aaf57b216902dd743800dce3f3b90956
+      internalID: 1628130628
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_33
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7383d1e3a833e7644b79c7b1825bcec6
+      internalID: -2054306547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_34
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c69cfa36748816046ac6f38276374d91
+      internalID: -764160798
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_35
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c860dbd78ccb364ab7b68504d3c4307
+      internalID: 2007614116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_36
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bea4a92c0c4f72444a177a5661a45b38
+      internalID: -2104684915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_37
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 610968894b2a30a40a618709d5bd5e73
+      internalID: 198232903
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_38
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cdbe01dac8a8ca549be1477b05fd06f9
+      internalID: -783302123
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_39
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e76881ebadad3f3468a06abe863b049c
+      internalID: 719623402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_40
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1121041bba802ab4c9c3fb9fa90ec1a2
+      internalID: 304570336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_41
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 0
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dbf5d2e6b8381434fb6c11920f1f916a
+      internalID: 1501000865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia sprite copia_42
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 0
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4f8b3de4b4087b941b2975f366a4ce80
+      internalID: -438463156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: d37d6cf396a5f604fafd5d0c39f3ded8
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      idle guardia sprite copia_0: 1232776379
+      idle guardia sprite copia_1: -815141270
+      idle guardia sprite copia_10: -1601299779
+      idle guardia sprite copia_11: 314221076
+      idle guardia sprite copia_12: 16298790
+      idle guardia sprite copia_13: 2128100294
+      idle guardia sprite copia_14: -663885847
+      idle guardia sprite copia_15: -845573033
+      idle guardia sprite copia_16: 251706485
+      idle guardia sprite copia_17: -1766146407
+      idle guardia sprite copia_18: 1641222802
+      idle guardia sprite copia_19: -2067853792
+      idle guardia sprite copia_2: 1429078291
+      idle guardia sprite copia_20: -1762745304
+      idle guardia sprite copia_21: 942445720
+      idle guardia sprite copia_22: 1862348527
+      idle guardia sprite copia_23: -229165140
+      idle guardia sprite copia_24: -859392889
+      idle guardia sprite copia_25: 2050319651
+      idle guardia sprite copia_26: -1976579138
+      idle guardia sprite copia_27: 1042976930
+      idle guardia sprite copia_28: -577148353
+      idle guardia sprite copia_29: -606890716
+      idle guardia sprite copia_3: -1777998401
+      idle guardia sprite copia_30: -650003912
+      idle guardia sprite copia_31: -2097045229
+      idle guardia sprite copia_32: 1628130628
+      idle guardia sprite copia_33: -2054306547
+      idle guardia sprite copia_34: -764160798
+      idle guardia sprite copia_35: 2007614116
+      idle guardia sprite copia_36: -2104684915
+      idle guardia sprite copia_37: 198232903
+      idle guardia sprite copia_38: -783302123
+      idle guardia sprite copia_39: 719623402
+      idle guardia sprite copia_4: 123197192
+      idle guardia sprite copia_40: 304570336
+      idle guardia sprite copia_41: 1501000865
+      idle guardia sprite copia_42: -438463156
+      idle guardia sprite copia_5: -1210716705
+      idle guardia sprite copia_6: -1007407246
+      idle guardia sprite copia_7: -1335896913
+      idle guardia sprite copia_8: -685878145
+      idle guardia sprite copia_9: -1552157250
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,161 +1,201 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>
-/// Manages the player's stealth state: visibility, light exposure, and takedown capability.
-/// Attach to the Player GameObject.
-/// Requires a PlayerInput component with a "Takedown" action in your Input Action Asset.
+/// Manages the player's stealth state and composes all stealth subsystems.
+///
+/// Responsibilities
+/// ─────────────────
+///  - Maintain the authoritative <see cref="CurrentState"/> (<see cref="StealthState"/>).
+///  - React to state transitions by enabling / disabling dependent subsystems
+///    (e.g. disabling <see cref="TakedownController"/> while detected).
+///  - Accept events from guards (<see cref="OnGuardStartsDetecting"/>) and
+///    light zones (<see cref="EnterLight"/>/<see cref="ExitLight"/>).
+///  - Validate on Awake that every required stealth component is present.
+///
 /// </summary>
+[RequireComponent(typeof(TakedownController))]
 public class PlayerStealthController : MonoBehaviour {
+  // -------------------------------------------------------------------------
+  // Stealth state
+  // -------------------------------------------------------------------------
+
+  public enum StealthState {
+    /// <summary>No guard is detecting the player; takedown is available.</summary>
+    Hidden,
+
+    /// <summary>Player is in light or briefly visible but no guard has locked on yet.</summary>
+    Exposed,
+
+    /// <summary>At least one guard is actively detecting the player; takedown is locked.</summary>
+    Detected
+  }
+
+  /// <summary>Current stealth state. Drives which subsystems are active.</summary>
+  public StealthState CurrentState { get; private set; } = StealthState.Hidden;
+
+  // Convenient shorthands kept for backwards-compatibility with other systems.
+  public bool IsHidden => CurrentState == StealthState.Hidden;
+  public bool IsInLight { get; private set; }
+  public int DetectingGuardCount { get; private set; }
+
+  // -------------------------------------------------------------------------
+  // Inspector
+  // -------------------------------------------------------------------------
+
   [Header("Stealth Settings")]
-  [Tooltip("How long the player must avoid detection before becoming fully hidden.")]
+  [Tooltip("Seconds of no detection before the player transitions back to Hidden.")]
   public float timeToHide = 1.0f;
 
-  [Header("Takedown Settings")]
-  [Tooltip("Maximum distance to initiate a takedown.")]
-  public float takedownRange = 1.5f;
+  [Header("Subsystem References (auto-fetched if left blank)")]
+  public TakedownController takedownController;
 
-  [Tooltip("Allowed angle in degrees around the guard's back where takedown is possible.")]
-  public float takedownAngle = 60f;
+  // -------------------------------------------------------------------------
+  // Private state
+  // -------------------------------------------------------------------------
 
-  [Tooltip("Layer mask used to find guards that can be targeted for takedown.")]
-  public LayerMask guardLayerMask;
-
-  [Header("Debug")]
-  [Tooltip("Draws takedown range and angle helpers in the Scene view.")]
-  public bool showDebugGizmos = true;
-
-  [Tooltip("Logs detailed takedown check information when takedown input is pressed.")]
-  public bool verboseLogging = true;
-
-  public bool IsHidden { get; private set; } = true;
-  public bool IsInLight { get; private set; } = false;
-  public int DetectingGuardCount { get; private set; } = 0;
-
-  private float _hiddenTimer = 0f;
+  private float _hiddenTimer;
   private LightZone _currentLightZone;
 
-  private void Update() => UpdateHiddenState();
+  // -------------------------------------------------------------------------
+  // Unity lifecycle
+  // -------------------------------------------------------------------------
 
-  public void OnTakedown(InputValue value) {
-    if (value.isPressed) {
-      TryTakedown();
+  private void Awake() {
+    ValidateSubsystems();
+  }
+
+  private void Update() {
+    UpdateHiddenTimer();
+    RefreshState();
+  }
+
+  // -------------------------------------------------------------------------
+  // Subsystem validation
+  // -------------------------------------------------------------------------
+
+  /// <summary>
+  /// Fetches required stealth components from this GameObject and logs clear
+  /// errors for anything missing, so setup mistakes surface immediately.
+  /// </summary>
+  private void ValidateSubsystems() {
+    // Mandatory — [RequireComponent] ensures TakedownController is always added,
+    // but we still need the reference.
+    if (!TryFetch(ref takedownController, nameof(TakedownController), mandatory: true))
+      return; // further validation pointless if core systems are missing
+
+    // Add future subsystems here using the same pattern, e.g.:
+    // TryFetch(ref _visionBlocker, nameof(VisionBlocker), mandatory: false);
+  }
+
+  /// <summary>
+  /// Gets <paramref name="component"/> from this GameObject.
+  /// Logs an error if <paramref name="mandatory"/> and not found; warning otherwise.
+  /// Returns true when the component was found.
+  /// </summary>
+  private bool TryFetch<T>(ref T component, string label, bool mandatory) where T : Component {
+    if (component != null) return true;     // already assigned in inspector
+
+    component = GetComponent<T>();
+
+    if (component != null) return true;
+
+    string severity = mandatory ? "ERROR" : "WARNING";
+    string message = $"[{nameof(PlayerStealthController)}] [{severity}] " +
+                      $"Required stealth subsystem '{label}' not found on '{name}'. " +
+                      (mandatory ? "Add the component to this GameObject."
+                                 : "Some stealth features will be unavailable.");
+
+    if (mandatory) { Debug.LogError(message, this); enabled = false; } else { Debug.LogWarning(message, this); }
+
+    return false;
+  }
+
+  // -------------------------------------------------------------------------
+  // State machine
+  // -------------------------------------------------------------------------
+
+  private void UpdateHiddenTimer() {
+    if (DetectingGuardCount > 0) {
+      _hiddenTimer = 0f;
+    } else {
+      _hiddenTimer += Time.deltaTime;
     }
   }
 
+  /// <summary>
+  /// Re-evaluates and applies the current state every frame.
+  /// Transitions trigger <see cref="OnStateChanged"/> exactly once.
+  /// </summary>
+  private void RefreshState() {
+    StealthState next = ComputeState();
+    if (next == CurrentState) return;
+
+    StealthState previous = CurrentState;
+    CurrentState = next;
+    OnStateChanged(previous, next);
+  }
+
+  private StealthState ComputeState() {
+    if (DetectingGuardCount > 0) return StealthState.Detected;
+    if (IsInLight) return StealthState.Exposed;
+    if (_hiddenTimer >= timeToHide) return StealthState.Hidden;
+    return CurrentState; // stay as-is during the hide cooldown
+  }
+
+  /// <summary>
+  /// Reacts to a state transition by updating dependent subsystems.
+  /// </summary>
+  private void OnStateChanged(StealthState from, StealthState to) {
+    // Takedown is only allowed while the player is undetected.
+    bool takedownAllowed = to != StealthState.Detected;
+    if (takedownController != null)
+      takedownController.IsEnabled = takedownAllowed;
+
+    // Hook for future state-driven behaviour (sound, UI, animation triggers …)
+  }
+
+  // -------------------------------------------------------------------------
+  // Guard detection events (called by GuardController)
+  // -------------------------------------------------------------------------
+
   public void OnGuardStartsDetecting() {
     DetectingGuardCount++;
-    IsHidden = false;
     _hiddenTimer = 0f;
+    RefreshState();
   }
 
   public void OnGuardStopsDetecting() {
     DetectingGuardCount = Mathf.Max(0, DetectingGuardCount - 1);
+    RefreshState();
   }
+
+  // -------------------------------------------------------------------------
+  // Light zone events (called by LightZone)
+  // -------------------------------------------------------------------------
 
   public void EnterLight(LightZone zone) {
     _currentLightZone = zone;
     IsInLight = true;
+    RefreshState();
   }
 
   public void ExitLight(LightZone zone) {
-    if (_currentLightZone == zone) {
-      _currentLightZone = null;
-      IsInLight = false;
-    }
+    if (_currentLightZone != zone) return;
+    _currentLightZone = null;
+    IsInLight = false;
+    RefreshState();
   }
 
-  private void UpdateHiddenState() {
-    if (DetectingGuardCount > 0) {
-      IsHidden = false;
-      _hiddenTimer = 0f;
-      return;
-    }
-
-    _hiddenTimer += Time.deltaTime;
-    if (_hiddenTimer >= timeToHide) {
-      IsHidden = true;
-    }
-  }
-
-  private void TryTakedown() {
-    if (verboseLogging) {
-      Debug.Log($"[Takedown] Pressed | pos={transform.position:F2} range={takedownRange} mask={guardLayerMask.value}");
-    }
-
-    if (guardLayerMask.value == 0) {
-      Debug.LogWarning("[Takedown] guardLayerMask is Nothing; no guards can be found. Set it to the guard layer.");
-      return;
-    }
-
-    Collider[] hits = Physics.OverlapSphere(transform.position, takedownRange, guardLayerMask);
-
-    if (verboseLogging) {
-      Debug.Log($"[Takedown] OverlapSphere found {hits.Length} collider(s) in range.");
-    }
-
-    if (hits.Length == 0) {
-      Debug.Log("[Takedown] No guards within range. Try getting closer or increasing takedownRange.");
-      return;
-    }
-
-    foreach (Collider hit in hits) {
-      GuardController guard = hit.GetComponentInParent<GuardController>();
-
-      if (guard == null) {
-        if (verboseLogging) {
-          Debug.Log($"[Takedown] '{hit.name}' hit but no GuardController found in self or parents; skipped.");
-        }
-
-        continue;
-      }
-
-      Vector3 toPlayerFlat = new(
-        transform.position.x - guard.transform.position.x,
-        0f,
-        transform.position.z - guard.transform.position.z
-      );
-
-      Vector3 guardForwardFlat = new(
-        guard.transform.forward.x,
-        0f,
-        guard.transform.forward.z
-      );
-
-      if (toPlayerFlat.sqrMagnitude < 0.0001f || guardForwardFlat.sqrMagnitude < 0.0001f) {
-        continue;
-      }
-
-      toPlayerFlat.Normalize();
-      guardForwardFlat.Normalize();
-
-      var angleToPlayer = Vector3.Angle(guardForwardFlat, toPlayerFlat);
-      var minAngleNeeded = 180f - takedownAngle * 0.5f;
-      var behindGuard = angleToPlayer >= minAngleNeeded;
-
-      if (verboseLogging) {
-        Debug.Log($"[Takedown] Guard '{guard.name}' | " +
-                  $"dist={Vector3.Distance(transform.position, guard.transform.position):F2}m | " +
-                  $"horizAngle={angleToPlayer:F1} deg (need >= {minAngleNeeded:F1} deg) | " +
-                  $"behindGuard={behindGuard} | guardState={guard.CurrentState}");
-      }
-
-      if (behindGuard) {
-        guard.PerformTakedown();
-        Debug.Log($"[Takedown] SUCCESS on '{guard.name}'!");
-        return;
-      }
-    }
-
-    Debug.Log("[Takedown] Guard(s) found but none were approached from behind. Get behind the guard and try again.");
-  }
+  // -------------------------------------------------------------------------
+  // Gizmos
+  // -------------------------------------------------------------------------
 
   private void OnDrawGizmosSelected() {
-    if (!showDebugGizmos) {
-      return;
-    }
-
-    Gizmos.color = new Color(1f, 0.5f, 0f, 0.25f);
-    Gizmos.DrawWireSphere(transform.position, takedownRange);
+    // Stealth state label in scene view
+#if UNITY_EDITOR
+    UnityEditor.Handles.Label(
+        transform.position + Vector3.up * 0.3f,
+        $"State: {CurrentState}");
+#endif
   }
 }
