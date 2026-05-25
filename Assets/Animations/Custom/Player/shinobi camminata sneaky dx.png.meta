@@ -1,0 +1,960 @@
+fileFormatVersion: 2
+guid: 53326756575f0b24d9f82e6eae587d93
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1500
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4827799dd4496ca4daff86ce019b2eab
+      internalID: -1155342088
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_1
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c01a8bb2e8db7d4cb8d374d0b90fa6f
+      internalID: 273389033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_2
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ed52437ada87bd8478117540cca41775
+      internalID: 117875972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_3
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59a9d3e2d7b5608438518bccc9c99c0c
+      internalID: 953332719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_4
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff2dbcb8543ebad43bf681ce6c012c79
+      internalID: 1839778543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_5
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 33b801aa9cb104147bf6ec2d775fdefe
+      internalID: 588203722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_6
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 105d16f19ec990b46b4f9d8e8e765f73
+      internalID: 417496018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_7
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3ed95c2553ffab349ab6672832ba51cd
+      internalID: -1842221724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61e2c1ac966ef3a4ab773885f7fcffa4
+      internalID: 1180553090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_9
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b38be1d94fe26f54e9602875789a955d
+      internalID: -705048102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_10
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0bff27960546b4b49a950ca313a20387
+      internalID: -1862984636
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_11
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d2b06ea6cc80eaa4ab1827f54f049538
+      internalID: 1103759435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_12
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46f3ef1a39171634ba2b03d09349f713
+      internalID: -1148213751
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_13
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 06a28923588efa040a3bc5966f6000a3
+      internalID: -452978565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_14
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e8f7b1238b08f534186ce30aabcc0c13
+      internalID: 207793265
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_15
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1e9d339ca55e75d4d8fcc09e3c8e8ef8
+      internalID: -185858995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81b7a27d3eac9884eb103324869e0bf4
+      internalID: -152415675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_17
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d7fa01a0d32e324439676439a571afac
+      internalID: -114960255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_18
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 37c733768496369498e23cfefff6354b
+      internalID: -1161023443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_19
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 409f1ba85c47f3340ada592f76f35b4f
+      internalID: -1453526370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_20
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3a17052eb77a67343bcee3d4845cab30
+      internalID: 503916539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_21
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e46e6a4259572c647b61178db7639fa3
+      internalID: 590802443
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_22
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0f76ec8e5a3bd154d9247909bef833f6
+      internalID: -623166985
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_23
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b0e93bb9ae0e7774696a62b47464c3de
+      internalID: -532675188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2fcf01f9a1802ae48993642e76f5b714
+      internalID: 706954127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_25
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c4455810586ca5e46a3886aabe48ec97
+      internalID: -1823840724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_26
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 47bab7fc633474449bd6c4c393f4578b
+      internalID: 2126970702
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_27
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 844bc4ac26e0b324ab4fc7b749415d2c
+      internalID: 1033574924
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_28
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c5efdeb30ecfc964a86e25039d95a45a
+      internalID: -933438073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_29
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 273862925a53ac44085567b5cfd7ea26
+      internalID: -992137669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_30
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: abcb74119546a104288431b958cfc63f
+      internalID: 1183056716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_31
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e35c139a340a93845b9194ad42d80456
+      internalID: 334643744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 773f51a0f113bd147b0983408cc6cb46
+      internalID: -557169953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_33
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c2266f84d6ee104c93849e49fee86b8
+      internalID: 1595317313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_34
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 11b16b92743caca4fbc59bcfecc74e21
+      internalID: 1465614663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi camminata sneaky dx_35
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 613d6ae84cfd2c342ac6527828382a31
+      internalID: 1018785650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5eaa25be593d4b24abd7e08133a1e17b
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      shinobi camminata sneaky dx_0: -1155342088
+      shinobi camminata sneaky dx_1: 273389033
+      shinobi camminata sneaky dx_10: -1862984636
+      shinobi camminata sneaky dx_11: 1103759435
+      shinobi camminata sneaky dx_12: -1148213751
+      shinobi camminata sneaky dx_13: -452978565
+      shinobi camminata sneaky dx_14: 207793265
+      shinobi camminata sneaky dx_15: -185858995
+      shinobi camminata sneaky dx_16: -152415675
+      shinobi camminata sneaky dx_17: -114960255
+      shinobi camminata sneaky dx_18: -1161023443
+      shinobi camminata sneaky dx_19: -1453526370
+      shinobi camminata sneaky dx_2: 117875972
+      shinobi camminata sneaky dx_20: 503916539
+      shinobi camminata sneaky dx_21: 590802443
+      shinobi camminata sneaky dx_22: -623166985
+      shinobi camminata sneaky dx_23: -532675188
+      shinobi camminata sneaky dx_24: 706954127
+      shinobi camminata sneaky dx_25: -1823840724
+      shinobi camminata sneaky dx_26: 2126970702
+      shinobi camminata sneaky dx_27: 1033574924
+      shinobi camminata sneaky dx_28: -933438073
+      shinobi camminata sneaky dx_29: -992137669
+      shinobi camminata sneaky dx_3: 953332719
+      shinobi camminata sneaky dx_30: 1183056716
+      shinobi camminata sneaky dx_31: 334643744
+      shinobi camminata sneaky dx_32: -557169953
+      shinobi camminata sneaky dx_33: 1595317313
+      shinobi camminata sneaky dx_34: 1465614663
+      shinobi camminata sneaky dx_35: 1018785650
+      shinobi camminata sneaky dx_4: 1839778543
+      shinobi camminata sneaky dx_5: 588203722
+      shinobi camminata sneaky dx_6: 417496018
+      shinobi camminata sneaky dx_7: -1842221724
+      shinobi camminata sneaky dx_8: 1180553090
+      shinobi camminata sneaky dx_9: -705048102
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

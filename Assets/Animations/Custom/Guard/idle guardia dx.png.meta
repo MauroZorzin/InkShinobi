@@ -1,0 +1,937 @@
+fileFormatVersion: 2
+guid: 6d3ea0a4a35d20846a512c4c4fc98aeb
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1500
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: idle guardia dx_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9b6fd952504125046baa045c0bf18b6d
+      internalID: 400801646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_1
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4404b8a81c3aaee42bc79a6e85f5136f
+      internalID: 1784737279
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_2
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 57afb79bac002c8459fbd1584a65e4a5
+      internalID: -1882948154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_3
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 511aa47383b053549b118c6bbbe35481
+      internalID: -2063076089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_4
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a9f6258fa30d4e459d452a6178765b6
+      internalID: 1273357193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_5
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 407a6f2bc4ebce44a87d245a9bd2bf12
+      internalID: 1481308627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_6
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: be4497c4409a7454aa0b2a75c15375fb
+      internalID: 938801181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_7
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 638f0052375ba9c479b83b5fe63dff31
+      internalID: 114194440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2610e441196924847a3abee69127e2e2
+      internalID: -164464207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_9
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 240866edf52e8514bb691aeabed75fb5
+      internalID: -1067353127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_10
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: edb5ef7169d271545b15037e76d406c6
+      internalID: -327862522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_11
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2d45aee50b0f9c54d864a22c614bbf88
+      internalID: -756392763
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_12
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8336626392d85e546963691a28f8e008
+      internalID: 520902189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_13
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d4b6444cd2b1d1d44adeb0af8b736272
+      internalID: 646484520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_14
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8168e89e37be75d4b928b8603a4561f8
+      internalID: -1691694489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_15
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4553489a3e8621b43a3001aed6e25175
+      internalID: 347532309
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c4fcd8ae8ce9ff43a1c43856c068704
+      internalID: 496945793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_17
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d148fb87dd2876f498d02e07a65a83e5
+      internalID: 962541907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_18
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: baeb496bc669d444eb8136c08f33bc59
+      internalID: 1193377277
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_19
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81e8116420ebcb04d9d8a9112198245e
+      internalID: 2011643441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_20
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b2d746dd26bfc4a47b6b0c69e0468bf9
+      internalID: 1323377864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_21
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81167f3d952e352498dd134731c28d44
+      internalID: -545330041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_22
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 69b6ceb5761f14e4783b39c57a687d6d
+      internalID: 1953031325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_23
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 75bb4b46c9011b44182c359fd334467f
+      internalID: -388342337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 09165c3b11f39864ca4b687063f1e229
+      internalID: 1193461339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_25
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 20858fd08241f38429ac0dd91077a707
+      internalID: -2009472967
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_26
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dfe97e28faafefb49a0024af36caf9aa
+      internalID: 64361992
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_27
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3884158ce8a558a40a100b81a11a9cd9
+      internalID: -898741333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_28
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cdb5be6418485404c8f68f456a146bf3
+      internalID: 2030348583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_29
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6d9af85b1fba34548ad36bced3c27200
+      internalID: 1219017330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_30
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 90e355706e4db4344ba5799aad896c75
+      internalID: 1770115261
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_31
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 21235fc0a8ad4c441a6870475cb897df
+      internalID: -590841336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d6acd2d43b2209b459b087a7f3d20c62
+      internalID: -307527420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_33
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3dd3ceda80ce1594b87891a8a1c81dd3
+      internalID: -206109502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: idle guardia dx_34
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5f781c2a7afb4d34bb1383df37fd697c
+      internalID: 671059282
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 32b85d07ae7691d44a4b9f507fa54596
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      idle guardia dx_0: 400801646
+      idle guardia dx_1: 1784737279
+      idle guardia dx_10: -327862522
+      idle guardia dx_11: -756392763
+      idle guardia dx_12: 520902189
+      idle guardia dx_13: 646484520
+      idle guardia dx_14: -1691694489
+      idle guardia dx_15: 347532309
+      idle guardia dx_16: 496945793
+      idle guardia dx_17: 962541907
+      idle guardia dx_18: 1193377277
+      idle guardia dx_19: 2011643441
+      idle guardia dx_2: -1882948154
+      idle guardia dx_20: 1323377864
+      idle guardia dx_21: -545330041
+      idle guardia dx_22: 1953031325
+      idle guardia dx_23: -388342337
+      idle guardia dx_24: 1193461339
+      idle guardia dx_25: -2009472967
+      idle guardia dx_26: 64361992
+      idle guardia dx_27: -898741333
+      idle guardia dx_28: 2030348583
+      idle guardia dx_29: 1219017330
+      idle guardia dx_3: -2063076089
+      idle guardia dx_30: 1770115261
+      idle guardia dx_31: -590841336
+      idle guardia dx_32: -307527420
+      idle guardia dx_33: -206109502
+      idle guardia dx_34: 671059282
+      idle guardia dx_4: 1273357193
+      idle guardia dx_5: 1481308627
+      idle guardia dx_6: 938801181
+      idle guardia dx_7: 114194440
+      idle guardia dx_8: -164464207
+      idle guardia dx_9: -1067353127
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

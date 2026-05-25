@@ -239,7 +239,15 @@ public class PassagewayDoor : MonoBehaviour {
         continue;
       }
 
-      renderer.material.color = targetColor;
+      var mat = renderer.material;
+      mat.color = targetColor;
+      // Use the proper emission color property for Unity's Standard shader
+      mat.SetColor("_EmissionColor", targetColor);
+      if (targetColor != Color.black) {
+        mat.EnableKeyword("_EMISSION");
+      } else {
+        mat.DisableKeyword("_EMISSION");
+      }
     }
   }
 

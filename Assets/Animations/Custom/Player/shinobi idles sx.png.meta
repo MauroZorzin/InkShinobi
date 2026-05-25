@@ -1,0 +1,960 @@
+fileFormatVersion: 2
+guid: d5c0b5db64fcea24ca45c02d678291f5
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1500
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: shinobi idles sx_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8b1af94946a40c645b3bb1ea50170f63
+      internalID: -1296054816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_1
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3d6fa8ef9225b6c41be4f91e205f8551
+      internalID: 392885577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_2
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b17fae0067eca6447bb135aa00194d57
+      internalID: 1869173562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_3
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3929459b5bc23a44d9eeebbd35de6f1f
+      internalID: -717938488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_4
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a9d307384598893439773479de6acb89
+      internalID: -1892844332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_5
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5384aa0e710900d4e904e61d17f93f5b
+      internalID: 1133201089
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_6
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1d59109a26df1349ace31ee282b2043
+      internalID: 1468945919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_7
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: efdee66c241672241a49ce4e3dd7adcf
+      internalID: -2088389342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: eb16e25126117254196532245ace1109
+      internalID: -1765031164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_9
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f25ff44093b80e24594c30cbae03a780
+      internalID: -1713260111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_10
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 243a3e1ab3a44f34baab93aea2c09d50
+      internalID: -1340363228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_11
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e2661018d12f64741b701ca4e8f05ddc
+      internalID: -943473048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_12
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aea127dc16b042844839c165e40a8f8d
+      internalID: 1369382281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_13
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d4ee765df4cd50f48933f4da40750303
+      internalID: -978641414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_14
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1c33ad23655f64f49b3dba1400990879
+      internalID: 1748074542
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_15
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bc1bc2cdc26811b47ae980684cb449b9
+      internalID: -560327452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f9d82f14993b7a541977139483ef7e63
+      internalID: -974661809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_17
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 320e248fb80b2ec4d9e78e8952ccfb82
+      internalID: 658088808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_18
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 85f2fb07ac53b6844b263cae8859477f
+      internalID: 1718676270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_19
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f8b1772abd4e33f4887989df4430b06a
+      internalID: -443706956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_20
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f02eb1da1b9835a40ae8627a5f213fd8
+      internalID: -134904553
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_21
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2451a5df4eae5a345bf252f35f7c3fbf
+      internalID: 1340426882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_22
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ca1683f2d948344082bbcb98dde5c2d
+      internalID: 679274643
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_23
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: abf4fe1136765b74cbe93dfdbaf5a659
+      internalID: 781644614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2e24479c8b88fb74aa3d002213815f76
+      internalID: 1043015809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_25
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d361b28f20e4e3543984bbdec05344ed
+      internalID: -447417520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_26
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7071e148fee777b418fae8847feb81df
+      internalID: -78866538
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_27
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 19e1f3de6925b514ba042a444b4c865c
+      internalID: -1385882336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_28
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f9647b88cc49be44d880ccf1ed002a48
+      internalID: 774981528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_29
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 08bcdc5c84760354f986ca3a0c2da889
+      internalID: -2056113909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_30
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5c8f995b4bf86d746855a6727f5ce004
+      internalID: 75041084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_31
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 84173fc1d061a464fb3304b84fe17de1
+      internalID: 1059648818
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4817be5c28de1424c94dfc924b4463bc
+      internalID: 1562447630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_33
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1f8aa951dde6607458694797bb94b983
+      internalID: -1039803366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_34
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0e0743d63b81f7d4fad0ab66e42335c6
+      internalID: -1121603338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: shinobi idles sx_35
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 92d3192d121f6ee47b818273fe34afdb
+      internalID: 416236568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5bb6325451c2aff44a2af28d34fb6c09
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      shinobi idles sx_0: -1296054816
+      shinobi idles sx_1: 392885577
+      shinobi idles sx_10: -1340363228
+      shinobi idles sx_11: -943473048
+      shinobi idles sx_12: 1369382281
+      shinobi idles sx_13: -978641414
+      shinobi idles sx_14: 1748074542
+      shinobi idles sx_15: -560327452
+      shinobi idles sx_16: -974661809
+      shinobi idles sx_17: 658088808
+      shinobi idles sx_18: 1718676270
+      shinobi idles sx_19: -443706956
+      shinobi idles sx_2: 1869173562
+      shinobi idles sx_20: -134904553
+      shinobi idles sx_21: 1340426882
+      shinobi idles sx_22: 679274643
+      shinobi idles sx_23: 781644614
+      shinobi idles sx_24: 1043015809
+      shinobi idles sx_25: -447417520
+      shinobi idles sx_26: -78866538
+      shinobi idles sx_27: -1385882336
+      shinobi idles sx_28: 774981528
+      shinobi idles sx_29: -2056113909
+      shinobi idles sx_3: -717938488
+      shinobi idles sx_30: 75041084
+      shinobi idles sx_31: 1059648818
+      shinobi idles sx_32: 1562447630
+      shinobi idles sx_33: -1039803366
+      shinobi idles sx_34: -1121603338
+      shinobi idles sx_35: 416236568
+      shinobi idles sx_4: -1892844332
+      shinobi idles sx_5: 1133201089
+      shinobi idles sx_6: 1468945919
+      shinobi idles sx_7: -2088389342
+      shinobi idles sx_8: -1765031164
+      shinobi idles sx_9: -1713260111
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
