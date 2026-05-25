@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class MenuManagerTestSuite {
   private const string MainMenuSceneName = "MainMenu";
   private const string SettingsSceneName = "SettingsMenu";
-  private const string FirstSceneName = "Demo";
+  private const string FirstSceneName = "SettingsMenu";
   private const float SceneLoadTimeoutSeconds = 5f;
   private readonly List<Object> _createdObjects = new();
   private GameObject _menuManagerGO;
