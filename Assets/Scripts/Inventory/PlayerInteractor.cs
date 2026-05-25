@@ -40,7 +40,7 @@ public class PlayerInteractor : MonoBehaviour {
     }
 
     IInteractable closest = null;
-    float closestDistance = float.MaxValue;
+    var closestDistance = float.MaxValue;
 
     foreach (Collider hit in hits) {
       IInteractable interactable = hit.GetComponentInParent<IInteractable>();
@@ -49,7 +49,7 @@ public class PlayerInteractor : MonoBehaviour {
         continue;
       }
 
-      float distance = Vector3.Distance(interactionPoint.position, hit.transform.position);
+      var distance = Vector3.Distance(interactionPoint.position, hit.transform.position);
 
       if (distance < closestDistance) {
         closestDistance = distance;
