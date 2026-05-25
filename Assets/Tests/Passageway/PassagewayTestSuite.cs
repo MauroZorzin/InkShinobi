@@ -8,6 +8,7 @@ using UnityEngine.TestTools;
 
 public class PassagewayTestSuite {
   private const string ProtoSceneName = "ProtoScene";
+  private const string ProtoScenePath = "Assets/Scenes/ProtoScene.unity";
   private const float SceneLoadTimeoutSeconds = 5f;
 
   private readonly List<Object> _createdObjects = new();
@@ -115,6 +116,21 @@ public class PassagewayTestSuite {
   }
 
   [Test]
+  public void PlayerDoorInteractor_Awake_AssignsLocalRightAngleWallTurner_WhenReferenceMissing() {
+    GameObject playerGO = CreateGameObject("DoorInteractorPlayer");
+    playerGO.SetActive(false);
+    playerGO.AddComponent<PlayerInventory>();
+    RightAngleWallTurner turner = playerGO.AddComponent<RightAngleWallTurner>();
+    PlayerDoorInteractor interactor = playerGO.AddComponent<PlayerDoorInteractor>();
+
+    SetPrivateField(interactor, "rightAngleWallTurner", null);
+    InvokePrivate(interactor, "Awake");
+
+    Assert.AreSame(turner, GetPrivateField<RightAngleWallTurner>(interactor, "rightAngleWallTurner"));
+    Assert.IsTrue(interactor.enabled);
+  }
+
+  [Test]
   public void PlayerDoorInteractor_CanUseDoor_ReflectsDoorRequirements() {
     PlayerDoorInteractor interactor = CreateDoorInteractor(Vector3.zero, out PlayerInventory inventory);
     PassagewayDoor door = CreateDoor("RequiredDoor", new Vector3(0.25f, 0f, 0f), out _, out _, out _);
@@ -219,6 +235,20 @@ public class PassagewayTestSuite {
   }
 
   private static IEnumerator LoadScene(string sceneName) {
+#if UNITY_EDITOR
+    if (sceneName == ProtoSceneName) {
+      Scene scene = UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode(
+        ProtoScenePath,
+        new LoadSceneParameters(LoadSceneMode.Single)
+      );
+
+      Assert.IsTrue(scene.IsValid(), $"Failed to load scene asset '{ProtoScenePath}'.");
+      yield return null;
+      yield return WaitForActiveScene(sceneName, SceneLoadTimeoutSeconds);
+      yield break;
+    }
+#endif
+
     AsyncOperation loadOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
 
     Assert.IsNotNull(loadOperation, $"Failed to start loading scene '{sceneName}'.");
@@ -274,6 +304,12 @@ public class PassagewayTestSuite {
     target.GetType()
       .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
       .SetValue(target, value);
+  }
+
+  private static T GetPrivateField<T>(object target, string fieldName) {
+    return (T)target.GetType()
+      .GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance)
+      .GetValue(target);
   }
 
   private static object InvokePrivate(object target, string methodName, params object[] parameters) {

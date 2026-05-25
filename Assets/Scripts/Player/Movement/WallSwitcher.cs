@@ -109,7 +109,7 @@ public class WallSwitcher : MonoBehaviour {
       return false;
     }
 
-    if (!TryDetectFrontWall(out var frontHit)) {
+    if (!TryDetectFrontWall(out RaycastHit frontHit)) {
       if (logRayHits) {
         Debug.Log("[WallSwitcher] Request denied: no front wall in range.");
       }

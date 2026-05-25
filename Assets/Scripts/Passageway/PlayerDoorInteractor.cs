@@ -36,6 +36,10 @@ public class PlayerDoorInteractor : MonoBehaviour {
     }
 
     if (rightAngleWallTurner == null) {
+      rightAngleWallTurner = GetComponent<RightAngleWallTurner>();
+    }
+
+    if (rightAngleWallTurner == null) {
       Debug.LogError($"{name}: rightAngleWallTurner reference is required on PlayerDoorInteractor.");
       enabled = false;
       return;
