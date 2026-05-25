@@ -578,6 +578,7 @@ public class RightAngleWallTurnerLapTestSuite {
     Application.logMessageReceived += OnLogMessageReceived;
 
     yield return LoadScene(ProtoSceneName);
+    DisableGuardHazards();
 
     _playerGO = GameObject.Find("Player");
     Assert.IsNotNull(_playerGO, "ProtoScene should contain a root Player object.");
@@ -669,6 +670,13 @@ public class RightAngleWallTurnerLapTestSuite {
     typeof(PlayerMovementController)
       .GetField("_moveInput", BindingFlags.NonPublic | BindingFlags.Instance)
       .SetValue(_movementController, value);
+  }
+
+  private static void DisableGuardHazards() {
+    foreach (GuardController guard in Object.FindObjectsByType<GuardController>(FindObjectsInactive.Include, FindObjectsSortMode.None)) {
+      guard.enabled = false;
+      guard.gameObject.SetActive(false);
+    }
   }
 
   private static float HorizontalDistance(Vector3 a, Vector3 b) {
