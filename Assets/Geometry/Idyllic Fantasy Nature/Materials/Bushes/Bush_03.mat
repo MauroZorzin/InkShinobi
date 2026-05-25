@@ -121,7 +121,7 @@ Material:
     - _Blend: 0
     - _BlendHeight: 0.62
     - _BlendModePreserveSpecular: 0
-    - _Blend_Height: 0.144
+    - _Blend_Height: 0
     - _BumpScale: 1
     - _CAST_SHADOWS: 1
     - _CAST_SHADOWS_OFF: 1
@@ -182,13 +182,13 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _BottomColor: {r: 0.22831331, g: 0.4433962, b: 0, a: 0}
-    - _Bottom_Color: {r: 0.31618178, g: 0.444, b: 0, a: 0}
+    - _Bottom_Color: {r: 1, g: 0, b: 0.09885883, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Player_Position: {r: 169.991, g: 19.89849, b: 166.09459, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _TopColor: {r: 1, g: 0.11503085, b: 0.0047169924, a: 0}
-    - _Top_Color: {r: 0.756, g: 0.17491764, b: 0.26385862, a: 0}
+    - _Top_Color: {r: 0, g: 0, b: 0, a: 0}
     - _WindDirection: {r: 0.1, g: 0.1, b: 0, a: 0}
     - _Wind_Direction: {r: 0.1, g: 0.1, b: 0, a: 0}
   m_BuildTextureStacks: []
