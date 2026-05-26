@@ -43,7 +43,7 @@ Material:
     - _Smoothness: 0
     - _WorkflowMode: 1
     m_Colors:
-    - _EmissionColor: {r: 0.125, g: 0.125, b: 0.125, a: 1}
+    - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1815922486573746071

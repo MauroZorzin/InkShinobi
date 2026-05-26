@@ -89,7 +89,7 @@ public class WallSwitcher : MonoBehaviour {
   /// </summary>
   /// <returns>True when a valid front wall was found and the switch animation was started.</returns>
   public bool RequestSwitch() {
-    if (_isSwitching || Time.time < _lastRequestTime + SWITCH_COOLDOWN) {
+    if (!enabled || _isSwitching || Time.time < _lastRequestTime + SWITCH_COOLDOWN) {
       return false;
     }
 
