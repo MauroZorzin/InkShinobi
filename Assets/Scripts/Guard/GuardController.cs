@@ -10,7 +10,7 @@ public class GuardController : MonoBehaviour {
   public enum GuardState {
     /// <summary>The guard is following its waypoint route.</summary>
     Patrol,
-    /// <summary>The guard is briefly searching after losing a stronger stimulus.</summary>
+    /// <summary>The guard is briefly looking around after losing a weaker stimulus.</summary>
     Suspicious,
     /// <summary>The guard is moving toward a heard sound or last known player position.</summary>
     Investigating,
@@ -19,6 +19,8 @@ public class GuardController : MonoBehaviour {
     /// <summary>The guard has been disabled by a player takedown.</summary>
     TakenDown
   }
+
+  // ── Patrol ────────────────────────────────────────────────────────────────
 
   [Header("Patrol")]
   [Tooltip("World-space waypoints the guard walks between.")]
@@ -30,12 +32,31 @@ public class GuardController : MonoBehaviour {
   [Tooltip("Movement speed used during normal patrol.")]
   public float patrolMoveSpeed = 2f;
 
+  // ── Alert ─────────────────────────────────────────────────────────────────
+
   [Header("Alert")]
   [Tooltip("Movement speed used while chasing a detected player.")]
   public float alertMoveSpeed = 4f;
 
   [Tooltip("Seconds the guard investigates the last known player or sound position.")]
   public float investigateDuration = 5f;
+
+  // ── Look-Around ───────────────────────────────────────────────────────────
+
+  [Header("Look-Around")]
+  [Tooltip("Total angle swept to each side during a look-around scan (degrees).")]
+  [Range(30f, 180f)] public float lookAroundAngle = 90f;
+
+  [Tooltip("Seconds to complete one left-to-right sweep.")]
+  [Range(0.5f, 5f)] public float lookAroundDuration = 1.5f;
+
+  [Tooltip("How many left/right sweeps during investigation look-around.")]
+  [Range(1, 6)] public int investigateLookCount = 3;
+
+  [Tooltip("How many left/right sweeps during suspicious look-around (shorter).")]
+  [Range(1, 4)] public int suspiciousLookCount = 2;
+
+  // ── Takedown ──────────────────────────────────────────────────────────────
 
   [Header("Takedown")]
   [Tooltip("Sound played the moment the takedown is triggered.")]
@@ -47,16 +68,24 @@ public class GuardController : MonoBehaviour {
   [Tooltip("Seconds to wait after takedown before destroying this guard GameObject.")]
   public float takedownDestroyDelay = 0.5f;
 
+  // ── References ────────────────────────────────────────────────────────────
+
   [Header("References")]
   [Tooltip("Vision cone used to detect the player. Leave empty to auto-find on child GameObjects.")]
   public GuardVisionCone visionCone;
 
+  // ── Debug ─────────────────────────────────────────────────────────────────
+
   [Header("Debug")]
-  [Tooltip("Draws the current guard state above the guard in the Scene/Game view while selected.")]
+  [Tooltip("Draws the current guard state above the guard in the Game view.")]
   public bool showStateLabel = true;
+
+  // ── Public state ──────────────────────────────────────────────────────────
 
   /// <summary>The current high-level behavior state for this guard.</summary>
   public GuardState CurrentState { get; private set; } = GuardState.Patrol;
+
+  // ── Private fields ────────────────────────────────────────────────────────
 
   private NavMeshAgent _agent;
   private int _waypointIndex = 0;
@@ -64,6 +93,13 @@ public class GuardController : MonoBehaviour {
   private float _investigateTimer = 0f;
   private Vector3 _lastKnownPosition;
   private bool _waitingAtWaypoint = false;
+
+  /// <summary>Set to true while a look-around coroutine is running so Update doesn't fight it.</summary>
+  private bool _lookingAround = false;
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Unity lifecycle
+  // ─────────────────────────────────────────────────────────────────────────
 
   private void Awake() {
     _agent = GetComponent<NavMeshAgent>();
@@ -88,26 +124,23 @@ public class GuardController : MonoBehaviour {
       return;
     }
 
+    // Vision cone escalation — highest priority.
     if (visionCone != null && visionCone.PlayerDetected) {
       _lastKnownPosition = visionCone.DetectedPlayer.transform.position;
       SetState(GuardState.Alerted);
     }
 
     switch (CurrentState) {
-      case GuardState.Patrol:
-        UpdatePatrol();
-        break;
-      case GuardState.Suspicious:
-        UpdateSuspicious();
-        break;
-      case GuardState.Investigating:
-        UpdateInvestigating();
-        break;
-      case GuardState.Alerted:
-        UpdateAlerted();
-        break;
+      case GuardState.Patrol: UpdatePatrol(); break;
+      case GuardState.Suspicious: UpdateSuspicious(); break;
+      case GuardState.Investigating: UpdateInvestigating(); break;
+      case GuardState.Alerted: UpdateAlerted(); break;
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Public API
+  // ─────────────────────────────────────────────────────────────────────────
 
   /// <summary>
   /// Sends the guard to investigate a sound unless it is already alerted or taken down.
@@ -130,13 +163,22 @@ public class GuardController : MonoBehaviour {
     SetState(GuardState.TakenDown);
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // State machine
+  // ─────────────────────────────────────────────────────────────────────────
+
   /// <summary>
   /// Changes guard state and applies speed, destination, and timer side effects.
   /// </summary>
-  /// <param name="newState">The next state to enter.</param>
   private void SetState(GuardState newState) {
     if (CurrentState == newState) {
       return;
+    }
+
+    // Cancel any running look-around when escalating.
+    if (_lookingAround && (newState == GuardState.Alerted || newState == GuardState.TakenDown)) {
+      StopAllCoroutines();
+      _lookingAround = false;
     }
 
     CurrentState = newState;
@@ -144,62 +186,41 @@ public class GuardController : MonoBehaviour {
     switch (newState) {
       case GuardState.Patrol:
         _agent.speed = patrolMoveSpeed;
+        _agent.isStopped = false;
         GoToWaypoint(_waypointIndex);
         break;
+
       case GuardState.Suspicious:
-        _agent.speed = patrolMoveSpeed * 1.5f;
-        _investigateTimer = investigateDuration * 0.5f;
+        _agent.speed = patrolMoveSpeed;
+        _agent.isStopped = true;
+        StartCoroutine(LookAroundThenTransition(suspiciousLookCount, GuardState.Patrol));
         break;
+
       case GuardState.Investigating:
         _agent.speed = patrolMoveSpeed * 1.3f;
+        _agent.isStopped = false;
         _agent.SetDestination(_lastKnownPosition);
         _investigateTimer = investigateDuration;
+        _lookingAround = false;
         break;
+
       case GuardState.Alerted:
         _agent.speed = alertMoveSpeed;
+        _agent.isStopped = false;
         _agent.SetDestination(_lastKnownPosition);
         _investigateTimer = investigateDuration;
         break;
+
       case GuardState.TakenDown:
         StartCoroutine(TakedownSequence());
         break;
     }
   }
 
-  /// <summary>
-  /// Disables guard gameplay components, spawns takedown effects, then destroys the guard.
-  /// </summary>
-  private IEnumerator TakedownSequence() {
-    if (_agent != null && _agent.isOnNavMesh) {
-      _agent.isStopped = true;
-      _agent.enabled = false;
-    }
+  // ─────────────────────────────────────────────────────────────────────────
+  // Per-state update methods
+  // ─────────────────────────────────────────────────────────────────────────
 
-    if (visionCone != null) {
-      visionCone.enabled = false;
-    }
-
-    if (takedownSound != null) {
-      AudioSource.PlayClipAtPoint(takedownSound, transform.position);
-    }
-
-    if (takedownReplacementPrefab != null) {
-      Instantiate(takedownReplacementPrefab, transform.position, transform.rotation);
-    }
-
-    foreach (Collider collider in GetComponentsInChildren<Collider>()) {
-      collider.enabled = false;
-    }
-
-    Debug.Log($"[Guard] '{name}' taken down; destroying in {takedownDestroyDelay}s.");
-
-    yield return new WaitForSeconds(takedownDestroyDelay);
-    Destroy(gameObject);
-  }
-
-  /// <summary>
-  /// Advances waypoint patrol state and waits at reached waypoints.
-  /// </summary>
   private void UpdatePatrol() {
     if (patrolWaypoints == null || patrolWaypoints.Length == 0) {
       return;
@@ -223,40 +244,36 @@ public class GuardController : MonoBehaviour {
   }
 
   /// <summary>
-  /// Sends the NavMeshAgent to a patrol waypoint.
+  /// Suspicious is fully driven by the LookAround coroutine; nothing extra needed here.
   /// </summary>
-  /// <param name="index">Waypoint index to target.</param>
-  private void GoToWaypoint(int index) {
-    if (patrolWaypoints == null || patrolWaypoints.Length == 0) {
+  private void UpdateSuspicious() {
+    // Handled by LookAroundThenTransition coroutine.
+  }
+
+  /// <summary>
+  /// Moves toward the last known position; when close enough (or time runs out)
+  /// starts a look-around before falling back to Suspicious.
+  /// </summary>
+  private void UpdateInvestigating() {
+    if (_lookingAround) {
+      return; // coroutine owns rotation, don't touch the timer.
+    }
+
+    bool arrivedAtDestination = !_agent.pathPending &&
+                                _agent.remainingDistance <= _agent.stoppingDistance + 0.05f;
+
+    if (arrivedAtDestination) {
+      // Reached the point — stop and look around.
+      _agent.isStopped = true;
+      StartCoroutine(LookAroundThenTransition(investigateLookCount, GuardState.Suspicious));
       return;
     }
 
-    _agent.isStopped = false;
-    _agent.SetDestination(patrolWaypoints[index].position);
-  }
-
-  /// <summary>
-  /// Counts down suspicion before returning to patrol.
-  /// </summary>
-  private void UpdateSuspicious() {
     _investigateTimer -= Time.deltaTime;
     if (_investigateTimer <= 0f) {
-      SetState(GuardState.Patrol);
-    }
-  }
-
-  /// <summary>
-  /// Counts down investigation and transitions to suspicion when finished.
-  /// </summary>
-  private void UpdateInvestigating() {
-    _investigateTimer -= Time.deltaTime;
-
-    if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance) {
-      _investigateTimer -= Time.deltaTime * 2f;
-    }
-
-    if (_investigateTimer <= 0f) {
-      SetState(GuardState.Suspicious);
+      // Timed out before arriving — look around in place then become suspicious.
+      _agent.isStopped = true;
+      StartCoroutine(LookAroundThenTransition(investigateLookCount, GuardState.Suspicious));
     }
   }
 
@@ -281,6 +298,101 @@ public class GuardController : MonoBehaviour {
       SetState(GuardState.Suspicious);
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Look-around coroutine
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// <summary>
+  /// Rotates the guard left then right <paramref name="sweepCount"/> times,
+  /// then transitions to <paramref name="nextState"/>.
+  /// </summary>
+  private IEnumerator LookAroundThenTransition(int sweepCount, GuardState nextState) {
+    _lookingAround = true;
+    _agent.isStopped = true;
+    _agent.updateRotation = false; // We'll drive rotation manually.
+
+    Quaternion baseRotation = transform.rotation;
+    float halfAngle = lookAroundAngle * 0.5f;
+
+    for (var sweep = 0; sweep < sweepCount; sweep++) {
+      // Sweep left.
+      yield return RotateTo(baseRotation * Quaternion.Euler(0f, -halfAngle, 0f), lookAroundDuration * 0.5f);
+      // Sweep right.
+      yield return RotateTo(baseRotation * Quaternion.Euler(0f, halfAngle, 0f), lookAroundDuration);
+      // Return to center.
+      yield return RotateTo(baseRotation, lookAroundDuration * 0.5f);
+    }
+
+    _agent.updateRotation = true;
+    _lookingAround = false;
+    SetState(nextState);
+  }
+
+  /// <summary>
+  /// Smoothly rotates to <paramref name="target"/> over <paramref name="duration"/> seconds.
+  /// </summary>
+  private IEnumerator RotateTo(Quaternion target, float duration) {
+    Quaternion start = transform.rotation;
+    float elapsed = 0f;
+
+    while (elapsed < duration) {
+      elapsed += Time.deltaTime;
+      transform.rotation = Quaternion.Slerp(start, target, elapsed / duration);
+      yield return null;
+    }
+
+    transform.rotation = target;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Patrol helpers
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private void GoToWaypoint(int index) {
+    if (patrolWaypoints == null || patrolWaypoints.Length == 0) {
+      return;
+    }
+
+    _agent.isStopped = false;
+    _agent.SetDestination(patrolWaypoints[index].position);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Takedown sequence
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private IEnumerator TakedownSequence() {
+    if (_agent != null && _agent.isOnNavMesh) {
+      _agent.isStopped = true;
+      _agent.enabled = false;
+    }
+
+    if (visionCone != null) {
+      visionCone.enabled = false;
+    }
+
+    if (takedownSound != null) {
+      AudioSource.PlayClipAtPoint(takedownSound, transform.position);
+    }
+
+    if (takedownReplacementPrefab != null) {
+      Instantiate(takedownReplacementPrefab, transform.position, transform.rotation);
+    }
+
+    foreach (Collider col in GetComponentsInChildren<Collider>()) {
+      col.enabled = false;
+    }
+
+    Debug.Log($"[Guard] '{name}' taken down; destroying in {takedownDestroyDelay}s.");
+
+    yield return new WaitForSeconds(takedownDestroyDelay);
+    Destroy(gameObject);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Editor helpers
+  // ─────────────────────────────────────────────────────────────────────────
 
 #if UNITY_EDITOR
   private void OnDrawGizmosSelected() {
