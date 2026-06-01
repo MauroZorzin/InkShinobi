@@ -1,69 +1,104 @@
 using UnityEngine;
 
 /// <summary>
-/// Emits a one-shot investigate signal to any guard that enters the attached trigger collider.
-/// Spawn it at a position (thrown object, footstep, door bang) and it destroys itself after
-/// <see cref="lifetime"/> seconds.
+/// Emits an investigate signal to guards that enter the trigger collider while active.
+/// Call Activate() / Deactivate(), or set IsActive in the Inspector.
+/// Auto-deactivates after <see cref="lifetime"/> seconds if lifetime > 0.
 ///
-/// Requires a Collider on the same GameObject with <b>Is Trigger</b> checked.
-/// Resize the collider in the Inspector to set the hearing range.
+/// Requires a Collider on this GameObject with Is Trigger checked.
 /// </summary>
 [RequireComponent(typeof(Collider))]
 public class GuardSoundSignal : MonoBehaviour {
 
   [Header("Signal")]
-  [Tooltip("Seconds before this GameObject destroys itself. Zero = destroy on the same frame after notifying guards.")]
-  [Min(0f)] public float lifetime = 3f;
+  [Tooltip("Whether the signal is currently active.")]
+  public bool IsActive = false;
 
-  [Tooltip("If true the signal fires immediately on Awake, contacting any guards already inside the collider.")]
-  public bool triggerOnAwake = true;
+  [Tooltip("Seconds until the signal deactivates automatically. 0 = never.")]
+  [Min(0f)] public float lifetime = 0f;
 
   [Header("Debug")]
-  [Tooltip("Logs which guards were notified.")]
   public bool verboseLogging = false;
 
+  private float _activeTimer = 0f;
+  private bool _wasActive = false;
+
+  // ── Public API ────────────────────────────────────────────────────────────
+
+  /// <summary>Turns the signal on. Optionally sets a new lifetime countdown.</summary>
+  public void Activate(float newLifetime = -1f) {
+    if (newLifetime >= 0f) {
+      lifetime = newLifetime;
+    }
+    _activeTimer = 0f;
+    IsActive = true;
+  }
+
+  /// <summary>Turns the signal off immediately.</summary>
+  public void Deactivate() {
+    IsActive = false;
+    _activeTimer = 0f;
+  }
+
+  // ── Unity lifecycle ───────────────────────────────────────────────────────
 
   private void Awake() {
     Collider col = GetComponent<Collider>();
     if (!col.isTrigger) {
-      Debug.LogWarning($"[SoundSignal] '{name}': Collider is not set to Is Trigger. " +
-                       "Setting it automatically.", this);
+      Debug.LogWarning($"[SoundSignal] '{name}': Collider is not Is Trigger — fixing automatically.", this);
       col.isTrigger = true;
     }
+  }
 
-    if (triggerOnAwake) {
-      // OverlapSphere at birth to catch guards already inside the volume.
-      // We derive the radius from a SphereCollider if present otherwise use
-      // the collider bounds half-extents as a fallback.
-      float radius = GetApproximateRadius(col);
-      Collider[] hits = Physics.OverlapSphere(transform.position, radius);
-      foreach (Collider hit in hits) {
-        TryNotifyGuard(hit);
-      }
+  private void Update() {
+    // Detect the moment IsActive flips on (either from code or Inspector toggle).
+    if (IsActive && !_wasActive) {
+      OnBecameActive();
     }
+    _wasActive = IsActive;
 
-    if (lifetime > 0f) {
-      Destroy(gameObject, lifetime);
-    } else {
-      Destroy(gameObject);
+    // Countdown.
+    if (IsActive && lifetime > 0f) {
+      _activeTimer += Time.deltaTime;
+      if (_activeTimer >= lifetime) {
+        Deactivate();
+      }
     }
   }
 
   private void OnTriggerEnter(Collider other) {
+    if (!IsActive) return;
     TryNotifyGuard(other);
   }
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
+
+  /// <summary>
+  /// Called the frame IsActive becomes true.
+  /// Does a one-shot OverlapSphere to notify guards already inside the collider,
+  /// because OnTriggerEnter won't fire for them.
+  /// </summary>
+  private void OnBecameActive() {
+    Collider col = GetComponent<Collider>();
+    float radius = GetApproximateRadius(col);
+    Collider[] hits = Physics.OverlapSphere(transform.position, radius);
+    foreach (Collider hit in hits) {
+      TryNotifyGuard(hit);
+    }
+
+    if (verboseLogging) {
+      Debug.Log($"[SoundSignal] '{name}' became active (lifetime={lifetime:F1}s).");
+    }
+  }
 
   private void TryNotifyGuard(Collider col) {
     GuardController guard = col.GetComponentInParent<GuardController>();
-    if (guard == null) {
-      return;
-    }
+    if (guard == null) return;
 
     guard.InvestigateSound(transform.position);
 
     if (verboseLogging) {
-      Debug.Log($"[SoundSignal] '{name}' notified guard '{guard.name}'.");
+      Debug.Log($"[SoundSignal] '{name}' notified '{guard.name}'.");
     }
   }
 
@@ -74,8 +109,6 @@ public class GuardSoundSignal : MonoBehaviour {
         col.transform.lossyScale.y,
         col.transform.lossyScale.z);
     }
-
-    // Fallback: use the largest half-extent of the bounds.
     Vector3 ext = col.bounds.extents;
     return Mathf.Max(ext.x, ext.y, ext.z);
   }
@@ -84,10 +117,10 @@ public class GuardSoundSignal : MonoBehaviour {
   private void OnDrawGizmosSelected() {
     Collider col = GetComponent<Collider>();
     if (col == null) return;
-
-    Gizmos.color = new Color(1f, 0.6f, 0f, 0.15f);
+    Color c = IsActive ? new Color(1f, 0.6f, 0f, 1f) : new Color(0.5f, 0.5f, 0.5f, 0.5f);
+    Gizmos.color = new Color(c.r, c.g, c.b, 0.12f);
     Gizmos.DrawSphere(transform.position, GetApproximateRadius(col));
-    Gizmos.color = new Color(1f, 0.6f, 0f, 0.8f);
+    Gizmos.color = c;
     Gizmos.DrawWireSphere(transform.position, GetApproximateRadius(col));
   }
 #endif
