@@ -129,9 +129,7 @@ public class PassagewayDoor : MonoBehaviour {
     leftClosedLocalPosition = leftDoorPanel != null ? leftDoorPanel.localPosition : Vector3.zero;
     rightClosedLocalPosition = rightDoorPanel != null ? rightDoorPanel.localPosition : Vector3.zero;
 
-    Vector3 localSlideDirection = slideAxis == SlideAxis.LocalX ? Vector3.right : Vector3.forward;
-    leftOpenLocalPosition = leftClosedLocalPosition + localSlideDirection * panelSlideDistance;
-    rightOpenLocalPosition = rightClosedLocalPosition - localSlideDirection * panelSlideDistance;
+
 
     if (navMeshObstacle != null) {
       navMeshObstacle.enabled = true;
@@ -364,6 +362,11 @@ public class PassagewayDoor : MonoBehaviour {
   }
 
   private void ApplyPanelPositions(bool open) {
+
+    Vector3 localSlideDirection = slideAxis == SlideAxis.LocalX ? Vector3.right : Vector3.forward;
+    leftOpenLocalPosition = leftClosedLocalPosition + localSlideDirection * panelSlideDistance;
+    rightOpenLocalPosition = rightClosedLocalPosition - localSlideDirection * panelSlideDistance;
+
     if (leftDoorPanel != null) {
       leftDoorPanel.localPosition = open ? leftOpenLocalPosition : leftClosedLocalPosition;
     }
