@@ -6046,7 +6046,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 810966118654099816, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -13.3
+      value: -12.65
       objectReference: {fileID: 0}
     - target: {fileID: 810966118654099816, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6101,8 +6101,32 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2450330144461465846, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
+      propertyPath: backRayLength
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2450330144461465846, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
+      propertyPath: wallHugDistance
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2450330144461465846, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
+      propertyPath: lateralRayLength
+      value: 0.125
+      objectReference: {fileID: 0}
+    - target: {fileID: 2450330144461465846, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
+      propertyPath: postTurnBacktrackStep
+      value: 0.025
+      objectReference: {fileID: 0}
+    - target: {fileID: 2450330144461465846, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
+      propertyPath: targetContactTolerance
+      value: 0.125
+      objectReference: {fileID: 0}
+    - target: {fileID: 2450330144461465846, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
       propertyPath: postTurnCorrectionFrames
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2450330144461465846, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
+      propertyPath: postTurnHugDistanceTolerance
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 3712493833493639400, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
       propertyPath: m_Enabled
@@ -6111,6 +6135,10 @@ PrefabInstance:
     - target: {fileID: 4348720366440146184, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4348720366440146184, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
+      propertyPath: wallHugDistance
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 5401128884289392612, guid: c4a7d852cd503f2489ec5f60178990f7, type: 3}
       propertyPath: m_Name
@@ -17217,11 +17245,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5844257678387010, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0.0005725
       objectReference: {fileID: 0}
     - target: {fileID: 5844257678387010, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.0049615568
+      value: -0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 5844257678387010, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5844257678387010, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5844257678387010, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5844257678387010, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -180
       objectReference: {fileID: 0}
     - target: {fileID: 245126473154513645, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_LocalPosition.x
