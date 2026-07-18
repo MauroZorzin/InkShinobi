@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="1" result="Failed(Child)" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-06-01 15:07:09Z" end-time="2026-06-01 15:07:09Z" duration="0.129219">
+  <test-suite type="TestSuite" id="1136" name="Ink-Shinobi" fullname="Ink-Shinobi" runstate="Runnable" testcasecount="113" result="Failed" site="Child" start-time="2026-06-01 15:07:09Z" end-time="2026-06-01 15:07:09Z" duration="0.129219" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1132" name="Tests.dll" fullname="D:/UNITY/SAVES/ink-shinobi/Library/ScriptAssemblies/Tests.dll" runstate="Runnable" testcasecount="113" result="Failed" site="Child" start-time="2026-06-01 15:07:09Z" end-time="2026-06-01 15:07:09Z" duration="0.113205" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="26200" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="1008" name="GuardSoundSignalTests" fullname="GuardSoundSignalTests" classname="GuardSoundSignalTests" runstate="Runnable" testcasecount="4" result="Failed" site="Child" start-time="2026-06-01 15:07:09Z" end-time="2026-06-01 15:07:09Z" duration="0.108339" total="1" passed="0" failed="1" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="1010" name="ActivatingWithGuardAlreadyInside_NotifiesGuard" fullname="GuardSoundSignalTests.ActivatingWithGuardAlreadyInside_NotifiesGuard" methodname="ActivatingWithGuardAlreadyInside_NotifiesGuard" classname="GuardSoundSignalTests" runstate="Runnable" seed="1433269528" result="Failed" start-time="2026-06-01 15:07:09Z" end-time="2026-06-01 15:07:09Z" duration="0.088282" asserts="0">
+          <properties>
+            <property name="_JOINTYPE" value="UnityCombinatorial" />
+            <property name="retryIteration" value="0" />
+            <property name="repeatIteration" value="0" />
+          </properties>
+          <failure>
+            <message><![CDATA[Unhandled log message: '[Error] "Resume" can only be called on an active agent that has been placed on a NavMesh.'. Use UnityEngine.TestTools.LogAssert.Expect]]></message>
+            <stack-trace><![CDATA[UnityEngine.AI.NavMeshAgent:set_isStopped (bool)
+GuardController:SetState (GuardController/GuardState) (at Assets/Scripts/Guard/GuardController.cs:201)
+GuardController:InvestigateSound (UnityEngine.Vector3) (at Assets/Scripts/Guard/GuardController.cs:155)
+GuardSoundSignal:TryNotifyGuard (UnityEngine.Collider) (at Assets/Scripts/Guard/GuardSignalSender.cs:98)
+GuardSoundSignal:OnBecameActive () (at Assets/Scripts/Guard/GuardSignalSender.cs:86)
+GuardSoundSignal:Update () (at Assets/Scripts/Guard/GuardSignalSender.cs:56)
+
+]]></stack-trace>
+          </failure>
+          <output><![CDATA[Failed to create agent because there is no valid NavMesh
+[Guard] Guard: No GuardVisionCone found.
+"Resume" can only be called on an active agent that has been placed on a NavMesh.
+"SetDestination" can only be called on an active agent that has been placed on a NavMesh.
+[Guard] 'Guard' heard a sound at (0.0, 0.0, 0.0); investigating.
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+"GetRemainingDistance" can only be called on an active agent that has been placed on a NavMesh.
+Saving results to: C:/Users/zorzi/AppData/LocalLow/DefaultCompany/Ink-Shinobi\TestResults.xml
+]]></output>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
