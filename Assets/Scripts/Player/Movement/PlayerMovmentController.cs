@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(WallSwitcher))]
+[RequireComponent(typeof(WallVisionController))]
 public class PlayerMovementController : MonoBehaviour {
   [Header("Movement")]
   [Tooltip("Maximum horizontal movement speed.")]
@@ -51,7 +52,7 @@ public class PlayerMovementController : MonoBehaviour {
   private Camera _cam;
   private Animator _animator;
   private SpriteRenderer _sr;
-  private WallSwitcher _wallSwitcher;
+  private WallVisionController _wallVisionController;
 
   private Vector3 _velocity;
   private float _verticalVelocity;
@@ -80,7 +81,7 @@ public class PlayerMovementController : MonoBehaviour {
     _cam = Camera.main;
     _animator = GetComponent<Animator>();
     _sr = GetComponent<SpriteRenderer>();
-    _wallSwitcher = GetComponent<WallSwitcher>();
+    _wallVisionController = GetComponent<WallVisionController>();
 
     if (camPivot == null && _cam != null) {
       camPivot = _cam.transform.parent != null ? _cam.transform.parent : _cam.transform;
@@ -92,9 +93,25 @@ public class PlayerMovementController : MonoBehaviour {
     _moveInput = value.Get<float>();
   }
 
-  private void OnSwitch(InputValue value) {
+  /// <summary>
+  /// Bound to a held "Vision" input action. Pressing it swings the camera into
+  /// vision mode and starts aiming; releasing it before confirming cancels.
+  /// </summary>
+  private void OnVision(InputValue value) {
     if (value.isPressed) {
-      _wallSwitcher.RequestSwitch();
+      _wallVisionController.BeginVisionMode();
+    } else {
+      _wallVisionController.EndVisionMode();
+    }
+  }
+
+  /// <summary>
+  /// Bound to a "Confirm" input action, pressed while Vision is still held.
+  /// Commits the wall switch to whatever is currently aimed at, if valid.
+  /// </summary>
+  private void OnConfirm(InputValue value) {
+    if (value.isPressed) {
+      _wallVisionController.TryConfirmSwitch();
     }
   }
 

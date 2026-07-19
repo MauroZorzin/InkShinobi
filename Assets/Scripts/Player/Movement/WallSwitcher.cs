@@ -1,72 +1,54 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// Handles scripted 180-degree wall switches when the player requests a transition to the wall ahead.
+/// Handles the actual mechanics of a wall switch: validating a candidate target wall
+/// and moving the player onto it. Has no knowledge of the camera or of input — those
+/// are owned by WallVisionController, which calls into this component.
 /// </summary>
 [RequireComponent(typeof(CharacterController))]
-[RequireComponent(typeof(PlayerMovementController))]
-[RequireComponent(typeof(RightAngleWallTurner))]
 public class WallSwitcher : MonoBehaviour {
   [Header("References")]
-  [Tooltip("Pivot that rotates the camera around the player (defaults to Camera.main parent).")]
-  public Transform camPivot;
-
-  [Tooltip("Movement controller to disable during a wall switch.")]
+  [Tooltip("Movement controller notified once the switch move completes (velocity reset).")]
   public PlayerMovementController movementController;
 
-  [Tooltip("Corner turn script to pause while the switch is running.")]
+  [Tooltip("Corner turn script notified once the switch completes, so it can resume from the new wall.")]
   public RightAngleWallTurner rightAngleWallTurner;
 
   [Header("Wall Detection")]
   [Tooltip("Layer(s) used for wall detection.")]
   public LayerMask wallLayer;
 
-  [Tooltip("Maximum front distance to detect a switchable wall.")]
-  public float frontRayLength = 1f;
-
-  [Tooltip("Horizontal offset from the player center for the two front rays.")]
-  public float frontRayCenterOffset = 0.2f;
+  [Tooltip("Ray length used to find the wall the player is currently standing on.")]
+  public float currentWallProbeLength = 1.5f;
 
   [Header("Switch Transition")]
-  [Tooltip("Seconds spent rotating the camera the first 90 degrees before the player begins moving to the target wall.")]
-  public float firstNinetyRotationDuration = 0.25f;
-
-  [Tooltip("Seconds spent moving the player from the current wall position to the target wall position while the camera remains turned sideways.")]
+  [Tooltip("Seconds spent moving the player from the current wall position to the target wall position.")]
   public float switchObservationDuration = 0.5f;
 
-  [Tooltip("Seconds spent rotating the camera the final 90 degrees after the player reaches the target wall.")]
-  public float finalNinetyRotationDuration = 0.25f;
-
-  [Header("Player snap")]
   [Tooltip("Distance from the target wall after switching.")]
   public float wallHugDistance = 0.25f;
 
   [Header("Debug")]
-  [Tooltip("Draws wall-switch detection rays and target points in the Scene view.")]
+  [Tooltip("Draws the current-wall probe ray in the Scene view.")]
   public bool drawDebugGizmos = true;
 
-  [Tooltip("Writes wall-switch ray hit diagnostics to the console.")]
+  [Tooltip("Writes wall-switch diagnostics to the console.")]
   public bool logRayHits = true;
 
-  private const float SWITCH_COOLDOWN = 1f;
+  private const float SWITCH_COOLDOWN = 0.5f;
 
   private CharacterController _cc;
   private bool _isSwitching;
-  private float _lastRequestTime = -999f;
+  private float _lastSwitchTime = -999f;
+  private Collider _currentWallCollider;
 
-  private bool _hasLastFrontHit;
-  private RaycastHit _lastFrontHit;
-  private bool _lastFrontLeftHit;
-  private bool _lastFrontRightHit;
-  private RaycastHit _lastFrontLeftHitInfo;
-  private RaycastHit _lastFrontRightHitInfo;
-
-  /// <summary>
-  /// Returns whether a wall switch transition is currently being animated.
-  /// </summary>
-  /// <value>True while the switch coroutine owns camera rotation and player positioning.</value>
+  /// <summary>True while the player is being moved onto the target wall.</summary>
   public bool IsSwitching => _isSwitching;
+
+  /// <summary>The wall collider the player is currently standing on, if known.</summary>
+  public Collider CurrentWallCollider => _currentWallCollider;
 
   private void Awake() {
     _cc = GetComponent<CharacterController>();
@@ -78,139 +60,83 @@ public class WallSwitcher : MonoBehaviour {
     if (rightAngleWallTurner == null) {
       rightAngleWallTurner = GetComponent<RightAngleWallTurner>();
     }
+  }
 
-    if (camPivot == null && Camera.main != null) {
-      camPivot = Camera.main.transform.parent != null ? Camera.main.transform.parent : Camera.main.transform;
+  /// <summary>
+  /// Re-probes the wall directly behind the player (along -transform.up) and caches it as
+  /// the "current" wall, so it can be excluded from valid switch targets. Call this when
+  /// entering vision mode, before the player starts aiming.
+  /// </summary>
+  public void RefreshCurrentWall() {
+    _currentWallCollider = null;
+    Vector3 origin = transform.position;
+    Vector3 dir = -transform.up; // player's "up" points off the wall in a wall-walker setup
+
+    if (Physics.Raycast(origin, dir, out RaycastHit hit, currentWallProbeLength, wallLayer, QueryTriggerInteraction.Ignore)) {
+      _currentWallCollider = hit.collider;
     }
   }
 
   /// <summary>
-  /// Attempts to start a wall switch from player input.
+  /// Checks whether a raycast hit is a legal switch target: it must be a real hit and not
+  /// the wall the player is already standing on.
   /// </summary>
-  /// <returns>True when a valid front wall was found and the switch animation was started.</returns>
-  public bool RequestSwitch() {
-    if (!enabled || _isSwitching || Time.time < _lastRequestTime + SWITCH_COOLDOWN) {
+  /// <param name="hit">Candidate raycast hit, expected to already be filtered to wallLayer by the caller.</param>
+  /// <returns>True when the hit is a valid switch target.</returns>
+  public bool IsValidSwitchTarget(RaycastHit hit) {
+    return hit.collider != null && hit.collider != _currentWallCollider;
+  }
+
+  /// <summary>
+  /// Starts moving the player onto the target wall if the target is valid and no switch
+  /// is already in progress or on cooldown.
+  /// </summary>
+  /// <param name="targetWall">The aimed raycast hit selected as the switch target.</param>
+  /// <param name="onComplete">Optional callback invoked with the target wall once the move finishes.</param>
+  /// <returns>True if a switch was started.</returns>
+  public bool TrySwitchToWall(RaycastHit targetWall, Action<RaycastHit> onComplete = null) {
+    if (!enabled || _isSwitching || Time.time < _lastSwitchTime + SWITCH_COOLDOWN) {
       return false;
     }
 
-    _lastRequestTime = Time.time;
-
-    if (movementController != null && movementController.IsRotating()) {
+    if (!IsValidSwitchTarget(targetWall)) {
       if (logRayHits) {
-        Debug.Log("[WallSwitcher] Request denied: movement controller is rotating.");
+        Debug.Log("[WallSwitcher] Switch denied: invalid target wall.");
       }
       return false;
     }
-
-    if (rightAngleWallTurner != null && rightAngleWallTurner.IsTurning) {
-      if (logRayHits) {
-        Debug.Log("[WallSwitcher] Request denied: right-angle turn in progress.");
-      }
-      return false;
-    }
-
-    if (!TryDetectFrontWall(out RaycastHit frontHit)) {
-      if (logRayHits) {
-        Debug.Log("[WallSwitcher] Request denied: no front wall in range.");
-      }
-      return false;
-    }
-
-    _lastFrontHit = frontHit;
-    _hasLastFrontHit = true;
 
     if (logRayHits) {
-      Debug.Log($"[WallSwitcher] Switch started. frontNormal={frontHit.normal.ToString("F3")} frontPoint={frontHit.point.ToString("F3")}");
+      Debug.Log($"[WallSwitcher] Switch started. targetNormal={targetWall.normal:F3} targetPoint={targetWall.point:F3}");
     }
 
-    StartCoroutine(DoSwitch(frontHit));
+    StartCoroutine(SwitchRoutine(targetWall, onComplete));
     return true;
   }
 
   /// <summary>
-  /// Requires both offset front rays to hit, preventing partial or edge-only wall switches.
-  /// </summary>
-  /// <param name="hit">The closest of the two front-ray wall hits when detection succeeds.</param>
-  /// <returns>True when both front rays hit a switchable wall.</returns>
-  private bool TryDetectFrontWall(out RaycastHit hit) {
-    Vector3 forward = -GetCameraPlanarForward();
-    if (forward.sqrMagnitude < 0.0001f) {
-      hit = default;
-      _lastFrontLeftHit = false;
-      _lastFrontRightHit = false;
-      return false;
-    }
-
-    Vector3 lateral = GetCameraPlanarRight();
-    if (lateral.sqrMagnitude < 0.0001f) {
-      lateral = transform.right;
-      lateral.y = 0f;
-      lateral = lateral.sqrMagnitude > 0.0001f ? lateral.normalized : Vector3.right;
-    }
-
-    var offset = Mathf.Max(0f, frontRayCenterOffset);
-    var length = Mathf.Max(0.05f, frontRayLength);
-
-    Vector3 leftOrigin = transform.position - lateral * offset;
-    Vector3 rightOrigin = transform.position + lateral * offset;
-
-    _lastFrontLeftHit = Physics.Raycast(leftOrigin, forward, out _lastFrontLeftHitInfo, length, wallLayer, QueryTriggerInteraction.Ignore);
-    _lastFrontRightHit = Physics.Raycast(rightOrigin, forward, out _lastFrontRightHitInfo, length, wallLayer, QueryTriggerInteraction.Ignore);
-
-    if (!(_lastFrontLeftHit && _lastFrontRightHit)) {
-      hit = default;
-      return false;
-    }
-
-    hit = _lastFrontLeftHitInfo.distance <= _lastFrontRightHitInfo.distance ? _lastFrontLeftHitInfo : _lastFrontRightHitInfo;
-    return true;
-  }
-
-  /// <summary>
-  /// Rotates the camera, moves the player to the opposite wall, then restores movement control.
+  /// Moves the player from its current position to the hugged position on the target wall.
   /// </summary>
   /// <param name="targetWall">The wall hit selected as the target for the switch.</param>
-  /// <returns>Coroutine enumerator used by Unity while the switch sequence is active.</returns>
-  private IEnumerator DoSwitch(RaycastHit targetWall) {
+  /// <param name="onComplete">Optional callback invoked with the target wall once the move finishes.</param>
+  /// <returns>Coroutine enumerator used by Unity while the move is active.</returns>
+  private IEnumerator SwitchRoutine(RaycastHit targetWall, Action<RaycastHit> onComplete) {
     _isSwitching = true;
-
-    if (rightAngleWallTurner != null) {
-      rightAngleWallTurner.enabled = false;
-    }
-
-    if (movementController != null) {
-      movementController.enabled = false;
-    }
-
-    if (camPivot == null && Camera.main != null) {
-      camPivot = Camera.main.transform.parent != null ? Camera.main.transform.parent : Camera.main.transform;
-    }
-
-    if (camPivot == null) {
-      FinishSwitch();
-      yield break;
-    }
 
     Vector3 startPos = transform.position;
     Vector3 targetPos = ComputeHuggedPosition(targetWall, startPos);
 
-    var startYaw = camPivot.eulerAngles.y;
-    var sideYaw = startYaw + 90f;
-    var targetYaw = startYaw + 180f;
+    var elapsed = 0f;
+    var duration = Mathf.Max(0.01f, switchObservationDuration);
 
-    // 1. Rotate the camera 90 degrees first.
-    yield return AnimateCameraYaw(startYaw, sideYaw, firstNinetyRotationDuration);
+    while (elapsed < duration) {
+      elapsed += Time.deltaTime;
+      var t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
+      SetPlayerPosition(Vector3.Lerp(startPos, targetPos, t));
+      yield return null;
+    }
 
-    // 2. Move the player while the camera stays sideways.
-    yield return AnimatePlayerMove(startPos, targetPos, sideYaw, switchObservationDuration);
-
-    // 3. Rotate the camera the remaining 90 degrees.
-    yield return AnimateCameraYaw(sideYaw, targetYaw, finalNinetyRotationDuration);
-
-    // Final exact placement.
-    camPivot.eulerAngles = new Vector3(0f, targetYaw, 0f);
     SetPlayerPosition(targetPos);
-    camPivot.position = transform.position;
 
     if (movementController != null) {
       movementController.ResetHorizontalVelocity();
@@ -220,121 +146,39 @@ public class WallSwitcher : MonoBehaviour {
       rightAngleWallTurner.NotifyWallSwitchCompleted(targetWall.normal);
     }
 
-    if (logRayHits) {
-      Debug.Log($"[WallSwitcher] Switch completed. targetPos={targetPos.ToString("F3")}");
-    }
-
-    FinishSwitch();
-  }
-
-  /// <summary>
-  /// Interpolates the camera pivot yaw while keeping the pivot centered on the player.
-  /// </summary>
-  /// <param name="fromYaw">Starting yaw angle in degrees.</param>
-  /// <param name="toYaw">Target yaw angle in degrees.</param>
-  /// <param name="duration">Animation duration in seconds before clamping to a minimum value.</param>
-  /// <returns>Coroutine enumerator used by Unity while the yaw animation is active.</returns>
-  private IEnumerator AnimateCameraYaw(float fromYaw, float toYaw, float duration) {
-    var elapsed = 0f;
-    duration = Mathf.Max(0.01f, duration);
-
-    while (elapsed < duration) {
-      elapsed += Time.deltaTime;
-
-      var t = Mathf.Clamp01(elapsed / duration);
-      var eased = Mathf.SmoothStep(0f, 1f, t);
-
-      var yaw = Mathf.LerpAngle(fromYaw, toYaw, eased);
-      camPivot.eulerAngles = new Vector3(0f, yaw, 0f);
-      camPivot.position = transform.position;
-
-      yield return null;
-    }
-
-    camPivot.eulerAngles = new Vector3(0f, toYaw, 0f);
-    camPivot.position = transform.position;
-  }
-
-  /// <summary>
-  /// Moves the player between two wall-hug positions while holding the camera at a fixed yaw.
-  /// </summary>
-  /// <param name="fromPos">Starting world position.</param>
-  /// <param name="toPos">Target world position.</param>
-  /// <param name="yaw">Camera yaw to hold during the move.</param>
-  /// <param name="duration">Animation duration in seconds before clamping to a minimum value.</param>
-  /// <returns>Coroutine enumerator used by Unity while the move animation is active.</returns>
-  private IEnumerator AnimatePlayerMove(Vector3 fromPos, Vector3 toPos, float yaw, float duration) {
-    var elapsed = 0f;
-    duration = Mathf.Max(0.01f, duration);
-
-    camPivot.eulerAngles = new Vector3(0f, yaw, 0f);
-
-    while (elapsed < duration) {
-      elapsed += Time.deltaTime;
-
-      var t = Mathf.Clamp01(elapsed / duration);
-      var eased = Mathf.SmoothStep(0f, 1f, t);
-
-      Vector3 pos = Vector3.Lerp(fromPos, toPos, eased);
-      SetPlayerPosition(pos);
-
-      camPivot.eulerAngles = new Vector3(0f, yaw, 0f);
-      camPivot.position = transform.position;
-
-      yield return null;
-    }
-
-    SetPlayerPosition(toPos);
-    camPivot.eulerAngles = new Vector3(0f, yaw, 0f);
-    camPivot.position = transform.position;
-  }
-
-  private void FinishSwitch() {
-    if (movementController != null) {
-      movementController.enabled = true;
-    }
-
-    if (rightAngleWallTurner != null) {
-      rightAngleWallTurner.enabled = true;
-    }
-
+    _currentWallCollider = targetWall.collider;
+    _lastSwitchTime = Time.time;
     _isSwitching = false;
+
+    if (logRayHits) {
+      Debug.Log($"[WallSwitcher] Switch completed. targetPos={targetPos:F3}");
+    }
+
+    onComplete?.Invoke(targetWall);
   }
 
   /// <summary>
-  /// Computes the target wall-hug position while preserving the player's along-wall coordinate.
+  /// Computes the target wall-hug position from the aimed point's X/Z only — the player's
+  /// height (Y) never changes during a switch, regardless of where vertically they aimed.
+  /// This method only ever returns a position — it must never touch player rotation. Discrete
+  /// 90/180/270/360-degree world rotation is owned exclusively by
+  /// PlayerMovementController.RotateWorld / RightAngleWallTurner; nothing here should set
+  /// transform.rotation, ever.
   /// </summary>
-  /// <param name="wallHit">Raycast hit on the target wall.</param>
-  /// <param name="fromPosition">Current player position before the switch begins.</param>
-  /// <returns>A world position offset from the wall by the configured hug distance.</returns>
+  /// <param name="wallHit">Raycast hit on the target wall — the exact point the player aimed at.</param>
+  /// <param name="fromPosition">Current player position before the switch begins; its Y is preserved.</param>
+  /// <returns>A world position at the aimed X/Z, offset off the wall by the configured hug distance, at the player's current height.</returns>
   private Vector3 ComputeHuggedPosition(RaycastHit wallHit, Vector3 fromPosition) {
     var standoff = Mathf.Max(0.01f, wallHugDistance);
     Vector3 targetPos = wallHit.point + wallHit.normal * standoff;
-
-    Vector3 flatNormal = wallHit.normal;
-    flatNormal.y = 0f;
-
-    if (flatNormal.sqrMagnitude > 0.0001f) {
-      flatNormal.Normalize();
-      Vector3 flatTangent = Vector3.Cross(Vector3.up, flatNormal);
-
-      if (flatTangent.sqrMagnitude > 0.0001f) {
-        flatTangent.Normalize();
-
-        // Keep the same along-wall coordinate to avoid lateral drift during the switch.
-        var sourceAlongWall = Vector3.Dot(new Vector3(fromPosition.x, 0f, fromPosition.z), flatTangent);
-        var targetAlongWall = Vector3.Dot(new Vector3(targetPos.x, 0f, targetPos.z), flatTangent);
-        var alongWallDelta = sourceAlongWall - targetAlongWall;
-        targetPos += flatTangent * alongWallDelta;
-      }
-    }
-
     targetPos.y = fromPosition.y;
     return targetPos;
   }
 
   /// <summary>
   /// Temporarily disables the character controller so scripted placement is not blocked by collision resolution.
+  /// Intentionally position-only — never assigns transform.rotation. Player facing only ever changes
+  /// in discrete 90-degree steps, owned by PlayerMovementController.RotateWorld / RightAngleWallTurner.
   /// </summary>
   /// <param name="worldPos">World position to assign to the player transform.</param>
   private void SetPlayerPosition(Vector3 worldPos) {
@@ -353,39 +197,6 @@ public class WallSwitcher : MonoBehaviour {
     _cc.enabled = wasEnabled;
   }
 
-  /// <summary>
-  /// Gets the camera-facing direction flattened onto the horizontal plane.
-  /// </summary>
-  /// <returns>A normalized planar forward vector, or zero when no stable direction is available.</returns>
-  private Vector3 GetCameraPlanarForward() {
-    Vector3 forward;
-
-    if (camPivot != null) {
-      forward = camPivot.forward;
-    } else if (Camera.main != null) {
-      forward = Camera.main.transform.forward;
-    } else {
-      forward = transform.forward;
-    }
-
-    forward.y = 0f;
-    return forward.sqrMagnitude > 0.0001f ? forward.normalized : Vector3.zero;
-  }
-
-  /// <summary>
-  /// Gets the camera-right direction derived from the planar forward vector.
-  /// </summary>
-  /// <returns>A normalized planar right vector, or zero when no stable direction is available.</returns>
-  private Vector3 GetCameraPlanarRight() {
-    Vector3 forward = GetCameraPlanarForward();
-    if (forward.sqrMagnitude < 0.0001f) {
-      return Vector3.zero;
-    }
-
-    Vector3 right = Vector3.Cross(Vector3.up, forward);
-    return right.sqrMagnitude > 0.0001f ? right.normalized : Vector3.zero;
-  }
-
 #if UNITY_EDITOR
   private void OnDrawGizmos() {
     DrawDebug();
@@ -400,33 +211,8 @@ public class WallSwitcher : MonoBehaviour {
       return;
     }
 
-    Vector3 forward = -GetCameraPlanarForward();
-    if (forward.sqrMagnitude < 0.0001f) {
-      return;
-    }
-
-    Vector3 lateral = GetCameraPlanarRight();
-    if (lateral.sqrMagnitude < 0.0001f) {
-      lateral = transform.right;
-      lateral.y = 0f;
-      lateral = lateral.sqrMagnitude > 0.0001f ? lateral.normalized : Vector3.right;
-    }
-
-    var checkLength = Mathf.Max(0.05f, frontRayLength);
-    var offset = Mathf.Max(0f, frontRayCenterOffset);
-    Vector3 leftOrigin = transform.position - lateral * offset;
-    Vector3 rightOrigin = transform.position + lateral * offset;
-
-    Gizmos.color = _lastFrontLeftHit ? Color.green : Color.yellow;
-    Gizmos.DrawRay(leftOrigin, forward * checkLength);
-    Gizmos.color = _lastFrontRightHit ? Color.green : Color.yellow;
-    Gizmos.DrawRay(rightOrigin, forward * checkLength);
-
-    if (_hasLastFrontHit) {
-      Gizmos.color = Color.cyan;
-      Gizmos.DrawSphere(_lastFrontHit.point, 0.05f);
-      Gizmos.DrawRay(_lastFrontHit.point, _lastFrontHit.normal * 0.4f);
-    }
+    Gizmos.color = Color.magenta;
+    Gizmos.DrawRay(transform.position, -transform.up * currentWallProbeLength);
   }
 #endif
 }
