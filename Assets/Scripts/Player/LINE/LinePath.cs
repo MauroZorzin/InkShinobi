@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// Defines one or more disjoint traceable lines ("strands") in the scene. LineFollowController
 /// locks the player's movement onto the nearest point of one strand at a time; LineSwitcher/
-/// LineVisionController let the player jump to a different strand — either on a different
+/// LineAimSwitchController let the player jump to a different strand — either on a different
 /// LinePath object, or a different, disconnected strand on this SAME LinePath object.
 ///
 /// Authoring (useChildrenAsPoints = true, the default):
@@ -59,7 +59,7 @@ public class LinePath : MonoBehaviour {
 
   private static readonly List<LinePath> _all = new List<LinePath>();
 
-  /// <summary>All enabled LinePaths currently in the scene. Used by LineVisionController to find switch targets.</summary>
+  /// <summary>All enabled LinePaths currently in the scene. Used by LineAimSwitchController to find switch targets.</summary>
   public static IReadOnlyList<LinePath> All => _all;
 
   private void OnEnable() {

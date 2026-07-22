@@ -37,34 +37,25 @@ public class LineFollowController : MonoBehaviour {
   [Tooltip("How fast the player is pulled back onto the line once outside snapTolerance, in units/second.")]
   public float snapPullSpeed = 10f;
 
+  [Tooltip("Height above the line's own Y the player sits at — e.g. so a ground-level line doesn't visually clip into the player's feet. LineSwitcher reads this same value so a switch lands the player at exactly the height normal walking will then treat as 'on the line', instead of the two disagreeing and fighting each other.")]
+  public float heightAboveLine = 0.05f;
+
   [Header("Gravity")]
   public float gravity = -20f;
 
   [Tooltip("Peak jump height used to calculate initial jump velocity.")]
   public float jumpHeight = 2.5f;
 
-  [Header("Facing (2D)")]
-  [Tooltip("If true, the player flips to face the direction it's actually moving along the line. Since the camera is parallel to the line and looks perpendicular at it (a 2D-style view), this is just a left/right flip, not a 3D rotation.")]
-  public bool faceDirectionOfTravel = true;
-
-  [Tooltip("Camera used to decide which world direction counts as 'right' for the flip. Defaults to Camera.main if left empty.")]
-  public Camera facingReferenceCamera;
-
-  [Tooltip("If true and a SpriteRenderer is present, flips SpriteRenderer.flipX. Otherwise flips the object's local X scale (for a plane/quad instead of a sprite).")]
-  public bool useSpriteFlipX = true;
-
   [Header("Debug")]
   public bool drawDebugGizmos = true;
   public bool logSnapWarnings = true;
 
   private CharacterController _cc;
-  private SpriteRenderer _sr;
   private float _distanceAlongLine;
   private float _alongLineSpeed;
   private float _moveInput;
   private float _verticalVelocity;
   private bool _jumpRequested;
-  private bool _facingRight = true;
 
   /// <summary>True while movement is being driven by this controller (set false during a LineSwitcher move or vision mode).</summary>
   public bool movementEnabled = true;
@@ -77,11 +68,6 @@ public class LineFollowController : MonoBehaviour {
 
   private void Awake() {
     _cc = GetComponent<CharacterController>();
-    _sr = GetComponent<SpriteRenderer>();
-
-    if (facingReferenceCamera == null) {
-      facingReferenceCamera = Camera.main;
-    }
   }
 
   private void Start() {
@@ -118,10 +104,6 @@ public class LineFollowController : MonoBehaviour {
     var horizontalDelta = ComputeHorizontalDelta();
     ApplyGravityAndMove(horizontalDelta);
     UpdateSnapState();
-
-    if (faceDirectionOfTravel) {
-      UpdateFacing(horizontalDelta);
-    }
   }
 
   private void UpdateAlongLineSpeed() {
@@ -131,11 +113,23 @@ public class LineFollowController : MonoBehaviour {
   }
 
   /// <summary>
+  /// The actual world point the player should be resting at for a given distance along the
+  /// current strand — the line's own point, lifted by heightAboveLine. Every piece of this
+  /// controller that needs to know "where the line is" goes through this, and LineSwitcher
+  /// reads the same heightAboveLine value, so walking and switching always agree on where
+  /// "on the line" actually is. Without that agreement, a switch that lands the player at a
+  /// different height than walking expects gets immediately yanked around by snap correction.
+  /// </summary>
+  private Vector3 GetHuggedPoint(float distance) {
+    return currentLine.GetPointAtDistance(currentStrand, distance) + Vector3.up * heightAboveLine;
+  }
+
+  /// <summary>
   /// Advances distance-along-line by the current speed and returns the world-space horizontal
   /// move delta needed to get the player from its current position to the new point on the line.
   /// </summary>
   private Vector3 ComputeHorizontalDelta() {
-    Vector3 beforePos = currentLine.GetPointAtDistance(currentStrand, _distanceAlongLine);
+    Vector3 beforePos = GetHuggedPoint(_distanceAlongLine);
     var wantedDistance = _distanceAlongLine + _alongLineSpeed * Time.deltaTime;
 
     if (currentLine.IsStrandClosedLoop(currentStrand)) {
@@ -149,7 +143,7 @@ public class LineFollowController : MonoBehaviour {
       }
     }
 
-    Vector3 afterPos = currentLine.GetPointAtDistance(currentStrand, _distanceAlongLine);
+    Vector3 afterPos = GetHuggedPoint(_distanceAlongLine);
     return afterPos - beforePos;
   }
 
@@ -172,63 +166,26 @@ public class LineFollowController : MonoBehaviour {
     _cc.Move(move);
   }
 
-  /// <summary>
-  /// Flips the player left/right based on which way it's actually moving along the line,
-  /// relative to the camera. Deliberately NOT a 3D rotation: with a camera parallel to the
-  /// line (looking perpendicular into it, like a 2D side view), facing is just a sign —
-  /// left or right — not an orientation to solve for. Corners and zig-zags just change
-  /// when the sign flips, they don't need the object to actually turn in 3D.
-  /// </summary>
-  private void UpdateFacing(Vector3 horizontalDelta) {
-    if (horizontalDelta.sqrMagnitude < 0.0000001f) {
-      return; // stopped — keep whatever facing we last had
-    }
-
-    Vector3 camRight = facingReferenceCamera != null ? facingReferenceCamera.transform.right : Vector3.right;
-    camRight.y = 0f;
-    if (camRight.sqrMagnitude < 0.0001f) {
-      camRight = Vector3.right;
-    }
-    camRight.Normalize();
-
-    float side = Vector3.Dot(horizontalDelta, camRight);
-    if (Mathf.Abs(side) < 0.0001f) {
-      return; // moving straight toward/away from camera (e.g. depth-only step) — ambiguous, keep last facing
-    }
-
-    bool facingRight = side > 0f;
-    if (facingRight == _facingRight) {
-      return;
-    }
-    _facingRight = facingRight;
-
-    if (useSpriteFlipX && _sr != null) {
-      _sr.flipX = !facingRight;
-    } else {
-      Vector3 s = transform.localScale;
-      s.x = Mathf.Abs(s.x) * (facingRight ? 1f : -1f);
-      transform.localScale = s;
-    }
-  }
-
   private Vector3 ComputeSnapCorrection() {
     if (currentLine == null) return Vector3.zero;
 
-    var distAlong = currentLine.FindClosestDistanceOnStrand(currentStrand, transform.position, out Vector3 closestPoint, out float distToLine);
+    var distAlong = currentLine.FindClosestDistanceOnStrand(currentStrand, transform.position, out Vector3 closestPoint, out _);
+    Vector3 huggedPoint = closestPoint + Vector3.up * heightAboveLine;
+    float distToHugged = Vector3.Distance(transform.position, huggedPoint);
 
-    if (distToLine <= snapTolerance) {
+    if (distToHugged <= snapTolerance) {
       return Vector3.zero;
     }
 
     if (logSnapWarnings) {
-      Debug.LogWarning($"[LineFollowController] Off line by {distToLine:F2}m (tolerance {snapTolerance:F2}m) — snapping back.");
+      Debug.LogWarning($"[LineFollowController] Off line by {distToHugged:F2}m (tolerance {snapTolerance:F2}m) — snapping back.");
     }
 
     // Keep the player's own tracked distance-along-line in sync with where the snap is pulling toward,
     // so ComputeHorizontalDelta doesn't fight the correction next frame.
     _distanceAlongLine = distAlong;
 
-    Vector3 toLine = closestPoint - transform.position;
+    Vector3 toLine = huggedPoint - transform.position;
     Vector3 step = Vector3.ClampMagnitude(toLine * snapPullSpeed * Time.deltaTime, toLine.magnitude);
     return step;
   }
@@ -239,8 +196,9 @@ public class LineFollowController : MonoBehaviour {
       return;
     }
 
-    currentLine.FindClosestDistanceOnStrand(currentStrand, transform.position, out _, out float distToLine);
-    IsOnLine = distToLine <= snapTolerance;
+    currentLine.FindClosestDistanceOnStrand(currentStrand, transform.position, out Vector3 closestPoint, out _);
+    float distToHugged = Vector3.Distance(transform.position, closestPoint + Vector3.up * heightAboveLine);
+    IsOnLine = distToHugged <= snapTolerance;
   }
 
   /// <summary>
@@ -259,6 +217,7 @@ public class LineFollowController : MonoBehaviour {
   /// <summary>Clears vertical/along-line momentum, used after scripted repositioning.</summary>
   public void ResetVelocity() {
     _alongLineSpeed = 0f;
+    _verticalVelocity = 0f;
   }
 
 #if UNITY_EDITOR
