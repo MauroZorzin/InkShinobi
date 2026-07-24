@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -61,6 +62,18 @@ public class LineAimSwitchController : MonoBehaviour {
 
   public bool IsAiming => _isAiming;
 
+  /// <summary>Fired when aiming begins.</summary>
+  public event Action AimStarted;
+
+  /// <summary>Fired whenever aiming visually stops — either cancelled with no switch, or right after a switch's move finishes.</summary>
+  public event Action AimEnded;
+
+  /// <summary>Fired the instant a confirmed switch starts moving, with (player position before the move, aimed target point) — for systems that care what the switch's path crosses (e.g. TakedownController).</summary>
+  public event Action<Vector3, Vector3> SwitchStarted;
+
+  /// <summary>Fired when a switch's move finishes, before AimEnded.</summary>
+  public event Action SwitchFinished;
+
   private void Awake() {
     if (lineSwitcher == null) lineSwitcher = GetComponent<LineSwitcher>();
     if (followController == null) followController = GetComponent<LineFollowController>();
@@ -107,6 +120,8 @@ public class LineAimSwitchController : MonoBehaviour {
       Cursor.lockState = CursorLockMode.Locked;
       Cursor.visible = false;
     }
+
+    AimStarted?.Invoke();
   }
 
   public void EndAim() {
@@ -126,6 +141,8 @@ public class LineAimSwitchController : MonoBehaviour {
       Cursor.lockState = _prevLockState;
       Cursor.visible = _prevCursorVisible;
     }
+
+    AimEnded?.Invoke();
   }
 
   public bool TryConfirmSwitch() {
@@ -135,6 +152,7 @@ public class LineAimSwitchController : MonoBehaviour {
     }
 
     aimLine.enabled = false;
+    Vector3 fromPosition = transform.position;
     _isSwitching = true;
 
     var started = lineSwitcher.TrySwitchToLine(_aimLinePath, _aimStrand, _aimPoint, _aimDistance, OnSwitchMoveComplete);
@@ -144,6 +162,7 @@ public class LineAimSwitchController : MonoBehaviour {
       return false;
     }
 
+    SwitchStarted?.Invoke(fromPosition, _aimPoint);
     return true;
   }
 
@@ -208,6 +227,7 @@ public class LineAimSwitchController : MonoBehaviour {
 
   private void OnSwitchMoveComplete() {
     _isSwitching = false;
+    SwitchFinished?.Invoke();
     EndAim();
   }
 

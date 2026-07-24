@@ -1,28 +1,40 @@
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
+/// <summary>
+/// Takedowns are no longer their own click-to-kill action — they happen as a side effect of a
+/// wall switch: if the switch's path (player's position when confirmed -> the aimed target point)
+/// passes within takedownRange of a guard, that guard is taken down the instant the switch starts
+/// moving. Listens to LineAimSwitchController's events rather than owning any input itself.
+///
+/// Also owns the time-scale feel for switching: slows down while aiming so lining up a shot feels
+/// deliberate, then speeds up while the switch itself is moving for a snappy payoff, settling back
+/// to normal once aiming/switching ends. Ramped (not snapped) via timeScaleLerpSpeed.
+/// </summary>
+[RequireComponent(typeof(LineAimSwitchController))]
 public class TakedownController : MonoBehaviour, ITakedownSystem {
-
   private const string TAKEDOWN_ANIMATION_PARAMETER = "Takedown";
-  private Animator _animator;
-  private float _takedownAnimationTimer = 0f;
-
-  // -------------------------------------------------------------------------
-  // Inspector
-  // -------------------------------------------------------------------------
 
   [Header("Settings")]
   public bool enabledAtStart = true;
+
+  [Tooltip("Max distance from the switch's path (start -> aimed target) a guard can be and still get taken down by it.")]
   public float takedownRange = 1.5f;
-  public float takedownAngle = 60f;
+
   public LayerMask guardLayerMask;
 
+  [Header("Time Scale")]
+  [Tooltip("Time.timeScale while aiming a switch.")]
+  public float aimTimeScale = 0.35f;
+
+  [Tooltip("Time.timeScale while the switch itself is moving.")]
+  public float switchTimeScale = 1.6f;
+
+  [Tooltip("How fast Time.timeScale ramps toward its current target, in scale-units per real second.")]
+  public float timeScaleLerpSpeed = 6f;
+
   [Header("Animation")]
-  [Tooltip("If enabled, play a takedown animation on the player")]
+  [Tooltip("If enabled, play a takedown animation on the player when a switch eliminates a guard.")]
   public bool playTakedownAnimation = false;
-  [Tooltip("If true, player can move during takedown animation. If false, player is locked in place.")]
-  public bool canMoveWhileTakingDown = false;
 
   [Header("Debug")]
   public bool verboseLogging = false;
@@ -33,138 +45,108 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
 
   public bool IsEnabled { get; set; }
   public float TakedownRange { get; set; }
-  public float TakedownAngle { get; set; }
   public LayerMask GuardLayerMask { get; set; }
 
-  /// <summary>Indicates if a takedown is currently in progress (for movement control).</summary>
-  public bool IsTakingDown { get; private set; } = false;
-
-  public IReadOnlyList<GuardController> GetCandidates() {
-    List<GuardController> result = new();
-    if (guardLayerMask.value == 0) return result;
-
-    Collider[] hits = Physics.OverlapSphere(transform.position, Mathf.Max(0.01f, takedownRange),
-                                            guardLayerMask, QueryTriggerInteraction.Collide);
-    foreach (Collider hit in hits) {
-      if (hit == null) continue;
-      GuardController guard = hit.GetComponentInParent<GuardController>();
-      if (guard == null || guard.CurrentState == GuardController.GuardState.TakenDown) continue;
-      if (!IsBehindGuard(transform.position, guard)) continue;
-      result.Add(guard);
-    }
-    return result;
-  }
-
-  // -------------------------------------------------------------------------
-  // Outline
-  // -------------------------------------------------------------------------
-
-  static readonly int ID_OutlineEnabled = Shader.PropertyToID("_OutlineEnabled");
-  const string SHADER_NAME = "Sprites/Outline2";
-
-  readonly HashSet<GuardController> _outlined = new();
-  MaterialPropertyBlock _block;
-
-  void SetGuardOutline(GuardController guard, bool on) {
-    SpriteRenderer sr = guard.GetComponentInChildren<SpriteRenderer>();
-    if (sr == null || sr.sharedMaterial == null) return;
-    if (sr.sharedMaterial.shader.name != SHADER_NAME) return;
-
-    sr.GetPropertyBlock(_block);
-    _block.SetFloat(ID_OutlineEnabled, on ? 1f : 0f);
-    sr.SetPropertyBlock(_block);
-  }
-
-  void UpdateOutlines() {
-    IReadOnlyList<GuardController> candidates = GetCandidates();
-    HashSet<GuardController> candidateSet = new(candidates);
-
-    foreach (GuardController guard in candidates) {
-      if (_outlined.Add(guard))        // Add returns true if it was not already in the set
-        SetGuardOutline(guard, true);
-    }
-
-    _outlined.RemoveWhere(guard => {
-      if (candidateSet.Contains(guard)) return false;
-      if (guard != null) SetGuardOutline(guard, false);
-      return true;
-    });
-  }
-
-  void ClearAllOutlines() {
-    foreach (GuardController guard in _outlined)
-      if (guard != null) SetGuardOutline(guard, false);
-    _outlined.Clear();
-  }
+  /// <summary>True for the duration of a switch that is going to (or just did) take down a guard.</summary>
+  public bool IsTakingDown { get; private set; }
 
   // -------------------------------------------------------------------------
   // Unity lifecycle
   // -------------------------------------------------------------------------
 
-  void Awake() {
-    _block = new MaterialPropertyBlock();
-    IsEnabled = enabledAtStart;
+  private LineAimSwitchController _aimController;
+  private Animator _animator;
+  private float _targetTimeScale = 1f;
+
+  private void Awake() {
+    _aimController = GetComponent<LineAimSwitchController>();
     _animator = GetComponent<Animator>();
+
+    IsEnabled = enabledAtStart;
+    TakedownRange = takedownRange;
+    GuardLayerMask = guardLayerMask;
   }
 
-  void Update() {
-    if (IsEnabled) UpdateOutlines();
-    else ClearAllOutlines();
+  private void OnEnable() {
+    _aimController.AimStarted += OnAimStarted;
+    _aimController.AimEnded += OnAimEnded;
+    _aimController.SwitchStarted += OnSwitchStarted;
+    _aimController.SwitchFinished += OnSwitchFinished;
+  }
+
+  private void OnDisable() {
+    _aimController.AimStarted -= OnAimStarted;
+    _aimController.AimEnded -= OnAimEnded;
+    _aimController.SwitchStarted -= OnSwitchStarted;
+    _aimController.SwitchFinished -= OnSwitchFinished;
+
+    // Don't leave the whole game paused/sped-up if this component goes away mid-aim/switch.
+    Time.timeScale = 1f;
+    _targetTimeScale = 1f;
+  }
+
+  private void Update() {
+    if (!Mathf.Approximately(Time.timeScale, _targetTimeScale)) {
+      Time.timeScale = Mathf.MoveTowards(Time.timeScale, _targetTimeScale, timeScaleLerpSpeed * Time.unscaledDeltaTime);
+    }
   }
 
   // -------------------------------------------------------------------------
-  // Input
+  // LineAimSwitchController events
   // -------------------------------------------------------------------------
 
-  public void OnTakedown(InputValue value) {
-    if (value.isPressed) TryTakedown();
+  private void OnAimStarted() {
+    if (!IsEnabled) return;
+    _targetTimeScale = aimTimeScale;
   }
 
-  // -------------------------------------------------------------------------
-  // Takedown execution
-  // -------------------------------------------------------------------------
+  private void OnAimEnded() {
+    _targetTimeScale = 1f;
+  }
 
-  public void TryTakedown() {
-    if (!IsEnabled) {
-      if (verboseLogging) Debug.Log("[Takedown] Blocked — IsEnabled is false.");
+  private void OnSwitchStarted(Vector3 fromPosition, Vector3 toPosition) {
+    _targetTimeScale = switchTimeScale;
+
+    if (!IsEnabled || guardLayerMask.value == 0) return;
+
+    GuardController hitGuard = FindGuardAlongPath(fromPosition, toPosition);
+    if (hitGuard == null) {
+      if (verboseLogging) Debug.Log("[Takedown] Switch path crossed no guard.");
       return;
     }
-    if (guardLayerMask.value == 0) {
-      Debug.LogWarning("[Takedown] guardLayerMask is Nothing — assign the guard layer in the Inspector.");
-      return;
-    }
 
-    IReadOnlyList<GuardController> candidates = GetCandidates();
-    if (verboseLogging) Debug.Log($"[Takedown] {candidates.Count} valid candidate(s).");
-    if (candidates.Count == 0) return;
+    IsTakingDown = true;
+    if (playTakedownAnimation) PlayTakedownAnimation();
+    hitGuard.PerformTakedown();
 
-    GuardController best = null;
-    float bestDist = float.MaxValue;
-    foreach (GuardController guard in candidates) {
-      float dist = Vector3.Distance(transform.position, guard.transform.position);
-      if (dist < bestDist) { bestDist = dist; best = guard; }
-    }
+    if (verboseLogging) Debug.Log($"[Takedown] SUCCESS on '{hitGuard.name}' via wall switch.");
+  }
 
-    SetGuardOutline(best!, false);
-    _outlined.Remove(best);
-
-    // Play takedown animation if enabled
-    if (playTakedownAnimation) {
-      PlayTakedownAnimation();
-    }
-
-    // Lock movement if canMoveWhileTakingDown is false
-    if (!canMoveWhileTakingDown) {
-      IsTakingDown = true;
-    }
-
-    best!.PerformTakedown();
-    if (verboseLogging) Debug.Log($"[Takedown] SUCCESS on '{best.name}'.");
+  private void OnSwitchFinished() {
+    _targetTimeScale = 1f;
+    IsTakingDown = false;
   }
 
   // -------------------------------------------------------------------------
   // Helpers
   // -------------------------------------------------------------------------
+
+  /// <summary>Closest live guard within takedownRange of the segment from -> to, or null.</summary>
+  private GuardController FindGuardAlongPath(Vector3 from, Vector3 to) {
+    Collider[] hits = Physics.OverlapCapsule(from, to, Mathf.Max(0.01f, takedownRange), guardLayerMask, QueryTriggerInteraction.Collide);
+
+    GuardController best = null;
+    float bestDist = float.MaxValue;
+    foreach (Collider hit in hits) {
+      if (hit == null) continue;
+      GuardController guard = hit.GetComponentInParent<GuardController>();
+      if (guard == null || guard.CurrentState == GuardController.GuardState.TakenDown) continue;
+
+      float dist = Vector3.Distance(from, guard.transform.position);
+      if (dist < bestDist) { bestDist = dist; best = guard; }
+    }
+    return best;
+  }
 
   private void PlayTakedownAnimation() {
     if (_animator == null) {
@@ -175,27 +157,10 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
       }
     }
 
-    // Set the parameter to true to trigger animation
     _animator.SetTrigger(TAKEDOWN_ANIMATION_PARAMETER);
-
-    if (verboseLogging) Debug.Log($"[Takedown] Animation triggered: {TAKEDOWN_ANIMATION_PARAMETER} (duration: {_takedownAnimationTimer}s)");
   }
 
-
-  public bool IsBehindGuard(Vector3 playerPosition, GuardController guard) {
-    Vector3 toPlayerFlat = new(playerPosition.x - guard.transform.position.x, 0f,
-                                playerPosition.z - guard.transform.position.z);
-    if (toPlayerFlat.sqrMagnitude < 0.0001f) return false;
-
-    Vector3 guardFwdFlat = new(guard.transform.forward.x, 0f, guard.transform.forward.z);
-    if (guardFwdFlat.sqrMagnitude < 0.0001f) return false;
-
-    float angle = Vector3.Angle(guardFwdFlat.normalized, toPlayerFlat.normalized);
-    float minAngle = 180f - Mathf.Max(0f, takedownAngle) * 0.5f;
-    return angle >= minAngle;
-  }
-
-  void OnDrawGizmosSelected() {
+  private void OnDrawGizmosSelected() {
     Gizmos.color = new Color(1f, 0.5f, 0f, 0.25f);
     Gizmos.DrawWireSphere(transform.position, takedownRange);
   }

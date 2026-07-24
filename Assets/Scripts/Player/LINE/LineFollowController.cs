@@ -8,8 +8,12 @@ using UnityEngine;
 /// back onto the line rather than being allowed to walk off it.
 ///
 /// This is a standalone replacement for the movement half of PlayerMovementController — it owns
-/// gravity/jump/CharacterController.Move itself. Camera rotation, sprite flipping, etc. from your
-/// existing controller can still be layered on top by reading GetDistanceAlongLine() / IsOnLine.
+/// gravity/jump/CharacterController.Move itself, drives the Animator (isRunning/Velocity/
+/// isJumping/isFalling), and keeps the sprite's plane perpendicular to the line's own tangent at
+/// the player's distance (rotating the transform as the line's direction changes, not just
+/// flipping), with flipX layered on top to show forward vs backward travel along that tangent.
+/// Camera rotation etc. from your existing controller can still be layered on top by reading
+/// GetDistanceAlongLine() / IsOnLine.
 /// </summary>
 [RequireComponent(typeof(CharacterController))]
 public class LineFollowController : MonoBehaviour {
@@ -46,9 +50,31 @@ public class LineFollowController : MonoBehaviour {
   [Tooltip("Peak jump height used to calculate initial jump velocity.")]
   public float jumpHeight = 2.5f;
 
+  [Header("Animation")]
+  [Tooltip("Drives isRunning/Velocity/isJumping/isFalling on PlayerAnimatorController. Defaults to this GameObject's Animator if left empty.")]
+  public Animator animator;
+
+  [Header("Sprite Facing")]
+  [Tooltip("Defaults to this GameObject's SpriteRenderer if left empty.")]
+  public SpriteRenderer spriteRenderer;
+
+  [Tooltip("The direction of travel the player starts facing, before any movement — resolves which of the two possible perpendicular orientations the transform starts rotated to. Only the horizontal (X/Z) component is used.")]
+  public Vector3 initialFacingDirection = Vector3.right;
+
+  [Tooltip("Swap which way flipX points when moving backward along the line.")]
+  public bool invertFacing = false;
+
+  [Tooltip("Along-line speed below this (units/second) is treated as idle — keeps the last rotation/flip instead of updating on tiny drift.")]
+  public float facingSpeedDeadzone = 0.05f;
+
   [Header("Debug")]
   public bool drawDebugGizmos = true;
   public bool logSnapWarnings = true;
+
+  private static readonly int IsRunningHash = Animator.StringToHash("isRunning");
+  private static readonly int VelocityHash = Animator.StringToHash("Velocity");
+  private static readonly int IsJumpingHash = Animator.StringToHash("isJumping");
+  private static readonly int IsFallingHash = Animator.StringToHash("isFalling");
 
   private CharacterController _cc;
   private float _distanceAlongLine;
@@ -56,6 +82,12 @@ public class LineFollowController : MonoBehaviour {
   private float _moveInput;
   private float _verticalVelocity;
   private bool _jumpRequested;
+
+  // The resolved perpendicular-to-travel normal the transform is rotated to face. Tracked frame
+  // to frame (rather than re-derived from a bare cross product each time) because Cross(up, T)
+  // has two valid solutions 180° apart — without continuity, a line whose tangent crosses the
+  // ambiguity boundary would snap the sprite to face the wrong way instead of turning smoothly.
+  private Vector3 _facingNormal;
 
   /// <summary>True while movement is being driven by this controller (set false during a LineSwitcher move or vision mode).</summary>
   public bool movementEnabled = true;
@@ -68,6 +100,14 @@ public class LineFollowController : MonoBehaviour {
 
   private void Awake() {
     _cc = GetComponent<CharacterController>();
+    if (animator == null) animator = GetComponent<Animator>();
+    if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+
+    Vector3 seed = initialFacingDirection;
+    seed.y = 0f;
+    if (seed.sqrMagnitude < 0.0001f) seed = Vector3.right;
+    _facingNormal = Vector3.Cross(Vector3.up, seed.normalized).normalized;
+    transform.rotation = Quaternion.LookRotation(_facingNormal, Vector3.up);
   }
 
   private void Start() {
@@ -104,6 +144,46 @@ public class LineFollowController : MonoBehaviour {
     var horizontalDelta = ComputeHorizontalDelta();
     ApplyGravityAndMove(horizontalDelta);
     UpdateSnapState();
+    UpdateFacing();
+    UpdateAnimator();
+  }
+
+  /// <summary>
+  /// Builds the line's tangent at the player's current distance and rotates the transform so the
+  /// sprite plane stays perpendicular to it — a line that bends from running along X to running
+  /// along Z (or anything in between, not just a clean 90°) turns the character to match instead
+  /// of leaving it facing a fixed world axis. flipX on top of that rotation shows walking forward
+  /// vs backward along the tangent, instead of spinning the transform 180°. Holds the last
+  /// rotation/flip while along-line speed is inside the deadzone (idle, or pinned at an end).
+  /// </summary>
+  private void UpdateFacing() {
+    if (Mathf.Abs(_alongLineSpeed) < facingSpeedDeadzone) return;
+
+    Vector3 tangent = currentLine.GetDirectionAtDistance(currentStrand, _distanceAlongLine);
+    tangent.y = 0f;
+    if (tangent.sqrMagnitude < 0.0001f) return;
+    tangent.Normalize();
+
+    Vector3 normal = Vector3.Cross(Vector3.up, tangent).normalized;
+    if (Vector3.Dot(normal, _facingNormal) < 0f) normal = -normal; // stick with the closer of the two perpendicular solutions
+    _facingNormal = normal;
+
+    transform.rotation = Quaternion.LookRotation(_facingNormal, Vector3.up);
+
+    if (spriteRenderer != null) {
+      bool movingBackward = _alongLineSpeed < 0f;
+      spriteRenderer.flipX = invertFacing ? !movingBackward : movingBackward;
+    }
+  }
+
+  private void UpdateAnimator() {
+    if (animator == null) return;
+
+    bool grounded = _cc.isGrounded;
+    animator.SetBool(IsRunningHash, Mathf.Abs(_moveInput) > 0.01f);
+    animator.SetFloat(VelocityHash, Mathf.Abs(_alongLineSpeed));
+    animator.SetBool(IsJumpingHash, !grounded && _verticalVelocity > 0f);
+    animator.SetBool(IsFallingHash, !grounded && _verticalVelocity < 0f);
   }
 
   private void UpdateAlongLineSpeed() {

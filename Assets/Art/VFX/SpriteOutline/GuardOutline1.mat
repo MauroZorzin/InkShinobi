@@ -7,18 +7,16 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PlayerOutline
+  m_Name: GuardOutline1
   m_Shader: {fileID: 4800000, guid: f51d48fde4680804c899b7ace06d6719, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
-  - _DUALOUTLINE_ON
   - _OUTLINEENABLED_ON
   - _OUTLINEMODE_SOLID
   - _OUTLINEPOSITION_INSIDE_UNDER_SPRITE
   - _OUTLINESHAPE_CONTOUR
-  - _SHOWFILL_ON
   - _TILEMODE_STRETCH
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -44,22 +42,22 @@ Material:
     - _AlphaThreshold: 0
     - _Angle: 45
     - _ConnectedAlpha: 0
-    - _DualOutline: 1
-    - _DualOutlineWidth: 3
+    - _DualOutline: 0
+    - _DualOutlineWidth: 4
     - _OutlineEnabled: 1
     - _OutlineMode: 0
     - _OutlinePosition: 0
     - _OutlineShape: 0
-    - _ShowFill: 1
-    - _Thickness: 3
+    - _ShowFill: 0
+    - _Thickness: 4
     - _TileMode: 0
-    - _Weight: 0.5
+    - _Weight: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DualOutlineColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GradientOutline1: {r: 1, g: 1, b: 1, a: 1}
-    - _GradientOutline2: {r: 0, g: 0, b: 0, a: 1}
+    - _GradientOutline1: {r: 1, g: 0, b: 0, a: 1}
+    - _GradientOutline2: {r: 1, g: 0, b: 0, a: 1}
     - _ImageOutline: {r: 1, g: 1, b: 1, a: 1}
-    - _SolidOutline: {r: 1, g: 1, b: 1, a: 1}
+    - _SolidOutline: {r: 1, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

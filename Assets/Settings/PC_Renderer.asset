@@ -1,5 +1,47 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3626916496631462233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
+  m_Name: EnemyOccluded
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.RenderObjects
+  m_Active: 1
+  settings:
+    passTag: EnemyOccluded
+    Event: 400
+    filterSettings:
+      RenderQueueType: 1
+      LayerMask:
+        serializedVersion: 2
+        m_Bits: 128
+      PassNames: []
+    overrideMaterial: {fileID: 2100000, guid: c874cf1b3cd235d44991cce860714243, type: 2}
+    overrideMaterialPassIndex: 0
+    overrideShader: {fileID: 0}
+    overrideShaderPassIndex: 0
+    overrideMode: 1
+    overrideDepthState: 1
+    depthCompareFunction: 5
+    enableWrite: 0
+    stencilSettings:
+      overrideStencilState: 0
+      stencilReference: 0
+      stencilCompareFunction: 8
+      passOperation: 0
+      failOperation: 0
+      zFailOperation: 0
+    cameraSettings:
+      overrideCamera: 0
+      restoreCamera: 1
+      offset: {x: 0, y: 0, z: 0, w: 0}
+      cameraFieldOfView: 60
 --- !u!114 &-2929017348740820870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10,12 +52,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
-  m_Name: NotOcluded
+  m_Name: PlayerNotOcluded
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.RenderObjects
-  m_Active: 1
+  m_Active: 0
   settings:
-    passTag: NotOcluded
-    Event: 250
+    passTag: PlayerNotOcluded
+    Event: 400
     filterSettings:
       RenderQueueType: 0
       LayerMask:
@@ -52,12 +94,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b3d386ba5cd94485973aee1479b272e, type: 3}
-  m_Name: Ocluded
+  m_Name: PlayerOcluded
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.RenderObjects
   m_Active: 1
   settings:
-    passTag: Ocluded
-    Event: 300
+    passTag: PlayerOcluded
+    Event: 400
     filterSettings:
       RenderQueueType: 1
       LayerMask:
@@ -112,7 +154,8 @@ MonoBehaviour:
   - {fileID: 7833122117494664109}
   - {fileID: -262934802762065020}
   - {fileID: -2929017348740820870}
-  m_RendererFeatureMap: ad6b866f10d7b46c849b47a230de59fc7ad0586b3d0a5ad7
+  - {fileID: -3626916496631462233}
+  m_RendererFeatureMap: ad6b866f10d7b46c849b47a230de59fc7ad0586b3d0a5ad7a706479ca99aaacd
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}

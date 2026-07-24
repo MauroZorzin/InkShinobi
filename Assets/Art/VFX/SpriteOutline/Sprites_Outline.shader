@@ -21,7 +21,10 @@ Shader "Sprites/Outline2"
         [KeywordEnum(Inside under sprite, Inside over sprite, Outside)] _OutlinePosition("Outline Position (Frame Only)", Float) = 0
 
         [Header(Solid Settings)]
-        _SolidOutline ("Outline Color Base", Color) = (1,1,1,1)
+        _SolidOutline ("Outline Color Base (inner ring)", Color) = (1,1,1,1)
+        [MaterialToggle] _DualOutline ("Dual-Tone Outline (Solid + Contour only)", Float) = 0
+        _DualOutlineColor ("Second Ring Color (outer)", Color) = (0,0,0,1)
+        _DualOutlineWidth ("Second Ring Width", Float) = 6
 
         [Header(Gradient Settings)]
         _GradientOutline1 ("Outline Color 1", Color) = (1,1,1,1)
@@ -102,6 +105,9 @@ Shader "Sprites/Outline2"
                 float _OutlineMode;
 
                 half4 _SolidOutline;
+                float _DualOutline;
+                half4 _DualOutlineColor;
+                float _DualOutlineWidth;
 
                 half4 _GradientOutline1;
                 half4 _GradientOutline2;
@@ -221,10 +227,31 @@ Shader "Sprites/Outline2"
                 // ── Solid ───────────────────────────────────────────────
                 if (_OutlineMode == 0)
                 {
-                    outlineC = _SolidOutline;
+                    half4 inner = _SolidOutline;
                     if (_ConnectedAlpha != 0)
-                        outlineC.a *= _Color.a;
-                    outlineC.rgb *= outlineC.a;
+                        inner.a *= _Color.a;
+                    inner.rgb *= inner.a;
+
+                    if (_DualOutline != 0 && _OutlineShape == 0 && c.a == 0)
+                    {
+                        // Second ring at a larger radius, in a contrasting color, so at least one
+                        // of the two always reads against a black-or-white background/sprite.
+                        float outerThicknessX = (_Thickness + _DualOutlineWidth) / _MainTex_TexelSize.z;
+                        float outerThicknessY = (_Thickness + _DualOutlineWidth) / _MainTex_TexelSize.w;
+                        half outerCoverage = CheckOriginalSpriteTextureCoverage(IN.texcoord, outerThicknessX, outerThicknessY);
+
+                        half4 outer = _DualOutlineColor;
+                        if (_ConnectedAlpha != 0)
+                            outer.a *= _Color.a;
+                        outer.rgb *= outer.a;
+
+                        outlineC = lerp(outer, inner, coverage);
+                        coverage = max(coverage, outerCoverage);
+                    }
+                    else
+                    {
+                        outlineC = inner;
+                    }
                 }
                 // ── Gradient ────────────────────────────────────────────
                 else if (_OutlineMode == 1)
