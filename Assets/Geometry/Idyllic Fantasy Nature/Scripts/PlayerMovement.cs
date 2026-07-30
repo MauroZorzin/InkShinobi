@@ -21,18 +21,6 @@ namespace IdyllicFantasyNature {
 
     // Update is called once per frame
     void Update() {
-      // Check if player is in a takedown animation and cannot move
-      TakedownController takedown = GetComponent<TakedownController>();
-      if (takedown != null && takedown.IsTakingDown && !takedown.canMoveWhileTakingDown) {
-        // Player is locked in place during takedown
-        if (characterController.isGrounded && _controllerVelocity.y < 0) {
-          _controllerVelocity.y = 0;
-        }
-        _controllerVelocity.y += _gravity * Time.deltaTime;
-        characterController.Move(_controllerVelocity * Time.deltaTime);
-        return;
-      }
-
       // stops the y velocity when player is on the ground and the velocity has reached 0
       if (characterController.isGrounded && _controllerVelocity.y < 0) {
         _controllerVelocity.y = 0;

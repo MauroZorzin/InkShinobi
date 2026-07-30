@@ -5,7 +5,6 @@ using UnityEngine.InputSystem;
 /// Selects the nearest usable passageway door and toggles it from player interaction input.
 /// </summary>
 [RequireComponent(typeof(PlayerInventory))]
-[RequireComponent(typeof(RightAngleWallTurner))]
 public class PlayerDoorInteractor : MonoBehaviour {
   [Header("Interaction")]
   [Tooltip("Maximum distance from the player to a door interaction surface.")]
@@ -18,8 +17,14 @@ public class PlayerDoorInteractor : MonoBehaviour {
   [SerializeField] private PassagewayDoor[] doors;
 
   [Header("Corner Lock")]
-  [Tooltip("Wall turner that provides back-ray settings used to detect blocked door fronts.")]
-  [SerializeField] private RightAngleWallTurner rightAngleWallTurner;
+  [Tooltip("Camera used for the camera-relative back-ray probes below. Defaults to Camera.main if left empty.")]
+  [SerializeField] private Transform cameraPivot;
+
+  [Tooltip("Side offset (world units) the back-ray probes start from, either side of the player.")]
+  [SerializeField] private float lateralRayLength = 0.5f;
+
+  [Tooltip("Length (world units) of each backward probe ray used to detect a blocked door front.")]
+  [SerializeField] private float backRayLength = 1f;
 
   [Tooltip("Layer mask used when checking whether a closed passageway door blocks the player's back rays.")]
   [SerializeField] private LayerMask passagewayLayer;
@@ -35,14 +40,8 @@ public class PlayerDoorInteractor : MonoBehaviour {
       inventory = GetComponent<PlayerInventory>();
     }
 
-    if (rightAngleWallTurner == null) {
-      rightAngleWallTurner = GetComponent<RightAngleWallTurner>();
-    }
-
-    if (rightAngleWallTurner == null) {
-      Debug.LogError($"{name}: rightAngleWallTurner reference is required on PlayerDoorInteractor.");
-      enabled = false;
-      return;
+    if (cameraPivot == null && Camera.main != null) {
+      cameraPivot = Camera.main.transform;
     }
 
     if (doors == null || doors.Length == 0) {
@@ -157,7 +156,7 @@ public class PlayerDoorInteractor : MonoBehaviour {
   /// <param name="backLength">The backward ray length.</param>
   /// <returns>True when a valid ray configuration is available.</returns>
   private bool TryGetBackRayConfig(out Vector3 cameraForward, out Vector3 logicalLeftDir, out Vector3 logicalRightDir, out float lateralLength, out float backLength) {
-    if (rightAngleWallTurner == null || rightAngleWallTurner.camPivot == null) {
+    if (cameraPivot == null) {
       cameraForward = Vector3.zero;
       logicalLeftDir = Vector3.zero;
       logicalRightDir = Vector3.zero;
@@ -166,7 +165,7 @@ public class PlayerDoorInteractor : MonoBehaviour {
       return false;
     }
 
-    Vector3 forward = rightAngleWallTurner.camPivot.forward;
+    Vector3 forward = cameraPivot.forward;
     forward.y = 0f;
     if (forward.sqrMagnitude < 0.0001f) {
       cameraForward = Vector3.zero;
@@ -192,8 +191,8 @@ public class PlayerDoorInteractor : MonoBehaviour {
     logicalLeftDir = cameraRight;
     logicalRightDir = -cameraRight;
 
-    lateralLength = Mathf.Max(0.05f, rightAngleWallTurner.lateralRayLength);
-    backLength = Mathf.Max(0.05f, rightAngleWallTurner.backRayLength);
+    lateralLength = Mathf.Max(0.05f, lateralRayLength);
+    backLength = Mathf.Max(0.05f, backRayLength);
 
     return true;
   }

@@ -516,6 +516,7 @@ GameObject:
   - component: {fileID: 3712493833493639400}
   - component: {fileID: 3251878749039851610}
   - component: {fileID: 2440736225142028361}
+  - component: {fileID: 6672191083461739573}
   m_Layer: 3
   m_Name: PlayerV2
   m_TagString: Player
@@ -763,17 +764,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c2647111abc1c94d8ce0b2f19e361c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GameScripts::WallSwitcher
-  camPivot: {fileID: 0}
   movementController: {fileID: 5654326586517363505}
   rightAngleWallTurner: {fileID: 2450330144461465846}
   wallLayer:
     serializedVersion: 2
     m_Bits: 256
-  frontRayLength: 2
-  frontRayCenterOffset: 0.2
-  firstNinetyRotationDuration: 0.25
+  currentWallProbeLength: 1.5
   switchObservationDuration: 0.5
-  finalNinetyRotationDuration: 0.25
   wallHugDistance: 0.2
   drawDebugGizmos: 1
   logRayHits: 0
@@ -879,6 +876,43 @@ MonoBehaviour:
   vignetteImage: {fileID: 6315710304936242104}
   vignetteAlpha: 0.6
   vignetteFadeSpeed: 3
+--- !u!114 &6672191083461739573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5401128884289392612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9eab34a47b5e4bd4783c26775c002d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameScripts::WallVisionController
+  camPivot: {fileID: 0}
+  aimCamera: {fileID: 0}
+  wallSwitcher: {fileID: 0}
+  movementController: {fileID: 0}
+  rightAngleWallTurner: {fileID: 0}
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  visionEnterDuration: 0.3
+  visionExitDuration: 0.25
+  maxAimDistance: 25
+  aimOriginHeight: 1.2
+  mouseSensitivity: 0.2
+  invertY: 0
+  minPitch: -60
+  maxPitch: 60
+  lockCursorDuringVision: 1
+  aimLine: {fileID: 0}
+  validAimColor: {r: 0, g: 1, b: 0, a: 1}
+  invalidAimColor: {r: 1, g: 0, b: 0, a: 1}
+  aimLineWidth: 0.03
+  finalRotationDuration: 0.25
+  drawDebugGizmos: 1
+  logRayHits: 1
+  useLegacyMouseFallback: 1
 --- !u!1 &6094497257747829686
 GameObject:
   m_ObjectHideFlags: 0
