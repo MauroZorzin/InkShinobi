@@ -204,6 +204,7 @@ Material:
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _DstBlendAlpha: 0
     - _ENABLED: 0
     - _ENABLE_COVERAGE: 0
     - _EnvironmentReflections: 1
@@ -230,6 +231,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZTest: 4
@@ -237,7 +239,7 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 0.8396226, g: 0.71310794, b: 0.53466535, a: 1}
-    - _Color: {r: 1, g: 0.7108003, b: 0.4009434, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _Coverage_Color: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _MossOffset: {r: 0, g: 0, b: 0, a: 0}

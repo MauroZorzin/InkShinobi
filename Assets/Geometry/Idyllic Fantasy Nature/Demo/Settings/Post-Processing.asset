@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   active: 0
   shadows:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {r: 0, g: 0, b: 0, a: 1}
   highlights:
     m_OverrideState: 1
@@ -34,7 +34,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b2db86121404754db890f4c8dfe81b2, type: 3}
   m_Name: Bloom
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   skipIterations:
     m_OverrideState: 0
     m_Value: 1
@@ -87,19 +87,19 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 0
-    m_Value: 0.1
+    m_Value: 0
   contrast:
     m_OverrideState: 1
     m_Value: 100
   colorFilter:
     m_OverrideState: 0
-    m_Value: {r: 1, g: 0.9987028, b: 0.9481132, a: 1}
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
   hueShift:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   saturation:
     m_OverrideState: 1
-    m_Value: -100
+    m_Value: 50
 --- !u!114 &-5450292378548938771
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -121,12 +121,12 @@ MonoBehaviour:
     m_Value: {x: 0.5, y: 0.5}
   intensity:
     m_OverrideState: 1
-    m_Value: 0.22
+    m_Value: 0.35
   smoothness:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.19
   rounded:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 1
 --- !u!114 &-5304358629639516114
 MonoBehaviour:
@@ -143,16 +143,16 @@ MonoBehaviour:
   active: 0
   mode:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   quality:
     m_OverrideState: 1
     m_Value: 2
   intensity:
     m_OverrideState: 1
-    m_Value: 0.594
+    m_Value: 0.38
   clamp:
     m_OverrideState: 1
-    m_Value: 0.048
+    m_Value: 0.017
 --- !u!114 &-3803635651321509621
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -168,13 +168,13 @@ MonoBehaviour:
   active: 0
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 0.7604632, y: 0.8447559, z: 1, w: 3.7252904e-10}
+    m_Value: {x: 0.34804028, y: 1, z: 0.6547777, w: -1}
   midtones:
     m_OverrideState: 1
-    m_Value: {x: 0.9708118, y: 0.86908704, z: 1, w: 0}
+    m_Value: {x: 1, y: 0.84610873, z: 0.75567937, w: -1}
   highlights:
-    m_OverrideState: 0
-    m_Value: {x: 1, y: 1, z: 1, w: 0}
+    m_OverrideState: 1
+    m_Value: {x: 0.40401113, y: 1, z: 0.6615058, w: 1}
   shadowsStart:
     m_OverrideState: 0
     m_Value: 0
@@ -202,7 +202,7 @@ MonoBehaviour:
   active: 0
   temperature:
     m_OverrideState: 1
-    m_Value: 36
+    m_Value: 100
   tint:
     m_OverrideState: 0
     m_Value: 0
@@ -432,7 +432,7 @@ MonoBehaviour:
   hueVsSat:
     m_OverrideState: 1
     m_Value:
-      <length>k__BackingField: 4
+      <length>k__BackingField: 5
       m_Loop: 1
       m_ZeroValue: 0.5
       m_Range: 1
@@ -458,8 +458,17 @@ MonoBehaviour:
           inWeight: 0
           outWeight: 0
         - serializedVersion: 3
-          time: 0.54196644
-          value: 0.9444444
+          time: 0.67951804
+          value: 1
+          inSlope: Infinity
+          outSlope: Infinity
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 0.9204819
+          value: 1
           inSlope: Infinity
           outSlope: Infinity
           tangentMode: 0
@@ -468,9 +477,9 @@ MonoBehaviour:
           outWeight: 0
         - serializedVersion: 3
           time: 1
-          value: 0
-          inSlope: 0
-          outSlope: 0
+          value: 0.061403513
+          inSlope: -0
+          outSlope: -0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
@@ -556,19 +565,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c01700fd266d6914ababb731e09af2eb, type: 3}
   m_Name: DepthOfField
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   mode:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 1
   gaussianStart:
     m_OverrideState: 1
-    m_Value: 10
+    m_Value: 15
   gaussianEnd:
     m_OverrideState: 1
-    m_Value: 653.6
+    m_Value: 15
   gaussianMaxRadius:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.5
   highQualitySampling:
     m_OverrideState: 0
     m_Value: 0
