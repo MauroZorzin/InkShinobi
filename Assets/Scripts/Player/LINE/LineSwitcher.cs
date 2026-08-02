@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 
 /// <summary>
 /// Handles the actual mechanics of a line switch: validating a candidate target LinePath
@@ -23,6 +24,13 @@ public class LineSwitcher : MonoBehaviour {
 
   [Tooltip("Camera orbited when rotateCamera180OnSwitch is true. Defaults to Camera.main if left empty.")]
   public Transform cameraTransform;
+
+  [Header("Audio")]
+  [Tooltip("Played once, at the player's position, the instant a switch is confirmed and starts moving.")]
+  public AudioClip switchSound;
+  [Range(0f, 1f)] public float switchSoundVolume = 1f;
+  [Tooltip("Mixer group switchSound is routed through (e.g. your \"FX\" group). Leave empty to go straight to Master.")]
+  public AudioMixerGroup mixerGroup;
 
   [Header("Debug")]
   public bool logSwitches = true;
@@ -80,6 +88,8 @@ public class LineSwitcher : MonoBehaviour {
     }
 
     if (logSwitches) Debug.Log($"[LineSwitcher] Switch started. target={targetLine.name} strand={targetStrand} point={targetPoint:F3}");
+
+    if (switchSound != null) OneShotAudio.PlayClipAtPoint(switchSound, transform.position, switchSoundVolume, mixerGroup);
 
     StartCoroutine(SwitchRoutine(targetLine, targetStrand, targetPoint, targetDistance, onComplete));
     return true;
