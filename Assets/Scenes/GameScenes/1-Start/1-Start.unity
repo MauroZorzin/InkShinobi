@@ -4096,11 +4096,6 @@ GameObject:
   - component: {fileID: 1051661174}
   - component: {fileID: 1051661173}
   - component: {fileID: 1051661172}
-  - component: {fileID: 1051661180}
-  - component: {fileID: 1051661179}
-  - component: {fileID: 1051661178}
-  - component: {fileID: 1051661177}
-  - component: {fileID: 1051661176}
   m_Layer: 0
   m_Name: Deer_Trigger
   m_TagString: Untagged
@@ -4218,91 +4213,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1051661170}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1051661176
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051661170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14ded9b730c6844c9515d4a9e44a7dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::CreatureMoveTrigger
-  target: {fileID: 0}
-  triggerLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  oneShot: 1
---- !u!114 &1051661177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051661170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14ded9b730c6844c9515d4a9e44a7dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::CreatureMoveTrigger
-  target: {fileID: 0}
-  triggerLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  oneShot: 1
---- !u!114 &1051661178
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051661170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14ded9b730c6844c9515d4a9e44a7dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::CreatureMoveTrigger
-  target: {fileID: 0}
-  triggerLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  oneShot: 1
---- !u!114 &1051661179
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051661170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14ded9b730c6844c9515d4a9e44a7dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::CreatureMoveTrigger
-  target: {fileID: 0}
-  triggerLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  oneShot: 1
---- !u!114 &1051661180
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1051661170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d14ded9b730c6844c9515d4a9e44a7dc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::CreatureMoveTrigger
-  target: {fileID: 0}
-  triggerLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  oneShot: 1
 --- !u!1001 &1069619800
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5182,11 +5092,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5586220953514933799, guid: 3165793d3ae6acb48863fa5e0f6d5ccb, type: 3}
   m_PrefabInstance: {fileID: 1001401894}
   m_PrefabAsset: {fileID: 0}
---- !u!198 &1382136022 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 8758228389806960461, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
-  m_PrefabInstance: {fileID: 1552316825}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1393877101
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5744,30 +5649,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2419360577604233760, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
   m_PrefabInstance: {fileID: 1552316825}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1534293225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 142961523}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 510545817a43af64497344fea0a2050e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::FootstepPlayer
-  library: {fileID: 11400000, guid: 92e6e1265c8fed64f9899a9f0162082d, type: 2}
-  raycastHeight: 0.5
-  raycastDistance: 2
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 2048
-  stepDistance: 1.2
-  minSpeedToStep: 0.05
-  volume: 1
-  pitchVariance: 0.08
-  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
-  verboseLogging: 0
 --- !u!4 &1537429013 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1094219722582570740, guid: fd48fa88773e85c4eb7a499bc2e4226b, type: 3}
@@ -5918,21 +5799,9 @@ PrefabInstance:
       propertyPath: postProcessVolume
       value: 
       objectReference: {fileID: 768435685}
-    - target: {fileID: 3861325504680876323, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
-      propertyPath: spawnTakedownParticles
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3861325504680876323, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
-      propertyPath: takedownParticlesPrefab
-      value: 
-      objectReference: {fileID: 1382136022}
     - target: {fileID: 6803016691086505379, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_Name
       value: PlayerV3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8758228389806960467, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9122068286068485749, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_AnchorMax.x
@@ -5949,10 +5818,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6803016691086505379, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1534293225}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
 --- !u!4 &1561438925 stripped
 Transform:

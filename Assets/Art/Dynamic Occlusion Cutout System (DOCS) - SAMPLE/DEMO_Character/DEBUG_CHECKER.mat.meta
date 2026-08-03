@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 94b68296207f2874ea25306e9b66af31
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 357594
+  packageName: Keep Characters Always Visible - Camera Occlusion for 2D & 3D (DOCS)
+    - SAMPLE
+  packageVersion: 1.0
+  assetPath: Assets/Dynamic Occlusion Cutout System (DOCS) - SAMPLE/DEMO_Character/DEBUG_CHECKER.mat
+  uploadId: 852196

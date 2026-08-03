@@ -32,6 +32,20 @@ public class LineSwitcher : MonoBehaviour {
   [Tooltip("Mixer group switchSound is routed through (e.g. your \"FX\" group). Leave empty to go straight to Master.")]
   public AudioMixerGroup mixerGroup;
 
+  [Header("Particles")]
+  [Tooltip("Instantiated at the player's position the instant a switch starts (where the player vanishes from).")]
+  public ParticleSystem departParticlesPrefab;
+
+  [Tooltip("Instantiated at the target position the instant a switch finishes (where the player arrives).")]
+  public ParticleSystem arriveParticlesPrefab;
+
+  [Header("Visibility")]
+  [Tooltip("If true, hides the player's sprite for the duration of the switch (it's a fast/teleport-like move) — TakedownController briefly shows it again mid-switch to play the takedown animation, then this hides it again until arrival.")]
+  public bool hidePlayerDuringSwitch = false;
+
+  [Tooltip("Defaults to this GameObject's SpriteRenderer if left empty.")]
+  public SpriteRenderer spriteRenderer;
+
   [Header("Debug")]
   public bool logSwitches = true;
 
@@ -54,6 +68,20 @@ public class LineSwitcher : MonoBehaviour {
     if (cameraTransform == null && Camera.main != null) {
       cameraTransform = Camera.main.transform;
     }
+
+    if (spriteRenderer == null) {
+      spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+  }
+
+  /// <summary>
+  /// Shows/hides the player's sprite, but only when hidePlayerDuringSwitch is enabled — a no-op
+  /// otherwise, so callers (e.g. TakedownController briefly showing the player mid-switch to play
+  /// its takedown animation) don't need to know whether the feature is even turned on.
+  /// </summary>
+  public void SetSpriteVisible(bool visible) {
+    if (!hidePlayerDuringSwitch || spriteRenderer == null) return;
+    spriteRenderer.enabled = visible;
   }
 
   /// <summary>
@@ -102,6 +130,9 @@ public class LineSwitcher : MonoBehaviour {
 
     Vector3 startPos = transform.position;
 
+    SpawnParticles(departParticlesPrefab, startPos);
+    SetSpriteVisible(false);
+
     // targetPoint is the exact aimed point ON the line, so its Y already matches the target
     // line's height at that spot — unlike WallSwitcher (which deliberately preserves the
     // player's old Y across a wall-to-wall move), here we WANT to adopt the new line's Y.
@@ -143,6 +174,9 @@ public class LineSwitcher : MonoBehaviour {
       UpdateOrbitingCamera(camStartOffset, 180f);
     }
 
+    SpawnParticles(arriveParticlesPrefab, transform.position);
+    SetSpriteVisible(true);
+
     if (followController != null) {
       followController.SetLine(targetLine, targetStrand, targetDistance);
       followController.ResetVelocity();
@@ -167,6 +201,16 @@ public class LineSwitcher : MonoBehaviour {
     Vector3 orbitedOffset = Quaternion.AngleAxis(yawDegrees, Vector3.up) * camStartOffset;
     cameraTransform.position = pivot + orbitedOffset;
     cameraTransform.rotation = Quaternion.LookRotation((pivot - cameraTransform.position).normalized, Vector3.up);
+  }
+
+  /// <summary>Instantiates a one-shot particle prefab at a position, auto-destroyed once it finishes playing. No-op if prefab is null.</summary>
+  private void SpawnParticles(ParticleSystem prefab, Vector3 position) {
+    if (prefab == null) return;
+
+    ParticleSystem instance = Instantiate(prefab, position, Quaternion.identity);
+    ParticleSystem.MainModule main = instance.main;
+    float lifetime = Mathf.Max(main.startLifetime.constant, main.startLifetime.constantMax);
+    Destroy(instance.gameObject, main.duration + lifetime);
   }
 
   /// <summary>

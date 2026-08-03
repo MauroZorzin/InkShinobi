@@ -164,13 +164,26 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
     // switchBlurIntensity (not fadedto 0) — the switch is still in flight, just paused on the hit.
     _targetTimeScale = slamTimeScale;
 
-    if (playTakedownAnimation) PlayTakedownAnimation();
+    // The switch may have hidden the player's sprite for the flight (LineSwitcher.
+    // hidePlayerDuringSwitch) — if we're about to play the takedown animation, show it again just
+    // for that beat (slamHoldDuration doubles as "how long the animation plays" here) so the hit
+    // actually reads on screen, then hide it again afterward until the switch itself reveals the
+    // player on arrival. SetSpriteVisible is a no-op when hidePlayerDuringSwitch is off, so this
+    // is safe to call unconditionally.
+    LineSwitcher lineSwitcher = _aimController.lineSwitcher;
+    if (playTakedownAnimation) {
+      if (lineSwitcher != null) lineSwitcher.SetSpriteVisible(true);
+      PlayTakedownAnimation();
+    }
+
     if (spawnTakedownParticles) SpawnTakedownParticles(hitGuard);
     hitGuard.PerformTakedown();
 
     if (verboseLogging) Debug.Log($"[Takedown] SUCCESS on '{hitGuard.name}' via wall switch.");
 
     yield return new WaitForSecondsRealtime(slamHoldDuration);
+
+    if (playTakedownAnimation && lineSwitcher != null) lineSwitcher.SetSpriteVisible(false);
 
     // Release the slam: back to switch speed/blur so the still-in-flight switch (its own
     // coroutine also advances on Time.deltaTime, so it was effectively paused during the slam
