@@ -160,7 +160,7 @@ MonoBehaviour:
     filterMode: 0
     layerMask:
       serializedVersion: 2
-      m_Bits: 4294967295
+      m_Bits: 4095
   outlineSettings:
     color: {r: 1, g: 1, b: 1, a: 1}
     farColor: {r: 0, g: 0, b: 0, a: 0}

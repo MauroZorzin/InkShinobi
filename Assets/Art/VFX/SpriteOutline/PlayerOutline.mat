@@ -15,7 +15,7 @@ Material:
   m_InvalidKeywords:
   - _OUTLINEENABLED_ON
   - _OUTLINEMODE_SOLID
-  - _OUTLINEPOSITION_INSIDE_UNDER_SPRITE
+  - _OUTLINEPOSITION_INSIDE_OVER_SPRITE
   - _OUTLINESHAPE_CONTOUR
   - _SHOWFILL_ON
   - _TILEMODE_STRETCH
@@ -47,10 +47,10 @@ Material:
     - _DualOutlineWidth: 3
     - _OutlineEnabled: 1
     - _OutlineMode: 0
-    - _OutlinePosition: 0
+    - _OutlinePosition: 1
     - _OutlineShape: 0
     - _ShowFill: 1
-    - _Thickness: 4
+    - _Thickness: 10
     - _TileMode: 0
     - _Weight: 0.5
     m_Colors:
