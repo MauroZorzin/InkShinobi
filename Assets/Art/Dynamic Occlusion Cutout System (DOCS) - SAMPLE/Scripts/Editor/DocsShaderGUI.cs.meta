@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: e8ddb437a097c38458cd464d6f95dda3
+AssetOrigin:
+  serializedVersion: 1
+  productId: 357594
+  packageName: Keep Characters Always Visible - Camera Occlusion for 2D & 3D (DOCS)
+    - SAMPLE
+  packageVersion: 1.0
+  assetPath: Assets/Dynamic Occlusion Cutout System (DOCS) - SAMPLE/Scripts/Editor/DocsShaderGUI.cs
+  uploadId: 852196

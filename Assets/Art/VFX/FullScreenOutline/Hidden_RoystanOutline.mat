@@ -27,13 +27,15 @@ Material:
     m_Ints: []
     m_Floats:
     - _DebugView: 0
-    - _DepthNormalThreshold: 0.5
+    - _DepthContribution: 1
+    - _DepthNormalThreshold: 0.37
     - _DepthNormalThresholdScale: 7
     - _DepthThreshold: 1.5
     - _FadeEndDistance: 30
     - _FadeStartDistance: 15
     - _MaxScale: 10
     - _MinScale: 0.5
+    - _NormalContribution: 0.51
     - _NormalThreshold: 0.4
     - _Scale: 0.1
     - _ThicknessReferenceDistance: 10

@@ -28,6 +28,8 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
     // default below, which is exactly what caused "texture has no format".
     public GraphicsFormat normalsColorFormat = GraphicsFormat.R8G8B8A8_UNorm;
     public FilterMode filterMode = FilterMode.Point;
+    [Tooltip("Only objects on these layers are outlined. Intersected with the camera's own culling mask.")]
+    public LayerMask layerMask = ~0;
   }
 
   [Serializable]
@@ -44,6 +46,10 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
     [Range(0, 1)] public float normalThreshold = 0.4f;
     [Range(0, 1)] public float depthNormalThreshold = 0.5f;
     public float depthNormalThresholdScale = 7f;
+    [Tooltip("How much normal-detected edges show up in the final outline, independent of the threshold that decides whether they fire at all.")]
+    [Range(0, 1)] public float normalContribution = 1f;
+    [Tooltip("How much depth-detected edges show up in the final outline, independent of the threshold that decides whether they fire at all.")]
+    [Range(0, 1)] public float depthContribution = 1f;
   }
 
   [SerializeField] private ViewSpaceNormalsTextureSettings viewSpaceNormalsTextureSettings = new ViewSpaceNormalsTextureSettings();
@@ -61,7 +67,13 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
   public override void Create() {
     m_ViewSpaceNormalsTexturePass = new ViewSpaceNormalsTexturePass(renderPassEvent, viewSpaceNormalsTextureSettings, normalsMaterial);
     m_ScreenSpaceOutlinePass = new ScreenSpaceOutlinePass(renderPassEvent, outlineSettings, outlineMaterial);
-    m_ScreenSpaceOutlinePass.ConfigureInput(ScriptableRenderPassInput.Depth);
+    // Both passes call GetTextureDesc(resourceData.activeColorTexture), which throws ("does not
+    // have a valid descriptor... system back buffer") whenever URP decides it can render straight
+    // to the backbuffer instead of an intermediate texture (e.g. no active post-processing on the
+    // camera). Declaring Color input here forces URP to always allocate a real intermediate color
+    // texture for any camera this feature runs on, so activeColorTexture is never the raw backbuffer.
+    m_ViewSpaceNormalsTexturePass.ConfigureInput(ScriptableRenderPassInput.Color);
+    m_ScreenSpaceOutlinePass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Color);
   }
 
   public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData) {
@@ -118,11 +130,18 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
       desc.filterMode = settings.filterMode;
       desc.name = "_ScreenViewSpaceNormals";
       desc.clearBuffer = true;
-      desc.clearColor = Color.black;
+      // Alpha cleared to 0 (not the opaque 1 Color.black would give) so it doubles as a "was this
+      // pixel drawn by an outlined-layer object" mask — ViewSpaceNormals.shader always outputs
+      // alpha 1, so any pixel left at 0 was never touched by this pass. RoystanOutline.shader reads
+      // this back to gate its depth-edge test, which would otherwise ignore layerMask entirely since
+      // it samples the camera's full depth texture (populated by every opaque object, not just the
+      // ones this pass draws).
+      desc.clearColor = new Color(0, 0, 0, 0);
       TextureHandle normalsTexture = renderGraph.CreateTexture(desc);
 
       using (var builder = renderGraph.AddRasterRenderPass<PassData>("View Space Normals", out var passData, profilingSampler)) {
-        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque, cameraData.camera.cullingMask);
+        int cullingMask = cameraData.camera.cullingMask & settings.layerMask.value;
+        var filteringSettings = new FilteringSettings(RenderQueueRange.opaque, cullingMask);
         var drawingSettings = RenderingUtils.CreateDrawingSettings(shaderTagIds, renderingData, cameraData, lightData, cameraData.defaultOpaqueSortFlags);
         drawingSettings.overrideMaterial = normalsMaterial;
 
@@ -167,6 +186,8 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
     private static readonly int NormalThresholdId = Shader.PropertyToID("_NormalThreshold");
     private static readonly int DepthNormalThresholdId = Shader.PropertyToID("_DepthNormalThreshold");
     private static readonly int DepthNormalThresholdScaleId = Shader.PropertyToID("_DepthNormalThresholdScale");
+    private static readonly int NormalContributionId = Shader.PropertyToID("_NormalContribution");
+    private static readonly int DepthContributionId = Shader.PropertyToID("_DepthContribution");
     private static readonly int ClipToViewId = Shader.PropertyToID("_ClipToView");
     private static readonly Vector4 FullScaleBias = new Vector4(1, 1, 0, 0);
     private static readonly MaterialPropertyBlock s_PropertyBlock = new MaterialPropertyBlock();
@@ -204,6 +225,8 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
       s_PropertyBlock.SetFloat(NormalThresholdId, settings.normalThreshold);
       s_PropertyBlock.SetFloat(DepthNormalThresholdId, settings.depthNormalThreshold);
       s_PropertyBlock.SetFloat(DepthNormalThresholdScaleId, settings.depthNormalThresholdScale);
+      s_PropertyBlock.SetFloat(NormalContributionId, settings.normalContribution);
+      s_PropertyBlock.SetFloat(DepthContributionId, settings.depthContribution);
       s_PropertyBlock.SetMatrix(ClipToViewId, clipToView);
       cmd.DrawProcedural(Matrix4x4.identity, material, 0, MeshTopology.Triangles, 3, 1, s_PropertyBlock);
     }

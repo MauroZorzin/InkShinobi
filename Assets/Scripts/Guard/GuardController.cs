@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Audio;
 
 /// <summary>
 /// Controls guard state transitions for patrolling, investigating, alerting, and takedowns.
@@ -68,6 +69,30 @@ public class GuardController : MonoBehaviour {
   [Tooltip("Seconds to wait after takedown before destroying this guard GameObject.")]
   public float takedownDestroyDelay = 0.5f;
 
+  // ── Audio ─────────────────────────────────────────────────────────────────
+
+  [Header("Audio")]
+  [Tooltip("Played once the instant this guard first spots the player (transitions into Alerted).")]
+  public AudioClip spotSound;
+
+  [Tooltip("Played alongside spotSound, the instant the chase begins.")]
+  public AudioClip chaseStartSound;
+
+  [Tooltip("Played when this guard gives up the chase after losing track of the player.")]
+  public AudioClip loseSightSound;
+
+  [Tooltip("Random idle lines played occasionally while patrolling. Leave empty to disable.")]
+  public AudioClip[] idleSounds = System.Array.Empty<AudioClip>();
+
+  [Tooltip("Minimum seconds between idle lines.")]
+  public float idleSoundMinInterval = 8f;
+
+  [Tooltip("Maximum seconds between idle lines.")]
+  public float idleSoundMaxInterval = 20f;
+
+  [Tooltip("Mixer group all of this guard's sounds are routed through (e.g. your \"FX\" group). Leave empty to go straight to Master.")]
+  public AudioMixerGroup mixerGroup;
+
   // ── References ────────────────────────────────────────────────────────────
 
   [Header("References")]
@@ -97,6 +122,8 @@ public class GuardController : MonoBehaviour {
   /// <summary>Set to true while a look-around coroutine is running so Update doesn't fight it.</summary>
   private bool _lookingAround = false;
 
+  private float _idleSoundTimer;
+
   // ─────────────────────────────────────────────────────────────────────────
   // Unity lifecycle
   // ─────────────────────────────────────────────────────────────────────────
@@ -111,6 +138,8 @@ public class GuardController : MonoBehaviour {
     if (visionCone == null) {
       Debug.LogWarning($"[Guard] {name}: No GuardVisionCone found.", this);
     }
+
+    _idleSoundTimer = Random.Range(idleSoundMinInterval, idleSoundMaxInterval);
   }
 
   private void Start() {
@@ -127,6 +156,7 @@ public class GuardController : MonoBehaviour {
     // Vision cone escalation — highest priority.
     if (visionCone != null && visionCone.PlayerDetected) {
       _lastKnownPosition = visionCone.DetectedPlayer.transform.position;
+      if (CurrentState != GuardState.Alerted) PlaySpottedSounds();
       SetState(GuardState.Alerted);
     }
 
@@ -222,6 +252,8 @@ public class GuardController : MonoBehaviour {
   // ─────────────────────────────────────────────────────────────────────────
 
   private void UpdatePatrol() {
+    UpdateIdleSound();
+
     if (patrolWaypoints == null || patrolWaypoints.Length == 0) {
       return;
     }
@@ -295,6 +327,7 @@ public class GuardController : MonoBehaviour {
     }
 
     if (_investigateTimer <= 0f) {
+      if (loseSightSound != null) OneShotAudio.PlayClipAtPoint(loseSightSound, transform.position, 1f, mixerGroup);
       SetState(GuardState.Suspicious);
     }
   }
@@ -359,6 +392,27 @@ public class GuardController : MonoBehaviour {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Audio helpers
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private void PlaySpottedSounds() {
+    if (spotSound != null) OneShotAudio.PlayClipAtPoint(spotSound, transform.position, 1f, mixerGroup);
+    if (chaseStartSound != null) OneShotAudio.PlayClipAtPoint(chaseStartSound, transform.position, 1f, mixerGroup);
+  }
+
+  /// <summary>Ticks down to a random idle line while patrolling, replaying the countdown (also randomized) each time one fires.</summary>
+  private void UpdateIdleSound() {
+    if (idleSounds == null || idleSounds.Length == 0) return;
+
+    _idleSoundTimer -= Time.deltaTime;
+    if (_idleSoundTimer > 0f) return;
+
+    AudioClip clip = idleSounds[Random.Range(0, idleSounds.Length)];
+    if (clip != null) OneShotAudio.PlayClipAtPoint(clip, transform.position, 1f, mixerGroup);
+    _idleSoundTimer = Random.Range(idleSoundMinInterval, idleSoundMaxInterval);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Takedown sequence
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -373,7 +427,7 @@ public class GuardController : MonoBehaviour {
     }
 
     if (takedownSound != null) {
-      AudioSource.PlayClipAtPoint(takedownSound, transform.position);
+      OneShotAudio.PlayClipAtPoint(takedownSound, transform.position, 1f, mixerGroup);
     }
 
     if (takedownReplacementPrefab != null) {

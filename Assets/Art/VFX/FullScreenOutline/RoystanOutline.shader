@@ -31,6 +31,10 @@ Shader "Hidden/RoystanOutline"
         _DepthNormalThreshold ("Depth Normal Threshold", Range(0, 1)) = 0.5
         _DepthNormalThresholdScale ("Depth Normal Threshold Scale", Float) = 7
 
+        [Header(Edge Contribution)]
+        _NormalContribution ("Normal Edge Contribution", Range(0, 1)) = 1
+        _DepthContribution ("Depth Edge Contribution", Range(0, 1)) = 1
+
         [Header(Debug)]
         [KeywordEnum(Off, Normals, DepthEdge, NormalEdge)] _DebugView ("Debug View", Float) = 0
     }
@@ -73,6 +77,8 @@ Shader "Hidden/RoystanOutline"
                 float _NormalThreshold;
                 float _DepthNormalThreshold;
                 float _DepthNormalThresholdScale;
+                float _NormalContribution;
+                float _DepthContribution;
                 float _DebugView;
             CBUFFER_END
 
@@ -81,10 +87,15 @@ Shader "Hidden/RoystanOutline"
             // reconstruction, just to get the direction back to the camera for the angle test below.
             float4x4 _ClipToView;
 
-            float3 SampleNormal(float2 uv) {
+            // mask (alpha) is 1 where ViewSpaceNormalsTexturePass actually drew an outlined-layer
+            // object, 0 where the texture was left at its cleared value (background, or an object
+            // excluded by layerMask) — see the comment on desc.clearColor in ScreenSpaceOutline.cs.
+            float3 SampleNormal(float2 uv, out float mask) {
+                half4 raw = SAMPLE_TEXTURE2D_X_LOD(_ScreenViewSpaceNormals, sampler_ScreenViewSpaceNormals, uv, 0);
+                mask = raw.a;
                 // Undo the 0..1 remap ViewSpaceNormals.shader applied before writing (the render
                 // target is an unsigned color format, normals are -1..1).
-                return SAMPLE_TEXTURE2D_X_LOD(_ScreenViewSpaceNormals, sampler_ScreenViewSpaceNormals, uv, 0).rgb * 2 - 1;
+                return raw.rgb * 2 - 1;
             }
 
             half4 Frag(Varyings input) : SV_Target {
@@ -124,15 +135,24 @@ Shader "Hidden/RoystanOutline"
                 float edgeDepth = sqrt(pow(depthFiniteDifference0, 2) + pow(depthFiniteDifference1, 2)) * 100;
 
                 // Normal edge: Roberts cross via self-dot (== squared length) on view-space normals.
-                float3 normal0 = SampleNormal(uvBottomLeft);
-                float3 normal1 = SampleNormal(uvTopRight);
-                float3 normal2 = SampleNormal(uvBottomRight);
-                float3 normal3 = SampleNormal(uvTopLeft);
+                float mask0, mask1, mask2, mask3;
+                float3 normal0 = SampleNormal(uvBottomLeft, mask0);
+                float3 normal1 = SampleNormal(uvTopRight, mask1);
+                float3 normal2 = SampleNormal(uvBottomRight, mask2);
+                float3 normal3 = SampleNormal(uvTopLeft, mask3);
 
                 float3 normalFiniteDifference0 = normal1 - normal0;
                 float3 normalFiniteDifference1 = normal3 - normal2;
                 float edgeNormal = sqrt(dot(normalFiniteDifference0, normalFiniteDifference0) + dot(normalFiniteDifference1, normalFiniteDifference1));
                 edgeNormal = edgeNormal > _NormalThreshold ? 1 : 0;
+
+                // True as long as ONE side of the sampled quad belongs to an outlined-layer object —
+                // that's enough for its silhouette against anything else (background, or a
+                // non-outlined object) to count as an edge. Two non-outlined objects both read mask
+                // 0 here, so their shared boundary is suppressed even though it's still a real depth
+                // discontinuity in _CameraDepthTexture (that texture is populated by every opaque
+                // object, not just the outlined layers).
+                float outlineMask = max(max(mask0, mask1), max(mask2, mask3)) > 0.5 ? 1 : 0;
 
                 // View-angle modulation: reconstruct the view-space ray through this pixel (far
                 // plane, w=1, so we only need its direction, not a depth-accurate position) to get
@@ -172,8 +192,14 @@ Shader "Hidden/RoystanOutline"
                 float fadeT = saturate((centerDepthLinear - _FadeStartDistance) / max(_FadeEndDistance - _FadeStartDistance, 0.01));
                 half4 fadedColor = lerp(_Color, _FarColor, fadeT);
 
-                // Combine both edge tests, then alpha-blend the outline color over the scene.
-                float edge = max(edgeDepth, edgeNormal);
+                // Combine both edge tests, gate by layer mask, then alpha-blend the outline color
+                // over the scene. Contribution scales each edge AFTER its own threshold decided
+                // whether it fired at all — it doesn't change WHERE an edge is detected, only how
+                // much that edge type is allowed to show once it has. Lowering _NormalContribution
+                // fades out normal-only edges (e.g. curved-surface shading breaks) while leaving
+                // depth-detected silhouettes (the ones from _DepthThreshold) untouched, and vice
+                // versa — a knob for balance, independent of the detection thresholds above.
+                float edge = max(edgeDepth * _DepthContribution, edgeNormal * _NormalContribution) * outlineMask;
                 half4 outlineColor = half4(fadedColor.rgb, fadedColor.a * edge);
                 return half4(lerp(sceneColor.rgb, outlineColor.rgb, outlineColor.a), sceneColor.a);
             }
