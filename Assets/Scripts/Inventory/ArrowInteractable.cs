@@ -8,6 +8,7 @@ public class ArrowInteractable : MonoBehaviour, IInteractable {
   [Header("Target")]
   [Tooltip("GameObject shown/hidden (SetActive) each time this is interacted with.")]
   [SerializeField] private GameObject targetObject;
+  [SerializeField] private GameObject targetText;
 
   [Header("ToHide")]
   [Tooltip("GameObject hide permanently when interaction is triggered.")]
@@ -40,6 +41,7 @@ public class ArrowInteractable : MonoBehaviour, IInteractable {
   private void SetShowing(bool showing) {
     _isShowing = showing;
     if (targetObject != null) targetObject.SetActive(showing);
+    if (targetText != null) targetText.SetActive(showing);
     if (componentToDisable != null) componentToDisable.enabled = !showing;
     if (toHideObject != null && showing == false) toHideObject.SetActive(false);
     if (toHideObjectText != null && showing == false) toHideObjectText.SetActive(false);
