@@ -458,8 +458,8 @@ MonoBehaviour:
           inWeight: 0
           outWeight: 0
         - serializedVersion: 3
-          time: 0.67951804
-          value: 1
+          time: 0.521519
+          value: 0.9978615
           inSlope: Infinity
           outSlope: Infinity
           tangentMode: 0
@@ -571,13 +571,13 @@ MonoBehaviour:
     m_Value: 1
   gaussianStart:
     m_OverrideState: 1
-    m_Value: 15
+    m_Value: 20
   gaussianEnd:
     m_OverrideState: 1
-    m_Value: 50
+    m_Value: 100
   gaussianMaxRadius:
     m_OverrideState: 1
-    m_Value: 0.681
+    m_Value: 0.622
   highQualitySampling:
     m_OverrideState: 1
     m_Value: 1
