@@ -38,4 +38,7 @@ MonoBehaviour:
     - {fileID: 8300000, guid: a45bdfd5056ed1d4d8f667cc2498ca12, type: 3}
     - {fileID: 8300000, guid: ec4bd5988d7de0c41ab2d9959705dd8b, type: 3}
     - {fileID: 8300000, guid: ec4bd5988d7de0c41ab2d9959705dd8b, type: 3}
+  - surface: 1
+    clips:
+    - {fileID: 8300000, guid: ecd647025e0a3c04fbd5829fff509e09, type: 3}
   fallbackClips: []
