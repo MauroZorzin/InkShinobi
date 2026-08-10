@@ -1,0 +1,225 @@
+#usda 1.0
+(
+    "Exported from Adobe Substance 3D Painter 8.3.1"
+    defaultPrim = "RootNode"
+)
+
+def "RootNode"
+{
+    def Scope "material"
+    {
+        def Material "JapanBridgePiers"
+        {
+            asset inputs:basecolor_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridgePiers_BaseColor.png@
+            asset inputs:compositedNormalDX_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridgePiers_Normal.png@
+            asset inputs:emissive_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridgePiers_Emissive.png@
+            asset inputs:height_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridgePiers_Height.png@
+            asset inputs:metallic_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridgePiers_Metallic.png@
+            asset inputs:opacity_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridgePiers_BaseColor.png@
+            asset inputs:roughness_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridgePiers_Roughness.png@
+            token outputs:displacement.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/ShaderUsdPreviewSurface.outputs:displacement>
+            token outputs:surface.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/ShaderUsdPreviewSurface.outputs:surface>
+
+            def NodeGraph "UsdPreviewSurface"
+            {
+                def Shader "ShaderUsdPreviewSurface"
+                {
+                    uniform token info:id = "UsdPreviewSurface"
+                    float3 inputs:diffuseColor.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/diffuseColorTextureShader.outputs:rgb>
+                    float3 inputs:emissive.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/emissiveTextureShader.outputs:rgb>
+                    float inputs:metallic.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/metallicTextureShader.outputs:r>
+                    normal3f inputs:normal.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/normalTextureShader.outputs:rgb>
+                    float inputs:opacity.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/opacityTextureShader.outputs:a>
+                    float inputs:roughness.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/roughnessTextureShader.outputs:r>
+                    token outputs:displacement
+                    token outputs:surface
+                }
+
+                def Shader "TexCoordReader"
+                {
+                    uniform token info:id = "UsdPrimvarReader_float2"
+                    token inputs:varname = "st"
+                    float2 outputs:result
+                }
+
+                def Shader "diffuseColorTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridgePiers.inputs:basecolor_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float3 outputs:rgb
+                }
+
+                def Shader "roughnessTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridgePiers.inputs:roughness_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float outputs:r
+                }
+
+                def Shader "metallicTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridgePiers.inputs:metallic_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float outputs:r
+                }
+
+                def Shader "emissiveTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridgePiers.inputs:emissive_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float3 outputs:rgb
+                }
+
+                def Shader "opacityTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridgePiers.inputs:opacity_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float outputs:a
+                }
+
+                def Shader "normalTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    float4 inputs:bias = (-1, 1, -1, 0)
+                    asset inputs:file.connect = </RootNode/material/JapanBridgePiers.inputs:compositedNormalDX_tex>
+                    float4 inputs:scale = (2, -2, 2, 1)
+                    float2 inputs:st.connect = </RootNode/material/JapanBridgePiers/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    normal3f outputs:rgb
+                }
+            }
+        }
+
+        def Material "JapanBridge"
+        {
+            asset inputs:basecolor_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridge_BaseColor.png@
+            asset inputs:compositedNormalDX_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridge_Normal.png@
+            asset inputs:emissive_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridge_Emissive.png@
+            asset inputs:height_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridge_Height.png@
+            asset inputs:metallic_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridge_Metallic.png@
+            asset inputs:opacity_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridge_BaseColor.png@
+            asset inputs:roughness_tex = @JapaneseBridge_textures/JapaneseBridge_JapanBridge_Roughness.png@
+            token outputs:displacement.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/ShaderUsdPreviewSurface.outputs:displacement>
+            token outputs:surface.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/ShaderUsdPreviewSurface.outputs:surface>
+
+            def NodeGraph "UsdPreviewSurface"
+            {
+                def Shader "ShaderUsdPreviewSurface"
+                {
+                    uniform token info:id = "UsdPreviewSurface"
+                    float3 inputs:diffuseColor.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/diffuseColorTextureShader.outputs:rgb>
+                    float3 inputs:emissive.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/emissiveTextureShader.outputs:rgb>
+                    float inputs:metallic.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/metallicTextureShader.outputs:r>
+                    normal3f inputs:normal.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/normalTextureShader.outputs:rgb>
+                    float inputs:opacity.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/opacityTextureShader.outputs:a>
+                    float inputs:roughness.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/roughnessTextureShader.outputs:r>
+                    token outputs:displacement
+                    token outputs:surface
+                }
+
+                def Shader "TexCoordReader"
+                {
+                    uniform token info:id = "UsdPrimvarReader_float2"
+                    token inputs:varname = "st"
+                    float2 outputs:result
+                }
+
+                def Shader "diffuseColorTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridge.inputs:basecolor_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float3 outputs:rgb
+                }
+
+                def Shader "roughnessTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridge.inputs:roughness_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float outputs:r
+                }
+
+                def Shader "metallicTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridge.inputs:metallic_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float outputs:r
+                }
+
+                def Shader "emissiveTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridge.inputs:emissive_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float3 outputs:rgb
+                }
+
+                def Shader "opacityTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    asset inputs:file.connect = </RootNode/material/JapanBridge.inputs:opacity_tex>
+                    float2 inputs:st.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    float outputs:a
+                }
+
+                def Shader "normalTextureShader"
+                {
+                    uniform token info:id = "UsdUVTexture"
+                    float4 inputs:bias = (-1, 1, -1, 0)
+                    asset inputs:file.connect = </RootNode/material/JapanBridge.inputs:compositedNormalDX_tex>
+                    float4 inputs:scale = (2, -2, 2, 1)
+                    float2 inputs:st.connect = </RootNode/material/JapanBridge/UsdPreviewSurface/TexCoordReader.outputs:result>
+                    token inputs:wrapS = "repeat"
+                    token inputs:wrapT = "repeat"
+                    normal3f outputs:rgb
+                }
+            }
+        }
+    }
+}
+
+over "JapanBridge"
+{
+    over "JapanBridge" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </RootNode/material/JapanBridgePiers>
+    }
+
+    over "JapanBridge_1" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </RootNode/material/JapanBridge>
+    }
+}
+

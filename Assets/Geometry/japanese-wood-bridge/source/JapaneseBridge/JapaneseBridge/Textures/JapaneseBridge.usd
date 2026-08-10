@@ -1,0 +1,15 @@
+#usda 1.0
+(
+    "Exported from Adobe Substance 3D Painter 8.3.1"
+    defaultPrim = "RootNode"
+    subLayers = [
+        @./JapaneseBridge.material.usda@
+    ]
+)
+
+def "RootNode" (
+    prepend references = @./JapaneseBridge.geo.usd@
+)
+{
+}
+

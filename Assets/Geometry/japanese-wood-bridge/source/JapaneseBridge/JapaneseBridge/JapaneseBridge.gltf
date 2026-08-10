@@ -1,0 +1,349 @@
+{
+    "asset": {
+        "version": "2.0",
+        "generator": "Open Asset Import Library (assimp v3.1.187256796)"
+    },
+    "accessors": [
+        {
+            "bufferView": 0,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 2676,
+            "type": "VEC3",
+            "max": [
+                3.222903251647949,
+                1.956554889678955,
+                1.6081058979034424
+            ],
+            "min": [
+                -3.222903251647949,
+                -1.9565550088882447,
+                -1.3993875980377198
+            ]
+        },
+        {
+            "bufferView": 1,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 2676,
+            "type": "VEC3",
+            "max": [
+                1.0,
+                0.9848077297210693,
+                0.9999982714653015
+            ],
+            "min": [
+                -1.0,
+                -0.9848077297210693,
+                -1.0
+            ]
+        },
+        {
+            "bufferView": 2,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 2676,
+            "type": "VEC4",
+            "max": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min": [
+                -1.0,
+                -1.0,
+                -1.0,
+                -1.0
+            ]
+        },
+        {
+            "bufferView": 3,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 2676,
+            "type": "VEC2",
+            "max": [
+                0.9985823631286621,
+                0.9985166788101196
+            ],
+            "min": [
+                0.0014890432357788087,
+                0.006580948829650879
+            ]
+        },
+        {
+            "bufferView": 4,
+            "byteOffset": 0,
+            "componentType": 5123,
+            "count": 9540,
+            "type": "SCALAR",
+            "max": [
+                2675.0
+            ],
+            "min": [
+                0.0
+            ]
+        },
+        {
+            "bufferView": 5,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 4744,
+            "type": "VEC3",
+            "max": [
+                7.140000820159912,
+                1.6098812818527222,
+                3.8313653469085695
+            ],
+            "min": [
+                -7.140000820159912,
+                -1.6098811626434327,
+                -0.06470668315887451
+            ]
+        },
+        {
+            "bufferView": 6,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 4744,
+            "type": "VEC3",
+            "max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min": [
+                -1.0,
+                -1.0,
+                -0.9998792409896851
+            ]
+        },
+        {
+            "bufferView": 7,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 4744,
+            "type": "VEC4",
+            "max": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min": [
+                -1.0,
+                -1.0,
+                -1.0,
+                -1.0
+            ]
+        },
+        {
+            "bufferView": 8,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 4744,
+            "type": "VEC2",
+            "max": [
+                0.9985091686248779,
+                0.9985113739967346
+            ],
+            "min": [
+                0.001488715410232544,
+                0.004520595073699951
+            ]
+        },
+        {
+            "bufferView": 9,
+            "byteOffset": 0,
+            "componentType": 5123,
+            "count": 8940,
+            "type": "SCALAR",
+            "max": [
+                4743.0
+            ],
+            "min": [
+                0.0
+            ]
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 393120,
+            "uri": "JapaneseBridge.bin"
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 32112,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 32112,
+            "byteLength": 32112,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 64224,
+            "byteLength": 42816,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 107040,
+            "byteLength": 21408,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 128448,
+            "byteLength": 19080,
+            "target": 34963
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 147528,
+            "byteLength": 56928,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 204456,
+            "byteLength": 56928,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 261384,
+            "byteLength": 75904,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 337288,
+            "byteLength": 37952,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 375240,
+            "byteLength": 17880,
+            "target": 34963
+        }
+    ],
+    "materials": [
+        {
+            "name": "JapanBridgePiers",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1.0
+                ],
+                "metallicFactor": 0.0
+            }
+        },
+        {
+            "name": "JapanBridge",
+            "pbrMetallicRoughness": {
+                "baseColorFactor": [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929,
+                    1.0
+                ],
+                "metallicFactor": 0.0
+            }
+        }
+    ],
+    "meshes": [
+        {
+            "name": "JapanBridge",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "material": 0,
+                    "indices": 4,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 1,
+                        "TANGENT": 2,
+                        "TEXCOORD_0": 3
+                    }
+                },
+                {
+                    "mode": 4,
+                    "material": 1,
+                    "indices": 9,
+                    "attributes": {
+                        "POSITION": 5,
+                        "NORMAL": 6,
+                        "TANGENT": 7,
+                        "TEXCOORD_0": 8
+                    }
+                }
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "RootNode",
+            "matrix": [
+                0.009999999776482582,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.009999999776482582,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.009999999776482582,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "children": [
+                1
+            ]
+        },
+        {
+            "name": "JapanBridge",
+            "matrix": [
+                100.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                -0.000016292067812173629,
+                -100.0,
+                0.0,
+                0.0,
+                100.0,
+                -0.000016292067812173629,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "mesh": 0
+        }
+    ],
+    "scenes": [
+        {
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "scene": 0
+}
