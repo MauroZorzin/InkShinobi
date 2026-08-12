@@ -159,16 +159,16 @@ MonoBehaviour:
     color: {r: 1, g: 1, b: 1, a: 1}
     farColor: {r: 0, g: 0, b: 0, a: 0}
     fadeStartDistance: 15
-    fadeEndDistance: 90.47
+    fadeEndDistance: 100
     scale: 1
     thicknessReferenceDistance: 1
     minScale: 0
     maxScale: 1
     depthThreshold: 12
     thresholdFunction: 0
-    thresholdNearDistance: 5
-    thresholdFarDistance: 40
-    thresholdMultiplierNear: 1
-    thresholdMultiplierFar: 4
-    thresholdExponent: 2.5
+    thresholdNearDistance: 1
+    thresholdFarDistance: 10
+    thresholdMultiplierNear: 0.8
+    thresholdMultiplierFar: 1
+    thresholdExponent: 5
   outlineMaterial: {fileID: 2100000, guid: 41b80b8137eafd7419fe996d51670146, type: 2}
