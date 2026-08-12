@@ -112,6 +112,19 @@ public class LineFollowController : MonoBehaviour {
       : Vector3.forward;
   }
 
+  private void OnDisable() {
+    _moveInput = 0f;
+    _alongLineSpeed = 0f;
+    _jumpRequested = false;
+
+    if (animator == null) return;
+
+    animator.SetBool(IsRunningHash, false);
+    animator.SetFloat(VelocityHash, 0f);
+    animator.SetBool(IsJumpingHash, false);
+    animator.SetBool(IsFallingHash, false);
+  }
+
   private void Start() {
     if (currentLine != null) {
       var dist = currentLine.FindClosestDistance(transform.position, out _, out _, out int strand);
