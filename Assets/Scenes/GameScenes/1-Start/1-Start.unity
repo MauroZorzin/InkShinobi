@@ -6278,6 +6278,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerV3
       objectReference: {fileID: 0}
+    - target: {fileID: 7997382026096712841, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9122068286068485749, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -6653,7 +6657,7 @@ Transform:
   m_GameObject: {fileID: 1638793311}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20.5, y: 0.31078, z: -2.0313568}
+  m_LocalPosition: {x: 20.35, y: 0.31078, z: -2.0313568}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9414,6 +9418,14 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2957481934345769329, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2957481934345769329, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 293e400028ed3f14894b731363c02b66, type: 2}
     - target: {fileID: 3726999332403321688, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
       propertyPath: m_Layer
       value: 9
@@ -9422,6 +9434,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3981975583182712305, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f0db13cb67c342e41bab618c1cabc132, type: 2}
     - target: {fileID: 4168573462645333346, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
       propertyPath: m_Layer
       value: 9
@@ -9470,6 +9486,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8472566781930894700, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f0db13cb67c342e41bab618c1cabc132, type: 2}
     - target: {fileID: 8528488755596201211, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.15
