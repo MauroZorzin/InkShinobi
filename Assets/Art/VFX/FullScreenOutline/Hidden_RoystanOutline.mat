@@ -27,18 +27,19 @@ Material:
     m_Ints: []
     m_Floats:
     - _DebugView: 0
-    - _DepthContribution: 1
-    - _DepthNormalThreshold: 0.37
-    - _DepthNormalThresholdScale: 7
     - _DepthThreshold: 1.5
     - _FadeEndDistance: 30
     - _FadeStartDistance: 15
     - _MaxScale: 10
     - _MinScale: 0.5
-    - _NormalContribution: 0.51
-    - _NormalThreshold: 0.4
     - _Scale: 0.1
     - _ThicknessReferenceDistance: 10
+    - _ThresholdExponent: 2.5
+    - _ThresholdFarDistance: 40
+    - _ThresholdFunction: 0
+    - _ThresholdMultiplierFar: 4
+    - _ThresholdMultiplierNear: 1
+    - _ThresholdNearDistance: 5
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _FarColor: {r: 0, g: 0, b: 0, a: 0}

@@ -155,12 +155,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScreenSpaceOutline
   m_Active: 1
   renderPassEvent: 300
-  viewSpaceNormalsTextureSettings:
-    normalsColorFormat: 8
-    filterMode: 0
-    layerMask:
-      serializedVersion: 2
-      m_Bits: 4095
   outlineSettings:
     color: {r: 1, g: 1, b: 1, a: 1}
     farColor: {r: 0, g: 0, b: 0, a: 0}
@@ -171,10 +165,10 @@ MonoBehaviour:
     minScale: 0
     maxScale: 1
     depthThreshold: 12
-    normalThreshold: 1
-    depthNormalThreshold: 1
-    depthNormalThresholdScale: 1
-    normalContribution: 0
-    depthContribution: 1
-  normalsMaterial: {fileID: 2100000, guid: 75b4aa812f958044bb0e1daaf66bc879, type: 2}
+    thresholdFunction: 0
+    thresholdNearDistance: 5
+    thresholdFarDistance: 40
+    thresholdMultiplierNear: 1
+    thresholdMultiplierFar: 4
+    thresholdExponent: 2.5
   outlineMaterial: {fileID: 2100000, guid: 41b80b8137eafd7419fe996d51670146, type: 2}

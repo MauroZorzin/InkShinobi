@@ -1,11 +1,15 @@
 Shader "Hidden/RoystanOutline"
 {
     // Port of Roystan's outline shader (https://roystan.net/articles/outline-shader/) to Unity 6
-    // URP — same property names, same algorithm, same limitations as the original. The original
-    // was a Post Processing Stack v2 image effect; here it's a plain full-screen HLSLPROGRAM pass
-    // meant to be driven by a ScriptableRendererFeature (RecordRenderGraph), reading the camera's
-    // depth texture plus a dedicated view-space normals texture (see ViewSpaceNormals.shader /
-    // ViewSpaceNormalsTexturePass) instead of Post Processing's camera.depthTextureMode.
+    // URP — depth-only variant. The original (and our earlier port) also sampled a dedicated
+    // view-space normals texture (ViewSpaceNormals.shader / ViewSpaceNormalsTexturePass) to run a
+    // second Roberts-cross edge test and to correct the depth threshold on grazing-angle surfaces.
+    // That pass has been removed entirely — this shader now reads ONLY the camera depth texture,
+    // so it costs one fewer full-scene redraw and no longer needs per-object normals at all. The
+    // trade-off: curved-surface shading breaks (normal-only edges) no longer outline, and there's
+    // no more grazing-angle compensation — instead, the depth threshold is scaled by a
+    // camera-distance function (see "Depth Threshold" below) so false edges from oblique surfaces
+    // can be tuned back down per-scene without normals.
     //
     // Limitation carried over on purpose: outline width comes from a SINGLE Roberts-cross tap
     // offset by _Scale texels, not a separate dilation pass — so large _Scale values will show the
@@ -26,17 +30,25 @@ Shader "Hidden/RoystanOutline"
         _MinScale ("Min Scale (texels)", Float) = 0.5
         _MaxScale ("Max Scale (texels)", Float) = 10
 
-        _DepthThreshold ("Depth Threshold", Float) = 1.5
-        _NormalThreshold ("Normal Threshold", Range(0, 1)) = 0.4
-        _DepthNormalThreshold ("Depth Normal Threshold", Range(0, 1)) = 0.5
-        _DepthNormalThresholdScale ("Depth Normal Threshold Scale", Float) = 7
-
-        [Header(Edge Contribution)]
-        _NormalContribution ("Normal Edge Contribution", Range(0, 1)) = 1
-        _DepthContribution ("Depth Edge Contribution", Range(0, 1)) = 1
+        [Header(Depth Threshold)]
+        _DepthThreshold ("Depth Threshold (Base)", Float) = 1.5
+        // Threshold actually used at a pixel is _DepthThreshold * a distance-based multiplier
+        // (see DistanceThresholdMultiplier below), so the effective sensitivity can be tuned
+        // separately for close-up and far-away geometry instead of one fixed value for the whole
+        // scene.
+        [KeywordEnum(Linear, Exponential)] _ThresholdFunction ("Distance Function", Float) = 0
+        _ThresholdNearDistance ("Near Distance (world units)", Float) = 5
+        _ThresholdFarDistance ("Far Distance (world units)", Float) = 40
+        _ThresholdMultiplierNear ("Multiplier @ Near Distance", Float) = 1
+        _ThresholdMultiplierFar ("Multiplier @ Far Distance", Float) = 4
+        // Only used when _ThresholdFunction is Exponential: > 1 keeps the multiplier near
+        // _ThresholdMultiplierNear for most of the range then rises sharply close to
+        // _ThresholdFarDistance (ease-in); < 1 rises sharply right away then flattens out
+        // (ease-out). 1 is identical to Linear.
+        _ThresholdExponent ("Exponential: Curve Exponent", Float) = 2.5
 
         [Header(Debug)]
-        [KeywordEnum(Off, Normals, DepthEdge, NormalEdge)] _DebugView ("Debug View", Float) = 0
+        [KeywordEnum(Off, DepthEdge)] _DebugView ("Debug View", Float) = 0
     }
 
     SubShader
@@ -56,13 +68,10 @@ Shader "Hidden/RoystanOutline"
             #pragma fragment Frag
 
             // DeclareDepthTexture.hlsl (which pulls in URP's Core.hlsl) must come before Blit.hlsl —
-            // see the note in OutlineEdgeMask.shader for why the include order matters.
+            // both define macros around SAMPLE_TEXTURE2D_X and friends, and Blit.hlsl expects
+            // Core.hlsl's versions to already be in scope.
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
-
-            // Written by ViewSpaceNormalsTexturePass; same name as the RTHandle allocated there.
-            TEXTURE2D(_ScreenViewSpaceNormals);
-            SAMPLER(sampler_ScreenViewSpaceNormals);
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _Color;
@@ -74,28 +83,28 @@ Shader "Hidden/RoystanOutline"
                 float _MinScale;
                 float _MaxScale;
                 float _DepthThreshold;
-                float _NormalThreshold;
-                float _DepthNormalThreshold;
-                float _DepthNormalThresholdScale;
-                float _NormalContribution;
-                float _DepthContribution;
+                float _ThresholdFunction;
+                float _ThresholdNearDistance;
+                float _ThresholdFarDistance;
+                float _ThresholdMultiplierNear;
+                float _ThresholdMultiplierFar;
+                float _ThresholdExponent;
                 float _DebugView;
             CBUFFER_END
 
-            // Set every frame from C# as camera.projectionMatrix.inverse — lets the fragment
-            // reconstruct a view-space ray through the current pixel without a full world-position
-            // reconstruction, just to get the direction back to the camera for the angle test below.
-            float4x4 _ClipToView;
-
-            // mask (alpha) is 1 where ViewSpaceNormalsTexturePass actually drew an outlined-layer
-            // object, 0 where the texture was left at its cleared value (background, or an object
-            // excluded by layerMask) — see the comment on desc.clearColor in ScreenSpaceOutline.cs.
-            float3 SampleNormal(float2 uv, out float mask) {
-                half4 raw = SAMPLE_TEXTURE2D_X_LOD(_ScreenViewSpaceNormals, sampler_ScreenViewSpaceNormals, uv, 0);
-                mask = raw.a;
-                // Undo the 0..1 remap ViewSpaceNormals.shader applied before writing (the render
-                // target is an unsigned color format, normals are -1..1).
-                return raw.rgb * 2 - 1;
+            // How much _DepthThreshold is scaled by at a given camera distance. Replaces the old
+            // grazing-angle (NdotV) correction that used to require the normals texture: instead of
+            // reacting to surface angle, the threshold is widened/narrowed purely as a function of
+            // how far the pixel is from the camera, which is enough to tune out false edges on
+            // distant geometry (where a fixed-size depth gap covers far fewer raw-depth units)
+            // without sampling normals at all.
+            float DistanceThresholdMultiplier(float distance) {
+                float span = max(_ThresholdFarDistance - _ThresholdNearDistance, 0.0001);
+                float t = saturate((distance - _ThresholdNearDistance) / span);
+                // Exponential: t raised to _ThresholdExponent reshapes the ramp into an ease-in
+                // (exponent > 1) or ease-out (exponent < 1) curve; Linear leaves t untouched.
+                if (_ThresholdFunction > 0.5) t = pow(t, max(_ThresholdExponent, 0.0001));
+                return lerp(_ThresholdMultiplierNear, _ThresholdMultiplierFar, t);
             }
 
             half4 Frag(Varyings input) : SV_Target {
@@ -134,57 +143,19 @@ Shader "Hidden/RoystanOutline"
                 float depthFiniteDifference1 = depth3 - depth2;
                 float edgeDepth = sqrt(pow(depthFiniteDifference0, 2) + pow(depthFiniteDifference1, 2)) * 100;
 
-                // Normal edge: Roberts cross via self-dot (== squared length) on view-space normals.
-                float mask0, mask1, mask2, mask3;
-                float3 normal0 = SampleNormal(uvBottomLeft, mask0);
-                float3 normal1 = SampleNormal(uvTopRight, mask1);
-                float3 normal2 = SampleNormal(uvBottomRight, mask2);
-                float3 normal3 = SampleNormal(uvTopLeft, mask3);
-
-                float3 normalFiniteDifference0 = normal1 - normal0;
-                float3 normalFiniteDifference1 = normal3 - normal2;
-                float edgeNormal = sqrt(dot(normalFiniteDifference0, normalFiniteDifference0) + dot(normalFiniteDifference1, normalFiniteDifference1));
-                edgeNormal = edgeNormal > _NormalThreshold ? 1 : 0;
-
-                // True as long as ONE side of the sampled quad belongs to an outlined-layer object —
-                // that's enough for its silhouette against anything else (background, or a
-                // non-outlined object) to count as an edge. Two non-outlined objects both read mask
-                // 0 here, so their shared boundary is suppressed even though it's still a real depth
-                // discontinuity in _CameraDepthTexture (that texture is populated by every opaque
-                // object, not just the outlined layers).
-                float outlineMask = max(max(mask0, mask1), max(mask2, mask3)) > 0.5 ? 1 : 0;
-
-                // View-angle modulation: reconstruct the view-space ray through this pixel (far
-                // plane, w=1, so we only need its direction, not a depth-accurate position) to get
-                // NdotV, then use it to scale up the depth threshold on grazing-angle surfaces —
-                // those naturally show a big depth delta between neighbouring pixels from viewing
-                // angle alone, which would otherwise false-positive as an edge.
-                // _ProjectionParams.x flips to -1 on platforms whose projection is Y-flipped
-                // relative to OpenGL convention — without it the reconstructed ray's Y component
-                // (and therefore NdotV) comes out upside-down, which shows up specifically as wrong
-                // grazing-angle suppression on sloped/near-horizontal surfaces like floors.
-                float4 clipPos = float4(uv.x * 2 - 1, (uv.y * 2 - 1) * _ProjectionParams.x, 1, 1);
-                float4 viewRay = mul(_ClipToView, clipPos);
-                float3 viewDir = normalize(-viewRay.xyz / viewRay.w);
-                float NdotV = 1 - dot(normal0, viewDir);
-
-                float normalThreshold01 = saturate((NdotV - _DepthNormalThreshold) / (1 - _DepthNormalThreshold));
-                float normalThreshold = normalThreshold01 * _DepthNormalThresholdScale + 1;
-
-                float depthThreshold = _DepthThreshold * depth0 * normalThreshold;
+                // depth0 compensates for raw depth's non-linear precision falloff with distance (a
+                // fixed world-space gap produces a much smaller raw-depth delta far from the camera
+                // than close to it) — that part of the original algorithm is unchanged. On top of
+                // that, DistanceThresholdMultiplier lets the base threshold itself be widened or
+                // narrowed by actual camera distance (via the artist-chosen Linear/Exponential
+                // curve above), which is what used to be done per-pixel from the surface's grazing
+                // angle using normals.
+                float depthThreshold = _DepthThreshold * depth0 * DistanceThresholdMultiplier(centerDepthLinear);
                 edgeDepth = edgeDepth > depthThreshold ? 1 : 0;
 
-                // Debug: 1 = the view-space normal at this pixel, re-encoded to a viewable color —
-                // should look like a smooth normal-map preview (facing-camera surfaces read as a
-                // flat blue-ish/purple tone, since a normal of roughly (0,0,-1) in view space
-                // encodes to about (0.5, 0.5, 0)). If this is a solid uniform color everywhere (or
-                // black), ViewSpaceNormalsTexturePass isn't writing real per-object normals — check
-                // that normalsMaterial is assigned and the pass runs before this one.
-                // 2/3 = the raw depth/normal edge terms before combining, to tell which one is
-                // misbehaving if the final outline looks wrong.
-                if (_DebugView > 2.5) return half4(edgeNormal.xxx, 1);
-                if (_DebugView > 1.5) return half4(edgeDepth.xxx, 1);
-                if (_DebugView > 0.5) return half4(normal0 * 0.5 + 0.5, 1);
+                // Debug: the raw depth edge term before the distance fade below, to tell whether a
+                // missing/wrong outline comes from the edge test itself or from the fade/blend after.
+                if (_DebugView > 0.5) return half4(edgeDepth.xxx, 1);
 
                 // Distance fade: blend from _Color (near) to _FarColor (far, defaults to fully
                 // transparent) between _FadeStartDistance and _FadeEndDistance, using the same
@@ -192,15 +163,7 @@ Shader "Hidden/RoystanOutline"
                 float fadeT = saturate((centerDepthLinear - _FadeStartDistance) / max(_FadeEndDistance - _FadeStartDistance, 0.01));
                 half4 fadedColor = lerp(_Color, _FarColor, fadeT);
 
-                // Combine both edge tests, gate by layer mask, then alpha-blend the outline color
-                // over the scene. Contribution scales each edge AFTER its own threshold decided
-                // whether it fired at all — it doesn't change WHERE an edge is detected, only how
-                // much that edge type is allowed to show once it has. Lowering _NormalContribution
-                // fades out normal-only edges (e.g. curved-surface shading breaks) while leaving
-                // depth-detected silhouettes (the ones from _DepthThreshold) untouched, and vice
-                // versa — a knob for balance, independent of the detection thresholds above.
-                float edge = max(edgeDepth * _DepthContribution, edgeNormal * _NormalContribution) * outlineMask;
-                half4 outlineColor = half4(fadedColor.rgb, fadedColor.a * edge);
+                half4 outlineColor = half4(fadedColor.rgb, fadedColor.a * edgeDepth);
                 return half4(lerp(sceneColor.rgb, outlineColor.rgb, outlineColor.a), sceneColor.a);
             }
             ENDHLSL
