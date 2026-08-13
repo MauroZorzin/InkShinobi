@@ -55,7 +55,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -192,7 +192,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -466,7 +466,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -658,7 +658,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -702,7 +702,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2fd2ce5e63e3f4742919b66d927e5597, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::WallCutoutController
   viewer: {fileID: 7082278986317236725}
   target: {fileID: 2419360577604233760}
@@ -722,7 +722,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ed7fd5022fab0784f834a95f9f228db6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::OrbitCameraController
   target: {fileID: 2419360577604233760}
   pivotOffset: {x: 0, y: 0, z: 0}
@@ -809,7 +809,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
   m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
@@ -832,7 +832,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.GraphicRaycaster
   m_IgnoreReversedGraphics: 1
   m_BlockingObjects: 0
@@ -849,7 +849,7 @@ MonoBehaviour:
   m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4667900ab6cc9ab47a064f6d99575284, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::StealthHUD
   player: {fileID: 6966390407689415549}
   statusText: {fileID: 0}
@@ -914,7 +914,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1052,7 +1052,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.34901962}
@@ -1082,7 +1082,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 86710e43de46f6f4bac7c8e50813a599, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.AspectRatioFitter
   m_AspectMode: 3
   m_AspectRatio: 1
@@ -1141,7 +1141,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1394,7 +1394,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -1409,7 +1409,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
   m_Actions: {fileID: -944628639613478452, guid: 65ea5914d32546d419b9763e8bd8b1fe, type: 3}
   m_NotificationBehavior: 0
@@ -1425,7 +1425,7 @@ MonoBehaviour:
       m_Calls: []
   m_ActionEvents: []
   m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
+  m_DefaultControlScheme:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
@@ -1439,7 +1439,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4122457ec9429db449558d83f5a6a182, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::PlayerDoorInteractor
   interactionRange: 1
   inventory: {fileID: 1401567992921745376}
@@ -1462,7 +1462,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f096d968edf508d499ca7bd7506887b3, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::PlayerInventory
   maxItems: 1
 --- !u!114 &1971702218970736698
@@ -1475,7 +1475,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad8bebd72dab15644969ec4921771f41, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::PlayerInteractor
   inventory: {fileID: 1401567992921745376}
   interactionPoint: {fileID: 2419360577604233760}
@@ -1493,7 +1493,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 59cc53cda97e5f04092e77c2eaf2af4a, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::TakedownController
   enabledAtStart: 1
   takedownRange: 1
@@ -1521,7 +1521,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d152f3701fc81834698fe95cfd980f18, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::PlayerStealthController
   timeToHide: 1
   takedownController: {fileID: 3861325504680876323}
@@ -1535,7 +1535,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03951f5725db10841a673637a8dc9523, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::DetectionIndicator
   player: {fileID: 6966390407689415549}
   vignetteImage: {fileID: 5827280927341572361}
@@ -1551,7 +1551,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: db861a73f3290094db4984b74a38994f, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::LineSwitcher
   followController: {fileID: 1507978084170386215}
   switchDuration: 0.35
@@ -1575,7 +1575,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9aa77d68b91d7b14a82bbc93c9e8665e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::LineFollowController
   currentLine: {fileID: 0}
   currentStrand: 0
@@ -1590,7 +1590,7 @@ MonoBehaviour:
   animator: {fileID: 6025009532012600146}
   spriteRenderer: {fileID: 1444588734795641923}
   initialFacingDirection: {x: 1, y: 0, z: 0}
-  invertFacing: 1
+  invertFacing: 0
   facingSpeedDeadzone: 0.001
   drawDebugGizmos: 1
   logSnapWarnings: 1
@@ -1605,7 +1605,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d355b30d0fae39048b61e68624c69fe0, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::LineAimSwitchController
   aimCameraTransform: {fileID: 7082278986317236725}
   lineSwitcher: {fileID: 4849568163502928987}
@@ -1630,7 +1630,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 510545817a43af64497344fea0a2050e, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::FootstepPlayer
   library: {fileID: 11400000, guid: 92e6e1265c8fed64f9899a9f0162082d, type: 2}
   raycastHeight: 0.5
@@ -1654,7 +1654,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3de66d8603e1be4897480c4e620e8cc, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PxP.DOCS.DynamicOcclusionCutoutSystem
   m_materials:
   - {fileID: 2100000, guid: cba7cfa11958dd841bb4b3ea72e751d0, type: 2}
@@ -1719,7 +1719,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

@@ -103,11 +103,26 @@ public class LineFollowController : MonoBehaviour {
     if (animator == null) animator = GetComponent<Animator>();
     if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
 
-    Vector3 seed = initialFacingDirection;
-    seed.y = 0f;
-    if (seed.sqrMagnitude < 0.0001f) seed = Vector3.right;
-    _facingNormal = Vector3.Cross(Vector3.up, seed.normalized).normalized;
-    transform.rotation = Quaternion.LookRotation(_facingNormal, Vector3.up);
+    // Preserve the orientation authored in the Inspector. UpdateFacing() uses this
+    // direction to choose the closest perpendicular orientation once movement begins.
+    Vector3 initialForward = transform.forward;
+    initialForward.y = 0f;
+    _facingNormal = initialForward.sqrMagnitude > 0.0001f
+      ? initialForward.normalized
+      : Vector3.forward;
+  }
+
+  private void OnDisable() {
+    _moveInput = 0f;
+    _alongLineSpeed = 0f;
+    _jumpRequested = false;
+
+    if (animator == null) return;
+
+    animator.SetBool(IsRunningHash, false);
+    animator.SetFloat(VelocityHash, 0f);
+    animator.SetBool(IsJumpingHash, false);
+    animator.SetBool(IsFallingHash, false);
   }
 
   private void Start() {
