@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Reloads the active scene when a collider on the configured player layer enters this trigger.
@@ -35,6 +34,6 @@ public class KillCone : MonoBehaviour {
   }
 
   private void ReloadScene() {
-    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    SceneTransitionManager.ReloadCurrentScene();
   }
 }

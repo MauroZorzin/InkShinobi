@@ -227,7 +227,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
 --- !u!222 &21228042
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -986,7 +986,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
 --- !u!222 &490751449
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2148,7 +2148,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
 --- !u!222 &1203998279
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2808,16 +2808,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ff7134f2e66f414f9dfa2de6c75766e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GameScripts::MainMenu
-  firstSceneName: Demo
+  firstSceneName: 1-Start
   settingsSceneName: SettingsMenu
-  backdropColor: {r: 0, g: 0, b: 0, a: 1}
-  loaderAnimationPrefab: {fileID: 0}
-  minimumLoadTime: 1.5
-  fadeInDuration: 0.35
-  fadeOutDuration: 0.35
-  musicSource: {fileID: 1288585832}
-  ambientSource: {fileID: 1683044664}
-  audioFadeDuration: 0.6
+  continueButton: {fileID: 490751447}
+  continueLabel: {fileID: 1468103798}
+  savingFont: {fileID: 11400000, guid: b80b3a7d5c6a5f2489a2b318cafb74cc, type: 2}
+  rainAudio: {fileID: 1683044664}
 --- !u!1 &1683044663
 GameObject:
   m_ObjectHideFlags: 0
@@ -3105,6 +3101,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 681830768}
     m_Modifications:
+    - target: {fileID: 198459716423156678, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 198463104617649228, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 198913305880061536, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1624732227010082, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
       propertyPath: m_Name
       value: Rain Particles

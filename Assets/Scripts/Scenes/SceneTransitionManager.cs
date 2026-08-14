@@ -1,6 +1,11 @@
 using System;
 using System.Collections;
+using System.IO;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -24,12 +29,31 @@ using UnityEngine.UI;
 public class SceneTransitionManager : MonoBehaviour {
   public static SceneTransitionManager Instance { get; private set; }
 
+  private bool _isTransitioning;
+  private GameObject _pauseDialog;
+  private float _timeScaleBeforePause = 1f;
+  private CursorLockMode _cursorLockBeforePause;
+  private bool _cursorVisibleBeforePause;
+
+  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+  private static void ResetStatics() {
+    Instance = null;
+  }
+
+  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+  private static void Bootstrap() {
+    EnsureInstance();
+  }
+
   [Header("Loading Screen")]
   [Tooltip("Solid color used by the loading overlay backdrop.")]
   public Color backdropColor = Color.black;
 
   [Tooltip("Optional prefab spawned above the loading backdrop while a scene is loading.")]
   public GameObject loaderAnimationPrefab;
+
+  [Tooltip("Font used by the Saving label displayed while the screen is black.")]
+  public TMP_FontAsset savingFont;
 
   [Tooltip("Minimum seconds the loading overlay remains visible before scene activation.")]
   public float minimumLoadTime = 1.5f;
@@ -60,27 +84,102 @@ public class SceneTransitionManager : MonoBehaviour {
     DontDestroyOnLoad(gameObject);
   }
 
-  /// <summary>Loads a scene by name with the loading overlay + audio fade.</summary>
-  public static void LoadScene(string sceneName) => Begin(() => SceneManager.LoadSceneAsync(sceneName));
+  private void Update() {
+    if (_isTransitioning || !GameProgress.IsGameScene(SceneManager.GetActiveScene().name)) return;
+    if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
-  /// <summary>Loads a scene by build index with the loading overlay + audio fade.</summary>
-  public static void LoadScene(int buildIndex) => Begin(() => SceneManager.LoadSceneAsync(buildIndex));
-
-  /// <summary>Reloads the currently active scene with the loading overlay + audio fade.</summary>
-  public static void ReloadCurrentScene() => LoadScene(SceneManager.GetActiveScene().buildIndex);
-
-  private static void Begin(Func<AsyncOperation> beginLoad) {
-    if (Instance == null) {
-      Debug.LogError("[SceneTransitionManager] No instance in the scene — add a SceneTransitionManager component to a persistent/boot GameObject before calling LoadScene.");
-      return;
+    if (_pauseDialog == null) {
+      ShowMainMenuConfirmation();
+    } else {
+      ResumeGame();
     }
-
-    Instance.StartCoroutine(Instance.LoadSceneRoutine(beginLoad));
   }
 
-  private IEnumerator LoadSceneRoutine(Func<AsyncOperation> beginLoad) {
+  private void LateUpdate() {
+    if (_pauseDialog != null) Time.timeScale = 0f;
+  }
+
+  private void OnDestroy() {
+    if (Instance != this) return;
+
+    Time.timeScale = _timeScaleBeforePause;
+    if (_pauseDialog != null) {
+      Cursor.lockState = _cursorLockBeforePause;
+      Cursor.visible = _cursorVisibleBeforePause;
+    }
+    Instance = null;
+  }
+
+  /// <summary>Loads a scene by name, fading through black unless explicitly disabled.</summary>
+  public static void LoadScene(string sceneName, bool useFade = true) =>
+    Begin(sceneName, () => SceneManager.LoadSceneAsync(sceneName), useFade);
+
+  /// <summary>Loads a scene by build index, fading through black unless explicitly disabled.</summary>
+  public static void LoadScene(int buildIndex, bool useFade = true) =>
+    Begin(GameProgress.GetSceneName(buildIndex), () => SceneManager.LoadSceneAsync(buildIndex), useFade);
+
+  /// <summary>Reloads the active scene, fading through black unless explicitly disabled.</summary>
+  public static void ReloadCurrentScene(bool useFade = true) =>
+    LoadScene(SceneManager.GetActiveScene().buildIndex, useFade);
+
+  public static void SetSavingFont(TMP_FontAsset font) {
+    if (font == null) return;
+
+    EnsureInstance();
+    Instance.savingFont = font;
+  }
+
+  private static void Begin(string destinationSceneName, Func<AsyncOperation> beginLoad, bool useFade) {
+    EnsureInstance();
+
+    if (Instance._isTransitioning) return;
+
+    string sourceSceneName = SceneManager.GetActiveScene().name;
+    bool shouldFade = useFade && !GameProgress.AreBothMenuScenes(sourceSceneName, destinationSceneName);
+    bool shouldSave = shouldFade && GameProgress.ShouldSaveDuringTransition(sourceSceneName);
+    bool showSaving = shouldSave && GameProgress.IsGameScene(destinationSceneName);
+
+    Instance.StartCoroutine(Instance.LoadSceneRoutine(
+      destinationSceneName,
+      beginLoad,
+      shouldFade,
+      shouldSave,
+      showSaving
+    ));
+  }
+
+  private static void EnsureInstance() {
+    if (Instance != null) return;
+
+    var managerObject = new GameObject(nameof(SceneTransitionManager));
+    managerObject.AddComponent<SceneTransitionManager>();
+  }
+
+  private IEnumerator LoadSceneRoutine(
+    string destinationSceneName,
+    Func<AsyncOperation> beginLoad,
+    bool useFade,
+    bool shouldSave,
+    bool showSaving
+  ) {
+    _isTransitioning = true;
+
+    if (!useFade) {
+      yield return beginLoad();
+      _isTransitioning = false;
+      yield break;
+    }
+
     Image backdrop = BuildOverlay(out GameObject overlayGo);
     yield return FadeBackdrop(backdrop, 0f, 1f, fadeInDuration);
+
+    ShowTransitionLabel(overlayGo.transform, showSaving ? "Saving" : "Loading");
+    yield return null;
+
+    if (shouldSave) {
+      GameProgress.SaveTransition(SceneManager.GetActiveScene().name, destinationSceneName);
+    }
+
     ShowLoaderAnimation(overlayGo.transform);
 
     FadeAllPlayingAudio(audioFadeOutDuration, restoreOriginalVolume: false);
@@ -96,6 +195,9 @@ public class SceneTransitionManager : MonoBehaviour {
 
     op.allowSceneActivation = true;
 
+    // Keep the screen fully black until activation and the new scene's initialization finish.
+    yield return op;
+
     // Let the new scene's Awake/OnEnable run (including anything that starts playing on its own,
     // e.g. a playOnAwake music/ambience source) before we look for what's playing.
     yield return null;
@@ -106,6 +208,7 @@ public class SceneTransitionManager : MonoBehaviour {
 
     if (logTransitions) Debug.Log("[SceneTransitionManager] Transition complete.");
     Destroy(overlayGo);
+    _isTransitioning = false;
   }
 
   /// <summary>
@@ -117,7 +220,7 @@ public class SceneTransitionManager : MonoBehaviour {
   /// <param name="duration">Fade duration in seconds.</param>
   /// <param name="restoreOriginalVolume">False = fade playing sources down to 0 (leaving scene). True = snap to 0 then fade back up to each source's own current volume (entering scene).</param>
   private void FadeAllPlayingAudio(float duration, bool restoreOriginalVolume) {
-    AudioSource[] sources = FindObjectsOfType<AudioSource>();
+    AudioSource[] sources = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
 
     foreach (AudioSource source in sources) {
       if (source == null || !source.isPlaying) continue;
@@ -167,6 +270,131 @@ public class SceneTransitionManager : MonoBehaviour {
     instance.transform.SetAsLastSibling();
   }
 
+  private void ShowMainMenuConfirmation() {
+    if (_pauseDialog != null) return;
+
+    _timeScaleBeforePause = Time.timeScale;
+    _cursorLockBeforePause = Cursor.lockState;
+    _cursorVisibleBeforePause = Cursor.visible;
+    Time.timeScale = 0f;
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+
+    _pauseDialog = new GameObject("MainMenuConfirmation", typeof(RectTransform));
+
+    Canvas canvas = _pauseDialog.AddComponent<Canvas>();
+    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+    canvas.sortingOrder = 1000;
+
+    CanvasScaler scaler = _pauseDialog.AddComponent<CanvasScaler>();
+    scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+    scaler.referenceResolution = new Vector2(1920f, 1080f);
+    _pauseDialog.AddComponent<GraphicRaycaster>();
+    _pauseDialog.AddComponent<PopupBackgroundBlur>().Initialize(canvas);
+    EnsureModalEventSystem(_pauseDialog.transform);
+
+    Image shade = MenuManager.CreateImage(
+      "Shade",
+      _pauseDialog.transform,
+      new Color(0f, 0f, 0f, 0.55f)
+    );
+    MenuManager.Stretch(shade.rectTransform);
+
+    Image panel = MenuManager.CreateImage(
+      "Panel",
+      shade.transform,
+      new Color(0.08f, 0.08f, 0.08f, 0.98f)
+    );
+    RectTransform panelTransform = panel.rectTransform;
+    panelTransform.anchorMin = new Vector2(0.5f, 0.5f);
+    panelTransform.anchorMax = new Vector2(0.5f, 0.5f);
+    panelTransform.sizeDelta = new Vector2(760f, 340f);
+    panelTransform.anchoredPosition = Vector2.zero;
+
+    MenuManager.CreateText(
+      "Title",
+      panel.transform,
+      "Return to Main Menu?",
+      38f,
+      new Vector2(0f, 100f),
+      new Vector2(680f, 60f)
+    );
+    MenuManager.CreateText(
+      "Message",
+      panel.transform,
+      "Your progress is saved at the start of the latest scene reached.",
+      26f,
+      new Vector2(0f, 30f),
+      new Vector2(650f, 80f)
+    );
+
+    Button resumeButton = MenuManager.CreateButton(
+      "Resume",
+      panel.transform,
+      "Resume",
+      new Vector2(-175f, -105f)
+    );
+    resumeButton.onClick.AddListener(ResumeGame);
+
+    Button mainMenuButton = MenuManager.CreateButton(
+      "MainMenu",
+      panel.transform,
+      "Main Menu",
+      new Vector2(175f, -105f)
+    );
+    mainMenuButton.onClick.AddListener(ReturnToMainMenu);
+
+    if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
+  }
+
+  private static void EnsureModalEventSystem(Transform dialogRoot) {
+    if (EventSystem.current != null) return;
+
+    var eventSystemObject = new GameObject("ModalEventSystem");
+    eventSystemObject.transform.SetParent(dialogRoot, false);
+    eventSystemObject.AddComponent<EventSystem>();
+
+    InputSystemUIInputModule inputModule = eventSystemObject.AddComponent<InputSystemUIInputModule>();
+    inputModule.AssignDefaultActions();
+  }
+
+  private void ResumeGame() {
+    if (_pauseDialog == null) return;
+
+    _pauseDialog.SetActive(false);
+    Destroy(_pauseDialog);
+    _pauseDialog = null;
+    Time.timeScale = _timeScaleBeforePause;
+    Cursor.lockState = _cursorLockBeforePause;
+    Cursor.visible = _cursorVisibleBeforePause;
+  }
+
+  private void ReturnToMainMenu() {
+    ResumeGame();
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+    LoadScene("MainMenu");
+  }
+
+  private void ShowTransitionLabel(Transform overlayTransform, string message) {
+    var labelObject = new GameObject("TransitionLabel");
+    labelObject.transform.SetParent(overlayTransform, false);
+
+    TextMeshProUGUI label = labelObject.AddComponent<TextMeshProUGUI>();
+    label.text = message;
+    if (savingFont != null) label.font = savingFont;
+    label.fontSize = 50f;
+    label.fontStyle = FontStyles.Normal;
+    label.alignment = TextAlignmentOptions.Center;
+    label.color = Color.white;
+
+    RectTransform rectTransform = label.rectTransform;
+    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+    rectTransform.sizeDelta = new Vector2(320f, 80f);
+    rectTransform.anchoredPosition = Vector2.zero;
+  }
+
   /// <summary>Fades an audio source's volume to the target value, stopping it if the target is silence.</summary>
   private IEnumerator FadeAudio(AudioSource source, float target, float duration) {
     var start = source.volume;
@@ -196,5 +424,166 @@ public class SceneTransitionManager : MonoBehaviour {
 
     color.a = to;
     image.color = color;
+  }
+}
+
+/// <summary>
+/// Captures and blurs the completed frame behind a modal, including screen-space overlay UI.
+/// </summary>
+public class PopupBackgroundBlur : MonoBehaviour {
+  private const int Downsample = 2;
+  private const int BlurIterations = 3;
+  private const float BlurRadius = 1.5f;
+
+  private Canvas _modalCanvas;
+  private RenderTexture _blurredTexture;
+  private Material _blurMaterial;
+
+  public void Initialize(Canvas modalCanvas) {
+    if (modalCanvas == null || _modalCanvas != null) return;
+
+    _modalCanvas = modalCanvas;
+    _modalCanvas.enabled = false;
+    StartCoroutine(CaptureAndBlur());
+  }
+
+  private IEnumerator CaptureAndBlur() {
+    yield return new WaitForEndOfFrame();
+
+    Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
+    if (screenshot == null) {
+      if (_modalCanvas != null) _modalCanvas.enabled = true;
+      yield break;
+    }
+
+    Shader blurShader = Resources.Load<Shader>("PopupBlur");
+    if (blurShader == null) {
+      Debug.LogWarning("[PopupBackgroundBlur] Resources/PopupBlur.shader could not be loaded.");
+      Destroy(screenshot);
+      if (_modalCanvas != null) _modalCanvas.enabled = true;
+      yield break;
+    }
+
+    _blurMaterial = new Material(blurShader);
+    _blurMaterial.SetFloat("_BlurRadius", BlurRadius);
+
+    int width = Mathf.Max(1, screenshot.width / Downsample);
+    int height = Mathf.Max(1, screenshot.height / Downsample);
+    RenderTextureFormat format = screenshot.format == TextureFormat.RGBAHalf
+      ? RenderTextureFormat.ARGBHalf
+      : RenderTextureFormat.ARGB32;
+
+    _blurredTexture = RenderTexture.GetTemporary(width, height, 0, format);
+    _blurredTexture.filterMode = FilterMode.Bilinear;
+    RenderTexture scratch = RenderTexture.GetTemporary(width, height, 0, format);
+    scratch.filterMode = FilterMode.Bilinear;
+
+    Graphics.Blit(screenshot, _blurredTexture);
+    for (var i = 0; i < BlurIterations; i++) {
+      Graphics.Blit(_blurredTexture, scratch, _blurMaterial, 0);
+      Graphics.Blit(scratch, _blurredTexture, _blurMaterial, 1);
+    }
+
+    RenderTexture.ReleaseTemporary(scratch);
+    Destroy(screenshot);
+
+    if (_modalCanvas == null) yield break;
+
+    var backgroundObject = new GameObject("BlurredBackground", typeof(RectTransform));
+    backgroundObject.transform.SetParent(_modalCanvas.transform, false);
+    backgroundObject.transform.SetAsFirstSibling();
+
+    RawImage background = backgroundObject.AddComponent<RawImage>();
+    background.texture = _blurredTexture;
+    background.raycastTarget = false;
+    MenuManager.Stretch(background.rectTransform);
+
+    _modalCanvas.enabled = true;
+  }
+
+  private void OnDestroy() {
+    if (_blurredTexture != null) {
+      RenderTexture.ReleaseTemporary(_blurredTexture);
+      _blurredTexture = null;
+    }
+
+    if (_blurMaterial != null) Destroy(_blurMaterial);
+  }
+}
+
+/// <summary>
+/// Stores the furthest gameplay scene reached. The first scene alone does not count as
+/// continue-able progress; reaching the following scene unlocks Continue.
+/// </summary>
+public static class GameProgress {
+  public const string FirstSceneName = "1-Start";
+
+  private const string SceneNameKey = "GameProgress.SceneName";
+  private const string SceneBuildIndexKey = "GameProgress.SceneBuildIndex";
+
+  public static bool HasContinueProgress {
+    get {
+      string sceneName = PlayerPrefs.GetString(SceneNameKey, string.Empty);
+      return !string.IsNullOrEmpty(sceneName) &&
+        sceneName != FirstSceneName &&
+        IsGameScene(sceneName);
+    }
+  }
+
+  public static string ContinueSceneName =>
+    HasContinueProgress ? PlayerPrefs.GetString(SceneNameKey) : FirstSceneName;
+
+  public static void Clear() {
+    PlayerPrefs.DeleteKey(SceneNameKey);
+    PlayerPrefs.DeleteKey(SceneBuildIndexKey);
+    PlayerPrefs.Save();
+  }
+
+  public static void SaveTransition(string sourceSceneName, string destinationSceneName) {
+    string reachedScene = IsGameScene(destinationSceneName) ? destinationSceneName : sourceSceneName;
+    SaveReachedScene(reachedScene);
+  }
+
+  public static bool AreBothMenuScenes(string firstSceneName, string secondSceneName) =>
+    IsMenuScene(firstSceneName) && IsMenuScene(secondSceneName);
+
+  public static bool ShouldSaveDuringTransition(string sourceSceneName) =>
+    !IsMenuScene(sourceSceneName);
+
+  public static string GetSceneName(int buildIndex) {
+    string path = SceneUtility.GetScenePathByBuildIndex(buildIndex);
+    return Path.GetFileNameWithoutExtension(path);
+  }
+
+  public static bool IsGameScene(string sceneName) {
+    int buildIndex = GetBuildIndex(sceneName);
+    if (buildIndex < 0) return false;
+
+    string path = SceneUtility.GetScenePathByBuildIndex(buildIndex).Replace('\\', '/');
+    return path.Contains("/GameScenes/", StringComparison.OrdinalIgnoreCase);
+  }
+
+  private static bool IsMenuScene(string sceneName) =>
+    string.Equals(sceneName, "MainMenu", StringComparison.OrdinalIgnoreCase) ||
+    string.Equals(sceneName, "SettingsMenu", StringComparison.OrdinalIgnoreCase);
+
+  private static void SaveReachedScene(string sceneName) {
+    if (!IsGameScene(sceneName) || sceneName == FirstSceneName) return;
+
+    int buildIndex = GetBuildIndex(sceneName);
+    int savedBuildIndex = PlayerPrefs.GetInt(SceneBuildIndexKey, -1);
+    if (buildIndex < savedBuildIndex) return;
+
+    PlayerPrefs.SetString(SceneNameKey, sceneName);
+    PlayerPrefs.SetInt(SceneBuildIndexKey, buildIndex);
+    PlayerPrefs.Save();
+  }
+
+  private static int GetBuildIndex(string sceneName) {
+    for (var i = 0; i < SceneManager.sceneCountInBuildSettings; i++) {
+      if (string.Equals(GetSceneName(i), sceneName, StringComparison.OrdinalIgnoreCase)) return i;
+    }
+
+    return -1;
   }
 }
