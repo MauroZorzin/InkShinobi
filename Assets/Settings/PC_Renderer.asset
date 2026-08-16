@@ -141,6 +141,32 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &6293805656266197456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1773f2e16abed334e95944fe41a1a6a9, type: 3}
+  m_Name: EnvironmentBinaryLightRendererFeature
+  m_EditorClassIdentifier: Assembly-CSharp::EnvironmentBinaryLightRendererFeature
+  m_Active: 1
+  settings:
+    renderPassEvent: 300
+    layerMask:
+      m_Bits: 4294967295
+    replacementShader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+    lightThreshold: 0.703
+    sharpness: 0.253
+    binaryShadowEdge: 1
+    shadowTint:
+      r: 0
+      g: 0.2051282
+      b: 1
+      a: 1
 --- !u!114 &8798487543384238792
 MonoBehaviour:
   m_ObjectHideFlags: 0
