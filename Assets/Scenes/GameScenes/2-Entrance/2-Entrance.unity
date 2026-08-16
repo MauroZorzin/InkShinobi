@@ -17613,6 +17613,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionManager
   backdropColor: {r: 0, g: 0, b: 0, a: 1}
   loaderAnimationPrefab: {fileID: 0}
+  savingFont: {fileID: 0}
   minimumLoadTime: 1.5
   fadeInDuration: 0.35
   fadeOutDuration: 0.35
@@ -27926,6 +27927,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   oneShot: 1
+  skipFade: 0
 --- !u!65 &1545632785
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -33355,7 +33357,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.5
+      value: 8.39
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalPosition.z
@@ -33363,19 +33365,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.679281
+      value: 0.6784081
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.035557978
+      value: -0.051396295
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.73227394
+      value: 0.7313329
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.032984734
+      value: -0.04767687
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -33387,7 +33389,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828197824251, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: -5.56
+      value: -8.04
       objectReference: {fileID: 0}
     - target: {fileID: 3767358828263198984, guid: 7df3af01473dd7841ae339df250b9cd8, type: 3}
       propertyPath: m_Layer
