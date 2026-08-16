@@ -3,25 +3,22 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Replaces LineVisionController. This component does not own or move the camera at all — it
-/// just reads wherever the camera (aimCameraTransform, or Camera.main if left empty) is
-/// currently pointed (AimOrigin/AimDirection) and checks whether that's close to a LinePath. On
-/// confirm, hand off to LineSwitcher exactly as before.
-///
-/// Deliberately does NOT touch the player's position or rotation, and does NOT touch the
-/// camera's position or rotation — this is purely a read-only consumer of wherever the camera
-/// already is, so it never fights whatever script (if any) is driving the camera.
-/// </summary>
 [RequireComponent(typeof(LineSwitcher))]
 [RequireComponent(typeof(LineFollowController))]
 public class LineAimSwitchController : MonoBehaviour {
   [Header("References")]
-  [Tooltip("Camera used for aiming (position + forward). Defaults to Camera.main if left empty.")]
-  public Transform aimCameraTransform;
+  [Tooltip("Camera the aim ray is cast from through the mouse cursor. Defaults to Camera.main if left empty.")]
+  public Camera aimCamera;
 
   public LineSwitcher lineSwitcher;
   public LineFollowController followController;
+
+  [Header("Aim Camera")]
+  [Tooltip("Local position (relative to the player) the camera moves to while aiming, e.g. Vector3.zero to place it inside the player's body for a look-through view. Returns to wherever it was when aiming ends.")]
+  public Vector3 aimCameraLocalPosition = Vector3.zero;
+
+  [Tooltip("How fast the camera moves to/from Aim Camera Local Position when aiming starts/ends.")]
+  public float aimCameraMoveSpeed = 10f;
 
   [Header("Aiming")]
   [Tooltip("Max distance along the camera's look direction searched for a candidate line.")]
@@ -33,9 +30,19 @@ public class LineAimSwitchController : MonoBehaviour {
   [Tooltip("Max distance from the look direction a line may be and still count as aimed-at.")]
   public float aimRadius = 0.75f;
 
+  [Header("Path Collision Check")]
+  [Tooltip("If true, an aimed-at line is invalid (and a switch confirm denied) when something on Obstruction Layers blocks the straight-line path between the player and the target point.")]
+  public bool requireClearPath = true;
+
+  [Tooltip("Layers swept for obstructions when Require Clear Path is enabled. The player's own colliders are always ignored, regardless of their layer.")]
+  public LayerMask obstructionLayers = ~0;
+
+  [Tooltip("Radius of the sphere swept along the path. Kept well under the player's body radius on purpose — a fat sphere grazes the ground/line surface itself along a near-horizontal sweep and reports false obstructions.")]
+  public float pathCheckRadius = 0.2f;
+
   [Header("Input")]
-  [Tooltip("If true, locks and hides the OS cursor while aiming, so mouse delta reads cleanly.")]
-  public bool lockCursorWhileAiming = true;
+  [Tooltip("If true, unlocks and shows the OS cursor while aiming so the player can see/move it to aim, restoring the previous cursor state when aiming ends.")]
+  public bool freeCursorWhileAiming = true;
 
   [Header("Aim Line")]
   [Tooltip("A LineRenderer only has a width, not a real cross-section — the aim beam is instead a small procedural cylinder mesh from the player to the aim point/target, auto-built and updated every frame while aiming. Optional material; a plain unlit one is created automatically if left empty.")]
@@ -46,6 +53,9 @@ public class LineAimSwitchController : MonoBehaviour {
 
   [Tooltip("Beam radius (world units).")]
   public float aimLineRadius = 0.03f;
+
+  [Tooltip("Local offset (relative to the player) the beam's visible start point is anchored to, e.g. Vector3.up * 1 for chest height instead of the player's own pivot.")]
+  public Vector3 aimLineOriginOffset = Vector3.zero;
 
   private const int AimBeamSegments = 8;
 
@@ -117,9 +127,14 @@ public class LineAimSwitchController : MonoBehaviour {
   private Vector3 _aimPoint;
   private float _aimDistance;
   private bool _aimValid;
+  private Collider _aimBlockingCollider;
 
   private CursorLockMode _prevLockState;
   private bool _prevCursorVisible;
+
+  private Coroutine _aimCameraMoveRoutine;
+  private Vector3 _aimCameraReturnLocalPosition;
+  private Quaternion _aimCameraReturnLocalRotation;
 
   private Coroutine _aimVanishParticleRoutine;
 
@@ -141,7 +156,7 @@ public class LineAimSwitchController : MonoBehaviour {
     if (lineSwitcher == null) lineSwitcher = GetComponent<LineSwitcher>();
     if (followController == null) followController = GetComponent<LineFollowController>();
 
-    if (aimCameraTransform == null && Camera.main != null) aimCameraTransform = Camera.main.transform;
+    if (aimCamera == null) aimCamera = Camera.main;
 
     if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
 
@@ -243,13 +258,23 @@ public class LineAimSwitchController : MonoBehaviour {
 
   public void BeginAim() {
     if (!enabled || _isAiming || _isSwitching || lineSwitcher == null || lineSwitcher.IsSwitching
-        || aimCameraTransform == null) {
+        || aimCamera == null) {
       return;
     }
 
     _isAiming = true;
 
-    if (followController != null) followController.movementEnabled = false;
+    if (followController != null) {
+      followController.movementEnabled = false;
+      _aimCameraReturnLocalPosition = followController.transform.InverseTransformPoint(aimCamera.transform.position);
+      _aimCameraReturnLocalRotation = Quaternion.Inverse(followController.transform.rotation) * aimCamera.transform.rotation;
+    } else {
+      _aimCameraReturnLocalPosition = aimCamera.transform.position;
+      _aimCameraReturnLocalRotation = aimCamera.transform.rotation;
+    }
+    if (_aimCameraMoveRoutine != null) StopCoroutine(_aimCameraMoveRoutine);
+    _aimCameraMoveRoutine = StartCoroutine(TrackAimCameraIntoPlayer());
+
     _aimBeamRenderer.enabled = true;
 
     if (hidePlayerWhileAiming && spriteRenderer != null) {
@@ -257,11 +282,11 @@ public class LineAimSwitchController : MonoBehaviour {
       _aimVanishParticleRoutine = StartCoroutine(AimVanishRoutine());
     }
 
-    if (lockCursorWhileAiming) {
+    if (freeCursorWhileAiming) {
       _prevLockState = Cursor.lockState;
       _prevCursorVisible = Cursor.visible;
-      Cursor.lockState = CursorLockMode.Locked;
-      Cursor.visible = false;
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
     }
 
     AimStarted?.Invoke();
@@ -288,12 +313,50 @@ public class LineAimSwitchController : MonoBehaviour {
 
     if (followController != null) followController.movementEnabled = true;
 
-    if (lockCursorWhileAiming) {
+    if (_aimCameraMoveRoutine != null) StopCoroutine(_aimCameraMoveRoutine);
+    _aimCameraMoveRoutine = StartCoroutine(ReturnAimCamera());
+
+    if (freeCursorWhileAiming) {
       Cursor.lockState = _prevLockState;
       Cursor.visible = _prevCursorVisible;
     }
 
     AimEnded?.Invoke();
+  }
+
+  private IEnumerator TrackAimCameraIntoPlayer() {
+    while (followController != null) {
+      Vector3 targetPos = followController.transform.TransformPoint(aimCameraLocalPosition);
+      Quaternion targetRot = followController.transform.rotation;
+      aimCamera.transform.SetPositionAndRotation(
+        Vector3.Lerp(aimCamera.transform.position, targetPos, aimCameraMoveSpeed * Time.deltaTime),
+        Quaternion.Slerp(aimCamera.transform.rotation, targetRot, aimCameraMoveSpeed * Time.deltaTime));
+      yield return null;
+    }
+  }
+
+  private IEnumerator ReturnAimCamera() {
+    while (true) {
+      Vector3 targetPos = followController != null
+        ? followController.transform.TransformPoint(_aimCameraReturnLocalPosition)
+        : _aimCameraReturnLocalPosition;
+      Quaternion targetRot = followController != null
+        ? followController.transform.rotation * _aimCameraReturnLocalRotation
+        : _aimCameraReturnLocalRotation;
+
+      if (Vector3.Distance(aimCamera.transform.position, targetPos) < 0.001f
+          && Quaternion.Angle(aimCamera.transform.rotation, targetRot) < 0.05f) {
+        aimCamera.transform.SetPositionAndRotation(targetPos, targetRot);
+        break;
+      }
+
+      aimCamera.transform.SetPositionAndRotation(
+        Vector3.Lerp(aimCamera.transform.position, targetPos, aimCameraMoveSpeed * Time.deltaTime),
+        Quaternion.Slerp(aimCamera.transform.rotation, targetRot, aimCameraMoveSpeed * Time.deltaTime));
+      yield return null;
+    }
+
+    _aimCameraMoveRoutine = null;
   }
 
   private IEnumerator AimVanishRoutine() {
@@ -315,10 +378,38 @@ public class LineAimSwitchController : MonoBehaviour {
     _aimVanishParticleRoutine = null;
   }
 
+  private Vector3 GetHuggedTarget(Vector3 targetPoint) {
+    float hugHeight = followController != null ? followController.heightAboveLine : 0f;
+    return targetPoint + Vector3.up * Mathf.Max(0f, hugHeight);
+  }
+
+  public bool IsPathClear(Vector3 from, Vector3 to, out Collider blockingCollider) {
+    blockingCollider = null;
+    if (!requireClearPath) return true;
+
+    Vector3 delta = to - from;
+    float distance = delta.magnitude;
+    if (distance <= 0f) return true;
+
+    var hits = Physics.SphereCastAll(from, Mathf.Max(0.01f, pathCheckRadius), delta / distance, distance, obstructionLayers, QueryTriggerInteraction.Ignore);
+    foreach (var hit in hits) {
+      if (hit.collider != null && hit.collider.transform.IsChildOf(transform)) continue;
+      blockingCollider = hit.collider;
+      return false;
+    }
+    return true;
+  }
+
+  public bool IsSwitchPathClear(Vector3 targetPoint, out Collider blockingCollider) {
+    Vector3 from = followController != null ? followController.transform.position : transform.position;
+    return IsPathClear(from, GetHuggedTarget(targetPoint), out blockingCollider);
+  }
+
   public bool TryConfirmSwitch() {
     if (lineSwitcher == null || !_isAiming || !_aimValid) {
       if (logAimHits) {
-        string reason = !_isAiming ? "not aiming" : (_hasAimHit ? "path obstructed" : "no valid target");
+        string reason = !_isAiming ? "not aiming"
+          : (_hasAimHit ? $"path obstructed by '{(_aimBlockingCollider != null ? _aimBlockingCollider.name : "unknown")}'" : "no valid target");
         Debug.Log($"[LineAimSwitchController] Confirm denied: {reason}.");
       }
       return false;
@@ -346,10 +437,11 @@ public class LineAimSwitchController : MonoBehaviour {
   }
 
   private void UpdateAim() {
-    if (aimCameraTransform == null) return;
+    if (aimCamera == null || Mouse.current == null) return;
 
-    Vector3 origin = aimCameraTransform.position;
-    Vector3 direction = aimCameraTransform.forward;
+    Ray mouseRay = aimCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+    Vector3 origin = mouseRay.origin;
+    Vector3 direction = mouseRay.direction;
 
     var wasValid = _aimValid;
     _hasAimHit = false;
@@ -386,18 +478,16 @@ public class LineAimSwitchController : MonoBehaviour {
     // counts as "aimed at" (_hasAimHit, drawn/logged) so the player sees WHAT they're pointing at,
     // just not confirmable (_aimValid stays false, aim line reads invalidAimColor).
     _hasAimHit = bestLine != null;
+    _aimBlockingCollider = null;
     if (_hasAimHit) {
       _aimLinePath = bestLine;
       _aimStrand = bestStrand;
       _aimPoint = bestPoint;
       _aimDistance = bestDistAlong;
-      _aimValid = lineSwitcher.IsSwitchPathClear(bestPoint);
+      _aimValid = IsSwitchPathClear(bestPoint, out _aimBlockingCollider);
     }
 
-    // The SAMPLING above stays camera-based (origin/direction) since that's what the player is
-    // actually looking at. The drawn line is purely visual and reads better anchored to the
-    // player rather than floating from the camera, so it starts at the player instead.
-    Vector3 lineOrigin = followController != null ? followController.transform.position : origin;
+    Vector3 lineOrigin = followController != null ? followController.transform.TransformPoint(aimLineOriginOffset) : origin;
 
     Vector3 endPoint = _hasAimHit ? _aimPoint : lineOrigin + direction * maxAimDistance;
     UpdateAimBeamMesh(lineOrigin, endPoint);
@@ -408,7 +498,7 @@ public class LineAimSwitchController : MonoBehaviour {
       if (_aimValid) {
         Debug.Log($"[LineAimSwitchController] Aiming at '{_aimLinePath.name}' strand={_aimStrand} point={_aimPoint:F2}");
       } else if (_hasAimHit) {
-        Debug.Log($"[LineAimSwitchController] Aiming at '{_aimLinePath.name}' strand={_aimStrand} but path is obstructed.");
+        Debug.Log($"[LineAimSwitchController] Aiming at '{_aimLinePath.name}' strand={_aimStrand} but path is obstructed by '{(_aimBlockingCollider != null ? _aimBlockingCollider.name : "unknown")}'.");
       } else {
         Debug.Log("[LineAimSwitchController] No valid line within aimRadius.");
       }

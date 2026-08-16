@@ -1,20 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Character controller that constrains horizontal movement to a single LinePath at a time.
-/// The player can only move forward/backward along the line's length; any input perpendicular
-/// to the line is ignored. If the player's actual position drifts further from the line than
-/// snapTolerance (e.g. right after a LineSwitcher move, or from external physics), it is pulled
-/// back onto the line rather than being allowed to walk off it.
-///
-/// This is a standalone replacement for the movement half of PlayerMovementController — it owns
-/// gravity/jump/CharacterController.Move itself, drives the Animator (isRunning/Velocity/
-/// isJumping/isFalling), and keeps the sprite's plane perpendicular to the line's own tangent at
-/// the player's distance (rotating the transform as the line's direction changes, not just
-/// flipping), with flipX layered on top to show forward vs backward travel along that tangent.
-/// Camera rotation etc. from your existing controller can still be layered on top by reading
-/// GetDistanceAlongLine() / IsOnLine.
-/// </summary>
 [RequireComponent(typeof(CharacterController))]
 public class LineFollowController : MonoBehaviour {
   [Header("Line")]
@@ -54,18 +39,19 @@ public class LineFollowController : MonoBehaviour {
   [Tooltip("Drives isRunning/Velocity/isJumping/isFalling on PlayerAnimatorController. Defaults to this GameObject's Animator if left empty.")]
   public Animator animator;
 
-  [Header("Sprite Facing")]
+  [Header("Facing")]
+  [Tooltip("Degrees per second the whole-body facing rotation turns to catch up to its target orientation.")]
+  public float facingRotationSpeed = 540f;
+
+  [Tooltip("Defaults to this GameObject's PlayerFlipController if left empty. IsFlipped reverses which side of the path the player faces (and with it, move input and flipX). While IsFlipping is true, PlayerFlipController has exclusive control of transform.rotation and this script's own facing rotation is skipped.")]
+  public PlayerFlipController flipController;
+
+  [Header("Sprite Flip")]
   [Tooltip("Defaults to this GameObject's SpriteRenderer if left empty.")]
   public SpriteRenderer spriteRenderer;
 
-  [Tooltip("The direction of travel the player starts facing, before any movement — resolves which of the two possible perpendicular orientations the transform starts rotated to. Only the horizontal (X/Z) component is used.")]
-  public Vector3 initialFacingDirection = Vector3.right;
-
   [Tooltip("Swap which way flipX points when moving backward along the line.")]
-  public bool invertFacing = false;
-
-  [Tooltip("Along-line speed below this (units/second) is treated as idle — keeps the last rotation/flip instead of updating on tiny drift.")]
-  public float facingSpeedDeadzone = 0.05f;
+  public bool invertFlip = false;
 
   [Header("Debug")]
   public bool drawDebugGizmos = true;
@@ -77,39 +63,30 @@ public class LineFollowController : MonoBehaviour {
   private static readonly int IsFallingHash = Animator.StringToHash("isFalling");
 
   private CharacterController _cc;
+  private Vector3 _facingNormal;
+  private Vector3 _rawNormal = Vector3.forward;
+  private bool _lastFlipped;
   private float _distanceAlongLine;
   private float _alongLineSpeed;
   private float _moveInput;
   private float _verticalVelocity;
   private bool _jumpRequested;
 
-  // The resolved perpendicular-to-travel normal the transform is rotated to face. Tracked frame
-  // to frame (rather than re-derived from a bare cross product each time) because Cross(up, T)
-  // has two valid solutions 180° apart — without continuity, a line whose tangent crosses the
-  // ambiguity boundary would snap the sprite to face the wrong way instead of turning smoothly.
-  private Vector3 _facingNormal;
-
-  /// <summary>True while movement is being driven by this controller (set false during a LineSwitcher move or vision mode).</summary>
   public bool movementEnabled = true;
 
-  /// <summary>Current distance along currentLine, in world units from the line's start.</summary>
   public float GetDistanceAlongLine() => _distanceAlongLine;
 
-  /// <summary>True when the player's actual position is within snapTolerance of currentLine.</summary>
   public bool IsOnLine { get; private set; } = true;
 
   private void Awake() {
     _cc = GetComponent<CharacterController>();
     if (animator == null) animator = GetComponent<Animator>();
     if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+    if (flipController == null) flipController = GetComponent<PlayerFlipController>();
 
-    // Preserve the orientation authored in the Inspector. UpdateFacing() uses this
-    // direction to choose the closest perpendicular orientation once movement begins.
     Vector3 initialForward = transform.forward;
     initialForward.y = 0f;
-    _facingNormal = initialForward.sqrMagnitude > 0.0001f
-      ? initialForward.normalized
-      : Vector3.forward;
+    _facingNormal = initialForward.sqrMagnitude > 0.0001f ? initialForward.normalized : Vector3.forward;
   }
 
   private void OnDisable() {
@@ -130,11 +107,10 @@ public class LineFollowController : MonoBehaviour {
       var dist = currentLine.FindClosestDistance(transform.position, out _, out _, out int strand);
       SetLine(currentLine, strand, dist);
     }
+    _lastFlipped = flipController != null && flipController.IsFlipped;
   }
 
 #pragma warning disable IDE0051
-  // Wire these up to your Input Actions the same way PlayerMovementController does,
-  // or delete these and drive _moveInput / RequestJump() from your own input script.
   private void OnMove(UnityEngine.InputSystem.InputValue value) {
     _moveInput = value.Get<float>();
   }
@@ -155,40 +131,45 @@ public class LineFollowController : MonoBehaviour {
       return;
     }
 
+    UpdateFacingSide();
     UpdateAlongLineSpeed();
     var horizontalDelta = ComputeHorizontalDelta();
     ApplyGravityAndMove(horizontalDelta);
     UpdateSnapState();
-    UpdateFacing();
     UpdateAnimator();
+    UpdateFacing();
+    UpdateSpriteFlip();
   }
 
-  /// <summary>
-  /// Builds the line's tangent at the player's current distance and rotates the transform so the
-  /// sprite plane stays perpendicular to it — a line that bends from running along X to running
-  /// along Z (or anything in between, not just a clean 90°) turns the character to match instead
-  /// of leaving it facing a fixed world axis. flipX on top of that rotation shows walking forward
-  /// vs backward along the tangent, instead of spinning the transform 180°. Holds the last
-  /// rotation/flip while along-line speed is inside the deadzone (idle, or pinned at an end).
-  /// </summary>
-  private void UpdateFacing() {
-    if (Mathf.Abs(_alongLineSpeed) < facingSpeedDeadzone) return;
-
+  private void UpdateFacingSide() {
     Vector3 tangent = currentLine.GetDirectionAtDistance(currentStrand, _distanceAlongLine);
     tangent.y = 0f;
     if (tangent.sqrMagnitude < 0.0001f) return;
     tangent.Normalize();
 
-    Vector3 normal = Vector3.Cross(Vector3.up, tangent).normalized;
-    if (Vector3.Dot(normal, _facingNormal) < 0f) normal = -normal; // stick with the closer of the two perpendicular solutions
-    _facingNormal = normal;
+    _rawNormal = Vector3.Cross(Vector3.up, tangent);
+    _facingNormal = Vector3.Dot(_rawNormal, _facingNormal) < 0f ? -_rawNormal : _rawNormal;
 
-    transform.rotation = Quaternion.LookRotation(_facingNormal, Vector3.up);
-
-    if (spriteRenderer != null) {
-      bool movingBackward = _alongLineSpeed < 0f;
-      spriteRenderer.flipX = invertFacing ? !movingBackward : movingBackward;
+    bool flipped = flipController != null && flipController.IsFlipped;
+    if (flipped != _lastFlipped) {
+      _facingNormal = -_facingNormal;
+      _lastFlipped = flipped;
     }
+  }
+
+  private void UpdateFacing() {
+    if (flipController != null && flipController.IsFlipping) return;
+    if (Mathf.Abs(_alongLineSpeed) < 0.01f) return;
+
+    float targetYaw = Mathf.Atan2(_facingNormal.x, _facingNormal.z) * Mathf.Rad2Deg;
+    float newYaw = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetYaw, facingRotationSpeed * Time.deltaTime);
+    transform.eulerAngles = new Vector3(0f, newYaw, 0f);
+  }
+
+  private void UpdateSpriteFlip() {
+    if (spriteRenderer == null || Mathf.Abs(_alongLineSpeed) < 0.01f) return;
+    bool movingBackward = _moveInput < 0f;
+    spriteRenderer.flipX = invertFlip ? !movingBackward : movingBackward;
   }
 
   private void UpdateAnimator() {
@@ -202,38 +183,27 @@ public class LineFollowController : MonoBehaviour {
   }
 
   private void UpdateAlongLineSpeed() {
-    var target = _moveInput * moveSpeed;
-    var rate = (_moveInput != 0f) ? acceleration : deceleration;
+    float sign = Vector3.Dot(_facingNormal, _rawNormal) < 0f ? 1f : -1f;
+    float input = _moveInput * sign;
+    var target = input * moveSpeed;
+    var rate = (input != 0f) ? acceleration : deceleration;
     _alongLineSpeed = Mathf.MoveTowards(_alongLineSpeed, target, rate * Time.deltaTime);
   }
 
-  /// <summary>
-  /// The actual world point the player should be resting at for a given distance along the
-  /// current strand — the line's own point, lifted by heightAboveLine. Every piece of this
-  /// controller that needs to know "where the line is" goes through this, and LineSwitcher
-  /// reads the same heightAboveLine value, so walking and switching always agree on where
-  /// "on the line" actually is. Without that agreement, a switch that lands the player at a
-  /// different height than walking expects gets immediately yanked around by snap correction.
-  /// </summary>
   private Vector3 GetHuggedPoint(float distance) {
     return currentLine.GetPointAtDistance(currentStrand, distance) + Vector3.up * heightAboveLine;
   }
 
-  /// <summary>
-  /// Advances distance-along-line by the current speed and returns the world-space horizontal
-  /// move delta needed to get the player from its current position to the new point on the line.
-  /// </summary>
   private Vector3 ComputeHorizontalDelta() {
     Vector3 beforePos = GetHuggedPoint(_distanceAlongLine);
     var wantedDistance = _distanceAlongLine + _alongLineSpeed * Time.deltaTime;
 
     if (currentLine.IsStrandClosedLoop(currentStrand)) {
-      _distanceAlongLine = wantedDistance; // GetPointAtDistance wraps closed-loop strands internally
+      _distanceAlongLine = wantedDistance;
     } else {
       var strandLength = currentLine.GetStrandLength(currentStrand);
       _distanceAlongLine = Mathf.Clamp(wantedDistance, 0f, strandLength);
       if (!Mathf.Approximately(_distanceAlongLine, wantedDistance)) {
-        // Hit an end — zero speed so it doesn't build up while pinned there.
         _alongLineSpeed = 0f;
       }
     }
@@ -254,7 +224,6 @@ public class LineFollowController : MonoBehaviour {
 
     _verticalVelocity += gravity * Time.deltaTime;
 
-    // Pull the player back onto the line before adding this frame's move, so drift doesn't compound.
     Vector3 correction = ComputeSnapCorrection();
 
     Vector3 move = horizontalDelta + correction + Vector3.up * (_verticalVelocity * Time.deltaTime);
@@ -276,8 +245,6 @@ public class LineFollowController : MonoBehaviour {
       Debug.LogWarning($"[LineFollowController] Off line by {distToHugged:F2}m (tolerance {snapTolerance:F2}m) — snapping back.");
     }
 
-    // Keep the player's own tracked distance-along-line in sync with where the snap is pulling toward,
-    // so ComputeHorizontalDelta doesn't fight the correction next frame.
     _distanceAlongLine = distAlong;
 
     Vector3 toLine = huggedPoint - transform.position;
@@ -296,12 +263,6 @@ public class LineFollowController : MonoBehaviour {
     IsOnLine = distToHugged <= snapTolerance;
   }
 
-  /// <summary>
-  /// Switches the player onto a new line at a given distance along it, resetting along-line speed.
-  /// Call this after a LineSwitcher move completes, or to place the player on a line at start.
-  /// Does NOT move the player's transform — the caller (LineSwitcher, or Start()) is responsible
-  /// for that; this just changes which line subsequent movement is measured against.
-  /// </summary>
   public void SetLine(LinePath newLine, int strandIndex, float distanceAlongLine) {
     currentLine = newLine;
     currentStrand = strandIndex;
@@ -309,7 +270,6 @@ public class LineFollowController : MonoBehaviour {
     _alongLineSpeed = 0f;
   }
 
-  /// <summary>Clears vertical/along-line momentum, used after scripted repositioning.</summary>
   public void ResetVelocity() {
     _alongLineSpeed = 0f;
     _verticalVelocity = 0f;

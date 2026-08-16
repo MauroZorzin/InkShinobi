@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public class PlayerFlipController : MonoBehaviour {
   [Header("Flip")]
   [Tooltip("Degrees turned per Q/E press. 180 = classic \"turn around\" flip.")]
@@ -24,8 +23,9 @@ public class PlayerFlipController : MonoBehaviour {
   private Coroutine _flipRoutine;
   private bool _isFlipping;
 
-  /// <summary>True while an animated flip is in progress (always false when Flip Duration is 0).</summary>
   public bool IsFlipping => _isFlipping;
+
+  public bool IsFlipped { get; private set; }
 
 #pragma warning disable IDE0051
   private void OnRotateRight(InputValue value) {
@@ -37,10 +37,11 @@ public class PlayerFlipController : MonoBehaviour {
   }
 #pragma warning restore IDE0051
 
-  /// <summary>Starts a flip by the given signed degrees (positive/negative pick the turn direction). Returns false if blocked by an in-progress flip.</summary>
   public bool TryFlip(float degrees) {
     if (!enabled) return false;
     if (blockInputDuringFlip && _isFlipping) return false;
+
+    IsFlipped = !IsFlipped;
 
     if (_flipRoutine != null) StopCoroutine(_flipRoutine);
     _flipRoutine = StartCoroutine(FlipRoutine(degrees));
@@ -52,9 +53,6 @@ public class PlayerFlipController : MonoBehaviour {
     if (logFlips) Debug.Log($"[PlayerFlipController] Flip started: {degrees}°.");
 
     Quaternion startRot = transform.rotation;
-    // World-space axis resolved ONCE up front from the local axis at flip-start, not re-derived
-    // every frame — the rotation being animated below would otherwise chase its own tail as
-    // transform.rotation changes mid-turn.
     Vector3 worldAxis = transform.TransformDirection(rotationAxis.sqrMagnitude > 0.0001f ? rotationAxis.normalized : Vector3.up);
     Quaternion endRot = Quaternion.AngleAxis(degrees, worldAxis) * startRot;
 

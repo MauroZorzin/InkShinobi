@@ -72,6 +72,33 @@ public class LinePathVisualizer : MonoBehaviour {
   [Tooltip("How far above the hit surface (along its normal) the ribbon mesh sits, to avoid z-fighting.")]
   public float surfaceOffset = 0.02f;
 
+  [Header("Glow")]
+  [Tooltip("Adds a vertical glowing strip rising from the ground along the path, using the InkGlow shader — reads as a light source and stays visible from angles the flat ground ribbon doesn't.")]
+  public bool enableGlow = true;
+
+  [Tooltip("Optional material override. A default instance of Custom/InkGlow is created automatically if left empty.")]
+  public Material glowMaterial;
+
+  public Color glowColor = new Color(0.4f, 0.85f, 1f, 1f);
+
+  [Tooltip("Multiplies the glow color — blending is additive, so this is what actually controls how bright it reads.")]
+  public float glowIntensity = 2.5f;
+
+  [Tooltip("Height of the vertical glow strip above the ground, in world units.")]
+  public float glowHeight = 1.2f;
+
+  [Tooltip("Fraction of the strip's top that fades to fully transparent, for a light-fading-upward look.")]
+  [Range(0f, 1f)] public float glowTopFade = 1f;
+
+  [Tooltip("Defaults to the GameObject tagged \"Player\" if left empty. The glow is hidden within Glow Fade Radius of this transform, so it never shows on the stretch the player is currently standing on.")]
+  public Transform playerReference;
+
+  [Tooltip("World-space radius around the player within which the glow is fully hidden.")]
+  public float glowFadeRadius = 3f;
+
+  [Tooltip("Extra distance beyond Glow Fade Radius over which the glow fades back in smoothly.")]
+  public float glowFadeSoftness = 2f;
+
   [Header("Debug")]
   [Tooltip("Logs shader/material setup, strand counts and how many sampled points actually hit ground on every Rebuild().")]
   public bool debugLogging = true;
@@ -86,6 +113,7 @@ public class LinePathVisualizer : MonoBehaviour {
 
   private LinePath _linePath;
   private Material _material;
+  private Material _glowMaterial;
   private readonly List<GameObject> _strandObjects = new List<GameObject>();
 
   private class StrandDebugInfo {
@@ -109,8 +137,30 @@ public class LinePathVisualizer : MonoBehaviour {
   private static readonly int EdgeNoiseScaleId = Shader.PropertyToID("_EdgeNoiseScale");
   private static readonly int EdgeRoughnessId = Shader.PropertyToID("_EdgeRoughness");
 
+  private static readonly int GlowColorId = Shader.PropertyToID("_GlowColor");
+  private static readonly int GlowIntensityId = Shader.PropertyToID("_GlowIntensity");
+  private static readonly int FadeRadiusId = Shader.PropertyToID("_FadeRadius");
+  private static readonly int FadeSoftnessId = Shader.PropertyToID("_FadeSoftness");
+  private static readonly int TopFadeId = Shader.PropertyToID("_TopFade");
+  private static readonly int PlayerWorldPositionId = Shader.PropertyToID("_PlayerWorldPosition");
+
   private void Awake() {
     _linePath = GetComponent<LinePath>();
+
+    if (playerReference == null) {
+      var player = GameObject.FindGameObjectWithTag("Player");
+      if (player != null) playerReference = player.transform;
+    }
+
+    if (enableGlow) {
+      var glowShader = Shader.Find("Custom/InkGlow");
+      if (glowShader != null) {
+        _glowMaterial = glowMaterial != null ? new Material(glowMaterial) : new Material(glowShader);
+        _glowMaterial.hideFlags = HideFlags.DontSave;
+      } else if (debugLogging) {
+        Debug.LogError("[LinePathVisualizer] Shader 'Custom/InkGlow' not found — it either hasn't been imported yet or failed to compile. No glow strips will be built until this is fixed.", this);
+      }
+    }
 
     var shader = Shader.Find("Custom/InkTrail");
     if (shader != null) {
@@ -137,6 +187,12 @@ public class LinePathVisualizer : MonoBehaviour {
     ApplyMaterialProperties();
   }
 
+  private void Update() {
+    if (enableGlow && playerReference != null) {
+      Shader.SetGlobalVector(PlayerWorldPositionId, playerReference.position);
+    }
+  }
+
   /// <summary>Pushes the ink style parameters onto the runtime material — call after changing them in code.</summary>
   public void ApplyMaterialProperties() {
     if (_material == null) return;
@@ -150,6 +206,13 @@ public class LinePathVisualizer : MonoBehaviour {
     _material.SetFloat(FlowSpeedId, flowSpeed);
     _material.SetFloat(EdgeNoiseScaleId, edgeNoiseScale);
     _material.SetFloat(EdgeRoughnessId, edgeRoughness);
+
+    if (_glowMaterial == null) return;
+    _glowMaterial.SetColor(GlowColorId, glowColor);
+    _glowMaterial.SetFloat(GlowIntensityId, glowIntensity);
+    _glowMaterial.SetFloat(FadeRadiusId, glowFadeRadius);
+    _glowMaterial.SetFloat(FadeSoftnessId, glowFadeSoftness);
+    _glowMaterial.SetFloat(TopFadeId, glowTopFade);
   }
 
   /// <summary>Destroys and recreates all strand ribbon meshes from the current LinePath data. Call after moving waypoints, or the world geometry underneath, at runtime.</summary>
@@ -255,7 +318,73 @@ public class LinePathVisualizer : MonoBehaviour {
 
     mf.sharedMesh = BuildRibbonMesh(pointCount, closed, groundPoints, groundNormals, grounded, distances, dbg);
     _debugStrands.Add(dbg);
+
+    if (enableGlow && _glowMaterial != null) {
+      BuildGlowObject(go.transform, strandIndex, pointCount, closed, groundPoints, grounded, distances);
+    }
+
     return go;
+  }
+
+  private void BuildGlowObject(Transform parent, int strandIndex, int pointCount, bool closed, Vector3[] groundPoints, bool[] grounded, float[] distances) {
+    var glowGo = new GameObject($"InkGlow_Strand{strandIndex}");
+    glowGo.transform.SetParent(parent, false);
+    glowGo.transform.position = Vector3.zero;
+    glowGo.transform.rotation = Quaternion.identity;
+
+    var mf = glowGo.AddComponent<MeshFilter>();
+    var mr = glowGo.AddComponent<MeshRenderer>();
+    mr.sharedMaterial = _glowMaterial;
+    mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+    mr.receiveShadows = false;
+
+    mf.sharedMesh = BuildGlowMesh(pointCount, closed, groundPoints, grounded, distances);
+  }
+
+  private Mesh BuildGlowMesh(int pointCount, bool closed, Vector3[] groundPoints, bool[] grounded, float[] distances) {
+    var vertices = new Vector3[pointCount * 2];
+    var uvs = new Vector2[pointCount * 2];
+    var colors = new Color[pointCount * 2];
+
+    for (int i = 0; i < pointCount; i++) {
+      int i0 = i * 2;
+      int i1 = i * 2 + 1;
+
+      vertices[i0] = groundPoints[i];
+      vertices[i1] = groundPoints[i] + Vector3.up * Mathf.Max(0.01f, glowHeight);
+
+      uvs[i0] = new Vector2(distances[i], 0f);
+      uvs[i1] = new Vector2(distances[i], 1f);
+
+      float alpha = grounded[i] ? 1f : 0f;
+      colors[i0] = new Color(1f, 1f, 1f, alpha);
+      colors[i1] = new Color(1f, 1f, 1f, alpha);
+    }
+
+    int segCount = closed ? pointCount : pointCount - 1;
+    var triangles = new int[segCount * 6];
+    for (int i = 0; i < segCount; i++) {
+      int a = i * 2;
+      int b = i * 2 + 1;
+      int c = ((i + 1) % pointCount) * 2;
+      int d = ((i + 1) % pointCount) * 2 + 1;
+
+      int t = i * 6;
+      triangles[t + 0] = a;
+      triangles[t + 1] = c;
+      triangles[t + 2] = b;
+      triangles[t + 3] = b;
+      triangles[t + 4] = c;
+      triangles[t + 5] = d;
+    }
+
+    var mesh = new Mesh { name = "InkGlowStrip" };
+    mesh.SetVertices(vertices);
+    mesh.SetUVs(0, uvs);
+    mesh.SetColors(colors);
+    mesh.SetTriangles(triangles, 0);
+    mesh.RecalculateBounds();
+    return mesh;
   }
 
   private Mesh BuildRibbonMesh(int pointCount, bool closed, Vector3[] points, Vector3[] normals, bool[] grounded, float[] distances, StrandDebugInfo dbg) {

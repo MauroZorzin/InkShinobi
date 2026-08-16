@@ -25,6 +25,8 @@ public class OrbitCameraController : MonoBehaviour {
   [Tooltip("Invert the vertical look axis.")]
   public bool invertY = false;
 
+  public bool orbitEnabled = true;
+
   private float _distance;
   private float _yaw;
   private float _pitch;
@@ -42,8 +44,12 @@ public class OrbitCameraController : MonoBehaviour {
       return;
     }
 
-    // Derive the starting distance/yaw/pitch from wherever the camera was placed in the scene,
-    // so play mode doesn't snap it to some arbitrary default orbit position.
+    SyncFromCurrentTransform();
+  }
+
+  public void SyncFromCurrentTransform() {
+    if (target == null) return;
+
     Vector3 fromPivot = transform.position - (target.position + pivotOffset);
     if (fromPivot.sqrMagnitude > 0.0001f) {
       Vector3 euler = Quaternion.LookRotation(-fromPivot.normalized, Vector3.up).eulerAngles;
@@ -54,7 +60,7 @@ public class OrbitCameraController : MonoBehaviour {
   }
 
   private void LateUpdate() {
-    if (target == null || Mouse.current == null) return;
+    if (!orbitEnabled || target == null || Mouse.current == null) return;
 
     Vector2 lookInput = Mouse.current.delta.ReadValue();
 

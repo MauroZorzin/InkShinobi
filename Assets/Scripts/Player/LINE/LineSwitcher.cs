@@ -18,16 +18,6 @@ public class LineSwitcher : MonoBehaviour {
   [Tooltip("Seconds spent moving the player from its current position to the target point on the new line.")]
   public float switchDuration = 0.35f;
 
-  [Header("Path Collision Check")]
-  [Tooltip("If true, a switch is denied when something on Obstruction Layers blocks the straight-line path between the player's current position and the target point.")]
-  public bool requireClearPath = true;
-
-  [Tooltip("Layers swept for obstructions when Require Clear Path is enabled. Exclude the player's own layer to avoid self-hits.")]
-  public LayerMask obstructionLayers = ~0;
-
-  [Tooltip("Radius of the sphere swept along the path. Defaults to the CharacterController's radius when left at 0.")]
-  public float pathCheckRadius = 0f;
-
   [Header("Camera 180° Flip")]
   [Tooltip("If true, the camera orbits 180 degrees around the player over the course of the switch.")]
   public bool rotateCamera180OnSwitch = false;
@@ -106,30 +96,9 @@ public class LineSwitcher : MonoBehaviour {
     return !sameSpot;
   }
 
-  /// <summary>True when Require Clear Path is off, or a sphere swept from -> to hits nothing on Obstruction Layers.</summary>
-  public bool IsPathClear(Vector3 from, Vector3 to) {
-    if (!requireClearPath) return true;
-
-    if (_cc == null) _cc = GetComponent<CharacterController>();
-    float radius = pathCheckRadius > 0f ? pathCheckRadius : (_cc != null ? _cc.radius : 0.1f);
-
-    Vector3 delta = to - from;
-    float distance = delta.magnitude;
-    if (distance <= 0f) return true;
-
-    return !Physics.SphereCast(from, radius, delta / distance, out _, distance, obstructionLayers, QueryTriggerInteraction.Ignore);
-  }
-
   private Vector3 GetHuggedTarget(Vector3 targetPoint) {
     float hugHeight = followController != null ? followController.heightAboveLine : 0f;
     return targetPoint + Vector3.up * Mathf.Max(0f, hugHeight);
-  }
-
-  /// <summary>Same check IsPathClear does, but takes the raw point on the line (as returned by
-  /// LinePath.FindClosestDistance) and applies the same height-above-line hug TrySwitchToLine
-  /// moves to — lets callers (e.g. the aim indicator) preview obstruction before confirming.</summary>
-  public bool IsSwitchPathClear(Vector3 targetPoint) {
-    return IsPathClear(transform.position, GetHuggedTarget(targetPoint));
   }
 
   public bool TrySwitchToLine(LinePath targetLine, int targetStrand, Vector3 targetPoint, float targetDistance, Action onComplete = null) {
@@ -143,10 +112,6 @@ public class LineSwitcher : MonoBehaviour {
     }
 
     Vector3 huggedTarget = GetHuggedTarget(targetPoint);
-    if (!IsPathClear(transform.position, huggedTarget)) {
-      if (logSwitches) Debug.Log("[LineSwitcher] Switch denied: path is obstructed.");
-      return false;
-    }
 
     if (logSwitches) Debug.Log($"[LineSwitcher] Switch started. target={targetLine.name} strand={targetStrand} point={targetPoint:F3}");
 
