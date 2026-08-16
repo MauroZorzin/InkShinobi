@@ -16,6 +16,9 @@ public class SceneTransitionTrigger : MonoBehaviour {
   [Tooltip("If true, this trigger only fires once and then ignores further entries.")]
   public bool oneShot = true;
 
+  [Tooltip("Load immediately without fading to or from black.")]
+  public bool skipFade;
+
   private bool _fired;
 
   private void Awake() {
@@ -40,6 +43,6 @@ public class SceneTransitionTrigger : MonoBehaviour {
     }
 
     _fired = true;
-    SceneTransitionManager.LoadScene(sceneName);
+    SceneTransitionManager.LoadScene(sceneName, useFade: !skipFade);
   }
 }

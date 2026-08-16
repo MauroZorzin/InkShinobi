@@ -1,58 +1,76 @@
-using System.Collections;
+using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// Handles main-menu button actions and shows a loading overlay while changing scenes.
+/// Handles main-menu button actions and the new-game overwrite confirmation.
 /// </summary>
 public class MenuManager : MonoBehaviour {
   [Header("Scene Names")]
   [Tooltip("Scene loaded when the player starts a new game.")]
-  [SerializeField] private string firstSceneName = "Demo";
+  [SerializeField] private string firstSceneName = GameProgress.FirstSceneName;
 
   [Tooltip("Scene loaded when the player opens settings.")]
   [SerializeField] private string settingsSceneName = "SettingsMenu";
 
-  [Header("Loading Screen")]
-  [Tooltip("Solid color used by the loading overlay backdrop.")]
-  [SerializeField] private Color backdropColor = Color.black;
+  [Header("Buttons")]
+  [SerializeField] private Button continueButton;
+  [SerializeField] private TMP_Text continueLabel;
 
-  [Tooltip("Optional prefab spawned above the loading backdrop while a scene is loading.")]
-  [SerializeField] private GameObject loaderAnimationPrefab;
+  [Header("Transition")]
+  [SerializeField] private TMP_FontAsset savingFont;
 
-  [Tooltip("Minimum seconds the loading overlay remains visible before scene activation.")]
-  [SerializeField] private float minimumLoadTime = 1.5f;
+  [Header("Audio")]
+  [SerializeField] private AudioSource rainAudio;
 
-  [Tooltip("Seconds used to fade the loading backdrop in before scene loading.")]
-  [SerializeField] private float fadeInDuration = 0.35f;
+  private GameObject _newGameDialog;
+  private bool _restartRainAfterDialog;
+  private int _rainPlaybackSample;
 
-  [Tooltip("Seconds used to fade the loading backdrop out after the next scene activates.")]
-  [SerializeField] private float fadeOutDuration = 0.35f;
+  private void Awake() {
+    // Menus must not inherit a paused gameplay clock; particle effects such as rain use it.
+    Time.timeScale = 1f;
 
-  [Header("Audio Fade")]
-  [Tooltip("Music audio source faded out while changing scenes.")]
-  [SerializeField] private AudioSource musicSource;
+    if (continueButton == null) {
+      GameObject continueObject = GameObject.Find("Continue");
+      if (continueObject != null) continueButton = continueObject.GetComponent<Button>();
+    }
 
-  [Tooltip("Ambient audio source faded out while changing scenes.")]
-  [SerializeField] private AudioSource ambientSource;
+    bool canContinue = GameProgress.HasContinueProgress;
+    if (continueButton != null) continueButton.interactable = canContinue;
 
-  [Tooltip("Seconds used to fade menu audio to silence.")]
-  [SerializeField] private float audioFadeDuration = 0.6f;
+    if (continueLabel == null && continueButton != null) {
+      continueLabel = continueButton.GetComponentInChildren<TMP_Text>(includeInactive: true);
+    }
 
-  public void StartGame() => StartCoroutine(LoadScene(firstSceneName));
+    if (canContinue && continueLabel != null) continueLabel.color = Color.white;
 
-  public void OpenSettings() => StartCoroutine(LoadScene(settingsSceneName));
+    SceneTransitionManager.SetSavingFont(savingFont);
+    ResolveRainAudio();
+  }
 
-  /// <summary>
-  /// Placeholder hook for future continue-game support.
-  /// </summary>
+  public void StartGame() {
+    if (GameProgress.HasContinueProgress) {
+      ShowNewGameConfirmation();
+      return;
+    }
+
+    BeginNewGame();
+  }
+
+  public void OpenSettings() {
+    SceneTransitionManager.LoadScene(settingsSceneName, useFade: false);
+  }
+
   public void ContinueGame() {
-    Debug.Log("Continue clicked");
+    if (!GameProgress.HasContinueProgress) return;
+
+    SceneTransitionManager.LoadScene(GameProgress.ContinueSceneName);
   }
 
   /// <summary>
-  /// Exits play mode in the editor or quits the application in builds.
+  /// Exits play mode in the editor or quits the application in builds without a transition.
   /// </summary>
   public void QuitGame() {
 #if UNITY_EDITOR
@@ -62,155 +80,178 @@ public class MenuManager : MonoBehaviour {
 #endif
   }
 
-  /// <summary>
-  /// Displays the loading overlay, fades audio, and activates the requested scene.
-  /// </summary>
-  /// <param name="sceneName">Name of the scene to load.</param>
-  private IEnumerator LoadScene(string sceneName) {
-    LoadingOverlayDriver overlay = BuildOverlay(out Image backdrop);
-
-    yield return StartCoroutine(FadeBackdrop(backdrop, 0f, 1f, fadeInDuration));
-
-    ShowLoaderAnimation(overlay);
-
-    if (musicSource != null) {
-      StartCoroutine(FadeAudio(musicSource, 0f, audioFadeDuration));
-    }
-
-    if (ambientSource != null) {
-      StartCoroutine(FadeAudio(ambientSource, 0f, audioFadeDuration));
-    }
-
-    AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
-    op.allowSceneActivation = false;
-
-    var elapsed = 0f;
-    while (elapsed < minimumLoadTime || op.progress < 0.9f) {
-      elapsed += Time.unscaledDeltaTime;
-      yield return null;
-    }
-
-    op.allowSceneActivation = true;
-
-    overlay.StartFadeOutAndDestroy(backdrop, fadeOutDuration);
+  private void BeginNewGame() {
+    CloseNewGameConfirmation(resumeRain: false);
+    GameProgress.Clear();
+    SceneTransitionManager.LoadScene(firstSceneName);
   }
 
-  /// <summary>
-  /// Creates the persistent loading overlay canvas and backdrop.
-  /// </summary>
-  /// <param name="backdrop">The generated backdrop image.</param>
-  /// <returns>The overlay driver that survives the scene transition.</returns>
-  private LoadingOverlayDriver BuildOverlay(out Image backdrop) {
-    var go = new GameObject("LoadingOverlay");
-    DontDestroyOnLoad(go);
+  private void ShowNewGameConfirmation() {
+    if (_newGameDialog != null) return;
 
-    Canvas canvas = go.AddComponent<Canvas>();
+    ResolveRainAudio();
+    _restartRainAfterDialog = rainAudio != null && rainAudio.isPlaying;
+    if (_restartRainAfterDialog) {
+      _rainPlaybackSample = rainAudio.timeSamples;
+      rainAudio.Stop();
+    }
+
+    _newGameDialog = new GameObject("NewGameConfirmation", typeof(RectTransform));
+
+    Canvas canvas = _newGameDialog.AddComponent<Canvas>();
     canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-    canvas.sortingOrder = 999;
+    canvas.sortingOrder = 1000;
 
-    CanvasScaler scaler = go.AddComponent<CanvasScaler>();
+    CanvasScaler scaler = _newGameDialog.AddComponent<CanvasScaler>();
     scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-    go.AddComponent<GraphicRaycaster>();
+    scaler.referenceResolution = new Vector2(1920f, 1080f);
+    _newGameDialog.AddComponent<GraphicRaycaster>();
+    _newGameDialog.AddComponent<PopupBackgroundBlur>().Initialize(canvas);
 
-    var bgGo = new GameObject("Backdrop");
-    bgGo.transform.SetParent(go.transform, false);
-    backdrop = bgGo.AddComponent<Image>();
-    backdrop.color = new Color(backdropColor.r, backdropColor.g, backdropColor.b, 0f);
+    Image shade = CreateImage("Shade", _newGameDialog.transform, new Color(0f, 0f, 0f, 0.55f));
+    Stretch(shade.rectTransform);
 
-    RectTransform rectTransform = backdrop.rectTransform;
+    Image panel = CreateImage("Panel", shade.transform, new Color(0.08f, 0.08f, 0.08f, 0.98f));
+    RectTransform panelTransform = panel.rectTransform;
+    panelTransform.anchorMin = new Vector2(0.5f, 0.5f);
+    panelTransform.anchorMax = new Vector2(0.5f, 0.5f);
+    panelTransform.sizeDelta = new Vector2(760f, 340f);
+    panelTransform.anchoredPosition = Vector2.zero;
+
+    CreateText(
+      "Title",
+      panel.transform,
+      "Overwrite progress?",
+      38f,
+      new Vector2(0f, 100f),
+      new Vector2(680f, 60f)
+    );
+    CreateText(
+      "Message",
+      panel.transform,
+      "Starting a new game will overwrite all saved progress.",
+      26f,
+      new Vector2(0f, 30f),
+      new Vector2(650f, 80f)
+    );
+
+    Button cancelButton = CreateButton(
+      "Cancel",
+      panel.transform,
+      "Cancel",
+      new Vector2(-175f, -105f)
+    );
+    cancelButton.onClick.AddListener(CancelNewGameConfirmation);
+
+    Button confirmButton = CreateButton(
+      "ConfirmStart",
+      panel.transform,
+      "Start New Game",
+      new Vector2(175f, -105f)
+    );
+    confirmButton.onClick.AddListener(BeginNewGame);
+
+    if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(cancelButton.gameObject);
+  }
+
+  private void CloseNewGameConfirmation(bool resumeRain = true) {
+    if (_newGameDialog == null) return;
+
+    Destroy(_newGameDialog);
+    _newGameDialog = null;
+
+    if (resumeRain && _restartRainAfterDialog && rainAudio != null) {
+      if (rainAudio.clip != null) {
+        rainAudio.timeSamples = Mathf.Clamp(_rainPlaybackSample, 0, rainAudio.clip.samples - 1);
+      }
+      rainAudio.Play();
+    }
+    _restartRainAfterDialog = false;
+  }
+
+  private void ResolveRainAudio() {
+    if (rainAudio != null) return;
+
+    GameObject ambientObject = GameObject.Find("Ambient");
+    if (ambientObject != null) rainAudio = ambientObject.GetComponent<AudioSource>();
+
+    if (rainAudio != null) return;
+
+    AudioSource[] sources = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
+    foreach (AudioSource source in sources) {
+      if (source.clip == null || !source.clip.name.Contains("rain", System.StringComparison.OrdinalIgnoreCase)) continue;
+
+      rainAudio = source;
+      break;
+    }
+  }
+
+  private void CancelNewGameConfirmation() {
+    CloseNewGameConfirmation();
+
+    StrokeHighlight[] highlights = FindObjectsByType<StrokeHighlight>(
+      FindObjectsInactive.Include,
+      FindObjectsSortMode.None
+    );
+    foreach (StrokeHighlight highlight in highlights) highlight.Deselect();
+  }
+
+  internal static Image CreateImage(string objectName, Transform parent, Color color) {
+    var imageObject = new GameObject(objectName, typeof(RectTransform));
+    imageObject.transform.SetParent(parent, false);
+    Image image = imageObject.AddComponent<Image>();
+    image.color = color;
+    return image;
+  }
+
+  internal static TextMeshProUGUI CreateText(
+    string objectName,
+    Transform parent,
+    string content,
+    float fontSize,
+    Vector2 position,
+    Vector2 size
+  ) {
+    var textObject = new GameObject(objectName, typeof(RectTransform));
+    textObject.transform.SetParent(parent, false);
+
+    TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
+    text.text = content;
+    text.fontSize = fontSize;
+    text.color = Color.white;
+    text.alignment = TextAlignmentOptions.Center;
+
+    RectTransform rectTransform = text.rectTransform;
+    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+    rectTransform.sizeDelta = size;
+    rectTransform.anchoredPosition = position;
+    return text;
+  }
+
+  internal static Button CreateButton(
+    string objectName,
+    Transform parent,
+    string label,
+    Vector2 position
+  ) {
+    Image image = CreateImage(objectName, parent, new Color(0.22f, 0.22f, 0.22f, 1f));
+    RectTransform rectTransform = image.rectTransform;
+    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+    rectTransform.sizeDelta = new Vector2(280f, 70f);
+    rectTransform.anchoredPosition = position;
+
+    Button button = image.gameObject.AddComponent<Button>();
+    button.targetGraphic = image;
+    CreateText("Label", button.transform, label, 25f, Vector2.zero, rectTransform.sizeDelta);
+    return button;
+  }
+
+  internal static void Stretch(RectTransform rectTransform) {
     rectTransform.anchorMin = Vector2.zero;
     rectTransform.anchorMax = Vector2.one;
     rectTransform.offsetMin = Vector2.zero;
     rectTransform.offsetMax = Vector2.zero;
-
-    return go.AddComponent<LoadingOverlayDriver>();
-  }
-
-  private void ShowLoaderAnimation(LoadingOverlayDriver overlay) {
-    if (loaderAnimationPrefab == null) {
-      return;
-    }
-    GameObject instance = Instantiate(loaderAnimationPrefab, overlay.transform);
-    instance.transform.SetAsLastSibling();
-  }
-
-  /// <summary>
-  /// Fades an audio source volume to the target value and stops it at silence.
-  /// </summary>
-  /// <param name="source">The audio source to fade.</param>
-  /// <param name="target">The target volume.</param>
-  /// <param name="duration">Fade duration in seconds.</param>
-  private IEnumerator FadeAudio(AudioSource source, float target, float duration) {
-    var start = source.volume;
-    var elapsed = 0f;
-
-    while (elapsed < duration) {
-      elapsed += Time.unscaledDeltaTime;
-      source.volume = Mathf.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
-      yield return null;
-    }
-
-    source.volume = target;
-    if (Mathf.Approximately(target, 0f)) {
-      source.Stop();
-    }
-  }
-
-  /// <summary>
-  /// Fades the loading backdrop alpha between two values.
-  /// </summary>
-  /// <param name="image">The backdrop image to update.</param>
-  /// <param name="from">Starting alpha.</param>
-  /// <param name="to">Ending alpha.</param>
-  /// <param name="duration">Fade duration in seconds.</param>
-  private IEnumerator FadeBackdrop(Image image, float from, float to, float duration) {
-    var elapsed = 0f;
-    Color color = image.color;
-
-    while (elapsed < duration) {
-      elapsed += Time.unscaledDeltaTime;
-      color.a = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration));
-      image.color = color;
-      yield return null;
-    }
-
-    color.a = to;
-    image.color = color;
-  }
-}
-
-/// <summary>
-/// Owns the loading overlay after the menu scene unloads and destroys it after fade-out.
-/// </summary>
-public class LoadingOverlayDriver : MonoBehaviour {
-  /// <summary>
-  /// Starts fading out the loading backdrop, then destroys the overlay GameObject.
-  /// </summary>
-  /// <param name="backdrop">The backdrop image to fade out.</param>
-  /// <param name="duration">Fade duration in seconds.</param>
-  public void StartFadeOutAndDestroy(Image backdrop, float duration) {
-    StartCoroutine(FadeOutRoutine(backdrop, duration));
-  }
-
-  /// <summary>
-  /// Fades a backdrop to transparent before destroying the overlay.
-  /// </summary>
-  /// <param name="backdrop">The backdrop image to fade out.</param>
-  /// <param name="duration">Fade duration in seconds.</param>
-  private IEnumerator FadeOutRoutine(Image backdrop, float duration) {
-    var elapsed = 0f;
-    Color color = backdrop.color;
-    var start = color.a;
-
-    while (elapsed < duration) {
-      elapsed += Time.unscaledDeltaTime;
-      color.a = Mathf.Lerp(start, 0f, Mathf.Clamp01(elapsed / duration));
-      backdrop.color = color;
-      yield return null;
-    }
-
-    color.a = 0f;
-    backdrop.color = color;
-    Destroy(gameObject);
   }
 }
