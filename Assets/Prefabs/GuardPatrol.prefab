@@ -90,7 +90,7 @@ SpriteRenderer:
   m_Size: {x: 0.28125, y: 0.453125}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_SpriteSortPoint: 0
 --- !u!95 &4885884864840532958
 Animator:
@@ -143,7 +143,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7859379029619327441}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 6.30085, y: 0.049999997, z: -10.698521}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -205,15 +205,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::GuardController
   patrolWaypoints:
   - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   waypointWaitTime: 2
   patrolMoveSpeed: 2
   alertMoveSpeed: 4
   investigateDuration: 5
+  lookAroundAngle: 90
+  lookAroundDuration: 1.5
+  investigateLookCount: 3
+  suspiciousLookCount: 2
+  takedownSound: {fileID: 8300000, guid: c5955b1ca51d47245ae5e5e10395d910, type: 3}
+  takedownReplacementPrefab: {fileID: 1658192453847563237, guid: 689deee5a6e270448895391c0d808174, type: 3}
+  takedownDestroyDelay: 2
+  spotSound: {fileID: 0}
+  chaseStartSound: {fileID: 0}
+  loseSightSound: {fileID: 0}
+  idleSounds:
+  - {fileID: 0}
+  idleSoundMinInterval: 8
+  idleSoundMaxInterval: 20
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   visionCone: {fileID: 1534752613705479263}
-  destroyOnTakedown: 1
   showStateLabel: 1
 --- !u!114 &1534752613705479263
 MonoBehaviour:

@@ -995,26 +995,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
-      propertyPath: mixerGroup
-      value: 
-      objectReference: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
-    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
-      propertyPath: takedownSound
-      value: 
-      objectReference: {fileID: 8300000, guid: c5955b1ca51d47245ae5e5e10395d910, type: 3}
-    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
-      propertyPath: takedownDestroyDelay
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
-      propertyPath: takedownReplacementPrefab
-      value: 
-      objectReference: {fileID: 1658192453847563237, guid: 689deee5a6e270448895391c0d808174, type: 3}
-    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
-      propertyPath: patrolWaypoints.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
       propertyPath: 'patrolWaypoints.Array.data[0]'
       value: 
       objectReference: {fileID: 1453833615}
