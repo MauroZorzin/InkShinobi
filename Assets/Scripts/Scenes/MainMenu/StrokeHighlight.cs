@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
@@ -10,6 +11,10 @@ using UnityEngine.UI;
 /// </summary>
 [RequireComponent(typeof(AudioSource))]
 public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler {
+  private const float HoverSoundStartOffset = 0.1f;
+
+  private static AudioSource _activeHoverSource;
+
   [Header("References")]
   [Tooltip("Button whose interactable state controls whether the highlight can appear.")]
   [SerializeField] private Button button;
@@ -37,9 +42,35 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   private Coroutine animationRoutine;
   private bool _selected;
   private Color _textColorBeforeSelection;
-  private bool _textWasEnabledBeforeSelection;
   private bool _hasStoredTextState;
-  private TMP_Text _selectedTextOverlay;
+  private bool _useWhiteTextOnHover;
+  private bool _useWhiteTextOnSelection = true;
+  private bool _hasHoverTextColor;
+  private Color _textColorBeforeHover;
+
+  internal TMP_FontAsset StyleFont => buttonLabel != null ? buttonLabel.font : null;
+  internal Material StyleFontMaterial => buttonLabel != null ? buttonLabel.fontSharedMaterial : null;
+  internal FontStyles StyleFontStyle => buttonLabel != null ? buttonLabel.fontStyle : FontStyles.Normal;
+  internal Sprite StyleBrushSprite => brushStroke != null ? brushStroke.sprite : null;
+  internal Color StyleBrushColor => brushStroke != null ? brushStroke.color : Color.white;
+  internal Sprite StylePanelSprite {
+    get {
+      Image[] images = GetComponentsInChildren<Image>(includeInactive: true);
+      foreach (Image image in images) {
+        if (image.gameObject.name == "Background" && image.sprite != null) return image.sprite;
+      }
+      return null;
+    }
+  }
+  internal AudioClip StyleHoverSound => hoverSound;
+  internal AudioMixerGroup StyleMixerGroup => audioSource != null ? audioSource.outputAudioMixerGroup : null;
+  internal float StylePaintInDuration => paintInDuration;
+  internal float StyleFadeOutDuration => fadeOutDuration;
+
+  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+  private static void ResetStatics() {
+    _activeHoverSource = null;
+  }
 
   private void Reset() {
     button = GetComponent<Button>();
@@ -47,34 +78,61 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   }
 
   private void Awake() {
+    EnsureStyleReferences();
+    HideInstant();
+  }
+
+  internal void EnsureStyleReferences() {
     if (button == null) {
       button = GetComponent<Button>();
     }
     if (audioSource == null) {
       audioSource = GetComponent<AudioSource>();
     }
+    if (audioSource != null) {
+      audioSource.playOnAwake = false;
+      audioSource.spatialBlend = 0f;
+      audioSource.ignoreListenerPause = true;
+    }
     if (buttonLabel == null) {
       buttonLabel = GetComponentInChildren<TMP_Text>(includeInactive: true);
     }
+  }
+
+  internal void Configure(
+    Button configuredButton,
+    Image configuredBrushStroke,
+    TMP_Text configuredLabel,
+    AudioSource configuredAudioSource,
+    AudioClip configuredHoverSound,
+    float configuredPaintInDuration,
+    float configuredFadeOutDuration,
+    bool useWhiteTextOnHover,
+    bool useWhiteTextOnSelection
+  ) {
+    button = configuredButton;
+    brushStroke = configuredBrushStroke;
+    buttonLabel = configuredLabel;
+    audioSource = configuredAudioSource;
+    hoverSound = configuredHoverSound;
+    paintInDuration = configuredPaintInDuration;
+    fadeOutDuration = configuredFadeOutDuration;
+    _useWhiteTextOnHover = useWhiteTextOnHover;
+    _useWhiteTextOnSelection = useWhiteTextOnSelection;
     HideInstant();
   }
 
   private void OnEnable() {
-    ClearSelectedTextOverlay();
+    RestoreTextAfterSelection();
     _selected = false;
     HideInstant();
   }
 
   private void OnDisable() {
-    ClearSelectedTextOverlay();
+    RestoreTextAfterSelection();
+    RestoreTextAfterHover();
     _selected = false;
     HideInstant();
-  }
-
-  private void LateUpdate() {
-    if (_selectedTextOverlay == null || buttonLabel == null) return;
-
-    SelectedMenuTextOverlay.Align(buttonLabel.rectTransform, _selectedTextOverlay.rectTransform);
   }
 
   public void OnPointerEnter(PointerEventData eventData) {
@@ -83,15 +141,20 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
     if (_selected) return;
 
-    // A newly loaded scene or a closing modal can put an unchanged pointer over this button and
-    // generate a synthetic enter event. Only actual pointer movement should produce hover audio.
-    if (eventData.delta.sqrMagnitude > 0.01f) PlayHoverSound();
+    if (_useWhiteTextOnHover && buttonLabel != null && !_hasHoverTextColor) {
+      _textColorBeforeHover = buttonLabel.color;
+      _hasHoverTextColor = true;
+      buttonLabel.color = Color.white;
+    }
+
+    PlayHoverSound();
     StartAnimation(PaintIn());
   }
 
   public void OnPointerExit(PointerEventData eventData) {
     if (_selected) return;
 
+    RestoreTextAfterHover();
     StartAnimation(FadeOut());
   }
 
@@ -105,7 +168,7 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
     if (!_selected) return;
 
     _selected = false;
-    ClearSelectedTextOverlay();
+    RestoreTextAfterSelection();
 
     StartAnimation(FadeOut());
   }
@@ -120,7 +183,15 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
   private void PlayHoverSound() {
     if (audioSource != null && hoverSound != null) {
-      audioSource.PlayOneShot(hoverSound);
+      if (_activeHoverSource != null && _activeHoverSource != audioSource) {
+        _activeHoverSource.Stop();
+      }
+
+      audioSource.Stop();
+      audioSource.clip = hoverSound;
+      audioSource.time = Mathf.Min(HoverSoundStartOffset, hoverSound.length - 0.001f);
+      audioSource.Play();
+      _activeHoverSource = audioSource;
     }
   }
 
@@ -142,31 +213,24 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     if (buttonLabel == null) return;
 
-    _textColorBeforeSelection = buttonLabel.color;
-    _textWasEnabledBeforeSelection = buttonLabel.enabled;
+    _textColorBeforeSelection = _hasHoverTextColor ? _textColorBeforeHover : buttonLabel.color;
+    _hasHoverTextColor = false;
     _hasStoredTextState = true;
-    _selectedTextOverlay = SelectedMenuTextOverlay.Create(buttonLabel);
-
-    if (_selectedTextOverlay != null) {
-      _selectedTextOverlay.color = Color.white;
-      buttonLabel.enabled = false;
-    } else {
-      // Fallback if an overlay canvas cannot be created.
-      buttonLabel.color = Color.white;
-    }
+    buttonLabel.color = _useWhiteTextOnSelection ? Color.white : _textColorBeforeSelection;
   }
 
-  private void ClearSelectedTextOverlay() {
-    if (_selectedTextOverlay != null) {
-      Destroy(_selectedTextOverlay.gameObject);
-      _selectedTextOverlay = null;
-    }
-
+  private void RestoreTextAfterSelection() {
     if (buttonLabel == null || !_hasStoredTextState) return;
 
-    buttonLabel.enabled = _textWasEnabledBeforeSelection;
     buttonLabel.color = _textColorBeforeSelection;
     _hasStoredTextState = false;
+  }
+
+  private void RestoreTextAfterHover() {
+    if (!_hasHoverTextColor) return;
+
+    if (buttonLabel != null) buttonLabel.color = _textColorBeforeHover;
+    _hasHoverTextColor = false;
   }
 
   /// <summary>
@@ -237,95 +301,5 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
     brushStroke.fillAmount = 0f;
     brushStroke.enabled = false;
-  }
-}
-
-/// <summary>
-/// Hosts selected menu labels after camera post-processing, leaving their unselected originals on
-/// the camera canvas. Copies are visual only and never intercept pointer input.
-/// </summary>
-internal static class SelectedMenuTextOverlay {
-  private const int SortingOrder = 900;
-
-  private static RectTransform _overlayTransform;
-  private static readonly Vector3[] WorldCorners = new Vector3[4];
-
-  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-  private static void ResetStatics() {
-    _overlayTransform = null;
-  }
-
-  public static TMP_Text Create(TMP_Text source) {
-    if (source == null) return null;
-
-    EnsureCanvas();
-    if (_overlayTransform == null) return null;
-
-    GameObject copyObject = Object.Instantiate(source.gameObject, _overlayTransform, false);
-    copyObject.name = $"{source.gameObject.name} (Selected Overlay)";
-
-    TMP_Text copy = copyObject.GetComponent<TMP_Text>();
-    if (copy == null) {
-      Object.Destroy(copyObject);
-      return null;
-    }
-
-    copy.raycastTarget = false;
-    copy.enabled = true;
-    Align(source.rectTransform, copy.rectTransform);
-    return copy;
-  }
-
-  public static void Align(RectTransform source, RectTransform copy) {
-    if (source == null || copy == null || _overlayTransform == null) return;
-
-    Canvas sourceCanvas = source.GetComponentInParent<Canvas>();
-    Camera sourceCamera = sourceCanvas != null && sourceCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-      ? sourceCanvas.worldCamera
-      : null;
-
-    source.GetWorldCorners(WorldCorners);
-    Vector2 bottomLeftScreen = RectTransformUtility.WorldToScreenPoint(sourceCamera, WorldCorners[0]);
-    Vector2 topRightScreen = RectTransformUtility.WorldToScreenPoint(sourceCamera, WorldCorners[2]);
-
-    if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-      _overlayTransform,
-      bottomLeftScreen,
-      null,
-      out Vector2 bottomLeft
-    )) return;
-    if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-      _overlayTransform,
-      topRightScreen,
-      null,
-      out Vector2 topRight
-    )) return;
-
-    copy.anchorMin = new Vector2(0.5f, 0.5f);
-    copy.anchorMax = new Vector2(0.5f, 0.5f);
-    copy.pivot = source.pivot;
-    copy.sizeDelta = topRight - bottomLeft;
-    copy.anchoredPosition = new Vector2(
-      Mathf.Lerp(bottomLeft.x, topRight.x, source.pivot.x),
-      Mathf.Lerp(bottomLeft.y, topRight.y, source.pivot.y)
-    );
-    copy.localScale = Vector3.one;
-    copy.localRotation = Quaternion.Euler(0f, 0f, source.eulerAngles.z);
-  }
-
-  private static void EnsureCanvas() {
-    if (_overlayTransform != null) return;
-
-    var overlayObject = new GameObject("SelectedMenuTextOverlay", typeof(RectTransform));
-    Canvas canvas = overlayObject.AddComponent<Canvas>();
-    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-    canvas.sortingOrder = SortingOrder;
-
-    CanvasScaler scaler = overlayObject.AddComponent<CanvasScaler>();
-    scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-    scaler.scaleFactor = 1f;
-
-    _overlayTransform = overlayObject.GetComponent<RectTransform>();
-    Canvas.ForceUpdateCanvases();
   }
 }

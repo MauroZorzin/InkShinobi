@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
@@ -34,6 +35,7 @@ public class SceneTransitionManager : MonoBehaviour {
   private float _timeScaleBeforePause = 1f;
   private CursorLockMode _cursorLockBeforePause;
   private bool _cursorVisibleBeforePause;
+  private AudioSource _uiAudioSource;
 
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
   private static void ResetStatics() {
@@ -127,6 +129,24 @@ public class SceneTransitionManager : MonoBehaviour {
 
     EnsureInstance();
     Instance.savingFont = font;
+  }
+
+  public static void PlayUiSound(AudioClip clip, AudioMixerGroup mixerGroup, float startOffset = 0f) {
+    if (clip == null) return;
+
+    EnsureInstance();
+    if (Instance._uiAudioSource == null) {
+      Instance._uiAudioSource = Instance.gameObject.AddComponent<AudioSource>();
+      Instance._uiAudioSource.playOnAwake = false;
+      Instance._uiAudioSource.loop = false;
+      Instance._uiAudioSource.spatialBlend = 0f;
+      Instance._uiAudioSource.ignoreListenerPause = true;
+    }
+
+    Instance._uiAudioSource.outputAudioMixerGroup = mixerGroup;
+    Instance._uiAudioSource.clip = clip;
+    Instance._uiAudioSource.time = Mathf.Clamp(startOffset, 0f, Mathf.Max(0f, clip.length - 0.001f));
+    Instance._uiAudioSource.Play();
   }
 
   private static void Begin(string destinationSceneName, Func<AsyncOperation> beginLoad, bool useFade) {
@@ -273,6 +293,7 @@ public class SceneTransitionManager : MonoBehaviour {
   private void ShowMainMenuConfirmation() {
     if (_pauseDialog != null) return;
 
+    MenuManager.PlayModalOpenSound(transform);
     _timeScaleBeforePause = Time.timeScale;
     _cursorLockBeforePause = Cursor.lockState;
     _cursorVisibleBeforePause = Cursor.visible;
@@ -283,8 +304,7 @@ public class SceneTransitionManager : MonoBehaviour {
     _pauseDialog = new GameObject("MainMenuConfirmation", typeof(RectTransform));
 
     Canvas canvas = _pauseDialog.AddComponent<Canvas>();
-    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-    canvas.sortingOrder = 1000;
+    MenuManager.ConfigureModalCanvas(canvas);
 
     CanvasScaler scaler = _pauseDialog.AddComponent<CanvasScaler>();
     scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -300,39 +320,37 @@ public class SceneTransitionManager : MonoBehaviour {
     );
     MenuManager.Stretch(shade.rectTransform);
 
-    Image panel = MenuManager.CreateImage(
-      "Panel",
-      shade.transform,
-      new Color(0.08f, 0.08f, 0.08f, 0.98f)
-    );
+    Image panel = MenuManager.CreateModalPanel(shade.transform);
     RectTransform panelTransform = panel.rectTransform;
     panelTransform.anchorMin = new Vector2(0.5f, 0.5f);
     panelTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    panelTransform.sizeDelta = new Vector2(760f, 340f);
+    panelTransform.sizeDelta = new Vector2(940f, 480f);
     panelTransform.anchoredPosition = Vector2.zero;
 
     MenuManager.CreateText(
       "Title",
       panel.transform,
       "Return to Main Menu?",
-      38f,
-      new Vector2(0f, 100f),
-      new Vector2(680f, 60f)
+      72f,
+      new Vector2(0f, 130f),
+      new Vector2(840f, 110f),
+      FontStyles.Bold | FontStyles.SmallCaps
     );
     MenuManager.CreateText(
       "Message",
       panel.transform,
       "Your progress is saved at the start of the latest scene reached.",
-      26f,
-      new Vector2(0f, 30f),
-      new Vector2(650f, 80f)
+      42f,
+      new Vector2(0f, 20f),
+      new Vector2(820f, 150f),
+      FontStyles.Bold | FontStyles.SmallCaps
     );
 
     Button resumeButton = MenuManager.CreateButton(
       "Resume",
       panel.transform,
       "Resume",
-      new Vector2(-175f, -105f)
+      new Vector2(-205f, -145f)
     );
     resumeButton.onClick.AddListener(ResumeGame);
 
@@ -340,7 +358,7 @@ public class SceneTransitionManager : MonoBehaviour {
       "MainMenu",
       panel.transform,
       "Main Menu",
-      new Vector2(175f, -105f)
+      new Vector2(205f, -145f)
     );
     mainMenuButton.onClick.AddListener(ReturnToMainMenu);
 
@@ -452,7 +470,7 @@ public class PopupBackgroundBlur : MonoBehaviour {
 
     Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
     if (screenshot == null) {
-      if (_modalCanvas != null) _modalCanvas.enabled = true;
+      RevealModal();
       yield break;
     }
 
@@ -460,7 +478,7 @@ public class PopupBackgroundBlur : MonoBehaviour {
     if (blurShader == null) {
       Debug.LogWarning("[PopupBackgroundBlur] Resources/PopupBlur.shader could not be loaded.");
       Destroy(screenshot);
-      if (_modalCanvas != null) _modalCanvas.enabled = true;
+      RevealModal();
       yield break;
     }
 
@@ -498,7 +516,15 @@ public class PopupBackgroundBlur : MonoBehaviour {
     background.raycastTarget = false;
     MenuManager.Stretch(background.rectTransform);
 
+    RevealModal();
+  }
+
+  private void RevealModal() {
+    if (_modalCanvas == null) return;
+
     _modalCanvas.enabled = true;
+    ModalAppearAnimation[] animations = _modalCanvas.GetComponentsInChildren<ModalAppearAnimation>(true);
+    foreach (ModalAppearAnimation animation in animations) animation.Play();
   }
 
   private void OnDestroy() {
