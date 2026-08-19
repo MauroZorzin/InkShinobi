@@ -35,8 +35,8 @@ public class PlayerStealthController : MonoBehaviour {
 
   // Convenient shorthands kept for backwards-compatibility with other systems.
   public bool IsHidden => CurrentState == StealthState.Hidden;
-  public bool IsInLight { get; private set; }
-  public int DetectingGuardCount { get; private set; }
+  public bool IsInLight { get; set; }
+  public int DetectingGuardCount { get; set; }
 
   // -------------------------------------------------------------------------
   // Inspector
@@ -49,12 +49,16 @@ public class PlayerStealthController : MonoBehaviour {
   [Header("Subsystem References (auto-fetched if left blank)")]
   public TakedownController takedownController;
 
+  [Header("Debug")]
+  [Tooltip("Draws the current stealth state above the player in the Game view.")]
+  public bool debug = true;
+
   // -------------------------------------------------------------------------
   // Private state
   // -------------------------------------------------------------------------
 
   private float _hiddenTimer;
-  private LightZone _currentLightZone;
+  private int _lightSourceCount;
 
   // -------------------------------------------------------------------------
   // Unity lifecycle
@@ -78,20 +82,13 @@ public class PlayerStealthController : MonoBehaviour {
   /// errors for anything missing, so setup mistakes surface immediately.
   /// </summary>
   private void ValidateSubsystems() {
-    // Mandatory — [RequireComponent] ensures TakedownController is always added,
-    // but we still need the reference.
-    if (!TryFetch(ref takedownController, nameof(TakedownController), mandatory: true))
-      return; // further validation pointless if core systems are missing
 
-    // Add future subsystems here using the same pattern, e.g.:
-    // TryFetch(ref _visionBlocker, nameof(VisionBlocker), mandatory: false);
+    if (!TryFetch(ref takedownController, nameof(TakedownController), mandatory: true))
+      return;
+
   }
 
-  /// <summary>
-  /// Gets <paramref name="component"/> from this GameObject.
-  /// Logs an error if <paramref name="mandatory"/> and not found; warning otherwise.
-  /// Returns true when the component was found.
-  /// </summary>
+
   private bool TryFetch<T>(ref T component, string label, bool mandatory) where T : Component {
     if (component != null) return true;     // already assigned in inspector
 
@@ -128,6 +125,7 @@ public class PlayerStealthController : MonoBehaviour {
   /// </summary>
   private void RefreshState() {
     StealthState next = ComputeState();
+    if (debug) Debug.Log($"[PlayerStealthController] '{name}': RefreshState() => {next} (HiddenTimer={_hiddenTimer:F2}, DetectingGuardCount={DetectingGuardCount}, IsInLight={IsInLight})", this);
     if (next == CurrentState) return;
 
     StealthState previous = CurrentState;
@@ -170,32 +168,21 @@ public class PlayerStealthController : MonoBehaviour {
   }
 
   // -------------------------------------------------------------------------
-  // Light zone events (called by LightZone)
+  // Light zone events (called by LightZone or LightZoneTriggerAdapter, one per active light)
   // -------------------------------------------------------------------------
 
-  public void EnterLight(LightZone zone) {
-    _currentLightZone = zone;
-    IsInLight = true;
+  public void EnterLight() {
+    Debug.Log($"[PlayerStealthController] '{name}': EnterLight");
+    _lightSourceCount++;
+    IsInLight = _lightSourceCount > 0;
     RefreshState();
   }
 
-  public void ExitLight(LightZone zone) {
-    if (_currentLightZone != zone) return;
-    _currentLightZone = null;
-    IsInLight = false;
+  public void ExitLight() {
+    Debug.Log($"[PlayerStealthController] '{name}': ExitLight");
+    _lightSourceCount = Mathf.Max(0, _lightSourceCount - 1);
+    IsInLight = _lightSourceCount > 0;
     RefreshState();
-  }
-
-  // -------------------------------------------------------------------------
-  // Gizmos
-  // -------------------------------------------------------------------------
-
-  private void OnDrawGizmosSelected() {
-    // Stealth state label in scene view
-#if UNITY_EDITOR
-    UnityEditor.Handles.Label(
-        transform.position + Vector3.up * 0.3f,
-        $"State: {CurrentState}");
-#endif
   }
 }
+
