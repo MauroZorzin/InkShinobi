@@ -4,9 +4,7 @@ using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -31,7 +29,7 @@ public class SceneTransitionManager : MonoBehaviour {
   public static SceneTransitionManager Instance { get; private set; }
 
   private bool _isTransitioning;
-  private GameObject _pauseDialog;
+  private ConfirmationModalView _pauseDialog;
   private float _timeScaleBeforePause = 1f;
   private CursorLockMode _cursorLockBeforePause;
   private bool _cursorVisibleBeforePause;
@@ -90,11 +88,7 @@ public class SceneTransitionManager : MonoBehaviour {
     if (_isTransitioning || !GameProgress.IsGameScene(SceneManager.GetActiveScene().name)) return;
     if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
-    if (_pauseDialog == null) {
-      ShowMainMenuConfirmation();
-    } else {
-      ResumeGame();
-    }
+    if (_pauseDialog == null) ShowMainMenuConfirmation();
   }
 
   private void LateUpdate() {
@@ -293,7 +287,6 @@ public class SceneTransitionManager : MonoBehaviour {
   private void ShowMainMenuConfirmation() {
     if (_pauseDialog != null) return;
 
-    MenuManager.PlayModalOpenSound(transform);
     _timeScaleBeforePause = Time.timeScale;
     _cursorLockBeforePause = Cursor.lockState;
     _cursorVisibleBeforePause = Cursor.visible;
@@ -301,97 +294,52 @@ public class SceneTransitionManager : MonoBehaviour {
     Cursor.lockState = CursorLockMode.None;
     Cursor.visible = true;
 
-    _pauseDialog = new GameObject("MainMenuConfirmation", typeof(RectTransform));
-
-    Canvas canvas = _pauseDialog.AddComponent<Canvas>();
-    MenuManager.ConfigureModalCanvas(canvas);
-
-    CanvasScaler scaler = _pauseDialog.AddComponent<CanvasScaler>();
-    scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-    scaler.referenceResolution = new Vector2(1920f, 1080f);
-    _pauseDialog.AddComponent<GraphicRaycaster>();
-    _pauseDialog.AddComponent<PopupBackgroundBlur>().Initialize(canvas);
-    EnsureModalEventSystem(_pauseDialog.transform);
-
-    Image shade = MenuManager.CreateImage(
-      "Shade",
-      _pauseDialog.transform,
-      new Color(0f, 0f, 0f, 0.55f)
-    );
-    MenuManager.Stretch(shade.rectTransform);
-
-    Image panel = MenuManager.CreateModalPanel(shade.transform);
-    RectTransform panelTransform = panel.rectTransform;
-    panelTransform.anchorMin = new Vector2(0.5f, 0.5f);
-    panelTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    panelTransform.sizeDelta = new Vector2(940f, 480f);
-    panelTransform.anchoredPosition = Vector2.zero;
-
-    MenuManager.CreateText(
-      "Title",
-      panel.transform,
+    _pauseDialog = ConfirmationModalView.Create(
+      "MainMenuConfirmation",
       "Return to Main Menu?",
-      72f,
-      new Vector2(0f, 130f),
-      new Vector2(840f, 110f),
-      FontStyles.Bold | FontStyles.SmallCaps
-    );
-    MenuManager.CreateText(
-      "Message",
-      panel.transform,
       "Your progress is saved at the start of the latest scene reached.",
-      42f,
-      new Vector2(0f, 20f),
-      new Vector2(820f, 150f),
-      FontStyles.Bold | FontStyles.SmallCaps
-    );
-
-    Button resumeButton = MenuManager.CreateButton(
       "Resume",
-      panel.transform,
-      "Resume",
-      new Vector2(-205f, -145f)
-    );
-    resumeButton.onClick.AddListener(ResumeGame);
-
-    Button mainMenuButton = MenuManager.CreateButton(
-      "MainMenu",
-      panel.transform,
       "Main Menu",
-      new Vector2(205f, -145f)
+      ResumeGame,
+      ReturnToMainMenu
     );
-    mainMenuButton.onClick.AddListener(ReturnToMainMenu);
 
-    if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
-  }
+    if (_pauseDialog == null) {
+      Time.timeScale = _timeScaleBeforePause;
+      Cursor.lockState = _cursorLockBeforePause;
+      Cursor.visible = _cursorVisibleBeforePause;
+      return;
+    }
 
-  private static void EnsureModalEventSystem(Transform dialogRoot) {
-    if (EventSystem.current != null) return;
-
-    var eventSystemObject = new GameObject("ModalEventSystem");
-    eventSystemObject.transform.SetParent(dialogRoot, false);
-    eventSystemObject.AddComponent<EventSystem>();
-
-    InputSystemUIInputModule inputModule = eventSystemObject.AddComponent<InputSystemUIInputModule>();
-    inputModule.AssignDefaultActions();
   }
 
   private void ResumeGame() {
     if (_pauseDialog == null) return;
 
-    _pauseDialog.SetActive(false);
-    Destroy(_pauseDialog);
-    _pauseDialog = null;
+    ClosePauseDialog();
+  }
+
+  private void ClosePauseDialog(System.Action onClosed = null) {
+    if (_pauseDialog == null) return;
+
+    ConfirmationModalView dialog = _pauseDialog;
+    dialog.Close(() => CompleteClosePauseDialog(dialog, onClosed));
+  }
+
+  private void CompleteClosePauseDialog(ConfirmationModalView dialog, System.Action onClosed) {
+    if (_pauseDialog == dialog) _pauseDialog = null;
     Time.timeScale = _timeScaleBeforePause;
     Cursor.lockState = _cursorLockBeforePause;
     Cursor.visible = _cursorVisibleBeforePause;
+    onClosed?.Invoke();
   }
 
   private void ReturnToMainMenu() {
-    ResumeGame();
-    Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
-    LoadScene("MainMenu");
+    ClosePauseDialog(() => {
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
+      LoadScene("MainMenu");
+    });
   }
 
   private void ShowTransitionLabel(Transform overlayTransform, string message) {
@@ -442,98 +390,6 @@ public class SceneTransitionManager : MonoBehaviour {
 
     color.a = to;
     image.color = color;
-  }
-}
-
-/// <summary>
-/// Captures and blurs the completed frame behind a modal, including screen-space overlay UI.
-/// </summary>
-public class PopupBackgroundBlur : MonoBehaviour {
-  private const int Downsample = 2;
-  private const int BlurIterations = 3;
-  private const float BlurRadius = 1.5f;
-
-  private Canvas _modalCanvas;
-  private RenderTexture _blurredTexture;
-  private Material _blurMaterial;
-
-  public void Initialize(Canvas modalCanvas) {
-    if (modalCanvas == null || _modalCanvas != null) return;
-
-    _modalCanvas = modalCanvas;
-    _modalCanvas.enabled = false;
-    StartCoroutine(CaptureAndBlur());
-  }
-
-  private IEnumerator CaptureAndBlur() {
-    yield return new WaitForEndOfFrame();
-
-    Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
-    if (screenshot == null) {
-      RevealModal();
-      yield break;
-    }
-
-    Shader blurShader = Resources.Load<Shader>("PopupBlur");
-    if (blurShader == null) {
-      Debug.LogWarning("[PopupBackgroundBlur] Resources/PopupBlur.shader could not be loaded.");
-      Destroy(screenshot);
-      RevealModal();
-      yield break;
-    }
-
-    _blurMaterial = new Material(blurShader);
-    _blurMaterial.SetFloat("_BlurRadius", BlurRadius);
-
-    int width = Mathf.Max(1, screenshot.width / Downsample);
-    int height = Mathf.Max(1, screenshot.height / Downsample);
-    RenderTextureFormat format = screenshot.format == TextureFormat.RGBAHalf
-      ? RenderTextureFormat.ARGBHalf
-      : RenderTextureFormat.ARGB32;
-
-    _blurredTexture = RenderTexture.GetTemporary(width, height, 0, format);
-    _blurredTexture.filterMode = FilterMode.Bilinear;
-    RenderTexture scratch = RenderTexture.GetTemporary(width, height, 0, format);
-    scratch.filterMode = FilterMode.Bilinear;
-
-    Graphics.Blit(screenshot, _blurredTexture);
-    for (var i = 0; i < BlurIterations; i++) {
-      Graphics.Blit(_blurredTexture, scratch, _blurMaterial, 0);
-      Graphics.Blit(scratch, _blurredTexture, _blurMaterial, 1);
-    }
-
-    RenderTexture.ReleaseTemporary(scratch);
-    Destroy(screenshot);
-
-    if (_modalCanvas == null) yield break;
-
-    var backgroundObject = new GameObject("BlurredBackground", typeof(RectTransform));
-    backgroundObject.transform.SetParent(_modalCanvas.transform, false);
-    backgroundObject.transform.SetAsFirstSibling();
-
-    RawImage background = backgroundObject.AddComponent<RawImage>();
-    background.texture = _blurredTexture;
-    background.raycastTarget = false;
-    MenuManager.Stretch(background.rectTransform);
-
-    RevealModal();
-  }
-
-  private void RevealModal() {
-    if (_modalCanvas == null) return;
-
-    _modalCanvas.enabled = true;
-    ModalAppearAnimation[] animations = _modalCanvas.GetComponentsInChildren<ModalAppearAnimation>(true);
-    foreach (ModalAppearAnimation animation in animations) animation.Play();
-  }
-
-  private void OnDestroy() {
-    if (_blurredTexture != null) {
-      RenderTexture.ReleaseTemporary(_blurredTexture);
-      _blurredTexture = null;
-    }
-
-    if (_blurMaterial != null) Destroy(_blurMaterial);
   }
 }
 

@@ -3223,8 +3223,6 @@ MonoBehaviour:
   savingFont: {fileID: 11400000, guid: b80b3a7d5c6a5f2489a2b318cafb74cc, type: 2}
   rainAudio: {fileID: 1683044664}
   buttonClickSound: {fileID: 8300000, guid: 0835f5e5d444e2a4abf6084e235baa09, type: 3}
-  modalPanelSprite: {fileID: 21300000, guid: de5565bc7e3f0b34ead26c014ea28bb8, type: 3}
-  modalOpenSound: {fileID: 8300000, guid: 45d35bc437e16774782cd580993995b6, type: 3}
 --- !u!1 &1683044663
 GameObject:
   m_ObjectHideFlags: 0

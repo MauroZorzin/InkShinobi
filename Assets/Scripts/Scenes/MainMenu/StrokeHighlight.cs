@@ -1,7 +1,6 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Audio;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
@@ -43,29 +42,10 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   private bool _selected;
   private Color _textColorBeforeSelection;
   private bool _hasStoredTextState;
-  private bool _useWhiteTextOnHover;
-  private bool _useWhiteTextOnSelection = true;
+  [SerializeField] private bool _useWhiteTextOnHover;
+  [SerializeField] private bool _useWhiteTextOnSelection = true;
   private bool _hasHoverTextColor;
   private Color _textColorBeforeHover;
-
-  internal TMP_FontAsset StyleFont => buttonLabel != null ? buttonLabel.font : null;
-  internal Material StyleFontMaterial => buttonLabel != null ? buttonLabel.fontSharedMaterial : null;
-  internal FontStyles StyleFontStyle => buttonLabel != null ? buttonLabel.fontStyle : FontStyles.Normal;
-  internal Sprite StyleBrushSprite => brushStroke != null ? brushStroke.sprite : null;
-  internal Color StyleBrushColor => brushStroke != null ? brushStroke.color : Color.white;
-  internal Sprite StylePanelSprite {
-    get {
-      Image[] images = GetComponentsInChildren<Image>(includeInactive: true);
-      foreach (Image image in images) {
-        if (image.gameObject.name == "Background" && image.sprite != null) return image.sprite;
-      }
-      return null;
-    }
-  }
-  internal AudioClip StyleHoverSound => hoverSound;
-  internal AudioMixerGroup StyleMixerGroup => audioSource != null ? audioSource.outputAudioMixerGroup : null;
-  internal float StylePaintInDuration => paintInDuration;
-  internal float StyleFadeOutDuration => fadeOutDuration;
 
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
   private static void ResetStatics() {
@@ -97,29 +77,6 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
     if (buttonLabel == null) {
       buttonLabel = GetComponentInChildren<TMP_Text>(includeInactive: true);
     }
-  }
-
-  internal void Configure(
-    Button configuredButton,
-    Image configuredBrushStroke,
-    TMP_Text configuredLabel,
-    AudioSource configuredAudioSource,
-    AudioClip configuredHoverSound,
-    float configuredPaintInDuration,
-    float configuredFadeOutDuration,
-    bool useWhiteTextOnHover,
-    bool useWhiteTextOnSelection
-  ) {
-    button = configuredButton;
-    brushStroke = configuredBrushStroke;
-    buttonLabel = configuredLabel;
-    audioSource = configuredAudioSource;
-    hoverSound = configuredHoverSound;
-    paintInDuration = configuredPaintInDuration;
-    fadeOutDuration = configuredFadeOutDuration;
-    _useWhiteTextOnHover = useWhiteTextOnHover;
-    _useWhiteTextOnSelection = useWhiteTextOnSelection;
-    HideInstant();
   }
 
   private void OnEnable() {
