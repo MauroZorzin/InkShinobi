@@ -14,7 +14,6 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Image))]
 public sealed class MissionScrollAnimation : MonoBehaviour {
   private const float RolledFillAmount = 0.2f;
-  private const float ContentRevealProgress = 0.68f;
   private const float PickupLiftDistance = 35f;
 
   [Header("Animation")]
@@ -31,6 +30,10 @@ public sealed class MissionScrollAnimation : MonoBehaviour {
   private Coroutine _animation;
   private readonly List<Material> _depthOverrideMaterials = new();
   private bool _configuredDepth;
+  private RectTransform _contentMaskRect;
+  private RectMask2D _contentMask;
+  private GameObject _maskedContent;
+  private float _contentMaskFullHeight;
 
   public bool IsAnimating => _animation != null;
 
@@ -73,26 +76,69 @@ public sealed class MissionScrollAnimation : MonoBehaviour {
     yield return PlayPickupMotion();
     PlaySound(unfoldSound);
 
+    PrepareContentMask(content);
     float elapsed = 0f;
-    bool revealedContent = false;
 
     while (elapsed < unfoldDuration) {
       elapsed += Time.unscaledDeltaTime;
       float progress = Mathf.Clamp01(elapsed / unfoldDuration);
-
-      if (!revealedContent && progress >= ContentRevealProgress) {
-        if (content != null) content.SetActive(true);
-        revealedContent = true;
-      }
-
       float eased = 1f - Mathf.Pow(1f - progress, 3f);
       scrollImage.fillAmount = Mathf.Lerp(RolledFillAmount, 1f, eased);
+      SetContentMaskFill(scrollImage.fillAmount);
       yield return null;
     }
 
     scrollImage.fillAmount = 1f;
-    if (content != null) content.SetActive(true);
+    SetContentMaskFill(1f);
     _animation = null;
+  }
+
+  private void PrepareContentMask(GameObject content) {
+    if (content == null) return;
+
+    CanvasGroup previousFade = content.GetComponent<CanvasGroup>();
+    if (previousFade != null) previousFade.alpha = 1f;
+
+    RectTransform scrollRect = scrollImage.rectTransform;
+    if (_contentMaskRect == null) {
+      var maskObject = new GameObject(
+        "Mission Text Reveal Mask",
+        typeof(RectTransform),
+        typeof(RectMask2D)
+      );
+      _contentMaskRect = maskObject.GetComponent<RectTransform>();
+      _contentMask = maskObject.GetComponent<RectMask2D>();
+      _contentMaskRect.SetParent(scrollRect.parent, false);
+      _contentMaskRect.SetSiblingIndex(scrollRect.GetSiblingIndex() + 1);
+    }
+
+    ConfigureContentMaskLayout(scrollRect);
+    if (_maskedContent != content || content.transform.parent != _contentMaskRect) {
+      content.transform.SetParent(_contentMaskRect, true);
+      _maskedContent = content;
+    }
+
+    SetContentMaskFill(RolledFillAmount);
+    content.SetActive(true);
+  }
+
+  private void ConfigureContentMaskLayout(RectTransform scrollRect) {
+    _contentMaskFullHeight = scrollRect.rect.height;
+
+    _contentMaskRect.anchorMin = scrollRect.anchorMin;
+    _contentMaskRect.anchorMax = scrollRect.anchorMax;
+    _contentMaskRect.pivot = scrollRect.pivot;
+    _contentMaskRect.anchoredPosition = scrollRect.anchoredPosition;
+    _contentMaskRect.sizeDelta = scrollRect.sizeDelta;
+    _contentMaskRect.localRotation = scrollRect.localRotation;
+    _contentMaskRect.localScale = scrollRect.localScale;
+  }
+
+  private void SetContentMaskFill(float fillAmount) {
+    if (_contentMask == null) return;
+
+    float hiddenFromBottom = _contentMaskFullHeight * (1f - Mathf.Clamp01(fillAmount));
+    _contentMask.padding = new Vector4(0f, hiddenFromBottom, 0f, 0f);
   }
 
   private IEnumerator PlayPickupMotion() {

@@ -9,7 +9,7 @@ using UnityEngine.UI;
 /// Animates a brush-stroke image and optional hover sound for a menu button.
 /// </summary>
 [RequireComponent(typeof(AudioSource))]
-public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler {
+public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
   private const float HoverSoundStartOffset = 0.1f;
 
   private static AudioSource _activeHoverSource;
@@ -21,7 +21,7 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   [Tooltip("Filled image used as the animated brush-stroke highlight.")]
   [SerializeField] private Image brushStroke;
 
-  [Tooltip("Button label rendered as neutral white after selection.")]
+  [Tooltip("Button label optionally rendered as white while hovered.")]
   [SerializeField] private TMP_Text buttonLabel;
 
   [Header("Animation")]
@@ -39,11 +39,7 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   [SerializeField] private AudioClip hoverSound;
 
   private Coroutine animationRoutine;
-  private bool _selected;
-  private Color _textColorBeforeSelection;
-  private bool _hasStoredTextState;
   [SerializeField] private bool _useWhiteTextOnHover;
-  [SerializeField] private bool _useWhiteTextOnSelection = true;
   private bool _hasHoverTextColor;
   private Color _textColorBeforeHover;
 
@@ -80,15 +76,11 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   }
 
   private void OnEnable() {
-    RestoreTextAfterSelection();
-    _selected = false;
     HideInstant();
   }
 
   private void OnDisable() {
-    RestoreTextAfterSelection();
     RestoreTextAfterHover();
-    _selected = false;
     HideInstant();
   }
 
@@ -96,7 +88,6 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
     if (!CanShow()) {
       return;
     }
-    if (_selected) return;
 
     if (_useWhiteTextOnHover && buttonLabel != null && !_hasHoverTextColor) {
       _textColorBeforeHover = buttonLabel.color;
@@ -109,24 +100,12 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   }
 
   public void OnPointerExit(PointerEventData eventData) {
-    if (_selected) return;
-
     RestoreTextAfterHover();
     StartAnimation(FadeOut());
   }
 
-  public void OnPointerClick(PointerEventData eventData) {
-    if (!CanShow()) return;
-
-    Select();
-  }
-
   public void Deselect() {
-    if (!_selected) return;
-
-    _selected = false;
-    RestoreTextAfterSelection();
-
+    RestoreTextAfterHover();
     StartAnimation(FadeOut());
   }
 
@@ -150,37 +129,6 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
       audioSource.Play();
       _activeHoverSource = audioSource;
     }
-  }
-
-  private void Select() {
-    if (_selected) return;
-
-    _selected = true;
-
-    if (animationRoutine != null) {
-      StopCoroutine(animationRoutine);
-      animationRoutine = null;
-    }
-
-    brushStroke.enabled = true;
-    brushStroke.type = Image.Type.Filled;
-    brushStroke.fillMethod = Image.FillMethod.Horizontal;
-    brushStroke.fillOrigin = (int)Image.OriginHorizontal.Left;
-    brushStroke.fillAmount = 1f;
-
-    if (buttonLabel == null) return;
-
-    _textColorBeforeSelection = _hasHoverTextColor ? _textColorBeforeHover : buttonLabel.color;
-    _hasHoverTextColor = false;
-    _hasStoredTextState = true;
-    buttonLabel.color = _useWhiteTextOnSelection ? Color.white : _textColorBeforeSelection;
-  }
-
-  private void RestoreTextAfterSelection() {
-    if (buttonLabel == null || !_hasStoredTextState) return;
-
-    buttonLabel.color = _textColorBeforeSelection;
-    _hasStoredTextState = false;
   }
 
   private void RestoreTextAfterHover() {

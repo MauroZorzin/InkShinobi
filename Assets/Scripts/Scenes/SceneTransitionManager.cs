@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
@@ -21,10 +22,10 @@ using UnityEngine.UI;
 /// post-load audio fade-in, which needs to run code IN the new scene — happens on one component
 /// without needing a hand-off trick.
 ///
-/// Setup: put this on a GameObject in whichever scene loads first (e.g. the main menu, or a boot
-/// scene). No per-scene marker component needed — it just finds whatever AudioSources happen to
-/// be playing.
+/// Setup lives in Resources/SceneTransitionManager.prefab. The prefab is instantiated before the
+/// first scene loads and persists for the rest of the session, so no per-scene copy is required.
 /// </summary>
+[DefaultExecutionOrder(-10000)]
 public class SceneTransitionManager : MonoBehaviour {
   public static SceneTransitionManager Instance { get; private set; }
 
@@ -34,6 +35,15 @@ public class SceneTransitionManager : MonoBehaviour {
   private CursorLockMode _cursorLockBeforePause;
   private bool _cursorVisibleBeforePause;
   private AudioSource _uiAudioSource;
+  [SerializeField, Tooltip("Ink effect used to cover and reveal scenes.")]
+  private InkTransition _inkTransition;
+
+  private sealed class CanvasRenderState {
+    public Canvas Canvas;
+    public RenderMode RenderMode;
+    public Camera WorldCamera;
+    public float PlaneDistance;
+  }
 
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
   private static void ResetStatics() {
@@ -106,15 +116,15 @@ public class SceneTransitionManager : MonoBehaviour {
     Instance = null;
   }
 
-  /// <summary>Loads a scene by name, fading through black unless explicitly disabled.</summary>
+  /// <summary>Loads a scene with the configured transition unless explicitly disabled.</summary>
   public static void LoadScene(string sceneName, bool useFade = true) =>
     Begin(sceneName, () => SceneManager.LoadSceneAsync(sceneName), useFade);
 
-  /// <summary>Loads a scene by build index, fading through black unless explicitly disabled.</summary>
+  /// <summary>Loads a scene by build index with the configured transition unless disabled.</summary>
   public static void LoadScene(int buildIndex, bool useFade = true) =>
     Begin(GameProgress.GetSceneName(buildIndex), () => SceneManager.LoadSceneAsync(buildIndex), useFade);
 
-  /// <summary>Reloads the active scene, fading through black unless explicitly disabled.</summary>
+  /// <summary>Reloads the active scene with the configured transition unless disabled.</summary>
   public static void ReloadCurrentScene(bool useFade = true) =>
     LoadScene(SceneManager.GetActiveScene().buildIndex, useFade);
 
@@ -165,6 +175,16 @@ public class SceneTransitionManager : MonoBehaviour {
   private static void EnsureInstance() {
     if (Instance != null) return;
 
+    SceneTransitionManager prefab = Resources.Load<SceneTransitionManager>(nameof(SceneTransitionManager));
+    if (prefab != null) {
+      Instantiate(prefab);
+      if (Instance != null) return;
+    }
+
+    Debug.LogWarning(
+      "[SceneTransitionManager] Resources/SceneTransitionManager prefab was not found; " +
+      "using an unconfigured runtime fallback."
+    );
     var managerObject = new GameObject(nameof(SceneTransitionManager));
     managerObject.AddComponent<SceneTransitionManager>();
   }
@@ -185,7 +205,9 @@ public class SceneTransitionManager : MonoBehaviour {
     }
 
     Image backdrop = BuildOverlay(out GameObject overlayGo);
-    yield return FadeBackdrop(backdrop, 0f, 1f, fadeInDuration);
+    List<CanvasRenderState> oldCanvasStates = null;
+    oldCanvasStates = RouteOverlayCanvasesThroughCamera(overlayGo);
+    yield return _inkTransition.CoverScreen();
 
     ShowTransitionLabel(overlayGo.transform, showSaving ? "Saving" : "Loading");
     yield return null;
@@ -212,17 +234,78 @@ public class SceneTransitionManager : MonoBehaviour {
     // Keep the screen fully black until activation and the new scene's initialization finish.
     yield return op;
 
-    // Let the new scene's Awake/OnEnable run (including anything that starts playing on its own,
-    // e.g. a playOnAwake music/ambience source) before we look for what's playing.
+    // Route canvases before the new scene's first visible frame so Screen Space Overlay UI cannot
+    // briefly render above the full-screen ink pass.
+    RetargetRoutedCanvases(oldCanvasStates);
+    List<CanvasRenderState> newCanvasStates = RouteOverlayCanvasesThroughCamera(overlayGo);
+
+    // Catch canvases created during the new scene's first initialization frame, then look for
+    // newly started music and ambience.
     yield return null;
+    newCanvasStates.AddRange(RouteOverlayCanvasesThroughCamera(overlayGo));
 
     FadeAllPlayingAudio(audioFadeInDuration, restoreOriginalVolume: true);
+    Destroy(overlayGo);
+    yield return null;
+    yield return _inkTransition.RevealScreen();
 
-    yield return FadeBackdrop(backdrop, 1f, 0f, fadeOutDuration);
+    if (oldCanvasStates != null) RestoreCanvasRenderStates(oldCanvasStates);
+    if (newCanvasStates != null) RestoreCanvasRenderStates(newCanvasStates);
 
     if (logTransitions) Debug.Log("[SceneTransitionManager] Transition complete.");
-    Destroy(overlayGo);
     _isTransitioning = false;
+  }
+
+  private static List<CanvasRenderState> RouteOverlayCanvasesThroughCamera(
+    GameObject excludedRoot
+  ) {
+    var states = new List<CanvasRenderState>();
+    Camera renderCamera = Camera.main;
+    if (renderCamera == null) renderCamera = FindFirstObjectByType<Camera>();
+    if (renderCamera == null) return states;
+
+    Canvas[] canvases = FindObjectsByType<Canvas>(
+      FindObjectsInactive.Exclude,
+      FindObjectsSortMode.None
+    );
+    foreach (Canvas canvas in canvases) {
+      if (canvas == null || !canvas.isRootCanvas) continue;
+      if (canvas.renderMode != RenderMode.ScreenSpaceOverlay) continue;
+      if (excludedRoot != null && canvas.transform.IsChildOf(excludedRoot.transform)) continue;
+
+      states.Add(new CanvasRenderState {
+        Canvas = canvas,
+        RenderMode = canvas.renderMode,
+        WorldCamera = canvas.worldCamera,
+        PlaneDistance = canvas.planeDistance
+      });
+      canvas.renderMode = RenderMode.ScreenSpaceCamera;
+      canvas.worldCamera = renderCamera;
+      canvas.planeDistance = renderCamera.nearClipPlane + 0.00003f;
+    }
+
+    return states;
+  }
+
+  private static void RestoreCanvasRenderStates(List<CanvasRenderState> states) {
+    foreach (CanvasRenderState state in states) {
+      if (state.Canvas == null) continue;
+      state.Canvas.renderMode = state.RenderMode;
+      state.Canvas.worldCamera = state.WorldCamera;
+      state.Canvas.planeDistance = state.PlaneDistance;
+    }
+  }
+
+  private static void RetargetRoutedCanvases(List<CanvasRenderState> states) {
+    Camera renderCamera = Camera.main;
+    if (renderCamera == null) renderCamera = FindFirstObjectByType<Camera>();
+    if (renderCamera == null) return;
+
+    foreach (CanvasRenderState state in states) {
+      if (state.Canvas == null) continue;
+      state.Canvas.worldCamera = renderCamera;
+      state.Canvas.planeDistance = renderCamera.nearClipPlane + 0.00003f;
+    }
   }
 
   /// <summary>

@@ -878,7 +878,6 @@ MonoBehaviour:
   audioSource: {fileID: 1362602630603794872}
   hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
   _useWhiteTextOnHover: 0
-  _useWhiteTextOnSelection: 0
 --- !u!1 &3606280403367318519
 GameObject:
   m_ObjectHideFlags: 0
@@ -1359,7 +1358,6 @@ MonoBehaviour:
   audioSource: {fileID: 3449076785778322717}
   hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
   _useWhiteTextOnHover: 0
-  _useWhiteTextOnSelection: 0
 --- !u!1 &6358560816489757949
 GameObject:
   m_ObjectHideFlags: 0
