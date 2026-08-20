@@ -39,22 +39,22 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 1
   threshold:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 0
   intensity:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   scatter:
-    m_OverrideState: 0
-    m_Value: 0.92
+    m_OverrideState: 1
+    m_Value: 0.598
   clamp:
     m_OverrideState: 1
     m_Value: 0
   tint:
     m_OverrideState: 1
-    m_Value: {r: 0, g: 0.7607846, b: 1, a: 1}
+    m_Value: {r: 1, g: 1, b: 1, a: 1}
   highQualityFiltering:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   filter:
     m_OverrideState: 0
@@ -87,10 +87,10 @@ MonoBehaviour:
   active: 1
   postExposure:
     m_OverrideState: 0
-    m_Value: 0.21
+    m_Value: 0
   contrast:
     m_OverrideState: 1
-    m_Value: 50
+    m_Value: 100
   colorFilter:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -98,7 +98,7 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: -180
   saturation:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 100
 --- !u!114 &-5450292378548938771
 MonoBehaviour:
@@ -112,22 +112,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 899c54efeace73346a0a16faa3afe726, type: 3}
   m_Name: Vignette
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   color:
     m_OverrideState: 1
-    m_Value: {r: 1, g: 0, b: 0, a: 1}
+    m_Value: {r: 0, g: 0, b: 0, a: 1}
   center:
     m_OverrideState: 0
     m_Value: {x: 0.5, y: 0.5}
   intensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 1
   smoothness:
     m_OverrideState: 1
-    m_Value: 0.19
+    m_Value: 0.01
   rounded:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
 --- !u!114 &-5316703809084253271
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -267,31 +267,31 @@ MonoBehaviour:
   active: 0
   redOutRedIn:
     m_OverrideState: 1
-    m_Value: 92
+    m_Value: 0
   redOutGreenIn:
-    m_OverrideState: 0
-    m_Value: 20
+    m_OverrideState: 1
+    m_Value: 0
   redOutBlueIn:
     m_OverrideState: 1
-    m_Value: -200
+    m_Value: 0
   greenOutRedIn:
-    m_OverrideState: 0
-    m_Value: -4
+    m_OverrideState: 1
+    m_Value: 0
   greenOutGreenIn:
-    m_OverrideState: 0
-    m_Value: 122
+    m_OverrideState: 1
+    m_Value: 0
   greenOutBlueIn:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   blueOutRedIn:
-    m_OverrideState: 0
-    m_Value: -39
+    m_OverrideState: 1
+    m_Value: 0
   blueOutGreenIn:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   blueOutBlueIn:
-    m_OverrideState: 0
-    m_Value: 100
+    m_OverrideState: 1
+    m_Value: 0
 --- !u!114 &2230786127093461387
 MonoBehaviour:
   m_ObjectHideFlags: 3

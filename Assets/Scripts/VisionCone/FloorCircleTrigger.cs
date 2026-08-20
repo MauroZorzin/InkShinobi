@@ -6,7 +6,6 @@ using UnityEngine.Events;
 public class FloorCircleTriggerEvent : UnityEvent<Transform> { }
 
 [RequireComponent(typeof(SphereCollider))]
-[RequireComponent(typeof(Rigidbody))]
 public class FloorCircleTrigger : MonoBehaviour {
   [Tooltip("Reads radius, obstacleMask and lightSourceHeight from this indicator. Leave empty to use one on the same GameObject.")]
   public FloorCircleIndicator indicator;
@@ -30,9 +29,6 @@ public class FloorCircleTrigger : MonoBehaviour {
     _collider.isTrigger = true;
     _collider.center = Vector3.zero;
 
-    Rigidbody rb = GetComponent<Rigidbody>();
-    rb.isKinematic = true;
-    rb.useGravity = false;
 
     if (indicator == null) {
       indicator = GetComponent<FloorCircleIndicator>();

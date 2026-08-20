@@ -6,7 +6,7 @@ using UnityEngine.Audio;
 /// <summary>
 /// Handles the actual mechanics of a line switch: validating a candidate target LinePath
 /// and moving the player onto it. Has no knowledge of the camera or of input — those are
-/// owned by LineAimSwitchController, which calls into this component. Mirrors WallSwitcher.
+/// owned by AimSwitch, which calls into this component. Mirrors WallSwitcher.
 /// </summary>
 [RequireComponent(typeof(LineFollowController))]
 public class LineSwitcher : MonoBehaviour {

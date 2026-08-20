@@ -1,0 +1,201 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class HidingSpot : MonoBehaviour, IInteractable {
+  [Tooltip("Where the player stands while hidden. Leave empty to use this object's own position.")]
+  public Transform hidePoint;
+
+  [Tooltip("Seconds the player takes to glide to/from the hide point.")]
+  public float transitionDuration = 0.4f;
+
+  [Tooltip("Particle effect played on both hide and reveal, at this hiding spot's own position.")]
+  public ParticleSystem vanishEffect;
+
+  [Tooltip("Sound played when the player hides.")]
+  public AudioClip enterSound;
+  [Tooltip("Sound played when the player leaves the hiding spot.")]
+  public AudioClip exitSound;
+  [Range(0f, 1f)] public float soundVolume = 1f;
+
+  private bool _occupied;
+  private bool _armedForExit;
+
+  private Transform _player;
+  private LineFollowController _lineFollowController;
+  private SpriteRenderer _spriteRenderer;
+  private BoxCollider _playerCollider;
+  private PlayerInteractor _playerInteractor;
+  private PlayerDoorInteractor _playerDoorInteractor;
+  private AimSwitch _lineAimSwitchController;
+  private TakedownController _takedownController;
+  private InputAction _interactAction;
+
+  private bool _wasMovementEnabled;
+  private bool _wasSpriteEnabled;
+  private bool _wasColliderEnabled;
+  private bool _wasInteractorEnabled;
+  private bool _wasDoorInteractorEnabled;
+  private bool _wasLineAimEnabled;
+  private bool _wasTakedownEnabled;
+  private Vector3 _storedPosition;
+  private Quaternion _storedRotation;
+
+  public void Interact(PlayerInventory inventory) {
+    if (_occupied) {
+      return;
+    }
+
+    StartHiding(inventory.transform);
+  }
+
+  private void StartHiding(Transform player) {
+    _player = player;
+    _lineFollowController = player.GetComponent<LineFollowController>();
+    _spriteRenderer = player.GetComponent<SpriteRenderer>();
+    _playerCollider = player.GetComponent<BoxCollider>();
+    _playerInteractor = player.GetComponent<PlayerInteractor>();
+    _playerDoorInteractor = player.GetComponent<PlayerDoorInteractor>();
+    _lineAimSwitchController = player.GetComponent<AimSwitch>();
+    _takedownController = player.GetComponent<TakedownController>();
+
+    PlayerInput playerInput = player.GetComponent<PlayerInput>();
+    _interactAction = playerInput != null ? playerInput.actions["Interact"] : null;
+
+    if (_lineFollowController != null) {
+      _wasMovementEnabled = _lineFollowController.movementEnabled;
+      _lineFollowController.movementEnabled = false;
+    }
+
+    if (_playerCollider != null) {
+      _wasColliderEnabled = _playerCollider.enabled;
+      _playerCollider.enabled = false;
+    }
+
+    if (_playerInteractor != null) {
+      _wasInteractorEnabled = _playerInteractor.enabled;
+      _playerInteractor.enabled = false;
+    }
+
+    if (_playerDoorInteractor != null) {
+      _wasDoorInteractorEnabled = _playerDoorInteractor.enabled;
+      _playerDoorInteractor.enabled = false;
+    }
+
+    if (_lineAimSwitchController != null) {
+      _wasLineAimEnabled = _lineAimSwitchController.enabled;
+      _lineAimSwitchController.enabled = false;
+    }
+
+    if (_takedownController != null) {
+      _wasTakedownEnabled = _takedownController.enabled;
+      _takedownController.enabled = false;
+    }
+
+    _storedPosition = player.position;
+    _storedRotation = player.rotation;
+
+    Vector3 target = hidePoint != null ? hidePoint.position : transform.position;
+    Quaternion targetRotation = hidePoint != null ? hidePoint.rotation : player.rotation;
+
+    StartCoroutine(Transition(target, targetRotation, OnHideTransitionComplete));
+  }
+
+  private void OnHideTransitionComplete() {
+    if (_spriteRenderer != null) {
+      _wasSpriteEnabled = _spriteRenderer.enabled;
+      _spriteRenderer.enabled = false;
+    }
+
+    if (vanishEffect != null) {
+      OneShotVfx.PlayAtPoint(vanishEffect, transform.position);
+    }
+
+    if (enterSound != null) {
+      OneShotAudio.PlayClipAtPoint(enterSound, transform.position, soundVolume);
+    }
+
+    _occupied = true;
+    _armedForExit = false;
+  }
+
+  private void Update() {
+    if (!_occupied || _interactAction == null) {
+      return;
+    }
+
+    if (!_armedForExit) {
+      if (!_interactAction.IsPressed()) {
+        _armedForExit = true;
+      }
+      return;
+    }
+
+    if (_interactAction.triggered) {
+      StartRevealing();
+    }
+  }
+
+  private void StartRevealing() {
+    _occupied = false;
+
+    if (_spriteRenderer != null) {
+      _spriteRenderer.enabled = _wasSpriteEnabled;
+    }
+
+    if (vanishEffect != null) {
+      OneShotVfx.PlayAtPoint(vanishEffect, transform.position);
+    }
+
+    if (exitSound != null) {
+      OneShotAudio.PlayClipAtPoint(exitSound, transform.position, soundVolume);
+    }
+
+    StartCoroutine(Transition(_storedPosition, _storedRotation, OnRevealTransitionComplete));
+  }
+
+  private void OnRevealTransitionComplete() {
+    if (_lineFollowController != null) {
+      _lineFollowController.movementEnabled = _wasMovementEnabled;
+    }
+
+    if (_playerCollider != null) {
+      _playerCollider.enabled = _wasColliderEnabled;
+    }
+
+    if (_playerInteractor != null) {
+      _playerInteractor.enabled = _wasInteractorEnabled;
+    }
+
+    if (_playerDoorInteractor != null) {
+      _playerDoorInteractor.enabled = _wasDoorInteractorEnabled;
+    }
+
+    if (_lineAimSwitchController != null) {
+      _lineAimSwitchController.enabled = _wasLineAimEnabled;
+    }
+
+    if (_takedownController != null) {
+      _takedownController.enabled = _wasTakedownEnabled;
+    }
+
+    _interactAction = null;
+    _player = null;
+  }
+
+  private IEnumerator Transition(Vector3 targetPosition, Quaternion targetRotation, System.Action onComplete) {
+    Vector3 startPosition = _player.position;
+    Quaternion startRotation = _player.rotation;
+    float elapsed = 0f;
+
+    while (elapsed < transitionDuration) {
+      elapsed += Time.deltaTime;
+      float t = Mathf.Clamp01(elapsed / transitionDuration);
+      _player.SetPositionAndRotation(Vector3.Lerp(startPosition, targetPosition, t), Quaternion.Slerp(startRotation, targetRotation, t));
+      yield return null;
+    }
+
+    _player.SetPositionAndRotation(targetPosition, targetRotation);
+    onComplete?.Invoke();
+  }
+}

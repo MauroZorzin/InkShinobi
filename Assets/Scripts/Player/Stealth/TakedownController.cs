@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 /// Takedowns are no longer their own click-to-kill action — they happen as a side effect of a
 /// wall switch: if the switch's path (player's position when confirmed -> the aimed target point)
 /// passes within takedownRange of a guard, that guard is taken down the instant the switch starts
-/// moving. Listens to LineAimSwitchController's events rather than owning any input itself.
+/// moving. Listens to AimSwitch's events rather than owning any input itself.
 ///
 /// Also owns the time-scale/motion-blur feel for switching. Aiming itself stays real-time — only
 /// the switch sells speed: Time.timeScale ramps up to switchTimeScale and Motion Blur ramps up to
@@ -18,7 +18,7 @@ using UnityEngine.Rendering.Universal;
 /// play, then released back to switchTimeScale so the in-flight switch (whose own coroutine also
 /// advances on Time.deltaTime, so it naturally freezes during the slam) can finish moving.
 /// </summary>
-[RequireComponent(typeof(LineAimSwitchController))]
+[RequireComponent(typeof(AimSwitch))]
 public class TakedownController : MonoBehaviour, ITakedownSystem {
   private const string TAKEDOWN_ANIMATION_PARAMETER = "Takedown";
 
@@ -82,14 +82,14 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
   // Unity lifecycle
   // -------------------------------------------------------------------------
 
-  private LineAimSwitchController _aimController;
+  private AimSwitch _aimController;
   private Animator _animator;
   private MotionBlur _motionBlur;
   private float _targetTimeScale = 1f;
   private float _targetBlurIntensity = 0f;
 
   private void Awake() {
-    _aimController = GetComponent<LineAimSwitchController>();
+    _aimController = GetComponent<AimSwitch>();
     _animator = GetComponent<Animator>();
 
     IsEnabled = enabledAtStart;
@@ -135,7 +135,7 @@ public class TakedownController : MonoBehaviour, ITakedownSystem {
   }
 
   // -------------------------------------------------------------------------
-  // LineAimSwitchController events
+  // AimSwitch events
   // -------------------------------------------------------------------------
 
   // Aiming stays at normal time scale — only the switch itself (below) ramps speed/blur.

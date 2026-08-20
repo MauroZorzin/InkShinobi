@@ -35,7 +35,7 @@ public class PlayerStealthController : MonoBehaviour {
 
   // Convenient shorthands kept for backwards-compatibility with other systems.
   public bool IsHidden => CurrentState == StealthState.Hidden;
-  public bool IsInLight { get; set; }
+  public bool IsInLight { get; private set; }
   public int DetectingGuardCount { get; set; }
 
   // -------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public class PlayerStealthController : MonoBehaviour {
   /// </summary>
   private void RefreshState() {
     StealthState next = ComputeState();
-    if (debug) Debug.Log($"[PlayerStealthController] '{name}': RefreshState() => {next} (HiddenTimer={_hiddenTimer:F2}, DetectingGuardCount={DetectingGuardCount}, IsInLight={IsInLight})", this);
+    if (debug) Debug.Log($"[PlayerStealthController] '{name}': RefreshState() => {next} (HiddenTimer={_hiddenTimer:F2}, DetectingGuardCount={DetectingGuardCount}, IsInLight={IsInLight}), LightSourceCount={_lightSourceCount}", this);
     if (next == CurrentState) return;
 
     StealthState previous = CurrentState;

@@ -253,6 +253,8 @@ GameObject:
   - component: {fileID: 7940450497935121774}
   - component: {fileID: 4186035470244307243}
   - component: {fileID: 1943451972707417369}
+  - component: {fileID: 4592298082326324224}
+  - component: {fileID: 596333170259533082}
   m_Layer: 0
   m_Name: circle
   m_TagString: Untagged
@@ -268,9 +270,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8196803773501856707}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.000492219, y: -2.36665, z: 0.0015751007}
-  m_LocalScale: {x: 2.1505377, y: 3.3333333, z: 2.1505377}
+  m_LocalRotation: {x: -0, y: -0.2588191, z: -0, w: 0.9659258}
+  m_LocalPosition: {x: 0.0011200807, y: -2.3666883, z: 0.0048525846}
+  m_LocalScale: {x: 2.1505375, y: 3.3333333, z: 2.1505375}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7467339438106005617}
@@ -363,3 +365,72 @@ MonoBehaviour:
   material: {fileID: 0}
   showGizmos: 1
   gizmoSampleCount: 20
+--- !u!135 &4592298082326324224
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8196803773501856707}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.50000006
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &596333170259533082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8196803773501856707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65f993863fc1b6a4788ea79102418605, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloorCircleTrigger
+  indicator: {fileID: 1943451972707417369}
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 8
+  onEnteredLight:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: PlayerStealthController, Assembly-CSharp
+        m_MethodName: EnterLight
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  onExitedLight:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: PlayerStealthController, Assembly-CSharp
+        m_MethodName: ExitLight
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 1
+  logEvents: 1
+  showGizmos: 1
