@@ -4,14 +4,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Aiming and line-switch targeting. Camera movement/look is owned entirely by FirstPersonView —
-/// this only reads the camera's current position/forward to cast the aim ray, it never moves it.
-/// The aim point itself is shown by periodically spawning a one-shot particle where the player is
-/// looking, swapping which prefab it uses depending on whether that point is a valid switch target.
+/// Aiming and line-switch targeting. The camera is static — the aim ray is cast in world space
+/// from the camera through the mouse's screen position, so where you point on screen is where you aim.
 /// </summary>
 [RequireComponent(typeof(LineSwitcher))]
 [RequireComponent(typeof(LineFollowController))]
-[RequireComponent(typeof(FirstPersonView))]
 public class AimSwitch : MonoBehaviour {
   [Header("References")]
   [Tooltip("Camera the aim ray is cast from. Defaults to Camera.main if left empty.")]
@@ -19,7 +16,6 @@ public class AimSwitch : MonoBehaviour {
 
   public LineSwitcher lineSwitcher;
   public LineFollowController followController;
-  public FirstPersonView firstPersonView;
 
   [Header("Aiming")]
   [Tooltip("Max distance along the camera's forward direction searched for a candidate line.")]
@@ -41,15 +37,9 @@ public class AimSwitch : MonoBehaviour {
   [Tooltip("Radius of the sphere swept along the path. Kept well under the player's body radius on purpose — a fat sphere grazes the ground/line surface itself along a near-horizontal sweep and reports false obstructions.")]
   public float pathCheckRadius = 0.2f;
 
-  [Header("Aim Point Particles")]
-  [Tooltip("Spawned periodically at the aim point while it is NOT a valid switch target.")]
-  public ParticleSystem aimIndicatorParticles;
-
-  [Tooltip("Spawned periodically at the aim point while it IS a valid switch target.")]
-  public ParticleSystem aimValidParticles;
-
-  [Tooltip("Seconds between each aim-point particle spawn.")]
-  public float particleInterval = 0.15f;
+  [Header("Aim Point Indicator")]
+  [Tooltip("Moved to the current aim point every frame while aiming, shown/hidden with aiming itself. Valid-vs-invalid-target visuals TBD.")]
+  public Transform aimIndicator;
 
   [Header("Aim Visibility")]
   [Tooltip("If true, hides the player's sprite while aiming (after Aim Disappear Delay), and shows it again immediately as soon as aiming ends (cancelled, or the moment a confirmed switch's move finishes).")]
@@ -85,8 +75,6 @@ public class AimSwitch : MonoBehaviour {
   private bool _aimValid;
   private Collider _aimBlockingCollider;
 
-  private float _particleTimer;
-
   private Coroutine _aimVanishParticleRoutine;
 
   public bool IsAiming => _isAiming;
@@ -106,11 +94,12 @@ public class AimSwitch : MonoBehaviour {
   private void Awake() {
     if (lineSwitcher == null) lineSwitcher = GetComponent<LineSwitcher>();
     if (followController == null) followController = GetComponent<LineFollowController>();
-    if (firstPersonView == null) firstPersonView = GetComponent<FirstPersonView>();
 
     if (aimCamera == null) aimCamera = Camera.main;
 
     if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+
+    if (aimIndicator != null) aimIndicator.gameObject.SetActive(false);
   }
 
 #pragma warning disable IDE0051
@@ -126,14 +115,13 @@ public class AimSwitch : MonoBehaviour {
 
   public void BeginAim() {
     if (!enabled || _isAiming || _isSwitching || lineSwitcher == null || lineSwitcher.IsSwitching
-        || aimCamera == null || firstPersonView == null) {
+        || aimCamera == null) {
       return;
     }
 
     _isAiming = true;
-    _particleTimer = 0f;
 
-    firstPersonView.Enter();
+    if (aimIndicator != null) aimIndicator.gameObject.SetActive(true);
 
     if (hidePlayerWhileAiming && spriteRenderer != null) {
       if (_aimVanishParticleRoutine != null) StopCoroutine(_aimVanishParticleRoutine);
@@ -152,6 +140,8 @@ public class AimSwitch : MonoBehaviour {
     _hasAimHit = false;
     _aimValid = false;
 
+    if (aimIndicator != null) aimIndicator.gameObject.SetActive(false);
+
     if (hidePlayerWhileAiming && spriteRenderer != null) {
       spriteRenderer.enabled = true;
       if (_aimVanishParticleRoutine != null) {
@@ -159,8 +149,6 @@ public class AimSwitch : MonoBehaviour {
         _aimVanishParticleRoutine = null;
       }
     }
-
-    firstPersonView.Exit();
 
     AimEnded?.Invoke();
   }
@@ -237,10 +225,14 @@ public class AimSwitch : MonoBehaviour {
   }
 
   private void UpdateAim() {
-    if (aimCamera == null) return;
+    if (aimCamera == null || Mouse.current == null) return;
 
-    Vector3 origin = aimCamera.transform.position;
-    Vector3 direction = aimCamera.transform.forward;
+    // The mouse ray's direction (away from the camera, through the mouse's screen position) is
+    // used as-is — only its origin is moved to the player, so the aim ray starts at the player's
+    // body (for correct obstruction checks) but still points wherever the mouse points on screen.
+    Ray mouseRay = aimCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+    Vector3 origin = followController != null ? followController.transform.position : transform.position;
+    Vector3 direction = mouseRay.direction;
 
     var wasValid = _aimValid;
     _hasAimHit = false;
@@ -252,9 +244,9 @@ public class AimSwitch : MonoBehaviour {
     Vector3 bestPoint = Vector3.zero;
     float bestDistAlong = 0f;
 
-    // The aim ray itself has to stop at the first obstruction — otherwise sampling/particle
-    // spawning happily continues past a wall the camera is directly looking through, finding
-    // (and showing a target on) lines that are never actually visible or reachable.
+    // The aim ray itself has to stop at the first obstruction — otherwise sampling happily
+    // continues past a wall the camera is looking through, finding (and showing the indicator
+    // on) lines that are never actually visible or reachable.
     float searchDistance = maxAimDistance;
     if (requireClearPath && Physics.Raycast(origin, direction, out RaycastHit obstructionHit, maxAimDistance, obstructionLayers, QueryTriggerInteraction.Ignore)
         && !obstructionHit.collider.transform.IsChildOf(transform)) {
@@ -297,12 +289,7 @@ public class AimSwitch : MonoBehaviour {
 
     Vector3 aimEndPoint = _hasAimHit ? _aimPoint : origin + direction * searchDistance;
 
-    _particleTimer -= Time.deltaTime;
-    if (_particleTimer <= 0f) {
-      _particleTimer = particleInterval;
-      ParticleSystem prefab = _aimValid ? aimValidParticles : aimIndicatorParticles;
-      OneShotVfx.PlayAtPoint(prefab, aimEndPoint);
-    }
+    if (aimIndicator != null) aimIndicator.position = aimEndPoint;
 
     if (logAimHits && _aimValid != wasValid) {
       if (_aimValid) {

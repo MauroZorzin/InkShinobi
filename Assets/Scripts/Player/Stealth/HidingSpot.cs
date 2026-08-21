@@ -26,7 +26,6 @@ public class HidingSpot : MonoBehaviour, IInteractable {
   private SpriteRenderer _spriteRenderer;
   private BoxCollider _playerCollider;
   private PlayerInteractor _playerInteractor;
-  private PlayerDoorInteractor _playerDoorInteractor;
   private AimSwitch _lineAimSwitchController;
   private TakedownController _takedownController;
   private InputAction _interactAction;
@@ -35,7 +34,6 @@ public class HidingSpot : MonoBehaviour, IInteractable {
   private bool _wasSpriteEnabled;
   private bool _wasColliderEnabled;
   private bool _wasInteractorEnabled;
-  private bool _wasDoorInteractorEnabled;
   private bool _wasLineAimEnabled;
   private bool _wasTakedownEnabled;
   private Vector3 _storedPosition;
@@ -55,7 +53,6 @@ public class HidingSpot : MonoBehaviour, IInteractable {
     _spriteRenderer = player.GetComponent<SpriteRenderer>();
     _playerCollider = player.GetComponent<BoxCollider>();
     _playerInteractor = player.GetComponent<PlayerInteractor>();
-    _playerDoorInteractor = player.GetComponent<PlayerDoorInteractor>();
     _lineAimSwitchController = player.GetComponent<AimSwitch>();
     _takedownController = player.GetComponent<TakedownController>();
 
@@ -75,11 +72,6 @@ public class HidingSpot : MonoBehaviour, IInteractable {
     if (_playerInteractor != null) {
       _wasInteractorEnabled = _playerInteractor.enabled;
       _playerInteractor.enabled = false;
-    }
-
-    if (_playerDoorInteractor != null) {
-      _wasDoorInteractorEnabled = _playerDoorInteractor.enabled;
-      _playerDoorInteractor.enabled = false;
     }
 
     if (_lineAimSwitchController != null) {
@@ -165,10 +157,6 @@ public class HidingSpot : MonoBehaviour, IInteractable {
 
     if (_playerInteractor != null) {
       _playerInteractor.enabled = _wasInteractorEnabled;
-    }
-
-    if (_playerDoorInteractor != null) {
-      _playerDoorInteractor.enabled = _wasDoorInteractorEnabled;
     }
 
     if (_lineAimSwitchController != null) {

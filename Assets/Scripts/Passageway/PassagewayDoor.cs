@@ -3,9 +3,11 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// Sliding passageway door that can be toggled by the player, optionally gated by an inventory item.
+/// Sliding passageway door, toggled via PlayerInteractor like any other IInteractable. Optionally
+/// gated by an inventory item id — set Required Item Id to a key's itemId to link them, or leave
+/// Requires Item To Open/Close off for a door that opens freely.
 /// </summary>
-public class PassagewayDoor : MonoBehaviour {
+public class PassagewayDoor : MonoBehaviour, IInteractable {
   private enum SlideAxis {
     LocalX,
     LocalZ,
@@ -32,19 +34,6 @@ public class PassagewayDoor : MonoBehaviour {
 
   [Tooltip("Optional NavMesh obstacle associated with the closed doorway.")]
   [SerializeField] private NavMeshObstacle navMeshObstacle;
-
-  [Header("Visual Highlight")]
-  [Tooltip("Renderers tinted when the player can or cannot use the door.")]
-  [SerializeField] private Renderer[] highlightRenderers;
-
-  [Tooltip("Color applied when the door is not highlighted.")]
-  [SerializeField] private Color normalColor = Color.white;
-
-  [Tooltip("Highlight color shown when the player can use the door.")]
-  [SerializeField] private Color usableHighlightColor = Color.green;
-
-  [Tooltip("Highlight color shown when the player is in range but cannot use the door.")]
-  [SerializeField] private Color lockedHighlightColor = Color.red;
 
   [Header("Door State")]
   [Tooltip("Whether the door begins open when the scene starts.")]
@@ -108,6 +97,10 @@ public class PassagewayDoor : MonoBehaviour {
   private Vector3 rightOpenLocalPosition;
   private Coroutine animationCoroutine;
 
+  public void Interact(PlayerInventory inventory) {
+    TryToggle(inventory);
+  }
+
   private void Awake() {
     if (audioSource == null) {
       audioSource = GetComponent<AudioSource>();
@@ -139,8 +132,6 @@ public class PassagewayDoor : MonoBehaviour {
     IsOpen = startsOpen;
     ApplyPanelPositions(IsOpen);
     ApplyPassageBlockingState(IsOpen);
-
-    SetHighlighted(false, false);
   }
 
   private void Start() {
@@ -214,63 +205,6 @@ public class PassagewayDoor : MonoBehaviour {
 
     animationCoroutine = StartCoroutine(AnimateDoor(open));
     return true;
-  }
-
-  /// <summary>
-  /// Updates highlight renderers to show whether the player can currently use the door.
-  /// </summary>
-  /// <param name="highlighted">Whether the door should be highlighted.</param>
-  /// <param name="canUse">Whether the highlight should indicate a usable door.</param>
-  public void SetHighlighted(bool highlighted, bool canUse) {
-    Color targetColor = normalColor;
-
-    if (highlighted) {
-      targetColor = canUse ? usableHighlightColor : lockedHighlightColor;
-    }
-
-    if (highlightRenderers == null) {
-      return;
-    }
-
-    foreach (Renderer renderer in highlightRenderers) {
-      if (renderer == null) {
-        continue;
-      }
-
-      var mat = renderer.material;
-      mat.color = targetColor;
-      // Use the proper emission color property for Unity's Standard shader
-      mat.SetColor("_EmissionColor", targetColor);
-      if (targetColor != Color.black) {
-        mat.EnableKeyword("_EMISSION");
-      } else {
-        mat.DisableKeyword("_EMISSION");
-      }
-    }
-  }
-
-  /// <summary>
-  /// Measures how close a world position is to the door interaction surface.
-  /// </summary>
-  /// <param name="worldPosition">The position to compare against the door.</param>
-  /// <returns>The nearest distance to the blocking collider or door panels.</returns>
-  public float GetInteractionDistance(Vector3 worldPosition) {
-    if (blockingCollider != null && blockingCollider.enabled) {
-      Vector3 closestPoint = blockingCollider.ClosestPoint(worldPosition);
-      return Vector3.Distance(worldPosition, closestPoint);
-    }
-
-    float nearest = Vector3.Distance(worldPosition, transform.position);
-
-    if (leftDoorPanel != null) {
-      nearest = Mathf.Min(nearest, Vector3.Distance(worldPosition, leftDoorPanel.position));
-    }
-
-    if (rightDoorPanel != null) {
-      nearest = Mathf.Min(nearest, Vector3.Distance(worldPosition, rightDoorPanel.position));
-    }
-
-    return nearest;
   }
 
   private bool PlayerHasRequiredItem(PlayerInventory inventory) {

@@ -1,26 +1,20 @@
 using UnityEngine;
 
 /// <summary>
-/// Data asset that identifies an inventory item and describes how it appears in the UI preview.
+/// Data asset identifying an item type: what it's called, its HUD icon, and what it looks like
+/// when dropped in the world.
 /// </summary>
 [CreateAssetMenu(menuName = "Ink Shinobi/Item")]
 public class ItemDefinition : ScriptableObject {
-  [Tooltip("Stable id used by inventory checks and item requirements.")]
+  [Tooltip("Stable id used by item requirement checks.")]
   public string itemId;
 
-  [Tooltip("Human-readable item name for UI display.")]
+  [Tooltip("Human-readable item name.")]
   public string displayName;
 
-  [Header("3D Icon Preview")]
-  [Tooltip("Prefab instantiated by the item icon renderer for 3D UI previews.")]
-  public GameObject iconPreviewPrefab;
+  [Tooltip("Shown in the HUD slot while this item is carried.")]
+  public Texture icon;
 
-  [Tooltip("Rotation applied to the preview prefab inside the icon render scene.")]
-  public Vector3 iconRotation = new(20f, -35f, 0f);
-
-  [Tooltip("Local position offset applied to the preview prefab inside the icon render scene.")]
-  public Vector3 iconOffset = Vector3.zero;
-
-  [Tooltip("Orthographic camera size used while rendering this item's icon preview.")]
-  public float iconOrthographicSize = 1f;
+  [Tooltip("Prefab instantiated in the world when this item is dropped. Needs a WorldItem component on it referencing this same ItemDefinition.")]
+  public GameObject worldPrefab;
 }

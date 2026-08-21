@@ -1,10 +1,18 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// Finds nearby interactable objects and dispatches player interaction input to the closest valid target.
+/// Tracks the closest nearby IInteractable every frame, dispatches interaction input to it, and drives
+/// a shared prompt label whose text is picked by the target's layer (see layerPrompts).
 /// </summary>
 public class PlayerInteractor : MonoBehaviour {
+  [System.Serializable]
+  private class LayerPrompt {
+    public LayerMask layer;
+    public string text = "Interagisci";
+  }
+
   [Header("Inventory")]
   [Tooltip("Inventory used when interacting with nearby pickable objects.")]
   [SerializeField] private PlayerInventory inventory;
@@ -16,36 +24,48 @@ public class PlayerInteractor : MonoBehaviour {
   [Tooltip("Radius used to search for interactable objects around the interaction point.")]
   [SerializeField] private float interactionRadius = 0.8f;
 
-  [Tooltip("Layer mask containing objects that can be interacted with.")]
-  [SerializeField] private LayerMask interactableLayer;
+  [Tooltip("Text element the prompt is written to and shown/hidden on.")]
+  [SerializeField] private TextMeshProUGUI promptLabel;
 
-  public void OnInteract(InputValue value) {
-    if (value.isPressed) {
-      TryInteract();
+  [Tooltip("Which layers count as interactable, and what prompt text to show for each.")]
+  [SerializeField] private LayerPrompt[] layerPrompts = System.Array.Empty<LayerPrompt>();
+
+  private readonly Collider[] _hitBuffer = new Collider[16];
+  private IInteractable _currentTarget;
+
+  private void Update() {
+    Collider hit = FindNearest(out IInteractable interactable);
+
+    if (interactable != _currentTarget) {
+      _currentTarget = interactable;
+      UpdatePrompt(hit);
     }
   }
 
-  /// <summary>
-  /// Searches the interaction volume and interacts with the closest object implementing IInteractable.
-  /// </summary>
-  private void TryInteract() {
-    if (inventory == null || interactionPoint == null) {
-      return;
+  public void OnInteract(InputValue value) {
+    if (value.isPressed) {
+      _currentTarget?.Interact(inventory);
+    }
+  }
+
+  /// <summary>Searches the interaction volume for the closest object implementing IInteractable.</summary>
+  private Collider FindNearest(out IInteractable interactable) {
+    interactable = null;
+
+    if (interactionPoint == null) {
+      return null;
     }
 
-    Collider[] hits = Physics.OverlapSphere(interactionPoint.position, interactionRadius, interactableLayer, QueryTriggerInteraction.Collide);
+    int hitCount = Physics.OverlapSphereNonAlloc(interactionPoint.position, interactionRadius, _hitBuffer, InteractableMask(), QueryTriggerInteraction.Collide);
 
-    if (hits.Length == 0) {
-      return;
-    }
-
-    IInteractable closest = null;
+    Collider closestCollider = null;
     var closestDistance = float.MaxValue;
 
-    foreach (Collider hit in hits) {
-      IInteractable interactable = hit.GetComponentInParent<IInteractable>();
+    for (int i = 0; i < hitCount; i++) {
+      Collider hit = _hitBuffer[i];
+      IInteractable candidate = hit.GetComponentInParent<IInteractable>();
 
-      if (interactable == null) {
+      if (candidate == null) {
         continue;
       }
 
@@ -53,11 +73,40 @@ public class PlayerInteractor : MonoBehaviour {
 
       if (distance < closestDistance) {
         closestDistance = distance;
-        closest = interactable;
+        closestCollider = hit;
+        interactable = candidate;
       }
     }
 
-    closest?.Interact(inventory);
+    return closestCollider;
+  }
+
+  private LayerMask InteractableMask() {
+    int mask = 0;
+    foreach (LayerPrompt entry in layerPrompts) {
+      mask |= entry.layer.value;
+    }
+    return mask;
+  }
+
+  private void UpdatePrompt(Collider target) {
+    if (promptLabel == null) {
+      return;
+    }
+
+    string text = target != null ? TextForLayer(target.gameObject.layer) : null;
+
+    promptLabel.gameObject.SetActive(text != null);
+    if (text != null) promptLabel.text = text;
+  }
+
+  private string TextForLayer(int layer) {
+    foreach (LayerPrompt entry in layerPrompts) {
+      if ((entry.layer.value & (1 << layer)) != 0) {
+        return entry.text;
+      }
+    }
+    return null;
   }
 
   private void OnDrawGizmosSelected() {

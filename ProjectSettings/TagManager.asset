@@ -18,8 +18,8 @@ TagManager:
   - HUD
   - Floor
   - NoOutline
-  - 
-  - 
+  - HideSpot
+  - PickUp
   - 
   - 
   - 

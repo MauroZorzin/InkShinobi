@@ -1,124 +1,74 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 /// <summary>
-/// Stores the player's carried items and exposes the currently selected item.
+/// Single-slot inventory. Pickup happens via PlayerInteractor finding a WorldItem (IInteractable) and
+/// calling TryPickUp. Drop (right mouse) drops whatever is currently held. Item-specific behavior
+/// (keys, throwables, etc.) lives elsewhere — this only tracks what's held and handles the drop mechanic.
 /// </summary>
 public class PlayerInventory : MonoBehaviour {
-  [Tooltip("Maximum number of items the inventory can hold.")]
-  [SerializeField] private int maxItems = 1;
+  [Header("Drop")]
+  [Tooltip("Point items are dropped from. Leave empty to use this transform.")]
+  public Transform dropPoint;
 
-  public event Action<ItemDefinition> OnSelectedItemChanged;
+  public event Action<ItemDefinition> ItemChanged;
 
-  private readonly List<ItemDefinition> items = new();
-  private int selectedIndex = -1;
+  public ItemDefinition CurrentItem { get; private set; }
+  public bool IsHoldingItem => CurrentItem != null;
 
-  /// <summary>
-  /// Gets the currently selected item, or null when the inventory is empty.
-  /// </summary>
-  public ItemDefinition SelectedItem {
-    get {
-      if (selectedIndex < 0 || selectedIndex >= items.Count) {
-        return null;
-      }
-      return items[selectedIndex];
-    }
-  }
-
-  public bool HasItems => items.Count > 0;
-  public bool IsFull => items.Count >= maxItems;
-
-  /// <summary>
-  /// Checks whether the inventory contains an item with the requested id.
-  /// </summary>
-  /// <param name="itemId">The item id to search for. Empty ids are treated as no requirement.</param>
-  /// <returns>True when the item is present, or when no item id is required.</returns>
+  /// <summary>Checks whether the carried item matches the given id. Empty ids are treated as no requirement.</summary>
   public bool HasItem(string itemId) {
     if (string.IsNullOrWhiteSpace(itemId)) {
       return true;
     }
 
-    foreach (ItemDefinition item in items) {
-      if (item == null) {
-        continue;
-      }
-
-      if (string.Equals(item.itemId, itemId, StringComparison.OrdinalIgnoreCase)) {
-        return true;
-      }
-    }
-
-    return false;
+    return CurrentItem != null && string.Equals(CurrentItem.itemId, itemId, StringComparison.OrdinalIgnoreCase);
   }
 
-  /// <summary>
-  /// Adds an item to the inventory and selects it when there is room.
-  /// </summary>
-  /// <param name="item">The item definition to add.</param>
-  /// <returns>True when the item was accepted.</returns>
+#pragma warning disable IDE0051
+  private void OnDrop(InputValue value) {
+    if (value.isPressed) TryDrop();
+  }
+#pragma warning restore IDE0051
+
+  /// <summary>Picks up an item. Called by WorldItem.Interact via PlayerInteractor. Fails if already holding one.</summary>
   public bool TryPickUp(ItemDefinition item) {
-    if (item == null) {
+    if (item == null || IsHoldingItem) {
       return false;
     }
 
-    if (IsFull) {
-      Debug.Log("Inventory is full.");
-      return false;
-    }
-
-    items.Add(item);
-    selectedIndex = items.Count - 1;
-
-    OnSelectedItemChanged?.Invoke(SelectedItem);
+    CurrentItem = item;
+    ItemChanged?.Invoke(CurrentItem);
     return true;
   }
 
-  /// <summary>
-  /// Removes the selected item and moves selection to a remaining item when possible.
-  /// </summary>
-  public void RemoveSelectedItem() {
-    if (!HasItems) {
-      return;
+  /// <summary>Drops the carried item back into the world (via its worldPrefab, if set) and clears the slot.</summary>
+  public bool TryDrop() {
+    if (!IsHoldingItem) {
+      return false;
     }
 
-    items.RemoveAt(selectedIndex);
-
-    if (items.Count == 0) {
-      selectedIndex = -1;
+    if (CurrentItem.worldPrefab != null) {
+      Vector3 position = dropPoint != null ? dropPoint.position : transform.position;
+      GameObject spawned = Instantiate(CurrentItem.worldPrefab, position, Quaternion.identity);
+      Debug.Log($"[PlayerInventory] Dropped '{CurrentItem.displayName}' -> spawned '{spawned.name}' at {position:F2}.");
     } else {
-      selectedIndex = Mathf.Clamp(selectedIndex, 0, items.Count - 1);
+      Debug.LogWarning($"[PlayerInventory] '{CurrentItem.displayName}' has no World Prefab assigned — dropping it just clears the slot, nothing spawns in the scene.");
     }
 
-    OnSelectedItemChanged?.Invoke(SelectedItem);
+    CurrentItem = null;
+    ItemChanged?.Invoke(null);
+    return true;
   }
 
-  /// <summary>
-  /// Selects the next carried item, wrapping back to the first item.
-  /// </summary>
-  public void SelectNext() {
-    if (items.Count <= 1) {
+  /// <summary>Clears the carried item without spawning it back into the world — for when it's consumed/used up.</summary>
+  public void ConsumeItem() {
+    if (!IsHoldingItem) {
       return;
     }
 
-    selectedIndex = (selectedIndex + 1) % items.Count;
-    OnSelectedItemChanged?.Invoke(SelectedItem);
-  }
-
-  /// <summary>
-  /// Selects the previous carried item, wrapping to the last item.
-  /// </summary>
-  public void SelectPrevious() {
-    if (items.Count <= 1) {
-      return;
-    }
-
-    selectedIndex--;
-
-    if (selectedIndex < 0) {
-      selectedIndex = items.Count - 1;
-    }
-
-    OnSelectedItemChanged?.Invoke(SelectedItem);
+    CurrentItem = null;
+    ItemChanged?.Invoke(null);
   }
 }

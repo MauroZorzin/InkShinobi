@@ -1,51 +1,40 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Binds the selected inventory item to a RawImage fed by an ItemIconRenderer.
-/// </summary>
+/// <summary>Shows the carried item's icon texture directly — no 3D preview render, just ItemDefinition.icon.</summary>
 public class ItemSlotUI : MonoBehaviour {
-  [Tooltip("Inventory whose selected item drives this slot.")]
+  [Tooltip("Inventory whose carried item drives this slot.")]
   [SerializeField] private PlayerInventory inventory;
 
-  [Tooltip("RawImage that displays the renderer's item preview texture.")]
+  [Tooltip("RawImage that displays the carried item's icon.")]
   [SerializeField] private RawImage itemIcon;
 
-  [Tooltip("Renderer responsible for drawing the selected item preview.")]
-  [SerializeField] private ItemIconRenderer itemIconRenderer;
-
   private void Awake() {
-    itemIcon.texture = itemIconRenderer.RenderTexture;
-    UpdateSlot(inventory != null ? inventory.SelectedItem : null);
+    UpdateSlot(inventory != null ? inventory.CurrentItem : null);
   }
 
   private void OnEnable() {
     if (inventory == null) {
       return;
     }
-    inventory.OnSelectedItemChanged += UpdateSlot;
-    UpdateSlot(inventory.SelectedItem);
+    inventory.ItemChanged += UpdateSlot;
+    UpdateSlot(inventory.CurrentItem);
   }
 
   private void OnDisable() {
     if (inventory == null) {
       return;
     }
-    inventory.OnSelectedItemChanged -= UpdateSlot;
+    inventory.ItemChanged -= UpdateSlot;
   }
 
-  /// <summary>
-  /// Refreshes the slot icon to match the selected inventory item.
-  /// </summary>
-  /// <param name="selectedItem">The item that should be shown, or null to hide the icon.</param>
-  private void UpdateSlot(ItemDefinition selectedItem) {
-    if (selectedItem == null) {
+  private void UpdateSlot(ItemDefinition item) {
+    if (item == null || item.icon == null) {
       itemIcon.enabled = false;
-      itemIconRenderer.ShowItem(null);
       return;
     }
+
     itemIcon.enabled = true;
-    itemIcon.texture = itemIconRenderer.RenderTexture;
-    itemIconRenderer.ShowItem(selectedItem);
+    itemIcon.texture = item.icon;
   }
 }
