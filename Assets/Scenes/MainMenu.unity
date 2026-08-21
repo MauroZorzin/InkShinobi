@@ -3668,26 +3668,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 11400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
-      propertyPath: fadeInDuration
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 11400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
-      propertyPath: fadeOutDuration
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 11400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
-      propertyPath: minimumLoadTime
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 11400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
-      propertyPath: audioFadeInDuration
-      value: 0.75
-      objectReference: {fileID: 0}
-    - target: {fileID: 11400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
-      propertyPath: audioFadeOutDuration
-      value: 0.75
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
