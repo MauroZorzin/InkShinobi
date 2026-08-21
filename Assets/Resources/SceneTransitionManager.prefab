@@ -49,11 +49,15 @@ MonoBehaviour:
   backdropColor: {r: 0, g: 0, b: 0, a: 1}
   loaderAnimationPrefab: {fileID: 0}
   savingFont: {fileID: 11400000, guid: b80b3a7d5c6a5f2489a2b318cafb74cc, type: 2}
-  minimumLoadTime: 1.5
-  fadeInDuration: 0.35
-  fadeOutDuration: 0.35
-  audioFadeOutDuration: 0.6
-  audioFadeInDuration: 0.6
+  transitionIcon: {fileID: 2800000, guid: 9042553e5c1621c499c1cbe164337161, type: 3}
+  transitionIconSize: {x: 240, y: 120}
+  iconGlowCycleDuration: 1.5
+  labelDotInterval: 0.4
+  minimumLoadTime: 2
+  fadeInDuration: 0.5
+  fadeOutDuration: 0.5
+  audioFadeOutDuration: 0.75
+  audioFadeInDuration: 0.75
   logTransitions: 1
 --- !u!114 &11400001
 MonoBehaviour:

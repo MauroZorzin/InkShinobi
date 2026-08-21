@@ -65,6 +65,20 @@ public class SceneTransitionManager : MonoBehaviour {
   [Tooltip("Font used by the Saving label displayed while the screen is black.")]
   public TMP_FontAsset savingFont;
 
+  [Tooltip("Icon shown above the Loading/Saving label.")]
+  [SerializeField] private Texture2D transitionIcon;
+
+  [Tooltip("Maximum displayed size of the transition icon in canvas units.")]
+  [SerializeField] private Vector2 transitionIconSize = new Vector2(240f, 120f);
+
+  [Min(0.1f)]
+  [Tooltip("Seconds for the icon to brighten and dim once.")]
+  [SerializeField] private float iconGlowCycleDuration = 1.2f;
+
+  [Min(0.05f)]
+  [Tooltip("Seconds between each additional dot in Loading/Saving.")]
+  [SerializeField] private float labelDotInterval = 0.35f;
+
   [Tooltip("Minimum seconds the loading overlay remains visible before scene activation.")]
   public float minimumLoadTime = 1.5f;
 
@@ -209,7 +223,12 @@ public class SceneTransitionManager : MonoBehaviour {
     oldCanvasStates = RouteOverlayCanvasesThroughCamera(overlayGo);
     yield return _inkTransition.CoverScreen();
 
-    ShowTransitionLabel(overlayGo.transform, showSaving ? "Saving" : "Loading");
+    string transitionMessage = showSaving ? "Saving" : "Loading";
+    TextMeshProUGUI transitionLabel = ShowTransitionLabel(overlayGo.transform, transitionMessage);
+    RawImage transitionIconImage = ShowTransitionIcon(overlayGo.transform);
+    Coroutine transitionStatusAnimation = StartCoroutine(
+      AnimateTransitionStatus(transitionLabel, transitionIconImage, transitionMessage)
+    );
     yield return null;
 
     if (shouldSave) {
@@ -245,6 +264,7 @@ public class SceneTransitionManager : MonoBehaviour {
     newCanvasStates.AddRange(RouteOverlayCanvasesThroughCamera(overlayGo));
 
     FadeAllPlayingAudio(audioFadeInDuration, restoreOriginalVolume: true);
+    StopCoroutine(transitionStatusAnimation);
     Destroy(overlayGo);
     yield return null;
     yield return _inkTransition.RevealScreen();
@@ -425,7 +445,7 @@ public class SceneTransitionManager : MonoBehaviour {
     });
   }
 
-  private void ShowTransitionLabel(Transform overlayTransform, string message) {
+  private TextMeshProUGUI ShowTransitionLabel(Transform overlayTransform, string message) {
     var labelObject = new GameObject("TransitionLabel");
     labelObject.transform.SetParent(overlayTransform, false);
 
@@ -440,8 +460,56 @@ public class SceneTransitionManager : MonoBehaviour {
     RectTransform rectTransform = label.rectTransform;
     rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
     rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    rectTransform.sizeDelta = new Vector2(320f, 80f);
-    rectTransform.anchoredPosition = Vector2.zero;
+    rectTransform.sizeDelta = new Vector2(420f, 80f);
+    rectTransform.anchoredPosition = transitionIcon != null ? new Vector2(0f, -55f) : Vector2.zero;
+    return label;
+  }
+
+  private RawImage ShowTransitionIcon(Transform overlayTransform) {
+    if (transitionIcon == null) return null;
+
+    var iconObject = new GameObject("TransitionIcon");
+    iconObject.transform.SetParent(overlayTransform, false);
+
+    RawImage icon = iconObject.AddComponent<RawImage>();
+    icon.texture = transitionIcon;
+    icon.color = Color.white;
+    icon.raycastTarget = false;
+
+    RectTransform rectTransform = icon.rectTransform;
+    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+    float textureAspect = transitionIcon.width / (float)transitionIcon.height;
+    float boundsAspect = transitionIconSize.x / transitionIconSize.y;
+    rectTransform.sizeDelta = textureAspect > boundsAspect
+      ? new Vector2(transitionIconSize.x, transitionIconSize.x / textureAspect)
+      : new Vector2(transitionIconSize.y * textureAspect, transitionIconSize.y);
+    rectTransform.anchoredPosition = new Vector2(0f, 65f);
+    return icon;
+  }
+
+  private IEnumerator AnimateTransitionStatus(
+    TMP_Text label,
+    RawImage icon,
+    string baseMessage
+  ) {
+    float elapsed = 0f;
+    while (label != null) {
+      elapsed += Time.unscaledDeltaTime;
+
+      int dotCount = Mathf.FloorToInt(elapsed / labelDotInterval) % 4;
+      label.text = baseMessage + new string('.', dotCount);
+
+      if (icon != null) {
+        float phase = elapsed / iconGlowCycleDuration * Mathf.PI * 2f;
+        float pulse = 0.5f + 0.5f * Mathf.Sin(phase - Mathf.PI * 0.5f);
+        pulse = Mathf.SmoothStep(0f, 1f, pulse);
+        float brightness = Mathf.Lerp(0.35f, 1f, pulse);
+        icon.color = new Color(brightness, brightness, brightness, 1f);
+      }
+
+      yield return null;
+    }
   }
 
   /// <summary>Fades an audio source's volume to the target value, stopping it if the target is silence.</summary>
