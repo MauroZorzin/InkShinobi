@@ -36,6 +36,8 @@ public class SceneTransitionManager : MonoBehaviour {
   private float _timeScaleBeforePause = 1f;
   private CursorLockMode _cursorLockBeforePause;
   private bool _cursorVisibleBeforePause;
+  private PlayerInput _pausedPlayerInput;
+  private string _actionMapBeforePause;
   private AudioSource _uiAudioSource;
   [SerializeField, Tooltip("Ink effect used to cover and reveal scenes.")]
   private InkTransition _inkTransition;
@@ -145,6 +147,7 @@ public class SceneTransitionManager : MonoBehaviour {
     if (Instance != this) return;
 
     Time.timeScale = _timeScaleBeforePause;
+    RestoreGameplayInput();
     if (_pauseDialog != null) {
       Cursor.lockState = _cursorLockBeforePause;
       Cursor.visible = _cursorVisibleBeforePause;
@@ -510,11 +513,12 @@ public class SceneTransitionManager : MonoBehaviour {
     Time.timeScale = 0f;
     Cursor.lockState = CursorLockMode.None;
     Cursor.visible = true;
+    SwitchToUiInput();
 
     _pauseDialog = ConfirmationModalView.Create(
       "MainMenuConfirmation",
       "Return to Main Menu?",
-      "Your progress is saved at the start of the latest scene reached.",
+      "Your progress is saved at the start of each stage.",
       "Resume",
       "Main Menu",
       ResumeGame,
@@ -525,6 +529,7 @@ public class SceneTransitionManager : MonoBehaviour {
       Time.timeScale = _timeScaleBeforePause;
       Cursor.lockState = _cursorLockBeforePause;
       Cursor.visible = _cursorVisibleBeforePause;
+      RestoreGameplayInput();
       return;
     }
 
@@ -548,7 +553,44 @@ public class SceneTransitionManager : MonoBehaviour {
     Time.timeScale = _timeScaleBeforePause;
     Cursor.lockState = _cursorLockBeforePause;
     Cursor.visible = _cursorVisibleBeforePause;
+    RestoreGameplayInput();
     onClosed?.Invoke();
+  }
+
+  private void SwitchToUiInput() {
+    _pausedPlayerInput = null;
+    _actionMapBeforePause = null;
+
+    for (int index = 0; index < PlayerInput.all.Count; index++) {
+      PlayerInput playerInput = PlayerInput.all[index];
+      if (playerInput == null || !playerInput.isActiveAndEnabled) continue;
+
+      InputActionMap uiMap = playerInput.actions?.FindActionMap("UI", false);
+      if (uiMap == null) continue;
+
+      _pausedPlayerInput = playerInput;
+      _actionMapBeforePause = playerInput.currentActionMap?.name ?? "Player";
+      playerInput.SwitchCurrentActionMap(uiMap.name);
+      return;
+    }
+
+    Debug.LogWarning(
+      "[SceneTransitionManager] No active PlayerInput with a UI action map was found."
+    );
+  }
+
+  private void RestoreGameplayInput() {
+    if (_pausedPlayerInput == null) return;
+
+    string mapName = string.IsNullOrEmpty(_actionMapBeforePause)
+      ? "Player"
+      : _actionMapBeforePause;
+    if (_pausedPlayerInput.actions?.FindActionMap(mapName, false) != null) {
+      _pausedPlayerInput.SwitchCurrentActionMap(mapName);
+    }
+
+    _pausedPlayerInput = null;
+    _actionMapBeforePause = null;
   }
 
   private void ReturnToMainMenu() {

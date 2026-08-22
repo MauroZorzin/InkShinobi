@@ -21,6 +21,9 @@ public sealed class ConfirmationModalView : MonoBehaviour {
   [SerializeField] private PopupBackgroundBlur backgroundBlur;
   [SerializeField] private ModalAppearAnimation panelAnimation;
 
+  [Header("Input")]
+  [SerializeField] private InputActionAsset inputActions;
+
   [Header("Content")]
   [SerializeField] private TMP_Text titleLabel;
   [SerializeField] private TMP_Text messageLabel;
@@ -36,6 +39,7 @@ public sealed class ConfirmationModalView : MonoBehaviour {
   [SerializeField] private AudioSource paperAudioSource;
 
   private readonly System.Collections.Generic.List<Material> _depthOverrideMaterials = new();
+  private readonly System.Collections.Generic.List<InputActionReference> _ownedActionReferences = new();
   private Action _onCancel;
   private int _openedFrame;
 
@@ -179,6 +183,11 @@ public sealed class ConfirmationModalView : MonoBehaviour {
       if (material != null) Destroy(material);
     }
     _depthOverrideMaterials.Clear();
+
+    foreach (InputActionReference actionReference in _ownedActionReferences) {
+      if (actionReference != null) Destroy(actionReference);
+    }
+    _ownedActionReferences.Clear();
   }
 
   private void EnsureEventSystem() {
@@ -186,11 +195,13 @@ public sealed class ConfirmationModalView : MonoBehaviour {
     if (eventSystem == null) {
       var eventSystemObject = new GameObject("ModalEventSystem");
       eventSystemObject.transform.SetParent(transform, false);
+      eventSystemObject.SetActive(false);
       eventSystem = eventSystemObject.AddComponent<EventSystem>();
 
       InputSystemUIInputModule inputModule =
         eventSystemObject.AddComponent<InputSystemUIInputModule>();
-      inputModule.AssignDefaultActions();
+      ConfigureUiActions(inputModule);
+      eventSystemObject.SetActive(true);
       return;
     }
 
@@ -198,5 +209,39 @@ public sealed class ConfirmationModalView : MonoBehaviour {
     InputSystemUIInputModule existingInputModule =
       eventSystem.GetComponent<InputSystemUIInputModule>();
     if (existingInputModule != null) existingInputModule.enabled = true;
+  }
+
+  private void ConfigureUiActions(InputSystemUIInputModule inputModule) {
+    InputActionMap uiMap = inputActions?.FindActionMap("UI", false);
+    if (uiMap == null) {
+      Debug.LogWarning(
+        "[ConfirmationModalView] The shared input asset has no UI map; using Unity defaults."
+      );
+      inputModule.AssignDefaultActions();
+      return;
+    }
+
+    inputModule.actionsAsset = inputActions;
+    inputModule.point = CreateActionReference(uiMap, "Point");
+    inputModule.move = CreateActionReference(uiMap, "Navigate");
+    inputModule.submit = CreateActionReference(uiMap, "Submit");
+    inputModule.cancel = CreateActionReference(uiMap, "Cancel");
+    inputModule.leftClick = CreateActionReference(uiMap, "Click");
+    inputModule.middleClick = CreateActionReference(uiMap, "MiddleClick");
+    inputModule.rightClick = CreateActionReference(uiMap, "RightClick");
+    inputModule.scrollWheel = CreateActionReference(uiMap, "ScrollWheel");
+    inputModule.trackedDevicePosition = CreateActionReference(uiMap, "TrackedDevicePosition");
+    inputModule.trackedDeviceOrientation = CreateActionReference(
+      uiMap,
+      "TrackedDeviceOrientation"
+    );
+  }
+
+  private InputActionReference CreateActionReference(InputActionMap map, string actionName) {
+    InputAction action = map.FindAction(actionName, true);
+    InputActionReference actionReference = InputActionReference.Create(action);
+    actionReference.hideFlags = HideFlags.DontSave;
+    _ownedActionReferences.Add(actionReference);
+    return actionReference;
   }
 }

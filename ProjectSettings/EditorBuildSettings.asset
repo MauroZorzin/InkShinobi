@@ -24,5 +24,5 @@ EditorBuildSettings:
     path: Assets/Scenes/GameScenes/2-Entrance/2-Entrance.unity
     guid: 35e5e0b7904065b4ca76efcc47509218
   m_configObjects:
-    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 65ea5914d32546d419b9763e8bd8b1fe, type: 3}
   m_UseUCBPForAssetBundles: 0
