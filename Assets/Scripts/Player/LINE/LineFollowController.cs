@@ -167,7 +167,9 @@ public class LineFollowController : MonoBehaviour {
   }
 
   private void UpdateSpriteFlip() {
-    if (spriteRenderer == null || Mathf.Abs(_alongLineSpeed) < 0.01f) return;
+    // Input becomes zero before deceleration finishes. Do not treat that release frame as
+    // rightward movement, otherwise the sprite always flips back to its default when it idles.
+    if (spriteRenderer == null || Mathf.Abs(_moveInput) < 0.01f) return;
     bool movingBackward = _moveInput < 0f;
     spriteRenderer.flipX = invertFlip ? !movingBackward : movingBackward;
   }
