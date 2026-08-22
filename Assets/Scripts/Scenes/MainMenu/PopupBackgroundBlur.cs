@@ -16,6 +16,7 @@ public sealed class PopupBackgroundBlur : MonoBehaviour {
   private RenderTexture _blurredTexture;
   private Material _blurMaterial;
   private Material _backgroundMaterial;
+  private GameObject _backgroundCanvasObject;
   private readonly List<Canvas> _hiddenOverlayCanvases = new();
   private readonly List<GraphicRaycaster> _disabledRaycasters = new();
 
@@ -68,15 +69,22 @@ public sealed class PopupBackgroundBlur : MonoBehaviour {
     RenderTexture.ReleaseTemporary(scratch);
     Destroy(screenshot);
 
-    // Overlay canvases always render after a Screen Space - Camera canvas, regardless of its
-    // sorting order. They are already present in the screenshot, so hide their live copy now.
+    // These canvases are already present in the screenshot, so hide their live copy now.
     HideOtherOverlayCanvases();
 
     if (_modalCanvas == null) yield break;
 
+    _backgroundCanvasObject = new GameObject(
+      "Modal Blurred Background Canvas",
+      typeof(RectTransform),
+      typeof(Canvas)
+    );
+    Canvas backgroundCanvas = _backgroundCanvasObject.GetComponent<Canvas>();
+    backgroundCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+    backgroundCanvas.sortingOrder = _modalCanvas.sortingOrder - 1;
+
     var backgroundObject = new GameObject("BlurredBackground", typeof(RectTransform));
-    backgroundObject.transform.SetParent(_modalCanvas.transform, false);
-    backgroundObject.transform.SetAsFirstSibling();
+    backgroundObject.transform.SetParent(_backgroundCanvasObject.transform, false);
 
     RawImage background = backgroundObject.AddComponent<RawImage>();
     background.texture = _blurredTexture;
@@ -154,6 +162,8 @@ public sealed class PopupBackgroundBlur : MonoBehaviour {
 
   private void OnDestroy() {
     RestoreSuppressedUi();
+
+    if (_backgroundCanvasObject != null) Destroy(_backgroundCanvasObject);
 
     if (_blurredTexture != null) {
       RenderTexture.ReleaseTemporary(_blurredTexture);

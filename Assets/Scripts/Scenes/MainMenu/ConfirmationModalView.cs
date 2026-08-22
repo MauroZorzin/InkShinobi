@@ -169,17 +169,8 @@ public sealed class ConfirmationModalView : MonoBehaviour {
   }
 
   private void ConfigureCanvas() {
-    Camera renderCamera = Camera.main;
-    if (renderCamera == null) renderCamera = FindFirstObjectByType<Camera>();
-
-    if (renderCamera != null) {
-      modalCanvas.renderMode = RenderMode.ScreenSpaceCamera;
-      modalCanvas.worldCamera = renderCamera;
-      modalCanvas.planeDistance = 0.30003f;
-    } else {
-      modalCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-    }
-
+    modalCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+    modalCanvas.worldCamera = null;
     modalCanvas.sortingOrder = 1000;
   }
 
