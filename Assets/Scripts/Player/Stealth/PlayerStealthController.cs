@@ -37,6 +37,7 @@ public class PlayerStealthController : MonoBehaviour {
   public bool IsHidden => CurrentState == StealthState.Hidden;
   public bool IsInLight { get; private set; }
   public int DetectingGuardCount { get; set; }
+  public bool IsUndetectable { get; set; }
 
   // -------------------------------------------------------------------------
   // Inspector

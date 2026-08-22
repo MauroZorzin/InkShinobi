@@ -97,6 +97,13 @@ public class GuardVisionCone : MonoBehaviour {
         continue;
       }
 
+      if (playerStealth.IsUndetectable) {
+        if (verboseLogging) {
+          Debug.Log($"[VisionCone] '{playerStealth.name}' skipped; IsUndetectable.");
+        }
+        continue;
+      }
+
       Vector3 aimPosition = new(
         playerStealth.transform.position.x,
         playerStealth.transform.position.y + playerAimHeight,

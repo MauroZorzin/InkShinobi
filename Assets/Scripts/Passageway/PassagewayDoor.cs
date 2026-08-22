@@ -7,7 +7,7 @@ using UnityEngine.AI;
 /// gated by an inventory item id — set Required Item Id to a key's itemId to link them, or leave
 /// Requires Item To Open/Close off for a door that opens freely.
 /// </summary>
-public class PassagewayDoor : MonoBehaviour, IInteractable {
+public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt {
   private enum SlideAxis {
     LocalX,
     LocalZ,
@@ -89,6 +89,16 @@ public class PassagewayDoor : MonoBehaviour, IInteractable {
   [Tooltip("Inventory item id required when open or close requirements are enabled.")]
   [SerializeField] private string requiredItemId = "door_key";
 
+  [Header("Interaction Prompt")]
+  [Tooltip("Shown while the door is closed and doesn't require an item to open.")]
+  [SerializeField] private string closedPromptText = "Apri";
+
+  [Tooltip("Shown while the door is open.")]
+  [SerializeField] private string openPromptText = "Chiudi";
+
+  [Tooltip("Shown while the door is closed and requires an item to open (Requires Item To Open).")]
+  [SerializeField] private string lockedPromptText = "Serve una chiave";
+
   public bool IsOpen { get; private set; }
 
   private Vector3 leftClosedLocalPosition;
@@ -99,6 +109,11 @@ public class PassagewayDoor : MonoBehaviour, IInteractable {
 
   public void Interact(PlayerInventory inventory) {
     TryToggle(inventory);
+  }
+
+  public string GetPromptText(PlayerInventory inventory) {
+    if (IsOpen) return openPromptText;
+    return requiresItemToOpen && !PlayerHasRequiredItem(inventory) ? lockedPromptText : closedPromptText;
   }
 
   private void Awake() {

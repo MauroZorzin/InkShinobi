@@ -38,8 +38,11 @@ public class AimSwitch : MonoBehaviour {
   public float pathCheckRadius = 0.2f;
 
   [Header("Aim Point Indicator")]
-  [Tooltip("Moved to the current aim point every frame while aiming, shown/hidden with aiming itself. Valid-vs-invalid-target visuals TBD.")]
+  [Tooltip("Pointer moved to the current mouse-aimed world point every frame while aiming, shown/hidden with aiming itself.")]
   public Transform aimIndicator;
+
+  [Tooltip("Positioned at the switch target and shown only while aiming at a valid, reachable target — a preview of where the player would end up.")]
+  public Transform switchPreviewOutline;
 
   [Header("Aim Visibility")]
   [Tooltip("If true, hides the player's sprite while aiming (after Aim Disappear Delay), and shows it again immediately as soon as aiming ends (cancelled, or the moment a confirmed switch's move finishes).")]
@@ -78,6 +81,7 @@ public class AimSwitch : MonoBehaviour {
   private Coroutine _aimVanishParticleRoutine;
 
   public bool IsAiming => _isAiming;
+  public Vector3 AimWorldPoint { get; private set; }
 
   /// <summary>Fired when aiming begins.</summary>
   public event Action AimStarted;
@@ -100,6 +104,7 @@ public class AimSwitch : MonoBehaviour {
     if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
 
     if (aimIndicator != null) aimIndicator.gameObject.SetActive(false);
+    if (switchPreviewOutline != null) switchPreviewOutline.gameObject.SetActive(false);
   }
 
 #pragma warning disable IDE0051
@@ -133,7 +138,7 @@ public class AimSwitch : MonoBehaviour {
 
   public void EndAim() {
     if (!_isAiming || _isSwitching) {
-      return; // let an in-progress switch finish and call EndAim itself via OnSwitchMoveComplete
+      return;
     }
 
     _isAiming = false;
@@ -141,6 +146,7 @@ public class AimSwitch : MonoBehaviour {
     _aimValid = false;
 
     if (aimIndicator != null) aimIndicator.gameObject.SetActive(false);
+    if (switchPreviewOutline != null) switchPreviewOutline.gameObject.SetActive(false);
 
     if (hidePlayerWhileAiming && spriteRenderer != null) {
       spriteRenderer.enabled = true;
@@ -227,9 +233,6 @@ public class AimSwitch : MonoBehaviour {
   private void UpdateAim() {
     if (aimCamera == null || Mouse.current == null) return;
 
-    // The mouse ray's direction (away from the camera, through the mouse's screen position) is
-    // used as-is — only its origin is moved to the player, so the aim ray starts at the player's
-    // body (for correct obstruction checks) but still points wherever the mouse points on screen.
     Ray mouseRay = aimCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
     Vector3 origin = followController != null ? followController.transform.position : transform.position;
     Vector3 direction = mouseRay.direction;
@@ -244,9 +247,6 @@ public class AimSwitch : MonoBehaviour {
     Vector3 bestPoint = Vector3.zero;
     float bestDistAlong = 0f;
 
-    // The aim ray itself has to stop at the first obstruction — otherwise sampling happily
-    // continues past a wall the camera is looking through, finding (and showing the indicator
-    // on) lines that are never actually visible or reachable.
     float searchDistance = maxAimDistance;
     if (requireClearPath && Physics.Raycast(origin, direction, out RaycastHit obstructionHit, maxAimDistance, obstructionLayers, QueryTriggerInteraction.Ignore)
         && !obstructionHit.collider.transform.IsChildOf(transform)) {
@@ -272,11 +272,6 @@ public class AimSwitch : MonoBehaviour {
       }
     }
 
-    // Path-clear (collision) is only worth checking once, against the single closest candidate —
-    // not per sample/line pair above, since that would run a physics sweep for every point along
-    // the aim ray. A candidate that's a valid strand but has something blocking the path still
-    // counts as "aimed at" (_hasAimHit, drawn/logged) so the player sees WHAT they're pointing at,
-    // just not confirmable (_aimValid stays false).
     _hasAimHit = bestLine != null;
     _aimBlockingCollider = null;
     if (_hasAimHit) {
@@ -288,8 +283,17 @@ public class AimSwitch : MonoBehaviour {
     }
 
     Vector3 aimEndPoint = _hasAimHit ? _aimPoint : origin + direction * searchDistance;
+    AimWorldPoint = aimEndPoint;
 
-    if (aimIndicator != null) aimIndicator.position = aimEndPoint;
+    if (aimIndicator != null) {
+      aimIndicator.gameObject.SetActive(!_aimValid);
+      if (!_aimValid) aimIndicator.position = aimEndPoint;
+    }
+
+    if (switchPreviewOutline != null) {
+      switchPreviewOutline.gameObject.SetActive(_aimValid);
+      if (_aimValid) switchPreviewOutline.position = GetHuggedTarget(_aimPoint);
+    }
 
     if (logAimHits && _aimValid != wasValid) {
       if (_aimValid) {

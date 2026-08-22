@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class HidingSpot : MonoBehaviour, IInteractable {
+public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
   [Tooltip("Where the player stands while hidden. Leave empty to use this object's own position.")]
   public Transform hidePoint;
 
@@ -18,6 +18,15 @@ public class HidingSpot : MonoBehaviour, IInteractable {
   public AudioClip exitSound;
   [Range(0f, 1f)] public float soundVolume = 1f;
 
+  [Tooltip("Shown while nobody is hiding here.")]
+  public string notHiddenPromptText = "Nascondi";
+
+  [Tooltip("Shown while the player is hiding here.")]
+  public string hiddenPromptText = "Esci";
+
+  [Tooltip("Shown while nobody is hiding here but the player is currently detected by a guard.")]
+  public string cannotHidePromptText = "Non puoi nasconderti ora";
+
   private bool _occupied;
   private bool _armedForExit;
 
@@ -28,12 +37,12 @@ public class HidingSpot : MonoBehaviour, IInteractable {
   private PlayerInteractor _playerInteractor;
   private AimSwitch _lineAimSwitchController;
   private TakedownController _takedownController;
+  private PlayerStealthController _playerStealthController;
   private InputAction _interactAction;
 
   private bool _wasMovementEnabled;
   private bool _wasSpriteEnabled;
   private bool _wasColliderEnabled;
-  private bool _wasInteractorEnabled;
   private bool _wasLineAimEnabled;
   private bool _wasTakedownEnabled;
   private Vector3 _storedPosition;
@@ -44,7 +53,25 @@ public class HidingSpot : MonoBehaviour, IInteractable {
       return;
     }
 
+    PlayerStealthController stealth = inventory.GetComponent<PlayerStealthController>();
+    if (stealth != null && stealth.DetectingGuardCount > 0) {
+      return;
+    }
+
     StartHiding(inventory.transform);
+  }
+
+  public string GetPromptText(PlayerInventory inventory) {
+    if (_occupied) {
+      return hiddenPromptText;
+    }
+
+    PlayerStealthController stealth = inventory.GetComponent<PlayerStealthController>();
+    if (stealth != null && stealth.DetectingGuardCount > 0) {
+      return cannotHidePromptText;
+    }
+
+    return notHiddenPromptText;
   }
 
   private void StartHiding(Transform player) {
@@ -55,6 +82,7 @@ public class HidingSpot : MonoBehaviour, IInteractable {
     _playerInteractor = player.GetComponent<PlayerInteractor>();
     _lineAimSwitchController = player.GetComponent<AimSwitch>();
     _takedownController = player.GetComponent<TakedownController>();
+    _playerStealthController = player.GetComponent<PlayerStealthController>();
 
     PlayerInput playerInput = player.GetComponent<PlayerInput>();
     _interactAction = playerInput != null ? playerInput.actions["Interact"] : null;
@@ -70,8 +98,7 @@ public class HidingSpot : MonoBehaviour, IInteractable {
     }
 
     if (_playerInteractor != null) {
-      _wasInteractorEnabled = _playerInteractor.enabled;
-      _playerInteractor.enabled = false;
+      _playerInteractor.interactionSuppressed = true;
     }
 
     if (_lineAimSwitchController != null) {
@@ -107,6 +134,10 @@ public class HidingSpot : MonoBehaviour, IInteractable {
       OneShotAudio.PlayClipAtPoint(enterSound, transform.position, soundVolume);
     }
 
+    if (_playerStealthController != null) {
+      _playerStealthController.IsUndetectable = true;
+    }
+
     _occupied = true;
     _armedForExit = false;
   }
@@ -135,6 +166,10 @@ public class HidingSpot : MonoBehaviour, IInteractable {
       _spriteRenderer.enabled = _wasSpriteEnabled;
     }
 
+    if (_playerStealthController != null) {
+      _playerStealthController.IsUndetectable = false;
+    }
+
     if (vanishEffect != null) {
       OneShotVfx.PlayAtPoint(vanishEffect, transform.position);
     }
@@ -156,7 +191,7 @@ public class HidingSpot : MonoBehaviour, IInteractable {
     }
 
     if (_playerInteractor != null) {
-      _playerInteractor.enabled = _wasInteractorEnabled;
+      _playerInteractor.interactionSuppressed = false;
     }
 
     if (_lineAimSwitchController != null) {
@@ -169,6 +204,7 @@ public class HidingSpot : MonoBehaviour, IInteractable {
 
     _interactAction = null;
     _player = null;
+    _playerStealthController = null;
   }
 
   private IEnumerator Transition(Vector3 targetPosition, Quaternion targetRotation, System.Action onComplete) {
