@@ -1,10 +1,10 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>
-/// Handles main-menu button actions and the new-game overwrite confirmation.
+/// Handles main-menu button actions and confirmation dialogs.
 /// </summary>
 public class MenuManager : MonoBehaviour {
   [Header("Scene Names")]
@@ -23,8 +23,10 @@ public class MenuManager : MonoBehaviour {
 
   [Header("Audio")]
   [SerializeField] private AudioSource rainAudio;
+  [SerializeField] private AudioClip buttonClickSound;
 
-  private GameObject _newGameDialog;
+  private ConfirmationModalView _newGameDialog;
+  private ConfirmationModalView _quitDialog;
   private bool _restartRainAfterDialog;
   private int _rainPlaybackSample;
 
@@ -50,6 +52,13 @@ public class MenuManager : MonoBehaviour {
     ResolveRainAudio();
   }
 
+  private void Update() {
+    if (_newGameDialog != null || _quitDialog != null) return;
+    if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
+
+    ShowQuitConfirmation();
+  }
+
   public void StartGame() {
     if (GameProgress.HasContinueProgress) {
       ShowNewGameConfirmation();
@@ -69,10 +78,22 @@ public class MenuManager : MonoBehaviour {
     SceneTransitionManager.LoadScene(GameProgress.ContinueSceneName);
   }
 
-  /// <summary>
-  /// Exits play mode in the editor or quits the application in builds without a transition.
-  /// </summary>
   public void QuitGame() {
+    ShowQuitConfirmation();
+  }
+
+  public void PlayMenuButtonClickSound() {
+    SceneTransitionManager.PlayUiSound(
+      buttonClickSound,
+      rainAudio != null ? rainAudio.outputAudioMixerGroup : null
+    );
+  }
+
+  private void ConfirmQuitGame() {
+    CloseQuitConfirmation(resumeRain: false, QuitApplication);
+  }
+
+  private static void QuitApplication() {
 #if UNITY_EDITOR
     UnityEditor.EditorApplication.isPlaying = false;
 #else
@@ -81,86 +102,102 @@ public class MenuManager : MonoBehaviour {
   }
 
   private void BeginNewGame() {
-    CloseNewGameConfirmation(resumeRain: false);
+    if (_newGameDialog != null) {
+      CloseNewGameConfirmation(resumeRain: false, StartNewGame);
+      return;
+    }
+
+    StartNewGame();
+  }
+
+  private void StartNewGame() {
     GameProgress.Clear();
     SceneTransitionManager.LoadScene(firstSceneName);
   }
 
   private void ShowNewGameConfirmation() {
-    if (_newGameDialog != null) return;
+    if (_newGameDialog != null || _quitDialog != null) return;
 
-    ResolveRainAudio();
-    _restartRainAfterDialog = rainAudio != null && rainAudio.isPlaying;
-    if (_restartRainAfterDialog) {
-      _rainPlaybackSample = rainAudio.timeSamples;
-      rainAudio.Stop();
-    }
-
-    _newGameDialog = new GameObject("NewGameConfirmation", typeof(RectTransform));
-
-    Canvas canvas = _newGameDialog.AddComponent<Canvas>();
-    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-    canvas.sortingOrder = 1000;
-
-    CanvasScaler scaler = _newGameDialog.AddComponent<CanvasScaler>();
-    scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-    scaler.referenceResolution = new Vector2(1920f, 1080f);
-    _newGameDialog.AddComponent<GraphicRaycaster>();
-    _newGameDialog.AddComponent<PopupBackgroundBlur>().Initialize(canvas);
-
-    Image shade = CreateImage("Shade", _newGameDialog.transform, new Color(0f, 0f, 0f, 0.55f));
-    Stretch(shade.rectTransform);
-
-    Image panel = CreateImage("Panel", shade.transform, new Color(0.08f, 0.08f, 0.08f, 0.98f));
-    RectTransform panelTransform = panel.rectTransform;
-    panelTransform.anchorMin = new Vector2(0.5f, 0.5f);
-    panelTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    panelTransform.sizeDelta = new Vector2(760f, 340f);
-    panelTransform.anchoredPosition = Vector2.zero;
-
-    CreateText(
-      "Title",
-      panel.transform,
+    StopRainForDialog();
+    _newGameDialog = ConfirmationModalView.Create(
+      "NewGameConfirmation",
       "Overwrite progress?",
-      38f,
-      new Vector2(0f, 100f),
-      new Vector2(680f, 60f)
-    );
-    CreateText(
-      "Message",
-      panel.transform,
       "Starting a new game will overwrite all saved progress.",
-      26f,
-      new Vector2(0f, 30f),
-      new Vector2(650f, 80f)
-    );
-
-    Button cancelButton = CreateButton(
       "Cancel",
-      panel.transform,
-      "Cancel",
-      new Vector2(-175f, -105f)
+      "New Game",
+      CancelNewGameConfirmation,
+      BeginNewGame
     );
-    cancelButton.onClick.AddListener(CancelNewGameConfirmation);
 
-    Button confirmButton = CreateButton(
-      "ConfirmStart",
-      panel.transform,
-      "Start New Game",
-      new Vector2(175f, -105f)
-    );
-    confirmButton.onClick.AddListener(BeginNewGame);
-
-    if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(cancelButton.gameObject);
+    if (_newGameDialog == null) ResumeRainAfterDialog();
   }
 
-  private void CloseNewGameConfirmation(bool resumeRain = true) {
+  private void CloseNewGameConfirmation(bool resumeRain = true, System.Action onClosed = null) {
     if (_newGameDialog == null) return;
 
-    Destroy(_newGameDialog);
-    _newGameDialog = null;
+    ConfirmationModalView dialog = _newGameDialog;
+    dialog.Close(() => CompleteCloseNewGameDialog(dialog, resumeRain, onClosed));
+  }
 
-    if (resumeRain && _restartRainAfterDialog && rainAudio != null) {
+  private void CompleteCloseNewGameDialog(
+    ConfirmationModalView dialog,
+    bool resumeRain,
+    System.Action onClosed
+  ) {
+    if (_newGameDialog == dialog) _newGameDialog = null;
+
+    if (resumeRain) ResumeRainAfterDialog();
+    else _restartRainAfterDialog = false;
+    onClosed?.Invoke();
+  }
+
+  private void ShowQuitConfirmation() {
+    if (_quitDialog != null || _newGameDialog != null) return;
+
+    StopRainForDialog();
+    _quitDialog = ConfirmationModalView.Create(
+      "QuitConfirmation",
+      "Quit the game?",
+      "Are you sure you want to quit?",
+      "Cancel",
+      "Quit Game",
+      CancelQuitConfirmation,
+      ConfirmQuitGame
+    );
+
+    if (_quitDialog == null) ResumeRainAfterDialog();
+  }
+
+  private void CloseQuitConfirmation(bool resumeRain = true, System.Action onClosed = null) {
+    if (_quitDialog == null) return;
+
+    ConfirmationModalView dialog = _quitDialog;
+    dialog.Close(() => CompleteCloseQuitDialog(dialog, resumeRain, onClosed));
+  }
+
+  private void CompleteCloseQuitDialog(
+    ConfirmationModalView dialog,
+    bool resumeRain,
+    System.Action onClosed
+  ) {
+    if (_quitDialog == dialog) _quitDialog = null;
+
+    if (resumeRain) ResumeRainAfterDialog();
+    else _restartRainAfterDialog = false;
+    onClosed?.Invoke();
+  }
+
+  private void StopRainForDialog() {
+    ResolveRainAudio();
+    _restartRainAfterDialog = rainAudio != null && rainAudio.isPlaying;
+    if (!_restartRainAfterDialog) return;
+
+    _rainPlaybackSample = rainAudio.timeSamples;
+    rainAudio.Stop();
+  }
+
+  private void ResumeRainAfterDialog() {
+    if (_restartRainAfterDialog && rainAudio != null) {
       if (rainAudio.clip != null) {
         rainAudio.timeSamples = Mathf.Clamp(_rainPlaybackSample, 0, rainAudio.clip.samples - 1);
       }
@@ -187,71 +224,18 @@ public class MenuManager : MonoBehaviour {
   }
 
   private void CancelNewGameConfirmation() {
-    CloseNewGameConfirmation();
+    CloseNewGameConfirmation(onClosed: DeselectMenuHighlights);
+  }
 
+  private void CancelQuitConfirmation() {
+    CloseQuitConfirmation(onClosed: DeselectMenuHighlights);
+  }
+
+  private static void DeselectMenuHighlights() {
     StrokeHighlight[] highlights = FindObjectsByType<StrokeHighlight>(
       FindObjectsInactive.Include,
       FindObjectsSortMode.None
     );
     foreach (StrokeHighlight highlight in highlights) highlight.Deselect();
-  }
-
-  internal static Image CreateImage(string objectName, Transform parent, Color color) {
-    var imageObject = new GameObject(objectName, typeof(RectTransform));
-    imageObject.transform.SetParent(parent, false);
-    Image image = imageObject.AddComponent<Image>();
-    image.color = color;
-    return image;
-  }
-
-  internal static TextMeshProUGUI CreateText(
-    string objectName,
-    Transform parent,
-    string content,
-    float fontSize,
-    Vector2 position,
-    Vector2 size
-  ) {
-    var textObject = new GameObject(objectName, typeof(RectTransform));
-    textObject.transform.SetParent(parent, false);
-
-    TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
-    text.text = content;
-    text.fontSize = fontSize;
-    text.color = Color.white;
-    text.alignment = TextAlignmentOptions.Center;
-
-    RectTransform rectTransform = text.rectTransform;
-    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    rectTransform.sizeDelta = size;
-    rectTransform.anchoredPosition = position;
-    return text;
-  }
-
-  internal static Button CreateButton(
-    string objectName,
-    Transform parent,
-    string label,
-    Vector2 position
-  ) {
-    Image image = CreateImage(objectName, parent, new Color(0.22f, 0.22f, 0.22f, 1f));
-    RectTransform rectTransform = image.rectTransform;
-    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    rectTransform.sizeDelta = new Vector2(280f, 70f);
-    rectTransform.anchoredPosition = position;
-
-    Button button = image.gameObject.AddComponent<Button>();
-    button.targetGraphic = image;
-    CreateText("Label", button.transform, label, 25f, Vector2.zero, rectTransform.sizeDelta);
-    return button;
-  }
-
-  internal static void Stretch(RectTransform rectTransform) {
-    rectTransform.anchorMin = Vector2.zero;
-    rectTransform.anchorMax = Vector2.one;
-    rectTransform.offsetMin = Vector2.zero;
-    rectTransform.offsetMax = Vector2.zero;
   }
 }

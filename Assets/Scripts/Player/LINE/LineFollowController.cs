@@ -176,7 +176,8 @@ public class LineFollowController : MonoBehaviour {
     if (animator == null) return;
 
     bool grounded = _cc.isGrounded;
-    animator.SetBool(IsRunningHash, Mathf.Abs(_moveInput) > 0.01f);
+    // Held input at an open line endpoint does not mean the character is moving.
+    animator.SetBool(IsRunningHash, Mathf.Abs(_alongLineSpeed) > 0.01f);
     animator.SetFloat(VelocityHash, Mathf.Abs(_alongLineSpeed));
     animator.SetBool(IsJumpingHash, !grounded && _verticalVelocity > 0f);
     animator.SetBool(IsFallingHash, !grounded && _verticalVelocity < 0f);

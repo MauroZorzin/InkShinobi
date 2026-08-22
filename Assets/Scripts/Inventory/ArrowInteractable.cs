@@ -35,24 +35,49 @@ public class ArrowInteractable : MonoBehaviour, IInteractable {
   [SerializeField] private AudioMixerGroup mixerGroup;
 
   private bool _isShowing;
+  private MissionScrollAnimation _scrollAnimation;
 
   private void Awake() {
-    //SetShowing(false);
+    if (targetObject != null) _scrollAnimation = targetObject.GetComponent<MissionScrollAnimation>();
   }
 
   /// <summary>Toggles targetObject on/off each time this is interacted with.</summary>
   public void Interact(PlayerInventory inventory) {
-    if (interactSound != null) OneShotAudio.PlayClipAtPoint(interactSound, transform.position, interactSoundVolume, mixerGroup);
+    if (_scrollAnimation != null && _scrollAnimation.IsAnimating) return;
+    if (_scrollAnimation == null && interactSound != null) {
+      OneShotAudio.PlayClipAtPoint(
+        interactSound,
+        transform.position,
+        interactSoundVolume,
+        mixerGroup
+      );
+    }
     SetShowing(!_isShowing);
   }
 
   private void SetShowing(bool showing) {
     _isShowing = showing;
-    if (targetObject != null) targetObject.SetActive(showing);
-    if (targetText != null) targetText.SetActive(showing);
     if (textToHideOnInteraction != null && showing) textToHideOnInteraction.SetActive(false);
     if (textToToggleOnInteraction != null) textToToggleOnInteraction.SetActive(showing);
     if (componentToDisable != null) componentToDisable.enabled = !showing;
-    if (toHideObject != null && showing == false) toHideObject.SetActive(false);
+
+    if (showing) {
+      if (targetObject != null) targetObject.SetActive(true);
+      if (_scrollAnimation != null) _scrollAnimation.PlayOpen(targetText);
+      else if (targetText != null) targetText.SetActive(true);
+      return;
+    }
+
+    if (_scrollAnimation != null) {
+      _scrollAnimation.PlayClose(targetText, CompleteHide);
+    } else {
+      CompleteHide();
+    }
+  }
+
+  private void CompleteHide() {
+    if (targetObject != null) targetObject.SetActive(false);
+    if (targetText != null) targetText.SetActive(false);
+    if (toHideObject != null) toHideObject.SetActive(false);
   }
 }

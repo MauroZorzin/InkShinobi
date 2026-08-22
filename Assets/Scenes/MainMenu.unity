@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 21228042}
   - component: {fileID: 21228040}
   - component: {fileID: 21228043}
+  - component: {fileID: 21228044}
   m_Layer: 5
   m_Name: Start
   m_TagString: Untagged
@@ -205,7 +206,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1665269419}
-        m_TargetAssemblyTypeName: MainMenu, GameScripts
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
+        m_MethodName: PlayMenuButtonClickSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1665269419}
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
         m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
@@ -216,18 +229,6 @@ MonoBehaviour:
           m_StringArgument: MainMenu.StartGame
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1066495750}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
 --- !u!222 &21228042
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -250,10 +251,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::StrokeHighlight
   button: {fileID: 21228040}
   brushStroke: {fileID: 63585078}
+  buttonLabel: {fileID: 0}
   paintInDuration: 0.25
   fadeOutDuration: 0
   audioSource: {fileID: 1129562354}
-  hoverSound: {fileID: 8300000, guid: 0835f5e5d444e2a4abf6084e235baa09, type: 3}
+  hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
+  _useWhiteTextOnHover: 0
+--- !u!82 &21228044
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 21228038}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &26965183
 GameObject:
   m_ObjectHideFlags: 0
@@ -890,6 +990,7 @@ GameObject:
   - component: {fileID: 490751449}
   - component: {fileID: 490751447}
   - component: {fileID: 490751450}
+  - component: {fileID: 490751451}
   m_Layer: 5
   m_Name: Continue
   m_TagString: Untagged
@@ -964,7 +1065,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1665269419}
-        m_TargetAssemblyTypeName: MainMenu, GameScripts
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
+        m_MethodName: PlayMenuButtonClickSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1665269419}
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
         m_MethodName: ContinueGame
         m_Mode: 1
         m_Arguments:
@@ -975,18 +1088,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1066495750}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
 --- !u!222 &490751449
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1009,10 +1110,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::StrokeHighlight
   button: {fileID: 490751447}
   brushStroke: {fileID: 1849974956}
+  buttonLabel: {fileID: 0}
   paintInDuration: 0.25
   fadeOutDuration: 0
   audioSource: {fileID: 1129562354}
-  hoverSound: {fileID: 8300000, guid: 0835f5e5d444e2a4abf6084e235baa09, type: 3}
+  hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
+  _useWhiteTextOnHover: 0
+--- !u!82 &490751451
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 490751445}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &496700592
 GameObject:
   m_ObjectHideFlags: 0
@@ -1136,12 +1336,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1561,6 +1761,7 @@ GameObject:
   - component: {fileID: 755822829}
   - component: {fileID: 755822827}
   - component: {fileID: 755822830}
+  - component: {fileID: 755822831}
   m_Layer: 5
   m_Name: Settings
   m_TagString: Untagged
@@ -1635,7 +1836,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1665269419}
-        m_TargetAssemblyTypeName: MainMenu, GameScripts
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
+        m_MethodName: PlayMenuButtonClickSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1665269419}
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
         m_MethodName: OpenSettings
         m_Mode: 1
         m_Arguments:
@@ -1668,10 +1881,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::StrokeHighlight
   button: {fileID: 755822827}
   brushStroke: {fileID: 1169660151}
+  buttonLabel: {fileID: 0}
   paintInDuration: 0.25
   fadeOutDuration: 0
   audioSource: {fileID: 1129562354}
-  hoverSound: {fileID: 8300000, guid: 0835f5e5d444e2a4abf6084e235baa09, type: 3}
+  hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
+  _useWhiteTextOnHover: 0
+--- !u!82 &755822831
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 755822825}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &967145187
 GameObject:
   m_ObjectHideFlags: 0
@@ -2052,6 +2364,7 @@ GameObject:
   - component: {fileID: 1203998279}
   - component: {fileID: 1203998277}
   - component: {fileID: 1203998280}
+  - component: {fileID: 1203998281}
   m_Layer: 5
   m_Name: Quit
   m_TagString: Untagged
@@ -2126,7 +2439,19 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1665269419}
-        m_TargetAssemblyTypeName: MainMenu, GameScripts
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
+        m_MethodName: PlayMenuButtonClickSound
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1665269419}
+        m_TargetAssemblyTypeName: MenuManager, GameScripts
         m_MethodName: QuitGame
         m_Mode: 1
         m_Arguments:
@@ -2137,18 +2462,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1066495750}
-        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
-        m_MethodName: Play
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
 --- !u!222 &1203998279
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2171,10 +2484,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::StrokeHighlight
   button: {fileID: 1203998277}
   brushStroke: {fileID: 462700257}
+  buttonLabel: {fileID: 0}
   paintInDuration: 0.25
   fadeOutDuration: 0
   audioSource: {fileID: 1129562354}
-  hoverSound: {fileID: 8300000, guid: 0835f5e5d444e2a4abf6084e235baa09, type: 3}
+  hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
+  _useWhiteTextOnHover: 0
+--- !u!82 &1203998281
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1203998275}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1288585831
 GameObject:
   m_ObjectHideFlags: 0
@@ -2807,13 +3219,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5ff7134f2e66f414f9dfa2de6c75766e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: GameScripts::MainMenu
+  m_EditorClassIdentifier: GameScripts::MenuManager
   firstSceneName: 1-Start
   settingsSceneName: SettingsMenu
   continueButton: {fileID: 490751447}
   continueLabel: {fileID: 1468103798}
   savingFont: {fileID: 11400000, guid: b80b3a7d5c6a5f2489a2b318cafb74cc, type: 2}
   rainAudio: {fileID: 1683044664}
+  buttonClickSound: {fileID: 8300000, guid: 0835f5e5d444e2a4abf6084e235baa09, type: 3}
 --- !u!1 &1683044663
 GameObject:
   m_ObjectHideFlags: 0
@@ -3101,18 +3514,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 681830768}
     m_Modifications:
-    - target: {fileID: 198459716423156678, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
-      propertyPath: useUnscaledTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 198463104617649228, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
-      propertyPath: useUnscaledTime
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 198913305880061536, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
-      propertyPath: useUnscaledTime
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1624732227010082, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
       propertyPath: m_Name
       value: Rain Particles
@@ -3169,6 +3570,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 198459716423156678, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 198463104617649228, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 198913305880061536, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
       propertyPath: prewarm
       value: 1
@@ -3180,6 +3589,10 @@ PrefabInstance:
     - target: {fileID: 198913305880061536, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
       propertyPath: simulationSpeed
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 198913305880061536, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
+      propertyPath: useUnscaledTime
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 198913305880061536, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
       propertyPath: InitialModule.gravitySource
@@ -3203,6 +3616,63 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4896653716000216, guid: 18d653ec6ac008e43a69363f42d8c371, type: 3}
   m_PrefabInstance: {fileID: 1933757214}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &2147000000
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 100000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_Name
+      value: SceneTransitionManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 400000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 04a35b3d7cf34c1eb45ed4f3cc641db0, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -3213,3 +3683,4 @@ SceneRoots:
   - {fileID: 1665269418}
   - {fileID: 967145188}
   - {fileID: 1639098047}
+  - {fileID: 2147000000}

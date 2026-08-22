@@ -1,11 +1,11 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -22,18 +22,28 @@ using UnityEngine.UI;
 /// post-load audio fade-in, which needs to run code IN the new scene — happens on one component
 /// without needing a hand-off trick.
 ///
-/// Setup: put this on a GameObject in whichever scene loads first (e.g. the main menu, or a boot
-/// scene). No per-scene marker component needed — it just finds whatever AudioSources happen to
-/// be playing.
+/// Setup lives in Resources/SceneTransitionManager.prefab. The prefab is instantiated before the
+/// first scene loads and persists for the rest of the session, so no per-scene copy is required.
 /// </summary>
+[DefaultExecutionOrder(-10000)]
 public class SceneTransitionManager : MonoBehaviour {
   public static SceneTransitionManager Instance { get; private set; }
 
   private bool _isTransitioning;
-  private GameObject _pauseDialog;
+  private ConfirmationModalView _pauseDialog;
   private float _timeScaleBeforePause = 1f;
   private CursorLockMode _cursorLockBeforePause;
   private bool _cursorVisibleBeforePause;
+  private AudioSource _uiAudioSource;
+  [SerializeField, Tooltip("Ink effect used to cover and reveal scenes.")]
+  private InkTransition _inkTransition;
+
+  private sealed class CanvasRenderState {
+    public Canvas Canvas;
+    public RenderMode RenderMode;
+    public Camera WorldCamera;
+    public float PlaneDistance;
+  }
 
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
   private static void ResetStatics() {
@@ -54,6 +64,20 @@ public class SceneTransitionManager : MonoBehaviour {
 
   [Tooltip("Font used by the Saving label displayed while the screen is black.")]
   public TMP_FontAsset savingFont;
+
+  [Tooltip("Icon shown above the Loading/Saving label.")]
+  [SerializeField] private Texture2D transitionIcon;
+
+  [Tooltip("Maximum displayed size of the transition icon in canvas units.")]
+  [SerializeField] private Vector2 transitionIconSize = new Vector2(240f, 120f);
+
+  [Min(0.1f)]
+  [Tooltip("Seconds for the icon to brighten and dim once.")]
+  [SerializeField] private float iconGlowCycleDuration = 1.2f;
+
+  [Min(0.05f)]
+  [Tooltip("Seconds between each additional dot in Loading/Saving.")]
+  [SerializeField] private float labelDotInterval = 0.35f;
 
   [Tooltip("Minimum seconds the loading overlay remains visible before scene activation.")]
   public float minimumLoadTime = 1.5f;
@@ -88,11 +112,7 @@ public class SceneTransitionManager : MonoBehaviour {
     if (_isTransitioning || !GameProgress.IsGameScene(SceneManager.GetActiveScene().name)) return;
     if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
-    if (_pauseDialog == null) {
-      ShowMainMenuConfirmation();
-    } else {
-      ResumeGame();
-    }
+    if (_pauseDialog == null) ShowMainMenuConfirmation();
   }
 
   private void LateUpdate() {
@@ -110,15 +130,15 @@ public class SceneTransitionManager : MonoBehaviour {
     Instance = null;
   }
 
-  /// <summary>Loads a scene by name, fading through black unless explicitly disabled.</summary>
+  /// <summary>Loads a scene with the configured transition unless explicitly disabled.</summary>
   public static void LoadScene(string sceneName, bool useFade = true) =>
     Begin(sceneName, () => SceneManager.LoadSceneAsync(sceneName), useFade);
 
-  /// <summary>Loads a scene by build index, fading through black unless explicitly disabled.</summary>
+  /// <summary>Loads a scene by build index with the configured transition unless disabled.</summary>
   public static void LoadScene(int buildIndex, bool useFade = true) =>
     Begin(GameProgress.GetSceneName(buildIndex), () => SceneManager.LoadSceneAsync(buildIndex), useFade);
 
-  /// <summary>Reloads the active scene, fading through black unless explicitly disabled.</summary>
+  /// <summary>Reloads the active scene with the configured transition unless disabled.</summary>
   public static void ReloadCurrentScene(bool useFade = true) =>
     LoadScene(SceneManager.GetActiveScene().buildIndex, useFade);
 
@@ -127,6 +147,24 @@ public class SceneTransitionManager : MonoBehaviour {
 
     EnsureInstance();
     Instance.savingFont = font;
+  }
+
+  public static void PlayUiSound(AudioClip clip, AudioMixerGroup mixerGroup, float startOffset = 0f) {
+    if (clip == null) return;
+
+    EnsureInstance();
+    if (Instance._uiAudioSource == null) {
+      Instance._uiAudioSource = Instance.gameObject.AddComponent<AudioSource>();
+      Instance._uiAudioSource.playOnAwake = false;
+      Instance._uiAudioSource.loop = false;
+      Instance._uiAudioSource.spatialBlend = 0f;
+      Instance._uiAudioSource.ignoreListenerPause = true;
+    }
+
+    Instance._uiAudioSource.outputAudioMixerGroup = mixerGroup;
+    Instance._uiAudioSource.clip = clip;
+    Instance._uiAudioSource.time = Mathf.Clamp(startOffset, 0f, Mathf.Max(0f, clip.length - 0.001f));
+    Instance._uiAudioSource.Play();
   }
 
   private static void Begin(string destinationSceneName, Func<AsyncOperation> beginLoad, bool useFade) {
@@ -151,6 +189,16 @@ public class SceneTransitionManager : MonoBehaviour {
   private static void EnsureInstance() {
     if (Instance != null) return;
 
+    SceneTransitionManager prefab = Resources.Load<SceneTransitionManager>(nameof(SceneTransitionManager));
+    if (prefab != null) {
+      Instantiate(prefab);
+      if (Instance != null) return;
+    }
+
+    Debug.LogWarning(
+      "[SceneTransitionManager] Resources/SceneTransitionManager prefab was not found; " +
+      "using an unconfigured runtime fallback."
+    );
     var managerObject = new GameObject(nameof(SceneTransitionManager));
     managerObject.AddComponent<SceneTransitionManager>();
   }
@@ -171,9 +219,16 @@ public class SceneTransitionManager : MonoBehaviour {
     }
 
     Image backdrop = BuildOverlay(out GameObject overlayGo);
-    yield return FadeBackdrop(backdrop, 0f, 1f, fadeInDuration);
+    List<CanvasRenderState> oldCanvasStates = null;
+    oldCanvasStates = RouteOverlayCanvasesThroughCamera(overlayGo);
+    yield return _inkTransition.CoverScreen();
 
-    ShowTransitionLabel(overlayGo.transform, showSaving ? "Saving" : "Loading");
+    string transitionMessage = showSaving ? "Saving" : "Loading";
+    TextMeshProUGUI transitionLabel = ShowTransitionLabel(overlayGo.transform, transitionMessage);
+    RawImage transitionIconImage = ShowTransitionIcon(overlayGo.transform);
+    Coroutine transitionStatusAnimation = StartCoroutine(
+      AnimateTransitionStatus(transitionLabel, transitionIconImage, transitionMessage)
+    );
     yield return null;
 
     if (shouldSave) {
@@ -198,17 +253,79 @@ public class SceneTransitionManager : MonoBehaviour {
     // Keep the screen fully black until activation and the new scene's initialization finish.
     yield return op;
 
-    // Let the new scene's Awake/OnEnable run (including anything that starts playing on its own,
-    // e.g. a playOnAwake music/ambience source) before we look for what's playing.
+    // Route canvases before the new scene's first visible frame so Screen Space Overlay UI cannot
+    // briefly render above the full-screen ink pass.
+    RetargetRoutedCanvases(oldCanvasStates);
+    List<CanvasRenderState> newCanvasStates = RouteOverlayCanvasesThroughCamera(overlayGo);
+
+    // Catch canvases created during the new scene's first initialization frame, then look for
+    // newly started music and ambience.
     yield return null;
+    newCanvasStates.AddRange(RouteOverlayCanvasesThroughCamera(overlayGo));
 
     FadeAllPlayingAudio(audioFadeInDuration, restoreOriginalVolume: true);
+    StopCoroutine(transitionStatusAnimation);
+    Destroy(overlayGo);
+    yield return null;
+    yield return _inkTransition.RevealScreen();
 
-    yield return FadeBackdrop(backdrop, 1f, 0f, fadeOutDuration);
+    if (oldCanvasStates != null) RestoreCanvasRenderStates(oldCanvasStates);
+    if (newCanvasStates != null) RestoreCanvasRenderStates(newCanvasStates);
 
     if (logTransitions) Debug.Log("[SceneTransitionManager] Transition complete.");
-    Destroy(overlayGo);
     _isTransitioning = false;
+  }
+
+  private static List<CanvasRenderState> RouteOverlayCanvasesThroughCamera(
+    GameObject excludedRoot
+  ) {
+    var states = new List<CanvasRenderState>();
+    Camera renderCamera = Camera.main;
+    if (renderCamera == null) renderCamera = FindFirstObjectByType<Camera>();
+    if (renderCamera == null) return states;
+
+    Canvas[] canvases = FindObjectsByType<Canvas>(
+      FindObjectsInactive.Exclude,
+      FindObjectsSortMode.None
+    );
+    foreach (Canvas canvas in canvases) {
+      if (canvas == null || !canvas.isRootCanvas) continue;
+      if (canvas.renderMode != RenderMode.ScreenSpaceOverlay) continue;
+      if (excludedRoot != null && canvas.transform.IsChildOf(excludedRoot.transform)) continue;
+
+      states.Add(new CanvasRenderState {
+        Canvas = canvas,
+        RenderMode = canvas.renderMode,
+        WorldCamera = canvas.worldCamera,
+        PlaneDistance = canvas.planeDistance
+      });
+      canvas.renderMode = RenderMode.ScreenSpaceCamera;
+      canvas.worldCamera = renderCamera;
+      canvas.planeDistance = renderCamera.nearClipPlane + 0.00003f;
+    }
+
+    return states;
+  }
+
+  private static void RestoreCanvasRenderStates(List<CanvasRenderState> states) {
+    foreach (CanvasRenderState state in states) {
+      if (state.Canvas == null) continue;
+      state.Canvas.renderMode = state.RenderMode;
+      state.Canvas.worldCamera = state.WorldCamera;
+      state.Canvas.planeDistance = state.PlaneDistance;
+    }
+  }
+
+  private static void RetargetRoutedCanvases(List<CanvasRenderState> states) {
+    Camera renderCamera = Camera.main;
+    if (renderCamera == null) renderCamera = FindFirstObjectByType<Camera>();
+    if (renderCamera == null) return;
+
+    foreach (CanvasRenderState state in states) {
+      if (state.Canvas == null) continue;
+      state.Canvas.worldCamera = renderCamera;
+      state.Canvas.planeDistance = renderCamera.nearClipPlane + 0.00003f;
+    }
   }
 
   /// <summary>
@@ -280,103 +397,55 @@ public class SceneTransitionManager : MonoBehaviour {
     Cursor.lockState = CursorLockMode.None;
     Cursor.visible = true;
 
-    _pauseDialog = new GameObject("MainMenuConfirmation", typeof(RectTransform));
-
-    Canvas canvas = _pauseDialog.AddComponent<Canvas>();
-    canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-    canvas.sortingOrder = 1000;
-
-    CanvasScaler scaler = _pauseDialog.AddComponent<CanvasScaler>();
-    scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-    scaler.referenceResolution = new Vector2(1920f, 1080f);
-    _pauseDialog.AddComponent<GraphicRaycaster>();
-    _pauseDialog.AddComponent<PopupBackgroundBlur>().Initialize(canvas);
-    EnsureModalEventSystem(_pauseDialog.transform);
-
-    Image shade = MenuManager.CreateImage(
-      "Shade",
-      _pauseDialog.transform,
-      new Color(0f, 0f, 0f, 0.55f)
-    );
-    MenuManager.Stretch(shade.rectTransform);
-
-    Image panel = MenuManager.CreateImage(
-      "Panel",
-      shade.transform,
-      new Color(0.08f, 0.08f, 0.08f, 0.98f)
-    );
-    RectTransform panelTransform = panel.rectTransform;
-    panelTransform.anchorMin = new Vector2(0.5f, 0.5f);
-    panelTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    panelTransform.sizeDelta = new Vector2(760f, 340f);
-    panelTransform.anchoredPosition = Vector2.zero;
-
-    MenuManager.CreateText(
-      "Title",
-      panel.transform,
+    _pauseDialog = ConfirmationModalView.Create(
+      "MainMenuConfirmation",
       "Return to Main Menu?",
-      38f,
-      new Vector2(0f, 100f),
-      new Vector2(680f, 60f)
-    );
-    MenuManager.CreateText(
-      "Message",
-      panel.transform,
       "Your progress is saved at the start of the latest scene reached.",
-      26f,
-      new Vector2(0f, 30f),
-      new Vector2(650f, 80f)
-    );
-
-    Button resumeButton = MenuManager.CreateButton(
       "Resume",
-      panel.transform,
-      "Resume",
-      new Vector2(-175f, -105f)
-    );
-    resumeButton.onClick.AddListener(ResumeGame);
-
-    Button mainMenuButton = MenuManager.CreateButton(
-      "MainMenu",
-      panel.transform,
       "Main Menu",
-      new Vector2(175f, -105f)
+      ResumeGame,
+      ReturnToMainMenu
     );
-    mainMenuButton.onClick.AddListener(ReturnToMainMenu);
 
-    if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(resumeButton.gameObject);
-  }
+    if (_pauseDialog == null) {
+      Time.timeScale = _timeScaleBeforePause;
+      Cursor.lockState = _cursorLockBeforePause;
+      Cursor.visible = _cursorVisibleBeforePause;
+      return;
+    }
 
-  private static void EnsureModalEventSystem(Transform dialogRoot) {
-    if (EventSystem.current != null) return;
-
-    var eventSystemObject = new GameObject("ModalEventSystem");
-    eventSystemObject.transform.SetParent(dialogRoot, false);
-    eventSystemObject.AddComponent<EventSystem>();
-
-    InputSystemUIInputModule inputModule = eventSystemObject.AddComponent<InputSystemUIInputModule>();
-    inputModule.AssignDefaultActions();
   }
 
   private void ResumeGame() {
     if (_pauseDialog == null) return;
 
-    _pauseDialog.SetActive(false);
-    Destroy(_pauseDialog);
-    _pauseDialog = null;
+    ClosePauseDialog();
+  }
+
+  private void ClosePauseDialog(System.Action onClosed = null) {
+    if (_pauseDialog == null) return;
+
+    ConfirmationModalView dialog = _pauseDialog;
+    dialog.Close(() => CompleteClosePauseDialog(dialog, onClosed));
+  }
+
+  private void CompleteClosePauseDialog(ConfirmationModalView dialog, System.Action onClosed) {
+    if (_pauseDialog == dialog) _pauseDialog = null;
     Time.timeScale = _timeScaleBeforePause;
     Cursor.lockState = _cursorLockBeforePause;
     Cursor.visible = _cursorVisibleBeforePause;
+    onClosed?.Invoke();
   }
 
   private void ReturnToMainMenu() {
-    ResumeGame();
-    Cursor.lockState = CursorLockMode.None;
-    Cursor.visible = true;
-    LoadScene("MainMenu");
+    ClosePauseDialog(() => {
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
+      LoadScene("MainMenu");
+    });
   }
 
-  private void ShowTransitionLabel(Transform overlayTransform, string message) {
+  private TextMeshProUGUI ShowTransitionLabel(Transform overlayTransform, string message) {
     var labelObject = new GameObject("TransitionLabel");
     labelObject.transform.SetParent(overlayTransform, false);
 
@@ -391,8 +460,56 @@ public class SceneTransitionManager : MonoBehaviour {
     RectTransform rectTransform = label.rectTransform;
     rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
     rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-    rectTransform.sizeDelta = new Vector2(320f, 80f);
-    rectTransform.anchoredPosition = Vector2.zero;
+    rectTransform.sizeDelta = new Vector2(420f, 80f);
+    rectTransform.anchoredPosition = transitionIcon != null ? new Vector2(0f, -55f) : Vector2.zero;
+    return label;
+  }
+
+  private RawImage ShowTransitionIcon(Transform overlayTransform) {
+    if (transitionIcon == null) return null;
+
+    var iconObject = new GameObject("TransitionIcon");
+    iconObject.transform.SetParent(overlayTransform, false);
+
+    RawImage icon = iconObject.AddComponent<RawImage>();
+    icon.texture = transitionIcon;
+    icon.color = Color.white;
+    icon.raycastTarget = false;
+
+    RectTransform rectTransform = icon.rectTransform;
+    rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+    rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+    float textureAspect = transitionIcon.width / (float)transitionIcon.height;
+    float boundsAspect = transitionIconSize.x / transitionIconSize.y;
+    rectTransform.sizeDelta = textureAspect > boundsAspect
+      ? new Vector2(transitionIconSize.x, transitionIconSize.x / textureAspect)
+      : new Vector2(transitionIconSize.y * textureAspect, transitionIconSize.y);
+    rectTransform.anchoredPosition = new Vector2(0f, 65f);
+    return icon;
+  }
+
+  private IEnumerator AnimateTransitionStatus(
+    TMP_Text label,
+    RawImage icon,
+    string baseMessage
+  ) {
+    float elapsed = 0f;
+    while (label != null) {
+      elapsed += Time.unscaledDeltaTime;
+
+      int dotCount = Mathf.FloorToInt(elapsed / labelDotInterval) % 4;
+      label.text = baseMessage + new string('.', dotCount);
+
+      if (icon != null) {
+        float phase = elapsed / iconGlowCycleDuration * Mathf.PI * 2f;
+        float pulse = 0.5f + 0.5f * Mathf.Sin(phase - Mathf.PI * 0.5f);
+        pulse = Mathf.SmoothStep(0f, 1f, pulse);
+        float brightness = Mathf.Lerp(0.35f, 1f, pulse);
+        icon.color = new Color(brightness, brightness, brightness, 1f);
+      }
+
+      yield return null;
+    }
   }
 
   /// <summary>Fades an audio source's volume to the target value, stopping it if the target is silence.</summary>
@@ -424,90 +541,6 @@ public class SceneTransitionManager : MonoBehaviour {
 
     color.a = to;
     image.color = color;
-  }
-}
-
-/// <summary>
-/// Captures and blurs the completed frame behind a modal, including screen-space overlay UI.
-/// </summary>
-public class PopupBackgroundBlur : MonoBehaviour {
-  private const int Downsample = 2;
-  private const int BlurIterations = 3;
-  private const float BlurRadius = 1.5f;
-
-  private Canvas _modalCanvas;
-  private RenderTexture _blurredTexture;
-  private Material _blurMaterial;
-
-  public void Initialize(Canvas modalCanvas) {
-    if (modalCanvas == null || _modalCanvas != null) return;
-
-    _modalCanvas = modalCanvas;
-    _modalCanvas.enabled = false;
-    StartCoroutine(CaptureAndBlur());
-  }
-
-  private IEnumerator CaptureAndBlur() {
-    yield return new WaitForEndOfFrame();
-
-    Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
-    if (screenshot == null) {
-      if (_modalCanvas != null) _modalCanvas.enabled = true;
-      yield break;
-    }
-
-    Shader blurShader = Resources.Load<Shader>("PopupBlur");
-    if (blurShader == null) {
-      Debug.LogWarning("[PopupBackgroundBlur] Resources/PopupBlur.shader could not be loaded.");
-      Destroy(screenshot);
-      if (_modalCanvas != null) _modalCanvas.enabled = true;
-      yield break;
-    }
-
-    _blurMaterial = new Material(blurShader);
-    _blurMaterial.SetFloat("_BlurRadius", BlurRadius);
-
-    int width = Mathf.Max(1, screenshot.width / Downsample);
-    int height = Mathf.Max(1, screenshot.height / Downsample);
-    RenderTextureFormat format = screenshot.format == TextureFormat.RGBAHalf
-      ? RenderTextureFormat.ARGBHalf
-      : RenderTextureFormat.ARGB32;
-
-    _blurredTexture = RenderTexture.GetTemporary(width, height, 0, format);
-    _blurredTexture.filterMode = FilterMode.Bilinear;
-    RenderTexture scratch = RenderTexture.GetTemporary(width, height, 0, format);
-    scratch.filterMode = FilterMode.Bilinear;
-
-    Graphics.Blit(screenshot, _blurredTexture);
-    for (var i = 0; i < BlurIterations; i++) {
-      Graphics.Blit(_blurredTexture, scratch, _blurMaterial, 0);
-      Graphics.Blit(scratch, _blurredTexture, _blurMaterial, 1);
-    }
-
-    RenderTexture.ReleaseTemporary(scratch);
-    Destroy(screenshot);
-
-    if (_modalCanvas == null) yield break;
-
-    var backgroundObject = new GameObject("BlurredBackground", typeof(RectTransform));
-    backgroundObject.transform.SetParent(_modalCanvas.transform, false);
-    backgroundObject.transform.SetAsFirstSibling();
-
-    RawImage background = backgroundObject.AddComponent<RawImage>();
-    background.texture = _blurredTexture;
-    background.raycastTarget = false;
-    MenuManager.Stretch(background.rectTransform);
-
-    _modalCanvas.enabled = true;
-  }
-
-  private void OnDestroy() {
-    if (_blurredTexture != null) {
-      RenderTexture.ReleaseTemporary(_blurredTexture);
-      _blurredTexture = null;
-    }
-
-    if (_blurMaterial != null) Destroy(_blurMaterial);
   }
 }
 
