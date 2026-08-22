@@ -5906,6 +5906,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 1971702218970736698, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: layerPrompts.Array.data[3].text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 2047234448656274463, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_IsActive
       value: 0
