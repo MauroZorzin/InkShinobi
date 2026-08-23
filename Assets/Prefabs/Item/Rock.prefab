@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5889048605379962255}
   - component: {fileID: 2242622173021596187}
   - component: {fileID: 410555458827966951}
-  m_Layer: 1
+  m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 1439551740966472440}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.24047852, y: -1.1838722, z: -0.097961426}
+  m_LocalPosition: {x: 0.24108887, y: -1.9338703, z: -0.09384155}
   m_LocalScale: {x: 1, y: 5, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -233,12 +233,10 @@ GameObject:
   m_Component:
   - component: {fileID: 6750383795522605494}
   - component: {fileID: 8154040656689332345}
-  - component: {fileID: 6268761342337226354}
-  - component: {fileID: 679541659882779286}
   - component: {fileID: 2440010422449225538}
   - component: {fileID: 6268042447396321262}
   - component: {fileID: 4538749809939407957}
-  m_Layer: 14
+  m_Layer: 0
   m_Name: Rock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -320,34 +318,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!114 &6268761342337226354
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8030886108923058880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d787c9c6823c2949a35a68425825ae1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WorldItem
-  item: {fileID: 11400000, guid: 61553f31ef4ade146b2ae3bd320dfc07, type: 2}
---- !u!114 &679541659882779286
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8030886108923058880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a46aabfbcf20f740a3976971f42eee8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ItemFloatAnimation
-  spinSpeed: 90
-  bobHeight: 0.15
-  bobSpeed: 0.5
 --- !u!65 &2440010422449225538
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -413,3 +383,6 @@ MonoBehaviour:
   distractionSignal: {fileID: 5889048605379962255}
   distractionLifetime: 3
   echoPrefab: {fileID: 410555458827966951}
+  echoLayer:
+    serializedVersion: 2
+    m_Bits: 2048

@@ -17,6 +17,8 @@ public class ThrownItem : MonoBehaviour {
   [Header("Echo Visual")]
   public EchoPulse echoPrefab;
 
+  public LayerMask echoLayer;
+
   private const float ArmDelay = 0.15f;
 
   private Rigidbody _rigidbody;
@@ -27,6 +29,7 @@ public class ThrownItem : MonoBehaviour {
   private void Awake() {
     _rigidbody = GetComponent<Rigidbody>();
     _rigidbody.isKinematic = true;
+    echoPrefab.gameObject.SetActive(false);
   }
 
   private void Update() {
@@ -36,10 +39,6 @@ public class ThrownItem : MonoBehaviour {
   }
 
   public void Launch(Vector3 targetPoint) {
-    ItemFloatAnimation floatAnimation = GetComponent<ItemFloatAnimation>();
-    if (floatAnimation != null) {
-      floatAnimation.enabled = false;
-    }
 
     Vector3 toTarget = targetPoint - transform.position;
     Vector3 flatDelta = new(toTarget.x, 0f, toTarget.z);
@@ -68,8 +67,14 @@ public class ThrownItem : MonoBehaviour {
   private void OnCollisionEnter(Collision collision) {
     Debug.Log($"[ThrownItem] '{name}' OnCollisionEnter with '{collision.collider.name}'. wasThrown={_wasThrown}, hasLanded={_hasLanded}, armTimer={_armTimer:F2}");
 
-    if (!_wasThrown || _hasLanded || _armTimer > 0f) {
+    if (!_wasThrown || _hasLanded) {
       return;
+    }
+    if (echoPrefab != null) {
+      if ((echoLayer.value & (1 << collision.collider.gameObject.layer)) == 0) {
+        Debug.Log($"[ThrownItem] '{name}' collided not with echo layer, ignoring echo pulse. collisionLayerName={LayerMask.LayerToName(collision.collider.gameObject.layer)}");
+        return;
+      }
     }
 
     _hasLanded = true;
@@ -80,7 +85,7 @@ public class ThrownItem : MonoBehaviour {
     }
 
     if (echoPrefab != null) {
-      Instantiate(echoPrefab, transform.position, Quaternion.identity);
+      echoPrefab.gameObject.SetActive(true);
       Debug.Log($"[ThrownItem] '{name}' spawned echo pulse.");
     }
   }
