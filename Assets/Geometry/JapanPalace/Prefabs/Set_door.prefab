@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6069666530608283448}
   - component: {fileID: 8652315461545939178}
   - component: {fileID: 607148692035943054}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SM_doorWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 245126473154513645}
   - component: {fileID: 1021809153736344014}
   - component: {fileID: 4722056574534355857}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SM_doorL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -158,8 +158,8 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 7b1ef6c23570c044da0123adcf3052e5, type: 2}
-  - {fileID: 2100000, guid: 3b15d05fa2667f14da203fac956016e5, type: 2}
-  - {fileID: 5207012970240084035, guid: b6bcc19122e29f4468c21178ae08b757, type: 3}
+  - {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
+  - {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -194,7 +194,7 @@ GameObject:
   - component: {fileID: 5844257678387010}
   - component: {fileID: 8347846899636839662}
   - component: {fileID: 7069351146097857823}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SM_doorR
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -249,9 +249,9 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 5207012970240084035, guid: b6bcc19122e29f4468c21178ae08b757, type: 3}
+  - {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
   - {fileID: 2100000, guid: 7b1ef6c23570c044da0123adcf3052e5, type: 2}
-  - {fileID: 2100000, guid: 3b15d05fa2667f14da203fac956016e5, type: 2}
+  - {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -284,7 +284,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3916399907814650935}
-  m_Layer: 0
+  - component: {fileID: 6443358285591063057}
+  - component: {fileID: 73282182031849137}
+  - component: {fileID: 2231295752535961415}
+  m_Layer: 6
   m_Name: Set_door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -299,13 +302,109 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8709139096380440497}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0.024999999}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 245126473154513645}
   - {fileID: 5844257678387010}
   - {fileID: 6069666530608283448}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!208 &6443358285591063057
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8709139096380440497}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
+--- !u!65 &73282182031849137
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8709139096380440497}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.01, y: 0.01, z: 0.01}
+  m_Center: {x: 0, y: 0, z: -0.005}
+--- !u!114 &2231295752535961415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8709139096380440497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52f62d9f2bc13ef43a849d26da9ed3a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PassagewayDoor
+  leftDoorPanel: {fileID: 245126473154513645}
+  rightDoorPanel: {fileID: 5844257678387010}
+  blockingCollider: {fileID: 73282182031849137}
+  navMeshObstacle: {fileID: 6443358285591063057}
+  startsOpen: 0
+  autoOpenOnStart: 0
+  autoCloseOnStart: 0
+  slideAxis: 1
+  panelSlideDistance: 0.005
+  animationDuration: 0.4
+  motionEasing: 1
+  customEasingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  audioSource: {fileID: 0}
+  openStartClip: {fileID: 0}
+  closeStartClip: {fileID: 0}
+  openEndClip: {fileID: 0}
+  closeEndClip: {fileID: 0}
+  audioVolume: 1
+  requiresItemToOpen: 1
+  requiresItemToClose: 0
+  requiredItemId: door_key_blue
+  closedPromptText: '[X] to Open'
+  openPromptText: '[X] to Close'
+  lockedPromptText: The Door is lock, maby a guard have a key

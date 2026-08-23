@@ -233,9 +233,21 @@ public class AimSwitch : MonoBehaviour {
   private void UpdateAim() {
     if (aimCamera == null || Mouse.current == null) return;
 
-    Ray mouseRay = aimCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
     Vector3 origin = followController != null ? followController.transform.position : transform.position;
-    Vector3 direction = mouseRay.direction;
+    Ray mouseRay = aimCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+
+    float playerDepth = Mathf.Max(0f, Vector3.Dot(origin - mouseRay.origin, mouseRay.direction));
+    Vector3 pastPlayerOrigin = mouseRay.origin + mouseRay.direction * playerDepth;
+    float remainingDistance = Mathf.Max(0f, maxAimDistance - playerDepth);
+
+    Vector3 direction;
+    if (remainingDistance > 0f && Physics.Raycast(pastPlayerOrigin, mouseRay.direction, out RaycastHit mouseHit, remainingDistance, obstructionLayers, QueryTriggerInteraction.Ignore)
+        && !mouseHit.collider.transform.IsChildOf(transform)) {
+      Vector3 toHit = mouseHit.point - origin;
+      direction = toHit.sqrMagnitude > 0.0001f ? toHit.normalized : mouseRay.direction;
+    } else {
+      direction = mouseRay.direction;
+    }
 
     var wasValid = _aimValid;
     _hasAimHit = false;
