@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f7eee24cca234f14e89b49aa07739803
+guid: 2eaa82f7bc06931419f68e0d2a6e4658
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1500
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: idle guardia sprite front_0
+      name: player_walk_dx_0
       rect:
         serializedVersion: 2
         x: 0
@@ -125,14 +125,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 223ccb1fc449d2a409cab6ab1a1d67c1
-      internalID: 432422071
+      spriteID: f3ee5452e051b1e45a92d846c053b588
+      internalID: -1107241856
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_1
+      name: player_walk_dx_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -147,14 +147,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b9636fafeb0a0ae4b82c274fec6dad58
-      internalID: -1075775264
+      spriteID: f4496a4866b26784499f18cfa8517860
+      internalID: 1959171131
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_2
+      name: player_walk_dx_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -169,14 +169,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2a40251b37e6bb240b1eea73ed557ffb
-      internalID: 939062431
+      spriteID: 233be450b75d6974cbeb49f95af08749
+      internalID: 874402344
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_3
+      name: player_walk_dx_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -191,14 +191,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6ba11f865300e2d43a32022123a9349f
-      internalID: -1359840626
+      spriteID: 6970c0587b08d4745b01ba4adbb69614
+      internalID: 1831437341
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_4
+      name: player_walk_dx_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -213,14 +213,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9e6d5e077ed168e47b090a0c3977b85f
-      internalID: -1724672886
+      spriteID: 39cce0840b1ceff43aed08cca25d7ce2
+      internalID: -81147278
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_5
+      name: player_walk_dx_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -235,14 +235,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b1b869d5d7ded5e458c68d4bf4301cdf
-      internalID: -990098564
+      spriteID: f5a95db746495d54488a20d12d499ffe
+      internalID: 580593617
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_6
+      name: player_walk_dx_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7b5a7b6153bf77140887884da4800eac
-      internalID: 471597668
+      spriteID: 8e280fdd48246194bab861b9293ac99d
+      internalID: 1175814169
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_7
+      name: player_walk_dx_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 908b6f233c76eb04b82086bf694ddcfd
-      internalID: -1165647449
+      spriteID: ada9fe7bdca07924887c12363b165964
+      internalID: -883968852
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_8
+      name: player_walk_dx_8
       rect:
         serializedVersion: 2
         x: 0
@@ -301,14 +301,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4e5ad8322b65f554f802a1b9cd1041a1
-      internalID: -777708111
+      spriteID: 5f42f397450fe5449b202d4fc4a44153
+      internalID: -1994149324
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_9
+      name: player_walk_dx_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -323,14 +323,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d12975819ccee4740affbb035fa97157
-      internalID: 1040773989
+      spriteID: 69b7c5796a21a524e9340435888c0a2a
+      internalID: 1634150406
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_10
+      name: player_walk_dx_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -345,14 +345,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 63fcc2447c861444a94ea51fad44344e
-      internalID: -1970968983
+      spriteID: cb7d5e0a70827f44fa3a629715a0c731
+      internalID: 1462556145
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_11
+      name: player_walk_dx_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -367,14 +367,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1d5e7cee046f8f94a8ccb8b8b44f1d78
-      internalID: -1597468452
+      spriteID: 2da00d4e5927adc4ead0d05eb5d75951
+      internalID: -936688990
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_12
+      name: player_walk_dx_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -389,14 +389,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fd575d351a54f11428b5ecdab18898ff
-      internalID: -1866465357
+      spriteID: 31311921ef881c941991039e3d88929e
+      internalID: 918810183
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_13
+      name: player_walk_dx_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -411,14 +411,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 14c2172635421eb4aa9509d1ada7fe14
-      internalID: 199311462
+      spriteID: 88819734e3b01ad4eade515630fd7413
+      internalID: 1489502643
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_14
+      name: player_walk_dx_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -433,14 +433,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d3e6ddbe6ae3ad4581144afeab98685
-      internalID: 1988055598
+      spriteID: 537b39c9a427c3e4ebbeaf750bc4cf9d
+      internalID: -1652764867
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_15
+      name: player_walk_dx_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -455,14 +455,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 08e37a4f47ce7824b8855bc361272ca8
-      internalID: 1730961077
+      spriteID: b6e8b9a4d00b02142bfe0cf745119eb3
+      internalID: 1197695356
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_16
+      name: player_walk_dx_16
       rect:
         serializedVersion: 2
         x: 0
@@ -477,14 +477,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a04921d4f4248a6419a9ecf320803960
-      internalID: -1926008294
+      spriteID: 2210a1d6c1def2443b6639e343860d16
+      internalID: 662183309
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_17
+      name: player_walk_dx_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -499,14 +499,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 02276822bd81e4b4283eda4f4f30716f
-      internalID: -939307155
+      spriteID: cf12db8141620e845b89031f5f88923d
+      internalID: -152331620
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_18
+      name: player_walk_dx_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -521,14 +521,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 29a88f40708d9f64c9cda9f966a71330
-      internalID: -507722121
+      spriteID: 058331ee06ba4bb43b5599859412b517
+      internalID: 40588526
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_19
+      name: player_walk_dx_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -543,14 +543,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b97192a725569f04ebfb4401ad02bb8c
-      internalID: -793785359
+      spriteID: c03d72263b2529648aa3efd0a1e530cf
+      internalID: -1474153643
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_20
+      name: player_walk_dx_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -565,14 +565,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ad62a970f746e26419b118483fd918b3
-      internalID: 69567563
+      spriteID: a33633c568b3d454fb5a6030dc3aba3b
+      internalID: -184206382
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_21
+      name: player_walk_dx_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -587,14 +587,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2adf1e25da12e2e45850f0bf5756fca7
-      internalID: -714033501
+      spriteID: 959783f9eb8f3414bb1ccb956c00043e
+      internalID: 1064882866
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_22
+      name: player_walk_dx_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -609,14 +609,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 46e2e0240cef01944ab811ae4ad21728
-      internalID: 1501673796
+      spriteID: 1ad334ac1be31c640b67ce83592842d7
+      internalID: 779333817
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_23
+      name: player_walk_dx_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -631,14 +631,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f09db1c8ede2dab46b8469a7773e8812
-      internalID: -495382156
+      spriteID: 0a74fc4d8f7ed7c4690743e556dd4764
+      internalID: 140204531
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_24
+      name: player_walk_dx_24
       rect:
         serializedVersion: 2
         x: 0
@@ -653,14 +653,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 135a99dae9bf0254abdb67ca22bdbaa8
-      internalID: 936351931
+      spriteID: 518fd2b54a15c154cb557203cf3d5704
+      internalID: -1174079659
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_25
+      name: player_walk_dx_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -675,14 +675,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 76542f6e26bf64c40a569d52a2f9304f
-      internalID: -426236853
+      spriteID: 8dd5592959c004f40b9c7afde82716b6
+      internalID: 67545451
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_26
+      name: player_walk_dx_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -697,14 +697,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2bf2b220e0514fc40bc4b2d99a4a96b6
-      internalID: -1070363619
+      spriteID: ef1eefa3518dcf24caf2c823d4458f9e
+      internalID: -1644265486
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_27
+      name: player_walk_dx_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -719,14 +719,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a392ac75ad213fd418d77cd472cd80c8
-      internalID: -1486912686
+      spriteID: 94867f78964d87a48a47688db400640f
+      internalID: -896987777
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_28
+      name: player_walk_dx_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -741,14 +741,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e946b9affbe37dd4fa5080fee8fdef00
-      internalID: 1468477772
+      spriteID: 98bc131ecdb7b5645a37ad35be3b2518
+      internalID: 1160055323
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_29
+      name: player_walk_dx_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -763,14 +763,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c499e08ee69ed7f41904a937b57b51f6
-      internalID: 1879361540
+      spriteID: b7288e089348a2d42824364edb515be2
+      internalID: 824201057
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_30
+      name: player_walk_dx_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -785,14 +785,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f313a23c678a13246b52b4b00800da9d
-      internalID: 285562827
+      spriteID: 8c36ed6430e7d134088672c0311dc8a6
+      internalID: 1304904944
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_31
+      name: player_walk_dx_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -807,14 +807,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 845fff8d84ea3c94091e7c8e3880768a
-      internalID: -1741820749
+      spriteID: 1697fdd987933fb4d9deab4c12af3005
+      internalID: 1497204669
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_32
+      name: player_walk_dx_32
       rect:
         serializedVersion: 2
         x: 0
@@ -829,14 +829,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e65ac36a52d9f58418e01ba0dba4210b
-      internalID: 2086662563
+      spriteID: f96377b6ec26c8646ba8d0a7fbf1d283
+      internalID: -1875546500
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite front_33
+      name: player_walk_dx_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -851,206 +851,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0e3204e7540d64144a84503623b18662
-      internalID: -758342733
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_34
-      rect:
-        serializedVersion: 2
-        x: 2084
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ea202854a6c44a0428b77d2bda045bb4
-      internalID: -1003640293
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_35
-      rect:
-        serializedVersion: 2
-        x: 3126
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: f334c1c2e4b6de4479ee824a96ba12ee
-      internalID: 2021246751
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_36
-      rect:
-        serializedVersion: 2
-        x: 4168
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2535a04536a449b409dd1543d6397c68
-      internalID: 1354779788
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_37
-      rect:
-        serializedVersion: 2
-        x: 5210
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: fb739ccad8e0c5e45850e76b88f28d49
-      internalID: 1600309199
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_38
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a67b50514af9022478b72707c300fbdf
-      internalID: 1712131145
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_39
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a57a3a9b40834984f9a6350de5cf4468
-      internalID: 977496531
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_40
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8f2ed8c7de56dec4783d747d0276a726
-      internalID: -1791050914
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_41
-      rect:
-        serializedVersion: 2
-        x: 1042
-        y: 0
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: c201364c28aaaa74d96898ca87bcc8e3
-      internalID: 648009223
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: idle guardia sprite front_42
-      rect:
-        serializedVersion: 2
-        x: 2084
-        y: 0
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 242f52be7192e6a4e9831e4b4b547bdd
-      internalID: 94860991
+      spriteID: e9d297462f89a5e409ea0128829eac53
+      internalID: -1249681076
       vertices: []
       indices: 
       edges: []
@@ -1059,7 +861,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 73ec92b401491534abbf94baec376a61
+    spriteID: fdab252f0de34234fa2df7ea064d55e4
     internalID: 0
     vertices: []
     indices: 
@@ -1071,49 +873,40 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      idle guardia sprite front_0: 432422071
-      idle guardia sprite front_1: -1075775264
-      idle guardia sprite front_10: -1970968983
-      idle guardia sprite front_11: -1597468452
-      idle guardia sprite front_12: -1866465357
-      idle guardia sprite front_13: 199311462
-      idle guardia sprite front_14: 1988055598
-      idle guardia sprite front_15: 1730961077
-      idle guardia sprite front_16: -1926008294
-      idle guardia sprite front_17: -939307155
-      idle guardia sprite front_18: -507722121
-      idle guardia sprite front_19: -793785359
-      idle guardia sprite front_2: 939062431
-      idle guardia sprite front_20: 69567563
-      idle guardia sprite front_21: -714033501
-      idle guardia sprite front_22: 1501673796
-      idle guardia sprite front_23: -495382156
-      idle guardia sprite front_24: 936351931
-      idle guardia sprite front_25: -426236853
-      idle guardia sprite front_26: -1070363619
-      idle guardia sprite front_27: -1486912686
-      idle guardia sprite front_28: 1468477772
-      idle guardia sprite front_29: 1879361540
-      idle guardia sprite front_3: -1359840626
-      idle guardia sprite front_30: 285562827
-      idle guardia sprite front_31: -1741820749
-      idle guardia sprite front_32: 2086662563
-      idle guardia sprite front_33: -758342733
-      idle guardia sprite front_34: -1003640293
-      idle guardia sprite front_35: 2021246751
-      idle guardia sprite front_36: 1354779788
-      idle guardia sprite front_37: 1600309199
-      idle guardia sprite front_38: 1712131145
-      idle guardia sprite front_39: 977496531
-      idle guardia sprite front_4: -1724672886
-      idle guardia sprite front_40: -1791050914
-      idle guardia sprite front_41: 648009223
-      idle guardia sprite front_42: 94860991
-      idle guardia sprite front_5: -990098564
-      idle guardia sprite front_6: 471597668
-      idle guardia sprite front_7: -1165647449
-      idle guardia sprite front_8: -777708111
-      idle guardia sprite front_9: 1040773989
+      player_walk_dx_0: -1107241856
+      player_walk_dx_1: 1959171131
+      player_walk_dx_10: 1462556145
+      player_walk_dx_11: -936688990
+      player_walk_dx_12: 918810183
+      player_walk_dx_13: 1489502643
+      player_walk_dx_14: -1652764867
+      player_walk_dx_15: 1197695356
+      player_walk_dx_16: 662183309
+      player_walk_dx_17: -152331620
+      player_walk_dx_18: 40588526
+      player_walk_dx_19: -1474153643
+      player_walk_dx_2: 874402344
+      player_walk_dx_20: -184206382
+      player_walk_dx_21: 1064882866
+      player_walk_dx_22: 779333817
+      player_walk_dx_23: 140204531
+      player_walk_dx_24: -1174079659
+      player_walk_dx_25: 67545451
+      player_walk_dx_26: -1644265486
+      player_walk_dx_27: -896987777
+      player_walk_dx_28: 1160055323
+      player_walk_dx_29: 824201057
+      player_walk_dx_3: 1831437341
+      player_walk_dx_30: 1304904944
+      player_walk_dx_31: 1497204669
+      player_walk_dx_32: -1875546500
+      player_walk_dx_33: -1249681076
+      player_walk_dx_4: -81147278
+      player_walk_dx_5: 580593617
+      player_walk_dx_6: 1175814169
+      player_walk_dx_7: -883968852
+      player_walk_dx_8: -1994149324
+      player_walk_dx_9: 1634150406
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

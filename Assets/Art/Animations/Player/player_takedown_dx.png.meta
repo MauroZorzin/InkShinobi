@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: da7bf0cbce6217f4583d0317233bce15
+guid: 770a2360a269e694194454e2e57ab699
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1500
@@ -110,188 +110,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: guardia sprite cammina back_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: be98f8689426215428a955f4c906441a
-      internalID: -1602648352
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_1
-      rect:
-        serializedVersion: 2
-        x: 1042
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0b7a083c3621fec418b2126a6f53aff5
-      internalID: -68360184
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_2
-      rect:
-        serializedVersion: 2
-        x: 2084
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a07a282deb3d6e24ea5dc88b2ce33a6f
-      internalID: 803109112
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_3
-      rect:
-        serializedVersion: 2
-        x: 3126
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: eef68c5b5a87483469122ae2932a961b
-      internalID: -699804748
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_4
-      rect:
-        serializedVersion: 2
-        x: 4168
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 8a103de5957e34546a33945986d8a48d
-      internalID: -180497513
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_5
-      rect:
-        serializedVersion: 2
-        x: 5210
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: c25c9f3f527088644bb3281d44147ec5
-      internalID: 654208889
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_6
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2937659d3dcc5a34a89aa2d07110af6a
-      internalID: 1735072564
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_7
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 1c18f01a7e49ff345bbcbaa388494f53
-      internalID: 2142576419
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_8
+      name: player_takedown_dx_0
       rect:
         serializedVersion: 2
         x: 0
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -301,19 +125,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6254ebc0ebfca294dac56e034cb9f2b6
-      internalID: -1407702307
+      spriteID: 17a6469f95b74cb459c4c0105335370a
+      internalID: 1612912184
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_9
+      name: player_takedown_dx_1
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -323,19 +147,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5044678bfb12e7d46a02987813eef80e
-      internalID: 2099344625
+      spriteID: 1f60e4af0c4a23c4aa6c6f56d60393b1
+      internalID: -915139526
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_10
+      name: player_takedown_dx_2
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -345,19 +169,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 807dd6ddd546f774bae2f9ba85cc6f50
-      internalID: -1698241142
+      spriteID: 419d469420d94b44f865b7f3f2345313
+      internalID: 1366966370
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_11
+      name: player_takedown_dx_3
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -367,19 +191,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ae767869adc6747409776d979308b703
-      internalID: -1987134575
+      spriteID: d4b3234a4a6272d408fe226116f814a0
+      internalID: 1739183028
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_12
+      name: player_takedown_dx_4
       rect:
         serializedVersion: 2
-        x: 4168
+        x: 5000
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -389,19 +213,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fde466fa1e8e51d4b822d820c1c4fb23
-      internalID: -750899311
+      spriteID: 07254106494577343980a8edd1d40c68
+      internalID: 61243654
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_13
+      name: player_takedown_dx_5
       rect:
         serializedVersion: 2
-        x: 5210
+        x: 6250
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -411,63 +235,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7538610393ecd0b4c8895e31e97687f3
-      internalID: -1607919248
+      spriteID: 9780fcac0840a284689f4f7fdecf6c2f
+      internalID: 1783378902
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_14
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 4168
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a65867a2825818d438e1522479d7cdc0
-      internalID: 902380890
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_15
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 4168
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 21897d8d79df9394aa26de236ea469c6
-      internalID: -451778127
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_16
+      name: player_takedown_dx_6
       rect:
         serializedVersion: 2
         x: 0
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -477,19 +257,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1db775efe0d67e64ea3dd6c823b28004
-      internalID: -1039328329
+      spriteID: b57d06466d2e3614a8f5bfd31941c4e2
+      internalID: -1649661150
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_17
+      name: player_takedown_dx_7
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -499,19 +279,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8d449ce4e86cd90469c157e93f2b99eb
-      internalID: 643214779
+      spriteID: 9e3328dfa082bf34e844017c9ba56513
+      internalID: 84472576
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_18
+      name: player_takedown_dx_8
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -521,19 +301,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d2ea9e5b478de864290faa886f2f959a
-      internalID: -520957575
+      spriteID: 1631a0472dca42d4f8f730d00ba21e07
+      internalID: 61927228
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_19
+      name: player_takedown_dx_9
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -543,19 +323,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1d23b3a792a4adc44b118552d2e2709d
-      internalID: -1396209667
+      spriteID: 7ebda00ae3c4e45499a7cdfbe1062a6b
+      internalID: 661485158
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_20
+      name: player_takedown_dx_10
       rect:
         serializedVersion: 2
-        x: 4168
+        x: 5000
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -565,19 +345,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 34429c807d91ad143b012fa29b2018d0
-      internalID: 543895774
+      spriteID: d32d2a85687d6434c93f02022ddb9eec
+      internalID: 183808017
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_21
+      name: player_takedown_dx_11
       rect:
         serializedVersion: 2
-        x: 5210
+        x: 6250
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -587,63 +367,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 98b0fd7d214a30d46a7e2adae59b3b26
-      internalID: 1831656615
+      spriteID: 733a6f833f4714f4cac59f5579485c5f
+      internalID: -1633199117
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_22
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 3126
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 44d4890c18498974397ba82939954422
-      internalID: -101030807
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_23
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 3126
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 73b33c5d07a88cc4da141b87d85dae40
-      internalID: 1469968423
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_24
+      name: player_takedown_dx_12
       rect:
         serializedVersion: 2
         x: 0
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -653,19 +389,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 48dc926fd91305a44a94c8bcee8a6046
-      internalID: 1041569043
+      spriteID: 01892c38b80930644b0bb7d790150c3f
+      internalID: 59028262
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_25
+      name: player_takedown_dx_13
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -675,19 +411,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d2ef9f196f783904baf83761eba142cf
-      internalID: -1613589114
+      spriteID: a8aea5d5a7c68a44b9624d2e4940a209
+      internalID: 2144683955
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_26
+      name: player_takedown_dx_14
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -697,19 +433,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8f15d820625e12b4883358121c3aeaae
-      internalID: 387928983
+      spriteID: 344a2c1a39ca30943a08555650648925
+      internalID: -1636896226
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_27
+      name: player_takedown_dx_15
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -719,19 +455,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0d5d1a34fb8d0a449ac853df4dfeb9fb
-      internalID: 1798618646
+      spriteID: 4d515dac71135904d93e3cab6efa391f
+      internalID: -1212568508
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_28
+      name: player_takedown_dx_16
       rect:
         serializedVersion: 2
-        x: 4168
+        x: 5000
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -741,19 +477,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fdd671813574ead46bc3a4de7bb37121
-      internalID: -2141845239
+      spriteID: e6a26821dcdb44e4ebf0df7aaa962b87
+      internalID: -2140466425
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_29
+      name: player_takedown_dx_17
       rect:
         serializedVersion: 2
-        x: 5210
+        x: 6250
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -763,63 +499,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6c5d8c35eb7fda0428e4c0e75b360510
-      internalID: -1923012993
+      spriteID: 0000b5dce148cfd4887d66f493bf8d47
+      internalID: 500940175
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_30
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 2084
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: d6d32cace8d0b364295eb349c8c8e972
-      internalID: -1921566663
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_31
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 2084
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 35cd6b9075c6d7e448ef2259bee4dac6
-      internalID: -1891185537
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: guardia sprite cammina back_32
+      name: player_takedown_dx_18
       rect:
         serializedVersion: 2
         x: 0
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -829,19 +521,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0e05d14f225ba634aaac62372d07de82
-      internalID: 1760875234
+      spriteID: 54803f308c274364d8b4cb8e7e8807fa
+      internalID: -1822401
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_33
+      name: player_takedown_dx_19
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -851,19 +543,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 02870ce8bbc78ae4da4d3ce97d1acd92
-      internalID: 173229853
+      spriteID: 845da9addea127e46b62008b254a8108
+      internalID: -1689346407
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_34
+      name: player_takedown_dx_20
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -873,19 +565,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1bd20b67d3b19df438f898b97e59b12b
-      internalID: -1067155584
+      spriteID: 8c56f87ca268377418860dbdc7883dad
+      internalID: 735612963
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_35
+      name: player_takedown_dx_21
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -895,19 +587,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 79127333ecc1f8f4fa5c946538a4d606
-      internalID: -79237707
+      spriteID: d8c446a5b3bc2284f9fa769d8e47190e
+      internalID: -663221479
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_36
+      name: player_takedown_dx_22
       rect:
         serializedVersion: 2
-        x: 4168
+        x: 5000
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -917,19 +609,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f07732b607307de4c9fb68bab7b1a379
-      internalID: -2047236620
+      spriteID: be4cb3bebfc2417448e8b7c4a4a7a6a3
+      internalID: 1251866954
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_37
+      name: player_takedown_dx_23
       rect:
         serializedVersion: 2
-        x: 5210
+        x: 6250
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -939,19 +631,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 569cea08568fc8441bb41c66e1167c46
-      internalID: 1664143135
+      spriteID: b131b11c544117e4a9ce518021479b14
+      internalID: 150413754
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina back_38
+      name: player_takedown_dx_24
       rect:
         serializedVersion: 2
-        x: 6252
-        y: 1042
-        width: 1042
+        x: 0
+        y: 0
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -961,8 +653,118 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b1c003994ce1b9847b583e76a90b831f
-      internalID: 680508114
+      spriteID: 0fc5abf2c7af1b1478068c726e8fe0df
+      internalID: 1503473913
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_dx_25
+      rect:
+        serializedVersion: 2
+        x: 1250
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1dce0a9ef503c944d8723a5b1b0ceef1
+      internalID: 2130021082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_dx_26
+      rect:
+        serializedVersion: 2
+        x: 2500
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e66d503efed77204bbc6b8569c80c13c
+      internalID: -1348016561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_dx_27
+      rect:
+        serializedVersion: 2
+        x: 3750
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3967d9afc9b53e749b386c0cce964a0a
+      internalID: 1179148466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_dx_28
+      rect:
+        serializedVersion: 2
+        x: 5000
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1b8dec51d8824c9459039f9fe12c5ef1
+      internalID: 2141276159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_dx_29
+      rect:
+        serializedVersion: 2
+        x: 6250
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1272d1f3a29a53644bd2357ce8805296
+      internalID: -920724307
       vertices: []
       indices: 
       edges: []
@@ -971,7 +773,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: d5a13ea3600d8264980c5dc64e86da66
+    spriteID: d4059b3a2ddc1fa4f87e502605423d20
     internalID: 0
     vertices: []
     indices: 
@@ -981,47 +783,38 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":6.0,"y":5.0},"gridSpriteSize":{"x":1250.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      guardia sprite cammina back_0: -1602648352
-      guardia sprite cammina back_1: -68360184
-      guardia sprite cammina back_10: -1698241142
-      guardia sprite cammina back_11: -1987134575
-      guardia sprite cammina back_12: -750899311
-      guardia sprite cammina back_13: -1607919248
-      guardia sprite cammina back_14: 902380890
-      guardia sprite cammina back_15: -451778127
-      guardia sprite cammina back_16: -1039328329
-      guardia sprite cammina back_17: 643214779
-      guardia sprite cammina back_18: -520957575
-      guardia sprite cammina back_19: -1396209667
-      guardia sprite cammina back_2: 803109112
-      guardia sprite cammina back_20: 543895774
-      guardia sprite cammina back_21: 1831656615
-      guardia sprite cammina back_22: -101030807
-      guardia sprite cammina back_23: 1469968423
-      guardia sprite cammina back_24: 1041569043
-      guardia sprite cammina back_25: -1613589114
-      guardia sprite cammina back_26: 387928983
-      guardia sprite cammina back_27: 1798618646
-      guardia sprite cammina back_28: -2141845239
-      guardia sprite cammina back_29: -1923012993
-      guardia sprite cammina back_3: -699804748
-      guardia sprite cammina back_30: -1921566663
-      guardia sprite cammina back_31: -1891185537
-      guardia sprite cammina back_32: 1760875234
-      guardia sprite cammina back_33: 173229853
-      guardia sprite cammina back_34: -1067155584
-      guardia sprite cammina back_35: -79237707
-      guardia sprite cammina back_36: -2047236620
-      guardia sprite cammina back_37: 1664143135
-      guardia sprite cammina back_38: 680508114
-      guardia sprite cammina back_4: -180497513
-      guardia sprite cammina back_5: 654208889
-      guardia sprite cammina back_6: 1735072564
-      guardia sprite cammina back_7: 2142576419
-      guardia sprite cammina back_8: -1407702307
-      guardia sprite cammina back_9: 2099344625
+      player_takedown_dx_0: 1612912184
+      player_takedown_dx_1: -915139526
+      player_takedown_dx_10: 183808017
+      player_takedown_dx_11: -1633199117
+      player_takedown_dx_12: 59028262
+      player_takedown_dx_13: 2144683955
+      player_takedown_dx_14: -1636896226
+      player_takedown_dx_15: -1212568508
+      player_takedown_dx_16: -2140466425
+      player_takedown_dx_17: 500940175
+      player_takedown_dx_18: -1822401
+      player_takedown_dx_19: -1689346407
+      player_takedown_dx_2: 1366966370
+      player_takedown_dx_20: 735612963
+      player_takedown_dx_21: -663221479
+      player_takedown_dx_22: 1251866954
+      player_takedown_dx_23: 150413754
+      player_takedown_dx_24: 1503473913
+      player_takedown_dx_25: 2130021082
+      player_takedown_dx_26: -1348016561
+      player_takedown_dx_27: 1179148466
+      player_takedown_dx_28: 2141276159
+      player_takedown_dx_29: -920724307
+      player_takedown_dx_3: 1739183028
+      player_takedown_dx_4: 61243654
+      player_takedown_dx_5: 1783378902
+      player_takedown_dx_6: -1649661150
+      player_takedown_dx_7: 84472576
+      player_takedown_dx_8: 61927228
+      player_takedown_dx_9: 661485158
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

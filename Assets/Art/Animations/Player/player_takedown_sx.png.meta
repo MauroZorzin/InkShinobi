@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 53326756575f0b24d9f82e6eae587d93
+guid: 520d4c09dcff45b4fb274a1348d5ced8
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1500
@@ -110,188 +110,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_0
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4827799dd4496ca4daff86ce019b2eab
-      internalID: -1155342088
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_1
-      rect:
-        serializedVersion: 2
-        x: 1042
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3c01a8bb2e8db7d4cb8d374d0b90fa6f
-      internalID: 273389033
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_2
-      rect:
-        serializedVersion: 2
-        x: 2084
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ed52437ada87bd8478117540cca41775
-      internalID: 117875972
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_3
-      rect:
-        serializedVersion: 2
-        x: 3126
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 59a9d3e2d7b5608438518bccc9c99c0c
-      internalID: 953332719
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_4
-      rect:
-        serializedVersion: 2
-        x: 4168
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: ff2dbcb8543ebad43bf681ce6c012c79
-      internalID: 1839778543
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_5
-      rect:
-        serializedVersion: 2
-        x: 5210
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 33b801aa9cb104147bf6ec2d775fdefe
-      internalID: 588203722
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_6
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 105d16f19ec990b46b4f9d8e8e765f73
-      internalID: 417496018
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_7
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 5210
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3ed95c2553ffab349ab6672832ba51cd
-      internalID: -1842221724
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_8
+      name: player_takedown_sx_0
       rect:
         serializedVersion: 2
         x: 0
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -301,19 +125,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 61e2c1ac966ef3a4ab773885f7fcffa4
-      internalID: 1180553090
+      spriteID: 669ebe60b47554449935552b38a2311f
+      internalID: 2007250779
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_9
+      name: player_takedown_sx_1
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -323,19 +147,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b38be1d94fe26f54e9602875789a955d
-      internalID: -705048102
+      spriteID: 988f616990b095a449a17bd8a5d2603c
+      internalID: 1767544482
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_10
+      name: player_takedown_sx_2
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -345,19 +169,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0bff27960546b4b49a950ca313a20387
-      internalID: -1862984636
+      spriteID: 7b67548fed4b59c4f9585a7f04f30bd3
+      internalID: 507981558
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_11
+      name: player_takedown_sx_3
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -367,19 +191,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d2b06ea6cc80eaa4ab1827f54f049538
-      internalID: 1103759435
+      spriteID: cb574167d9ddef0439793aee570612c9
+      internalID: -704686333
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_12
+      name: player_takedown_sx_4
       rect:
         serializedVersion: 2
-        x: 4168
+        x: 5000
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -389,19 +213,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 46f3ef1a39171634ba2b03d09349f713
-      internalID: -1148213751
+      spriteID: c57a2bb9b2eb091409df752145ed4f84
+      internalID: -471664229
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_13
+      name: player_takedown_sx_5
       rect:
         serializedVersion: 2
-        x: 5210
+        x: 6250
         y: 4168
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -411,63 +235,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 06a28923588efa040a3bc5966f6000a3
-      internalID: -452978565
+      spriteID: 0cbad29e0e0565647856deee3dcd2a66
+      internalID: -1476012888
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_14
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 4168
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e8f7b1238b08f534186ce30aabcc0c13
-      internalID: 207793265
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_15
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 4168
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 1e9d339ca55e75d4d8fcc09e3c8e8ef8
-      internalID: -185858995
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_16
+      name: player_takedown_sx_6
       rect:
         serializedVersion: 2
         x: 0
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -477,19 +257,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 81b7a27d3eac9884eb103324869e0bf4
-      internalID: -152415675
+      spriteID: a03ef0fbd5506a04eb9a30686a23fa5c
+      internalID: 1615297711
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_17
+      name: player_takedown_sx_7
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -499,19 +279,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d7fa01a0d32e324439676439a571afac
-      internalID: -114960255
+      spriteID: 889876380f885a148901894d415d74cd
+      internalID: -2139224780
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_18
+      name: player_takedown_sx_8
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -521,19 +301,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 37c733768496369498e23cfefff6354b
-      internalID: -1161023443
+      spriteID: c155e55976311834b845de3098910721
+      internalID: 798438717
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_19
+      name: player_takedown_sx_9
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -543,19 +323,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 409f1ba85c47f3340ada592f76f35b4f
-      internalID: -1453526370
+      spriteID: 45413a3a96e292b4c8b881325d069f78
+      internalID: -1568237100
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_20
+      name: player_takedown_sx_10
       rect:
         serializedVersion: 2
-        x: 4168
+        x: 5000
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -565,19 +345,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3a17052eb77a67343bcee3d4845cab30
-      internalID: 503916539
+      spriteID: d06e22f930ebdb04ab827f1f781ba006
+      internalID: -1246069441
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_21
+      name: player_takedown_sx_11
       rect:
         serializedVersion: 2
-        x: 5210
+        x: 6250
         y: 3126
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -587,63 +367,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e46e6a4259572c647b61178db7639fa3
-      internalID: 590802443
+      spriteID: 2046c01f7011e7446a609e60f4e8bdac
+      internalID: -269463268
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_22
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 3126
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0f76ec8e5a3bd154d9247909bef833f6
-      internalID: -623166985
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_23
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 3126
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: b0e93bb9ae0e7774696a62b47464c3de
-      internalID: -532675188
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_24
+      name: player_takedown_sx_12
       rect:
         serializedVersion: 2
         x: 0
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -653,19 +389,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2fcf01f9a1802ae48993642e76f5b714
-      internalID: 706954127
+      spriteID: 305f09ac39985cb46bce51fd7a27894f
+      internalID: -894650035
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_25
+      name: player_takedown_sx_13
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -675,19 +411,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c4455810586ca5e46a3886aabe48ec97
-      internalID: -1823840724
+      spriteID: 8861413d6d5612e4fa70ae788e37b3d4
+      internalID: 2139398557
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_26
+      name: player_takedown_sx_14
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -697,19 +433,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 47bab7fc633474449bd6c4c393f4578b
-      internalID: 2126970702
+      spriteID: f6117891f0f770440a5789f6f5535269
+      internalID: -201913933
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_27
+      name: player_takedown_sx_15
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -719,19 +455,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 844bc4ac26e0b324ab4fc7b749415d2c
-      internalID: 1033574924
+      spriteID: 412a383e59bef6a4caefb4d9c92e1528
+      internalID: 1905021345
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_28
+      name: player_takedown_sx_16
       rect:
         serializedVersion: 2
-        x: 4168
+        x: 5000
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -741,19 +477,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c5efdeb30ecfc964a86e25039d95a45a
-      internalID: -933438073
+      spriteID: 3c6e1108af297bc40a6ee08402e27986
+      internalID: -1053049435
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_29
+      name: player_takedown_sx_17
       rect:
         serializedVersion: 2
-        x: 5210
+        x: 6250
         y: 2084
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -763,63 +499,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 273862925a53ac44085567b5cfd7ea26
-      internalID: -992137669
+      spriteID: 6041c51941b22624ebe368cd2aca606b
+      internalID: -783617122
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_30
-      rect:
-        serializedVersion: 2
-        x: 6252
-        y: 2084
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: abcb74119546a104288431b958cfc63f
-      internalID: 1183056716
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_31
-      rect:
-        serializedVersion: 2
-        x: 7294
-        y: 2084
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: e35c139a340a93845b9194ad42d80456
-      internalID: 334643744
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky dx_32
+      name: player_takedown_sx_18
       rect:
         serializedVersion: 2
         x: 0
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -829,19 +521,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 773f51a0f113bd147b0983408cc6cb46
-      internalID: -557169953
+      spriteID: 3b9b5ee0da601f043958d449ae14ed15
+      internalID: -1376520313
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_33
+      name: player_takedown_sx_19
       rect:
         serializedVersion: 2
-        x: 1042
+        x: 1250
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -851,19 +543,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0c2266f84d6ee104c93849e49fee86b8
-      internalID: 1595317313
+      spriteID: 43423f80ec22a1e4b9bbd0fe92c4c5f2
+      internalID: 1237449484
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_34
+      name: player_takedown_sx_20
       rect:
         serializedVersion: 2
-        x: 2084
+        x: 2500
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -873,19 +565,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 11b16b92743caca4fbc59bcfecc74e21
-      internalID: 1465614663
+      spriteID: d15e9da879c754642aeeee123a017d22
+      internalID: 1776784647
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky dx_35
+      name: player_takedown_sx_21
       rect:
         serializedVersion: 2
-        x: 3126
+        x: 3750
         y: 1042
-        width: 1042
+        width: 1250
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -895,8 +587,184 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 613d6ae84cfd2c342ac6527828382a31
-      internalID: 1018785650
+      spriteID: 355cc02b18bd04b47a1ad8f973dc5400
+      internalID: 1555355634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_22
+      rect:
+        serializedVersion: 2
+        x: 5000
+        y: 1042
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d79abe29446b3d44eb6812cf7a8ef69a
+      internalID: 1599139132
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_23
+      rect:
+        serializedVersion: 2
+        x: 6250
+        y: 1042
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0db67fbb15a91e74890869bd2aa41390
+      internalID: 672077555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 777c5acf396244f42b836126d67cc6fd
+      internalID: 682584943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_25
+      rect:
+        serializedVersion: 2
+        x: 1250
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0022acfce6293b74681fac225f942a09
+      internalID: -814041563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_26
+      rect:
+        serializedVersion: 2
+        x: 2500
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c4805d404f6d0134da1c9847070b870a
+      internalID: 768191377
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_27
+      rect:
+        serializedVersion: 2
+        x: 3750
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dba021a6716002444a777e20e1ed3b7c
+      internalID: 648483572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_28
+      rect:
+        serializedVersion: 2
+        x: 5000
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 489233271a465284da6c2916fe7c5a81
+      internalID: -1132060701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_takedown_sx_29
+      rect:
+        serializedVersion: 2
+        x: 6250
+        y: 0
+        width: 1250
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e6f9372c4caf988418e06cbda746e649
+      internalID: -1085249195
       vertices: []
       indices: 
       edges: []
@@ -905,7 +773,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5eaa25be593d4b24abd7e08133a1e17b
+    spriteID: a75b56a8672c2d4438eac2758947932b
     internalID: 0
     vertices: []
     indices: 
@@ -915,44 +783,38 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":6.0,"y":5.0},"gridSpriteSize":{"x":1250.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      shinobi camminata sneaky dx_0: -1155342088
-      shinobi camminata sneaky dx_1: 273389033
-      shinobi camminata sneaky dx_10: -1862984636
-      shinobi camminata sneaky dx_11: 1103759435
-      shinobi camminata sneaky dx_12: -1148213751
-      shinobi camminata sneaky dx_13: -452978565
-      shinobi camminata sneaky dx_14: 207793265
-      shinobi camminata sneaky dx_15: -185858995
-      shinobi camminata sneaky dx_16: -152415675
-      shinobi camminata sneaky dx_17: -114960255
-      shinobi camminata sneaky dx_18: -1161023443
-      shinobi camminata sneaky dx_19: -1453526370
-      shinobi camminata sneaky dx_2: 117875972
-      shinobi camminata sneaky dx_20: 503916539
-      shinobi camminata sneaky dx_21: 590802443
-      shinobi camminata sneaky dx_22: -623166985
-      shinobi camminata sneaky dx_23: -532675188
-      shinobi camminata sneaky dx_24: 706954127
-      shinobi camminata sneaky dx_25: -1823840724
-      shinobi camminata sneaky dx_26: 2126970702
-      shinobi camminata sneaky dx_27: 1033574924
-      shinobi camminata sneaky dx_28: -933438073
-      shinobi camminata sneaky dx_29: -992137669
-      shinobi camminata sneaky dx_3: 953332719
-      shinobi camminata sneaky dx_30: 1183056716
-      shinobi camminata sneaky dx_31: 334643744
-      shinobi camminata sneaky dx_32: -557169953
-      shinobi camminata sneaky dx_33: 1595317313
-      shinobi camminata sneaky dx_34: 1465614663
-      shinobi camminata sneaky dx_35: 1018785650
-      shinobi camminata sneaky dx_4: 1839778543
-      shinobi camminata sneaky dx_5: 588203722
-      shinobi camminata sneaky dx_6: 417496018
-      shinobi camminata sneaky dx_7: -1842221724
-      shinobi camminata sneaky dx_8: 1180553090
-      shinobi camminata sneaky dx_9: -705048102
+      player_takedown_sx_0: 2007250779
+      player_takedown_sx_1: 1767544482
+      player_takedown_sx_10: -1246069441
+      player_takedown_sx_11: -269463268
+      player_takedown_sx_12: -894650035
+      player_takedown_sx_13: 2139398557
+      player_takedown_sx_14: -201913933
+      player_takedown_sx_15: 1905021345
+      player_takedown_sx_16: -1053049435
+      player_takedown_sx_17: -783617122
+      player_takedown_sx_18: -1376520313
+      player_takedown_sx_19: 1237449484
+      player_takedown_sx_2: 507981558
+      player_takedown_sx_20: 1776784647
+      player_takedown_sx_21: 1555355634
+      player_takedown_sx_22: 1599139132
+      player_takedown_sx_23: 672077555
+      player_takedown_sx_24: 682584943
+      player_takedown_sx_25: -814041563
+      player_takedown_sx_26: 768191377
+      player_takedown_sx_27: 648483572
+      player_takedown_sx_28: -1132060701
+      player_takedown_sx_29: -1085249195
+      player_takedown_sx_3: -704686333
+      player_takedown_sx_4: -471664229
+      player_takedown_sx_5: -1476012888
+      player_takedown_sx_6: 1615297711
+      player_takedown_sx_7: -2139224780
+      player_takedown_sx_8: 798438717
+      player_takedown_sx_9: -1568237100
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

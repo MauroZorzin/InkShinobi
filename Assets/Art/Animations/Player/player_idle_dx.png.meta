@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1500
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shinobi idle dx_0
+      name: player_idle_dx_0
       rect:
         serializedVersion: 2
         x: 0
@@ -125,14 +125,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e9e179767764e874292a082f38d92d79
-      internalID: 1826647264
+      spriteID: 6c5c8c9de3406104fac549e79dbb628f
+      internalID: 811744266
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_1
+      name: player_idle_dx_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -147,14 +147,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5a1508e6c71ff4745850845980d94594
-      internalID: 776812228
+      spriteID: 4e88ee3e3836b4e46bcf2ec48b7ff789
+      internalID: -893065663
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_2
+      name: player_idle_dx_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -169,14 +169,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1433c565677176340927830009589b7c
-      internalID: 446089907
+      spriteID: a375a3b63ee214e4d9102246f4b51420
+      internalID: -221750897
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_3
+      name: player_idle_dx_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -191,14 +191,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6576659f2342a274dad89c4556e66d58
-      internalID: 858090616
+      spriteID: fbecd10fa9f403a4587e922b40bb181a
+      internalID: 1780901972
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_4
+      name: player_idle_dx_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -213,14 +213,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d06307824b85c104b9f440d034ade9f9
-      internalID: -1472984519
+      spriteID: 688399dc84c3a834c9e287b2ace96f5f
+      internalID: 1048437216
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_5
+      name: player_idle_dx_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -235,14 +235,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bf1ff72c16a9bb14dba98bcd2380e75c
-      internalID: -1684259443
+      spriteID: 8ca8fd9f0ebc68f4d9e0f03446f3a60f
+      internalID: 1820360917
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_6
+      name: player_idle_dx_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dcca18d70629cef4293fe58c1378277a
-      internalID: 2046644490
+      spriteID: a6d14df195299314abe4f3353119b94a
+      internalID: 81285266
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_7
+      name: player_idle_dx_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1d6b61f42a2cf654aad84202b21b950e
-      internalID: -1035223186
+      spriteID: 2c94b91f51173db4e8a9f4693220f801
+      internalID: 706243466
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_8
+      name: player_idle_dx_8
       rect:
         serializedVersion: 2
         x: 0
@@ -301,14 +301,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eebd33dd3afdeeb4ca363d90f1b63d25
-      internalID: -1305595930
+      spriteID: 55b692fa99943334e907663fe5252287
+      internalID: -336327712
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_9
+      name: player_idle_dx_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -323,14 +323,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 430d387b5b1f0594087b8d0ec2ee36ec
-      internalID: -1538918251
+      spriteID: ad4ed3a0253ae82409bdc9458427fb73
+      internalID: 1540753368
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_10
+      name: player_idle_dx_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -345,14 +345,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 723a21a07e302d4438c2bf34a1049743
-      internalID: -2116016839
+      spriteID: 062b5ec8af6219b42a6b75ba10f8c914
+      internalID: -1646281423
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_11
+      name: player_idle_dx_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -367,14 +367,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9f3687586b5575a46bfe840b6397e04b
-      internalID: 2106211835
+      spriteID: e2c02cb85fd4f764da69d452831c349a
+      internalID: -430843558
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_12
+      name: player_idle_dx_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -389,14 +389,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9784ea8f7b2da0a4da56b51a24032e56
-      internalID: 886830937
+      spriteID: c03b5d0c8b2cf9f41a28d04d0d351dae
+      internalID: 81549985
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_13
+      name: player_idle_dx_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -411,14 +411,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b8eaba698c2a99340a9f19574605b9e0
-      internalID: -1296459365
+      spriteID: 064dac9adfbccf94cad65ee9c00414ee
+      internalID: -180733475
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_14
+      name: player_idle_dx_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -433,14 +433,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 54729c5d44680a641aa3787464e01153
-      internalID: -2056242330
+      spriteID: fea99269191e5a847922c52b0ad0f293
+      internalID: -1175337639
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_15
+      name: player_idle_dx_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -455,14 +455,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 09e643e61488eac449ab151d2bf063b6
-      internalID: -1908743417
+      spriteID: c71abe1853b305e499f32bf57c8be8f3
+      internalID: 1859056587
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_16
+      name: player_idle_dx_16
       rect:
         serializedVersion: 2
         x: 0
@@ -477,14 +477,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5aafd127b7349404194daa0be89c88bb
-      internalID: -702240151
+      spriteID: 2daf333baf1a4e1438db1c720b6c113e
+      internalID: -1064019897
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_17
+      name: player_idle_dx_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -499,14 +499,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b9ec76ff7f78c104491b57a4080dea04
-      internalID: -213730324
+      spriteID: 9340e7589f49f6c4e8639ef7016899a6
+      internalID: 94186730
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_18
+      name: player_idle_dx_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -521,14 +521,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2f606c7d5bc35d54da20561e6949e8a7
-      internalID: -1199245616
+      spriteID: d42361c21db86954681891a566ad3533
+      internalID: 1981121568
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_19
+      name: player_idle_dx_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -543,14 +543,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a40f8650a9695f044924334d3d26678b
-      internalID: 757817647
+      spriteID: 1273ab7d9670bf844ad0c00850f98696
+      internalID: -896436587
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_20
+      name: player_idle_dx_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -565,14 +565,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5b7271e34a2b82e489020f4760b4de84
-      internalID: -37921293
+      spriteID: 43c01758b65f5d34681dbae3671c8ad0
+      internalID: 1883502647
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_21
+      name: player_idle_dx_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -587,14 +587,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7b4370a9ab80f924b98e963988879153
-      internalID: 1911296998
+      spriteID: 2783aa9e22741b34abed7b0a823a74c0
+      internalID: -736659486
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_22
+      name: player_idle_dx_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -609,14 +609,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 92246f224ed69a4468f86267fbaf6cbb
-      internalID: -1458833600
+      spriteID: 678274d72be13ec45b6e361b7f8f6c71
+      internalID: 207683874
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_23
+      name: player_idle_dx_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -631,14 +631,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4206612485079f34e8c7818c4989f1c4
-      internalID: -1736101122
+      spriteID: f325c53d811ecbb4886d9439a47cfa1e
+      internalID: 264559793
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_24
+      name: player_idle_dx_24
       rect:
         serializedVersion: 2
         x: 0
@@ -653,14 +653,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1c303f909943cb347b2d20e1ed79f7fd
-      internalID: 1730941321
+      spriteID: 8c4b98beed1c9c0429a1e762db0b724d
+      internalID: 1463077697
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_25
+      name: player_idle_dx_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -675,14 +675,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6975af10b0c733349bd812adeab7d14a
-      internalID: -757996506
+      spriteID: 8f28f897b2048b543aa8416f9dcc287c
+      internalID: -779168387
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_26
+      name: player_idle_dx_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -697,14 +697,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a47349e31ad8bf84688d6baa4112a3c0
-      internalID: 1491156889
+      spriteID: f0d98e53d746cc645ac851c20e135422
+      internalID: -469417273
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_27
+      name: player_idle_dx_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -719,14 +719,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 23d60e9c80a650d41a9cd3a14884e3d2
-      internalID: -1457418245
+      spriteID: 29e1a2759d40a1747a3b74f1eddcd3ef
+      internalID: -1558656594
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_28
+      name: player_idle_dx_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -741,14 +741,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: adc0fd680566ee24e9e721f4552b478a
-      internalID: -2070663775
+      spriteID: 0ec31161971961d4f99af3480438705b
+      internalID: -2126628910
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_29
+      name: player_idle_dx_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -763,14 +763,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2e73741f9cfd78f4ab545746284b01dd
-      internalID: 997988171
+      spriteID: 89d609c58cabc034088ac8d7c3f9e7ec
+      internalID: 667010636
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_30
+      name: player_idle_dx_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -785,14 +785,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 63e603b0ed025024393cf8c84340120d
-      internalID: -2115260317
+      spriteID: 1e8e1b36a75451c4d88b82e8bd81a0a8
+      internalID: 2030812341
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_31
+      name: player_idle_dx_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -807,14 +807,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: afd2f6c75ccff1345b3e249f82ba9573
-      internalID: 829228046
+      spriteID: 104190274c84ba14c9a6069ae0ad3aa5
+      internalID: 1961896987
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_32
+      name: player_idle_dx_32
       rect:
         serializedVersion: 2
         x: 0
@@ -829,14 +829,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 22cc3eca041764e4ea53d6dd785f4882
-      internalID: -2102273557
+      spriteID: 1bd7d7572b11635469dca3f24defb839
+      internalID: -1058540603
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_33
+      name: player_idle_dx_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -851,14 +851,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3eeef1c5bb1a53340ba98e3e3beaf43b
-      internalID: 968019903
+      spriteID: 0866532ed000bf44ab8309b68e3bb929
+      internalID: -396896097
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_34
+      name: player_idle_dx_34
       rect:
         serializedVersion: 2
         x: 2084
@@ -873,14 +873,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9c446f5651d3e514ca8d24b97dd2c0ae
-      internalID: 1679221451
+      spriteID: da7bf525ba91bc14d8b4aa27011c6369
+      internalID: -148319461
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idle dx_35
+      name: player_idle_dx_35
       rect:
         serializedVersion: 2
         x: 3126
@@ -895,8 +895,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1304a91a1d5e7ed4197e28dcb6435938
-      internalID: -1582788318
+      spriteID: 3a529a7f99f4b574294d972b04b8a167
+      internalID: -133272060
       vertices: []
       indices: 
       edges: []
@@ -917,42 +917,42 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      shinobi idle dx_0: 1826647264
-      shinobi idle dx_1: 776812228
-      shinobi idle dx_10: -2116016839
-      shinobi idle dx_11: 2106211835
-      shinobi idle dx_12: 886830937
-      shinobi idle dx_13: -1296459365
-      shinobi idle dx_14: -2056242330
-      shinobi idle dx_15: -1908743417
-      shinobi idle dx_16: -702240151
-      shinobi idle dx_17: -213730324
-      shinobi idle dx_18: -1199245616
-      shinobi idle dx_19: 757817647
-      shinobi idle dx_2: 446089907
-      shinobi idle dx_20: -37921293
-      shinobi idle dx_21: 1911296998
-      shinobi idle dx_22: -1458833600
-      shinobi idle dx_23: -1736101122
-      shinobi idle dx_24: 1730941321
-      shinobi idle dx_25: -757996506
-      shinobi idle dx_26: 1491156889
-      shinobi idle dx_27: -1457418245
-      shinobi idle dx_28: -2070663775
-      shinobi idle dx_29: 997988171
-      shinobi idle dx_3: 858090616
-      shinobi idle dx_30: -2115260317
-      shinobi idle dx_31: 829228046
-      shinobi idle dx_32: -2102273557
-      shinobi idle dx_33: 968019903
-      shinobi idle dx_34: 1679221451
-      shinobi idle dx_35: -1582788318
-      shinobi idle dx_4: -1472984519
-      shinobi idle dx_5: -1684259443
-      shinobi idle dx_6: 2046644490
-      shinobi idle dx_7: -1035223186
-      shinobi idle dx_8: -1305595930
-      shinobi idle dx_9: -1538918251
+      player_idle_dx_0: 811744266
+      player_idle_dx_1: -893065663
+      player_idle_dx_10: -1646281423
+      player_idle_dx_11: -430843558
+      player_idle_dx_12: 81549985
+      player_idle_dx_13: -180733475
+      player_idle_dx_14: -1175337639
+      player_idle_dx_15: 1859056587
+      player_idle_dx_16: -1064019897
+      player_idle_dx_17: 94186730
+      player_idle_dx_18: 1981121568
+      player_idle_dx_19: -896436587
+      player_idle_dx_2: -221750897
+      player_idle_dx_20: 1883502647
+      player_idle_dx_21: -736659486
+      player_idle_dx_22: 207683874
+      player_idle_dx_23: 264559793
+      player_idle_dx_24: 1463077697
+      player_idle_dx_25: -779168387
+      player_idle_dx_26: -469417273
+      player_idle_dx_27: -1558656594
+      player_idle_dx_28: -2126628910
+      player_idle_dx_29: 667010636
+      player_idle_dx_3: 1780901972
+      player_idle_dx_30: 2030812341
+      player_idle_dx_31: 1961896987
+      player_idle_dx_32: -1058540603
+      player_idle_dx_33: -396896097
+      player_idle_dx_34: -148319461
+      player_idle_dx_35: -133272060
+      player_idle_dx_4: 1048437216
+      player_idle_dx_5: 1820360917
+      player_idle_dx_6: 81285266
+      player_idle_dx_7: 706243466
+      player_idle_dx_8: -336327712
+      player_idle_dx_9: 1540753368
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

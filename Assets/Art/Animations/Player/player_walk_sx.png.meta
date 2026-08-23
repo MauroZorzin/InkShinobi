@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d5c0b5db64fcea24ca45c02d678291f5
+guid: 4e369bdde987f12498dffb0d6dab44e3
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1500
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shinobi idles sx_0
+      name: player_walk_sx_0
       rect:
         serializedVersion: 2
         x: 0
@@ -125,14 +125,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8b1af94946a40c645b3bb1ea50170f63
-      internalID: -1296054816
+      spriteID: 1601a31ad1ee4824fbfd722264fe9c55
+      internalID: 1042691589
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_1
+      name: player_walk_sx_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -147,14 +147,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d6fa8ef9225b6c41be4f91e205f8551
-      internalID: 392885577
+      spriteID: 815e300455e555f40b5797111e3fd1c8
+      internalID: -881962748
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_2
+      name: player_walk_sx_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -169,14 +169,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b17fae0067eca6447bb135aa00194d57
-      internalID: 1869173562
+      spriteID: 8a68c598c711ee447aded549c8d82503
+      internalID: -883603477
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_3
+      name: player_walk_sx_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -191,14 +191,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3929459b5bc23a44d9eeebbd35de6f1f
-      internalID: -717938488
+      spriteID: ffb5a11f68cff194bb7f4a1f02025f92
+      internalID: -411703070
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_4
+      name: player_walk_sx_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -213,14 +213,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a9d307384598893439773479de6acb89
-      internalID: -1892844332
+      spriteID: b56473d76fc25e3449a33ae223f8b3d0
+      internalID: 488828543
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_5
+      name: player_walk_sx_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -235,14 +235,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5384aa0e710900d4e904e61d17f93f5b
-      internalID: 1133201089
+      spriteID: d77c6b515455b0b49adfffcae9c9e2d3
+      internalID: 1753339551
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_6
+      name: player_walk_sx_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a1d59109a26df1349ace31ee282b2043
-      internalID: 1468945919
+      spriteID: 7bd2684db4d296a428d255deb3c1551b
+      internalID: 1286372641
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_7
+      name: player_walk_sx_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: efdee66c241672241a49ce4e3dd7adcf
-      internalID: -2088389342
+      spriteID: afbb3ae023ab4da44a988e6dd2f8054c
+      internalID: 1516531193
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_8
+      name: player_walk_sx_8
       rect:
         serializedVersion: 2
         x: 0
@@ -301,14 +301,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: eb16e25126117254196532245ace1109
-      internalID: -1765031164
+      spriteID: 1d439d80c396ac5499b205e7a9200358
+      internalID: 1602946238
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_9
+      name: player_walk_sx_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -323,14 +323,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f25ff44093b80e24594c30cbae03a780
-      internalID: -1713260111
+      spriteID: bd846f3e9f1b03547888208be79db4f3
+      internalID: 590092139
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_10
+      name: player_walk_sx_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -345,14 +345,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 243a3e1ab3a44f34baab93aea2c09d50
-      internalID: -1340363228
+      spriteID: 86a14b709652b414d98369191fb05ca0
+      internalID: -1770476031
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_11
+      name: player_walk_sx_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -367,14 +367,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e2661018d12f64741b701ca4e8f05ddc
-      internalID: -943473048
+      spriteID: bee1f3090dfc4de469dd01cca34d4c2f
+      internalID: -778977317
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_12
+      name: player_walk_sx_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -389,14 +389,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: aea127dc16b042844839c165e40a8f8d
-      internalID: 1369382281
+      spriteID: d9618286c04800641b2a05c083507160
+      internalID: 1891449080
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_13
+      name: player_walk_sx_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -411,14 +411,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4ee765df4cd50f48933f4da40750303
-      internalID: -978641414
+      spriteID: 06a5a73c08c6320439f320a3bccd1bb1
+      internalID: 285760412
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_14
+      name: player_walk_sx_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -433,14 +433,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1c33ad23655f64f49b3dba1400990879
-      internalID: 1748074542
+      spriteID: a4407ea6a721a12409934ea022b5ca05
+      internalID: 1230902538
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_15
+      name: player_walk_sx_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -455,14 +455,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bc1bc2cdc26811b47ae980684cb449b9
-      internalID: -560327452
+      spriteID: 03592415bd4b4ee499b221c9d4186e21
+      internalID: -762907533
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_16
+      name: player_walk_sx_16
       rect:
         serializedVersion: 2
         x: 0
@@ -477,14 +477,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f9d82f14993b7a541977139483ef7e63
-      internalID: -974661809
+      spriteID: 54dde59aa1d4883449e9e1e4b79232c5
+      internalID: 419265844
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_17
+      name: player_walk_sx_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -499,14 +499,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 320e248fb80b2ec4d9e78e8952ccfb82
-      internalID: 658088808
+      spriteID: a40f5b8dea24d07498eb42938314a5dc
+      internalID: 876224969
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_18
+      name: player_walk_sx_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -521,14 +521,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 85f2fb07ac53b6844b263cae8859477f
-      internalID: 1718676270
+      spriteID: 2d50f15e6aa47274fa6130cc1bcab9cf
+      internalID: -854570074
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_19
+      name: player_walk_sx_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -543,14 +543,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f8b1772abd4e33f4887989df4430b06a
-      internalID: -443706956
+      spriteID: 3d62269fca776784b94571fe51fabaeb
+      internalID: -1363928351
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_20
+      name: player_walk_sx_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -565,14 +565,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f02eb1da1b9835a40ae8627a5f213fd8
-      internalID: -134904553
+      spriteID: 0da34968240017c4e9199443cb609c37
+      internalID: 798584344
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_21
+      name: player_walk_sx_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -587,14 +587,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2451a5df4eae5a345bf252f35f7c3fbf
-      internalID: 1340426882
+      spriteID: 8e104849c11be504c85bdabfe43b63b9
+      internalID: -822441754
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_22
+      name: player_walk_sx_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -609,14 +609,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5ca1683f2d948344082bbcb98dde5c2d
-      internalID: 679274643
+      spriteID: e4880444cb3d8774c805dc6d4bd7ecf0
+      internalID: 1031536706
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_23
+      name: player_walk_sx_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -631,14 +631,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: abf4fe1136765b74cbe93dfdbaf5a659
-      internalID: 781644614
+      spriteID: 79acd1fa73f217946a4bfb1b3ed04776
+      internalID: 1744333473
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_24
+      name: player_walk_sx_24
       rect:
         serializedVersion: 2
         x: 0
@@ -653,14 +653,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2e24479c8b88fb74aa3d002213815f76
-      internalID: 1043015809
+      spriteID: dcb67549b74a76740af4049774b842fc
+      internalID: 900198661
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_25
+      name: player_walk_sx_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -675,14 +675,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d361b28f20e4e3543984bbdec05344ed
-      internalID: -447417520
+      spriteID: 9d8677e007f2ef0439321b95b6e90db8
+      internalID: -1502697839
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_26
+      name: player_walk_sx_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -697,14 +697,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7071e148fee777b418fae8847feb81df
-      internalID: -78866538
+      spriteID: 2f73746c03bb73e41bc5c647287e58fe
+      internalID: -1916070235
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_27
+      name: player_walk_sx_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -719,14 +719,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 19e1f3de6925b514ba042a444b4c865c
-      internalID: -1385882336
+      spriteID: 441e28e9020e7ff47a50295085114066
+      internalID: -685838241
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_28
+      name: player_walk_sx_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -741,14 +741,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f9647b88cc49be44d880ccf1ed002a48
-      internalID: 774981528
+      spriteID: f06246dbf71394543ba5af1772f19427
+      internalID: 442914836
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_29
+      name: player_walk_sx_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -763,14 +763,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 08bcdc5c84760354f986ca3a0c2da889
-      internalID: -2056113909
+      spriteID: 9f35bcd80d8284247b59fbdb6c6ebd2d
+      internalID: -99536056
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_30
+      name: player_walk_sx_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -785,14 +785,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5c8f995b4bf86d746855a6727f5ce004
-      internalID: 75041084
+      spriteID: 545e7d359f3a7b845ba32656b8d785dd
+      internalID: 1969960770
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_31
+      name: player_walk_sx_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -807,14 +807,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 84173fc1d061a464fb3304b84fe17de1
-      internalID: 1059648818
+      spriteID: 84c2d4caaf426ab4a87764b1a0c75419
+      internalID: 46617898
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_32
+      name: player_walk_sx_32
       rect:
         serializedVersion: 2
         x: 0
@@ -829,14 +829,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4817be5c28de1424c94dfc924b4463bc
-      internalID: 1562447630
+      spriteID: 225807b5b45f23f4cb6842e212e0e0ef
+      internalID: 100882092
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi idles sx_33
+      name: player_walk_sx_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -851,52 +851,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1f8aa951dde6607458694797bb94b983
-      internalID: -1039803366
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi idles sx_34
-      rect:
-        serializedVersion: 2
-        x: 2084
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0e0743d63b81f7d4fad0ab66e42335c6
-      internalID: -1121603338
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi idles sx_35
-      rect:
-        serializedVersion: 2
-        x: 3126
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 92d3192d121f6ee47b818273fe34afdb
-      internalID: 416236568
+      spriteID: 9de6d0af8a884514681fb0c7848d25a2
+      internalID: -751024949
       vertices: []
       indices: 
       edges: []
@@ -905,7 +861,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5bb6325451c2aff44a2af28d34fb6c09
+    spriteID: 5a06bcd4bf4b11448a2fc0bdf1049ee9
     internalID: 0
     vertices: []
     indices: 
@@ -917,42 +873,40 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      shinobi idles sx_0: -1296054816
-      shinobi idles sx_1: 392885577
-      shinobi idles sx_10: -1340363228
-      shinobi idles sx_11: -943473048
-      shinobi idles sx_12: 1369382281
-      shinobi idles sx_13: -978641414
-      shinobi idles sx_14: 1748074542
-      shinobi idles sx_15: -560327452
-      shinobi idles sx_16: -974661809
-      shinobi idles sx_17: 658088808
-      shinobi idles sx_18: 1718676270
-      shinobi idles sx_19: -443706956
-      shinobi idles sx_2: 1869173562
-      shinobi idles sx_20: -134904553
-      shinobi idles sx_21: 1340426882
-      shinobi idles sx_22: 679274643
-      shinobi idles sx_23: 781644614
-      shinobi idles sx_24: 1043015809
-      shinobi idles sx_25: -447417520
-      shinobi idles sx_26: -78866538
-      shinobi idles sx_27: -1385882336
-      shinobi idles sx_28: 774981528
-      shinobi idles sx_29: -2056113909
-      shinobi idles sx_3: -717938488
-      shinobi idles sx_30: 75041084
-      shinobi idles sx_31: 1059648818
-      shinobi idles sx_32: 1562447630
-      shinobi idles sx_33: -1039803366
-      shinobi idles sx_34: -1121603338
-      shinobi idles sx_35: 416236568
-      shinobi idles sx_4: -1892844332
-      shinobi idles sx_5: 1133201089
-      shinobi idles sx_6: 1468945919
-      shinobi idles sx_7: -2088389342
-      shinobi idles sx_8: -1765031164
-      shinobi idles sx_9: -1713260111
+      player_walk_sx_0: 1042691589
+      player_walk_sx_1: -881962748
+      player_walk_sx_10: -1770476031
+      player_walk_sx_11: -778977317
+      player_walk_sx_12: 1891449080
+      player_walk_sx_13: 285760412
+      player_walk_sx_14: 1230902538
+      player_walk_sx_15: -762907533
+      player_walk_sx_16: 419265844
+      player_walk_sx_17: 876224969
+      player_walk_sx_18: -854570074
+      player_walk_sx_19: -1363928351
+      player_walk_sx_2: -883603477
+      player_walk_sx_20: 798584344
+      player_walk_sx_21: -822441754
+      player_walk_sx_22: 1031536706
+      player_walk_sx_23: 1744333473
+      player_walk_sx_24: 900198661
+      player_walk_sx_25: -1502697839
+      player_walk_sx_26: -1916070235
+      player_walk_sx_27: -685838241
+      player_walk_sx_28: 442914836
+      player_walk_sx_29: -99536056
+      player_walk_sx_3: -411703070
+      player_walk_sx_30: 1969960770
+      player_walk_sx_31: 46617898
+      player_walk_sx_32: 100882092
+      player_walk_sx_33: -751024949
+      player_walk_sx_4: 488828543
+      player_walk_sx_5: 1753339551
+      player_walk_sx_6: 1286372641
+      player_walk_sx_7: 1516531193
+      player_walk_sx_8: 1602946238
+      player_walk_sx_9: 590092139
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

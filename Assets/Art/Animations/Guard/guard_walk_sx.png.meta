@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 770a2360a269e694194454e2e57ab699
+guid: c8b869a75bf46024e9564ff094331232
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,12 +110,188 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shinobi attacca dx_0
+      name: guard_walk_sx_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8889c0bfc1f2f1f4baa6ed9fbf64d005
+      internalID: 546994424
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_1
+      rect:
+        serializedVersion: 2
+        x: 1042
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1d92e84b05a25e248955ebdaa7b56cee
+      internalID: 1197936583
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_2
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ef2bcbbd453d2f94b9e7b9ace471e96d
+      internalID: 761009555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_3
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1ba431928708f6a488aca063b3aa4407
+      internalID: 943313934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_4
+      rect:
+        serializedVersion: 2
+        x: 4168
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: beec79c948452644793d8be26b1cab24
+      internalID: 1342170158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_5
+      rect:
+        serializedVersion: 2
+        x: 5210
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1ae27e29e6c409a45982a7b1c30aaac3
+      internalID: 1383952502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_6
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 09e3821a9e447f34ba7e2f38d0c320c2
+      internalID: -10868485
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_7
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 5210
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aaae2fb3671c23f4999fdf5af282ca20
+      internalID: -1100116714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_8
       rect:
         serializedVersion: 2
         x: 0
         y: 4168
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -125,19 +301,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4e86f95b409f654080c06fd91244ec4
-      internalID: -380387093
+      spriteID: 836418b2e711aaf48b3aa631e884fec7
+      internalID: 351051856
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_1
+      name: guard_walk_sx_9
       rect:
         serializedVersion: 2
-        x: 1250
+        x: 1042
         y: 4168
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -147,19 +323,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: db04abde168a66a449347a990eba2fa5
-      internalID: 253989628
+      spriteID: 2927218570fcb1447b3fbd70e0b8a0b7
+      internalID: 1198917288
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_2
+      name: guard_walk_sx_10
       rect:
         serializedVersion: 2
-        x: 2500
+        x: 2084
         y: 4168
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -169,19 +345,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4669f2969c58a2c4dbf951193d4ab983
-      internalID: -2084078617
+      spriteID: d2eccd12f4570e5438e887a53688d963
+      internalID: -1617179126
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_3
+      name: guard_walk_sx_11
       rect:
         serializedVersion: 2
-        x: 3750
+        x: 3126
         y: 4168
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -191,19 +367,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ce1b9448f8e501548aac17652188b8f8
-      internalID: -1751548063
+      spriteID: 2287bc73034018447be48eaa15fa1b02
+      internalID: 101328864
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_4
+      name: guard_walk_sx_12
       rect:
         serializedVersion: 2
-        x: 5000
+        x: 4168
         y: 4168
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -213,19 +389,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f124c92afdec93e4e8a36835e6fc2dad
-      internalID: -344422204
+      spriteID: ec2d946f4b3fd70439eb0b176c269f31
+      internalID: 238834675
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_5
+      name: guard_walk_sx_13
       rect:
         serializedVersion: 2
-        x: 6250
+        x: 5210
         y: 4168
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -235,19 +411,63 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f0b00af113b0e90458c69d3b60abbdd7
-      internalID: 1258992005
+      spriteID: 336e090ece91ea44ca4413eb2cb9883a
+      internalID: 2009958197
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_6
+      name: guard_walk_sx_14
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7116f2e50c516754ca6280cde904a2af
+      internalID: -1882888327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_15
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 4168
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf3b9bdf405cc874a8be0edc6bd2ff82
+      internalID: -1754443380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_16
       rect:
         serializedVersion: 2
         x: 0
         y: 3126
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -257,19 +477,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4771b26d1c0a19742bf9e351896e2897
-      internalID: -463789649
+      spriteID: c07c49814352ee443bd5fbed23164df4
+      internalID: -1533232819
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_7
+      name: guard_walk_sx_17
       rect:
         serializedVersion: 2
-        x: 1250
+        x: 1042
         y: 3126
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -279,19 +499,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8a95998fc20b2404a8fc304855906801
-      internalID: 650222867
+      spriteID: 967c1309141ca8744a8c583ec77ca746
+      internalID: -1489563172
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_8
+      name: guard_walk_sx_18
       rect:
         serializedVersion: 2
-        x: 2500
+        x: 2084
         y: 3126
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -301,19 +521,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bc3e6d578ed5260459e4c0b8b9aee355
-      internalID: -1366231667
+      spriteID: f5aeecf6846c97f49af5f205c26c6a5c
+      internalID: -1294495790
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_9
+      name: guard_walk_sx_19
       rect:
         serializedVersion: 2
-        x: 3750
+        x: 3126
         y: 3126
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -323,19 +543,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dd329388a47d6aa46b9f4bbe1f9293ee
-      internalID: 2145506460
+      spriteID: 310eaa743cb87aa44a6c8a33c1d5de24
+      internalID: -130801508
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_10
+      name: guard_walk_sx_20
       rect:
         serializedVersion: 2
-        x: 5000
+        x: 4168
         y: 3126
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -345,19 +565,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bc4d324934c8eba49966c884dda3457e
-      internalID: -1500154468
+      spriteID: 745ff326f37c0ff4e9366b15fe98ae60
+      internalID: -1733621971
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_11
+      name: guard_walk_sx_21
       rect:
         serializedVersion: 2
-        x: 6250
+        x: 5210
         y: 3126
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -367,19 +587,63 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3ab19d3ad80c3ac4ea87be478f70bdc5
-      internalID: 466762628
+      spriteID: 5302401d7e703c047be0a54767a17c88
+      internalID: -485738845
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_12
+      name: guard_walk_sx_22
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 533d18adcad4aaf4cb34f8af1a399766
+      internalID: -1187178976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_23
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 3126
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 14df4dd0bcb008941a0ca8e875d99729
+      internalID: -1494789900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_24
       rect:
         serializedVersion: 2
         x: 0
         y: 2084
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -389,19 +653,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 661330c54265a4e45adf1683df73ee5d
-      internalID: 1476446854
+      spriteID: f1a4216f3a4504342a6d03fe51098b5c
+      internalID: -1653369025
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_13
+      name: guard_walk_sx_25
       rect:
         serializedVersion: 2
-        x: 1250
+        x: 1042
         y: 2084
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -411,19 +675,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 630baae018726ea4290ba406ffcfb11b
-      internalID: -1794881326
+      spriteID: c718e755615ff1a48b7d1985716a84b9
+      internalID: -690961611
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_14
+      name: guard_walk_sx_26
       rect:
         serializedVersion: 2
-        x: 2500
+        x: 2084
         y: 2084
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -433,19 +697,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a725e3109b2877c4ca5c8a8db9a33cc9
-      internalID: -1106545188
+      spriteID: 2fad33234dc0efb4bbe2e9c36fc2e8e7
+      internalID: -813600273
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_15
+      name: guard_walk_sx_27
       rect:
         serializedVersion: 2
-        x: 3750
+        x: 3126
         y: 2084
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -455,19 +719,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 44713e27e9676d34d8567e39232b0104
-      internalID: -696022255
+      spriteID: 04b4433afaca93e42a3d81c078040824
+      internalID: -1607012342
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_16
+      name: guard_walk_sx_28
       rect:
         serializedVersion: 2
-        x: 5000
+        x: 4168
         y: 2084
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -477,19 +741,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2d21f1002e2c7d340a9f3514581f684e
-      internalID: 295725293
+      spriteID: e35623be23205904db596f683ce0d891
+      internalID: -376120538
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_17
+      name: guard_walk_sx_29
       rect:
         serializedVersion: 2
-        x: 6250
+        x: 5210
         y: 2084
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -499,19 +763,63 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 61c35a921bf0acf46adfe95601597f6d
-      internalID: -1987187823
+      spriteID: 107288153e6112549855223957d902f3
+      internalID: 887007334
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_18
+      name: guard_walk_sx_30
+      rect:
+        serializedVersion: 2
+        x: 6252
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 974514e129111354ea3879756653b5ac
+      internalID: -2014175673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_31
+      rect:
+        serializedVersion: 2
+        x: 7294
+        y: 2084
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4dcf0d46b43a33948870ffc0a0bed155
+      internalID: 1487813701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_walk_sx_32
       rect:
         serializedVersion: 2
         x: 0
         y: 1042
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -521,19 +829,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d542b16039b83dc4e8d60f348299a426
-      internalID: -350927340
+      spriteID: 7d9a20f00a08a614a8e0e2b02ce5404b
+      internalID: 1537508291
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_19
+      name: guard_walk_sx_33
       rect:
         serializedVersion: 2
-        x: 1250
+        x: 1042
         y: 1042
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -543,19 +851,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a9ae5a3f264877049910309616634d47
-      internalID: -1346026060
+      spriteID: 8b483292d5a03154ab24ddceab6b0da9
+      internalID: 434758661
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_20
+      name: guard_walk_sx_34
       rect:
         serializedVersion: 2
-        x: 2500
+        x: 2084
         y: 1042
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -565,19 +873,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 14d42e2c1b3aa8147a3be2333ed9db23
-      internalID: 1734676620
+      spriteID: 6c282d793ecab5543a62b6e5ffd40e8e
+      internalID: 1509998301
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_21
+      name: guard_walk_sx_35
       rect:
         serializedVersion: 2
-        x: 3750
+        x: 3126
         y: 1042
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -587,19 +895,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2041afb7f87d3a241ad478a43e942a88
-      internalID: -419476717
+      spriteID: 35d33a6a574ca384b84cedeebca17ed3
+      internalID: -1681149866
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_22
+      name: guard_walk_sx_36
       rect:
         serializedVersion: 2
-        x: 5000
+        x: 4168
         y: 1042
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -609,19 +917,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 32fcad62c70a91849ae25df5cf94642d
-      internalID: -615921630
+      spriteID: c59e1e95b3f103241bc6512ccb2bc36b
+      internalID: 424653422
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_23
+      name: guard_walk_sx_37
       rect:
         serializedVersion: 2
-        x: 6250
+        x: 5210
         y: 1042
-        width: 1250
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -631,19 +939,19 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bf7c0dcc665a5b14b98034daa9d8b224
-      internalID: -1586048612
+      spriteID: af97bbb13e8359842a1c9c3e2a5f346d
+      internalID: 500664337
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi attacca dx_24
+      name: guard_walk_sx_38
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 1250
+        x: 6252
+        y: 1042
+        width: 1042
         height: 1042
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
@@ -653,118 +961,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 399f6fb914337804d8b6347a754d08eb
-      internalID: 1607306176
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi attacca dx_25
-      rect:
-        serializedVersion: 2
-        x: 1250
-        y: 0
-        width: 1250
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: a4221c6ec1b0e734ebd520d4b61c87fc
-      internalID: -627804173
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi attacca dx_26
-      rect:
-        serializedVersion: 2
-        x: 2500
-        y: 0
-        width: 1250
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 0d5affa9bf759244bb0720294998a769
-      internalID: -1302384944
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi attacca dx_27
-      rect:
-        serializedVersion: 2
-        x: 3750
-        y: 0
-        width: 1250
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 2fcaec31536319f408e48c7fdfb9369b
-      internalID: -832234838
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi attacca dx_28
-      rect:
-        serializedVersion: 2
-        x: 5000
-        y: 0
-        width: 1250
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 83a5b21d69152e54897f9b7bcc79084b
-      internalID: -396436646
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi attacca dx_29
-      rect:
-        serializedVersion: 2
-        x: 6250
-        y: 0
-        width: 1250
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 902154fbcbf0d974980d3c1d881b50d6
-      internalID: 1723799812
+      spriteID: f16e524cfd89caa43b2e17f80373fac1
+      internalID: 1006194067
       vertices: []
       indices: 
       edges: []
@@ -773,7 +971,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: d4059b3a2ddc1fa4f87e502605423d20
+    spriteID: e0fcf42decceb3445b207a89ad20d6d4
     internalID: 0
     vertices: []
     indices: 
@@ -783,38 +981,47 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":6.0,"y":5.0},"gridSpriteSize":{"x":1250.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      shinobi attacca dx_0: -380387093
-      shinobi attacca dx_1: 253989628
-      shinobi attacca dx_10: -1500154468
-      shinobi attacca dx_11: 466762628
-      shinobi attacca dx_12: 1476446854
-      shinobi attacca dx_13: -1794881326
-      shinobi attacca dx_14: -1106545188
-      shinobi attacca dx_15: -696022255
-      shinobi attacca dx_16: 295725293
-      shinobi attacca dx_17: -1987187823
-      shinobi attacca dx_18: -350927340
-      shinobi attacca dx_19: -1346026060
-      shinobi attacca dx_2: -2084078617
-      shinobi attacca dx_20: 1734676620
-      shinobi attacca dx_21: -419476717
-      shinobi attacca dx_22: -615921630
-      shinobi attacca dx_23: -1586048612
-      shinobi attacca dx_24: 1607306176
-      shinobi attacca dx_25: -627804173
-      shinobi attacca dx_26: -1302384944
-      shinobi attacca dx_27: -832234838
-      shinobi attacca dx_28: -396436646
-      shinobi attacca dx_29: 1723799812
-      shinobi attacca dx_3: -1751548063
-      shinobi attacca dx_4: -344422204
-      shinobi attacca dx_5: 1258992005
-      shinobi attacca dx_6: -463789649
-      shinobi attacca dx_7: 650222867
-      shinobi attacca dx_8: -1366231667
-      shinobi attacca dx_9: 2145506460
+      guard_walk_sx_0: 546994424
+      guard_walk_sx_1: 1197936583
+      guard_walk_sx_10: -1617179126
+      guard_walk_sx_11: 101328864
+      guard_walk_sx_12: 238834675
+      guard_walk_sx_13: 2009958197
+      guard_walk_sx_14: -1882888327
+      guard_walk_sx_15: -1754443380
+      guard_walk_sx_16: -1533232819
+      guard_walk_sx_17: -1489563172
+      guard_walk_sx_18: -1294495790
+      guard_walk_sx_19: -130801508
+      guard_walk_sx_2: 761009555
+      guard_walk_sx_20: -1733621971
+      guard_walk_sx_21: -485738845
+      guard_walk_sx_22: -1187178976
+      guard_walk_sx_23: -1494789900
+      guard_walk_sx_24: -1653369025
+      guard_walk_sx_25: -690961611
+      guard_walk_sx_26: -813600273
+      guard_walk_sx_27: -1607012342
+      guard_walk_sx_28: -376120538
+      guard_walk_sx_29: 887007334
+      guard_walk_sx_3: 943313934
+      guard_walk_sx_30: -2014175673
+      guard_walk_sx_31: 1487813701
+      guard_walk_sx_32: 1537508291
+      guard_walk_sx_33: 434758661
+      guard_walk_sx_34: 1509998301
+      guard_walk_sx_35: -1681149866
+      guard_walk_sx_36: 424653422
+      guard_walk_sx_37: 500664337
+      guard_walk_sx_38: 1006194067
+      guard_walk_sx_4: 1342170158
+      guard_walk_sx_5: 1383952502
+      guard_walk_sx_6: -10868485
+      guard_walk_sx_7: -1100116714
+      guard_walk_sx_8: 351051856
+      guard_walk_sx_9: 1198917288
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

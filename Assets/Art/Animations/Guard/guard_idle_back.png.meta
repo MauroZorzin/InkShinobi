@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: idle guardia sprite back_0
+      name: guard_idle_back_0
       rect:
         serializedVersion: 2
         x: 0
@@ -132,7 +132,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_1
+      name: guard_idle_back_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -154,7 +154,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_2
+      name: guard_idle_back_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -176,7 +176,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_3
+      name: guard_idle_back_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -198,7 +198,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_4
+      name: guard_idle_back_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -220,7 +220,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_5
+      name: guard_idle_back_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -242,7 +242,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_6
+      name: guard_idle_back_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -264,7 +264,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_7
+      name: guard_idle_back_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -286,7 +286,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_8
+      name: guard_idle_back_8
       rect:
         serializedVersion: 2
         x: 0
@@ -308,7 +308,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_9
+      name: guard_idle_back_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -330,7 +330,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_10
+      name: guard_idle_back_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -352,7 +352,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_11
+      name: guard_idle_back_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -374,7 +374,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_12
+      name: guard_idle_back_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -396,7 +396,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_13
+      name: guard_idle_back_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -418,7 +418,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_14
+      name: guard_idle_back_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -440,7 +440,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_15
+      name: guard_idle_back_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -462,7 +462,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_16
+      name: guard_idle_back_16
       rect:
         serializedVersion: 2
         x: 0
@@ -484,7 +484,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_17
+      name: guard_idle_back_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -506,7 +506,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_18
+      name: guard_idle_back_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -528,7 +528,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_19
+      name: guard_idle_back_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -550,7 +550,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_20
+      name: guard_idle_back_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -572,7 +572,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_21
+      name: guard_idle_back_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -594,7 +594,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_22
+      name: guard_idle_back_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -616,7 +616,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_23
+      name: guard_idle_back_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -638,7 +638,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_24
+      name: guard_idle_back_24
       rect:
         serializedVersion: 2
         x: 0
@@ -660,7 +660,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_25
+      name: guard_idle_back_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -682,7 +682,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_26
+      name: guard_idle_back_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -704,7 +704,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_27
+      name: guard_idle_back_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -726,7 +726,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_28
+      name: guard_idle_back_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -748,7 +748,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_29
+      name: guard_idle_back_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -770,7 +770,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_30
+      name: guard_idle_back_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -792,7 +792,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_31
+      name: guard_idle_back_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -814,7 +814,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_32
+      name: guard_idle_back_32
       rect:
         serializedVersion: 2
         x: 0
@@ -836,7 +836,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_33
+      name: guard_idle_back_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -858,7 +858,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_34
+      name: guard_idle_back_34
       rect:
         serializedVersion: 2
         x: 2084
@@ -880,7 +880,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_35
+      name: guard_idle_back_35
       rect:
         serializedVersion: 2
         x: 3126
@@ -902,7 +902,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_36
+      name: guard_idle_back_36
       rect:
         serializedVersion: 2
         x: 4168
@@ -924,7 +924,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_37
+      name: guard_idle_back_37
       rect:
         serializedVersion: 2
         x: 5210
@@ -946,7 +946,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_38
+      name: guard_idle_back_38
       rect:
         serializedVersion: 2
         x: 6252
@@ -968,7 +968,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_39
+      name: guard_idle_back_39
       rect:
         serializedVersion: 2
         x: 7294
@@ -990,7 +990,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_40
+      name: guard_idle_back_40
       rect:
         serializedVersion: 2
         x: 0
@@ -1012,7 +1012,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_41
+      name: guard_idle_back_41
       rect:
         serializedVersion: 2
         x: 1042
@@ -1034,7 +1034,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sprite back_42
+      name: guard_idle_back_42
       rect:
         serializedVersion: 2
         x: 2084
@@ -1071,49 +1071,49 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      idle guardia sprite back_0: -1138995439
-      idle guardia sprite back_1: 997200371
-      idle guardia sprite back_10: -1372175014
-      idle guardia sprite back_11: 1037555658
-      idle guardia sprite back_12: 1294764290
-      idle guardia sprite back_13: -1877040425
-      idle guardia sprite back_14: 513175031
-      idle guardia sprite back_15: -1021262743
-      idle guardia sprite back_16: 413003850
-      idle guardia sprite back_17: -40827333
-      idle guardia sprite back_18: -964995387
-      idle guardia sprite back_19: 442437603
-      idle guardia sprite back_2: 802644832
-      idle guardia sprite back_20: 1796079401
-      idle guardia sprite back_21: -1905113910
-      idle guardia sprite back_22: -882815931
-      idle guardia sprite back_23: 667774371
-      idle guardia sprite back_24: 823538925
-      idle guardia sprite back_25: 2436382
-      idle guardia sprite back_26: 1055759085
-      idle guardia sprite back_27: -1538745398
-      idle guardia sprite back_28: -672436054
-      idle guardia sprite back_29: -1629415015
-      idle guardia sprite back_3: -387587995
-      idle guardia sprite back_30: 882650323
-      idle guardia sprite back_31: -1254447702
-      idle guardia sprite back_32: 2047144200
-      idle guardia sprite back_33: 1685499356
-      idle guardia sprite back_34: -2113167844
-      idle guardia sprite back_35: 1205591099
-      idle guardia sprite back_36: -1606870900
-      idle guardia sprite back_37: -436008029
-      idle guardia sprite back_38: 1655169375
-      idle guardia sprite back_39: -2032691686
-      idle guardia sprite back_4: 1785006387
-      idle guardia sprite back_40: -1010723893
-      idle guardia sprite back_41: 408735211
-      idle guardia sprite back_42: 1614580859
-      idle guardia sprite back_5: 169369370
-      idle guardia sprite back_6: 1264166155
-      idle guardia sprite back_7: -2048732676
-      idle guardia sprite back_8: 850653486
-      idle guardia sprite back_9: 630905429
+      guard_idle_back_0: -1138995439
+      guard_idle_back_1: 997200371
+      guard_idle_back_10: -1372175014
+      guard_idle_back_11: 1037555658
+      guard_idle_back_12: 1294764290
+      guard_idle_back_13: -1877040425
+      guard_idle_back_14: 513175031
+      guard_idle_back_15: -1021262743
+      guard_idle_back_16: 413003850
+      guard_idle_back_17: -40827333
+      guard_idle_back_18: -964995387
+      guard_idle_back_19: 442437603
+      guard_idle_back_2: 802644832
+      guard_idle_back_20: 1796079401
+      guard_idle_back_21: -1905113910
+      guard_idle_back_22: -882815931
+      guard_idle_back_23: 667774371
+      guard_idle_back_24: 823538925
+      guard_idle_back_25: 2436382
+      guard_idle_back_26: 1055759085
+      guard_idle_back_27: -1538745398
+      guard_idle_back_28: -672436054
+      guard_idle_back_29: -1629415015
+      guard_idle_back_3: -387587995
+      guard_idle_back_30: 882650323
+      guard_idle_back_31: -1254447702
+      guard_idle_back_32: 2047144200
+      guard_idle_back_33: 1685499356
+      guard_idle_back_34: -2113167844
+      guard_idle_back_35: 1205591099
+      guard_idle_back_36: -1606870900
+      guard_idle_back_37: -436008029
+      guard_idle_back_38: 1655169375
+      guard_idle_back_39: -2032691686
+      guard_idle_back_4: 1785006387
+      guard_idle_back_40: -1010723893
+      guard_idle_back_41: 408735211
+      guard_idle_back_42: 1614580859
+      guard_idle_back_5: 169369370
+      guard_idle_back_6: 1264166155
+      guard_idle_back_7: -2048732676
+      guard_idle_back_8: 850653486
+      guard_idle_back_9: 630905429
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

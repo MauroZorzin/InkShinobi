@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: b64cefd06d8cdbc4895b47121bd7adf4
+guid: 6d3ea0a4a35d20846a512c4c4fc98aeb
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_0
+      name: guard_idle_dx_0
       rect:
         serializedVersion: 2
         x: 0
@@ -125,14 +125,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0153b2377a609cf43906b179cdc6ac7d
-      internalID: 976169188
+      spriteID: 9b6fd952504125046baa045c0bf18b6d
+      internalID: 400801646
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_1
+      name: guard_idle_dx_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -147,14 +147,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3203005669d39a24c97b32fa4262eecd
-      internalID: -1487869399
+      spriteID: 4404b8a81c3aaee42bc79a6e85f5136f
+      internalID: 1784737279
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_2
+      name: guard_idle_dx_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -169,14 +169,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 542e4ed77d4f4c347ae6002c54543d44
-      internalID: 577473760
+      spriteID: 57afb79bac002c8459fbd1584a65e4a5
+      internalID: -1882948154
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_3
+      name: guard_idle_dx_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -191,14 +191,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c068f412ae00d324995e45d9e4a06cd5
-      internalID: 1945009397
+      spriteID: 511aa47383b053549b118c6bbbe35481
+      internalID: -2063076089
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_4
+      name: guard_idle_dx_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -213,14 +213,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 59a161e393911194d90bac47eb6acd4d
-      internalID: 1299241903
+      spriteID: 6a9f6258fa30d4e459d452a6178765b6
+      internalID: 1273357193
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_5
+      name: guard_idle_dx_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -235,14 +235,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 2496cc9ff9ec9694584d52aa9edb55b2
-      internalID: -218744355
+      spriteID: 407a6f2bc4ebce44a87d245a9bd2bf12
+      internalID: 1481308627
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_6
+      name: guard_idle_dx_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0f709c7afd1759c4d8cafc97468fdc81
-      internalID: -1719725262
+      spriteID: be4497c4409a7454aa0b2a75c15375fb
+      internalID: 938801181
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_7
+      name: guard_idle_dx_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 94b80c6ebce6a4d4c87a02e3531aedf7
-      internalID: -221946537
+      spriteID: 638f0052375ba9c479b83b5fe63dff31
+      internalID: 114194440
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_8
+      name: guard_idle_dx_8
       rect:
         serializedVersion: 2
         x: 0
@@ -301,14 +301,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 413cc77430e0d7d469715fdea47bedf9
-      internalID: -721080541
+      spriteID: 2610e441196924847a3abee69127e2e2
+      internalID: -164464207
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_9
+      name: guard_idle_dx_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -323,14 +323,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 36ecf5e95451e844fa81a4dddf53cc7b
-      internalID: -1070934388
+      spriteID: 240866edf52e8514bb691aeabed75fb5
+      internalID: -1067353127
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_10
+      name: guard_idle_dx_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -345,14 +345,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b7ef95a50270016449484534092cff59
-      internalID: -1800164021
+      spriteID: edb5ef7169d271545b15037e76d406c6
+      internalID: -327862522
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_11
+      name: guard_idle_dx_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -367,14 +367,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d65699bbb48738f41a6ac5c55eff16ce
-      internalID: 508894426
+      spriteID: 2d45aee50b0f9c54d864a22c614bbf88
+      internalID: -756392763
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_12
+      name: guard_idle_dx_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -389,14 +389,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 69e1c67d1cf99f5448710120cbb7da9c
-      internalID: 804393943
+      spriteID: 8336626392d85e546963691a28f8e008
+      internalID: 520902189
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_13
+      name: guard_idle_dx_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -411,14 +411,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 08a47f882c273794dafeca01dfb6c81e
-      internalID: 595714550
+      spriteID: d4b6444cd2b1d1d44adeb0af8b736272
+      internalID: 646484520
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_14
+      name: guard_idle_dx_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -433,14 +433,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 02af0f6bf26cb584bb59e14165cbb6c8
-      internalID: 1327387982
+      spriteID: 8168e89e37be75d4b928b8603a4561f8
+      internalID: -1691694489
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_15
+      name: guard_idle_dx_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -455,14 +455,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3240a28c9c3710d4a8c80b4375697cc1
-      internalID: -1859814693
+      spriteID: 4553489a3e8621b43a3001aed6e25175
+      internalID: 347532309
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_16
+      name: guard_idle_dx_16
       rect:
         serializedVersion: 2
         x: 0
@@ -477,14 +477,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ab97fadad2966b641a4ee58c207ffefa
-      internalID: -1046523576
+      spriteID: 6c4fcd8ae8ce9ff43a1c43856c068704
+      internalID: 496945793
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_17
+      name: guard_idle_dx_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -499,14 +499,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ff417f1ebefe2d94989dba3b2ddefb6f
-      internalID: -590948305
+      spriteID: d148fb87dd2876f498d02e07a65a83e5
+      internalID: 962541907
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_18
+      name: guard_idle_dx_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -521,14 +521,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7c8c61f028191e34081d04b91ab403e9
-      internalID: 774044320
+      spriteID: baeb496bc669d444eb8136c08f33bc59
+      internalID: 1193377277
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_19
+      name: guard_idle_dx_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -543,14 +543,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a5d49cbd75729624aa52379208e47f6a
-      internalID: 949937455
+      spriteID: 81e8116420ebcb04d9d8a9112198245e
+      internalID: 2011643441
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_20
+      name: guard_idle_dx_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -565,14 +565,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1fccdd93d489e9b4dbd46d766877fce7
-      internalID: 152115503
+      spriteID: b2d746dd26bfc4a47b6b0c69e0468bf9
+      internalID: 1323377864
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_21
+      name: guard_idle_dx_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -587,14 +587,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e3554f565df804149afb9f0fd23134e0
-      internalID: 594305867
+      spriteID: 81167f3d952e352498dd134731c28d44
+      internalID: -545330041
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_22
+      name: guard_idle_dx_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -609,14 +609,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f89ded3a14fcdac48b796a9d5081eaa5
-      internalID: -1753387585
+      spriteID: 69b6ceb5761f14e4783b39c57a687d6d
+      internalID: 1953031325
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_23
+      name: guard_idle_dx_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -631,14 +631,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4c19961016ee31d448a24ff2d2e8c3d5
-      internalID: 615299132
+      spriteID: 75bb4b46c9011b44182c359fd334467f
+      internalID: -388342337
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_24
+      name: guard_idle_dx_24
       rect:
         serializedVersion: 2
         x: 0
@@ -653,14 +653,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 338f14178e637ef47a4f445587fec296
-      internalID: -210101316
+      spriteID: 09165c3b11f39864ca4b687063f1e229
+      internalID: 1193461339
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_25
+      name: guard_idle_dx_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -675,14 +675,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4e1b5b9cb4a0d30439fc814a706f1df8
-      internalID: 1023474503
+      spriteID: 20858fd08241f38429ac0dd91077a707
+      internalID: -2009472967
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_26
+      name: guard_idle_dx_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -697,14 +697,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6bfd3dbb26b7cdd4ca2c344a9839ae3a
-      internalID: 1109689737
+      spriteID: dfe97e28faafefb49a0024af36caf9aa
+      internalID: 64361992
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_27
+      name: guard_idle_dx_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -719,14 +719,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a1cc93610ed45964a9a6f4567da5f560
-      internalID: -1783890809
+      spriteID: 3884158ce8a558a40a100b81a11a9cd9
+      internalID: -898741333
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_28
+      name: guard_idle_dx_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -741,14 +741,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f6696a33b16a4194cb0922e3cca133e1
-      internalID: -896831528
+      spriteID: cdb5be6418485404c8f68f456a146bf3
+      internalID: 2030348583
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_29
+      name: guard_idle_dx_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -763,14 +763,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 533523e78699983428cc598c3b0fd1dc
-      internalID: -1442635800
+      spriteID: 6d9af85b1fba34548ad36bced3c27200
+      internalID: 1219017330
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_30
+      name: guard_idle_dx_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -785,14 +785,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f087a628f5988604e93a2683987c775f
-      internalID: -1849577789
+      spriteID: 90e355706e4db4344ba5799aad896c75
+      internalID: 1770115261
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_31
+      name: guard_idle_dx_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -807,14 +807,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 55eb1b9b07f66f946a566a7d5cd938e4
-      internalID: -1294461238
+      spriteID: 21235fc0a8ad4c441a6870475cb897df
+      internalID: -590841336
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_32
+      name: guard_idle_dx_32
       rect:
         serializedVersion: 2
         x: 0
@@ -829,14 +829,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 968fb7a7b0976df43ac1c4ef894877d1
-      internalID: 1576087225
+      spriteID: d6acd2d43b2209b459b087a7f3d20c62
+      internalID: -307527420
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_33
+      name: guard_idle_dx_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -851,14 +851,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f1e9dbf6a5971f34a9a5d2b6923bfcdb
-      internalID: -452897206
+      spriteID: 3dd3ceda80ce1594b87891a8a1c81dd3
+      internalID: -206109502
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinobi camminata sneaky sx_34
+      name: guard_idle_dx_34
       rect:
         serializedVersion: 2
         x: 2084
@@ -873,30 +873,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 55833c57c3428fd48b9548101102fb2c
-      internalID: -1571493140
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shinobi camminata sneaky sx_35
-      rect:
-        serializedVersion: 2
-        x: 3126
-        y: 1042
-        width: 1042
-        height: 1042
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 626730e10541f8a478ea4980a53b288b
-      internalID: 2067283063
+      spriteID: 5f781c2a7afb4d34bb1383df37fd697c
+      internalID: 671059282
       vertices: []
       indices: 
       edges: []
@@ -905,7 +883,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 96231ef0120097745866040a468d1a45
+    spriteID: 32b85d07ae7691d44a4b9f507fa54596
     internalID: 0
     vertices: []
     indices: 
@@ -917,42 +895,41 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      shinobi camminata sneaky sx_0: 976169188
-      shinobi camminata sneaky sx_1: -1487869399
-      shinobi camminata sneaky sx_10: -1800164021
-      shinobi camminata sneaky sx_11: 508894426
-      shinobi camminata sneaky sx_12: 804393943
-      shinobi camminata sneaky sx_13: 595714550
-      shinobi camminata sneaky sx_14: 1327387982
-      shinobi camminata sneaky sx_15: -1859814693
-      shinobi camminata sneaky sx_16: -1046523576
-      shinobi camminata sneaky sx_17: -590948305
-      shinobi camminata sneaky sx_18: 774044320
-      shinobi camminata sneaky sx_19: 949937455
-      shinobi camminata sneaky sx_2: 577473760
-      shinobi camminata sneaky sx_20: 152115503
-      shinobi camminata sneaky sx_21: 594305867
-      shinobi camminata sneaky sx_22: -1753387585
-      shinobi camminata sneaky sx_23: 615299132
-      shinobi camminata sneaky sx_24: -210101316
-      shinobi camminata sneaky sx_25: 1023474503
-      shinobi camminata sneaky sx_26: 1109689737
-      shinobi camminata sneaky sx_27: -1783890809
-      shinobi camminata sneaky sx_28: -896831528
-      shinobi camminata sneaky sx_29: -1442635800
-      shinobi camminata sneaky sx_3: 1945009397
-      shinobi camminata sneaky sx_30: -1849577789
-      shinobi camminata sneaky sx_31: -1294461238
-      shinobi camminata sneaky sx_32: 1576087225
-      shinobi camminata sneaky sx_33: -452897206
-      shinobi camminata sneaky sx_34: -1571493140
-      shinobi camminata sneaky sx_35: 2067283063
-      shinobi camminata sneaky sx_4: 1299241903
-      shinobi camminata sneaky sx_5: -218744355
-      shinobi camminata sneaky sx_6: -1719725262
-      shinobi camminata sneaky sx_7: -221946537
-      shinobi camminata sneaky sx_8: -721080541
-      shinobi camminata sneaky sx_9: -1070934388
+      guard_idle_dx_0: 400801646
+      guard_idle_dx_1: 1784737279
+      guard_idle_dx_10: -327862522
+      guard_idle_dx_11: -756392763
+      guard_idle_dx_12: 520902189
+      guard_idle_dx_13: 646484520
+      guard_idle_dx_14: -1691694489
+      guard_idle_dx_15: 347532309
+      guard_idle_dx_16: 496945793
+      guard_idle_dx_17: 962541907
+      guard_idle_dx_18: 1193377277
+      guard_idle_dx_19: 2011643441
+      guard_idle_dx_2: -1882948154
+      guard_idle_dx_20: 1323377864
+      guard_idle_dx_21: -545330041
+      guard_idle_dx_22: 1953031325
+      guard_idle_dx_23: -388342337
+      guard_idle_dx_24: 1193461339
+      guard_idle_dx_25: -2009472967
+      guard_idle_dx_26: 64361992
+      guard_idle_dx_27: -898741333
+      guard_idle_dx_28: 2030348583
+      guard_idle_dx_29: 1219017330
+      guard_idle_dx_3: -2063076089
+      guard_idle_dx_30: 1770115261
+      guard_idle_dx_31: -590841336
+      guard_idle_dx_32: -307527420
+      guard_idle_dx_33: -206109502
+      guard_idle_dx_34: 671059282
+      guard_idle_dx_4: 1273357193
+      guard_idle_dx_5: 1481308627
+      guard_idle_dx_6: 938801181
+      guard_idle_dx_7: 114194440
+      guard_idle_dx_8: -164464207
+      guard_idle_dx_9: -1067353127
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

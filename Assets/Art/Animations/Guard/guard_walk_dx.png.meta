@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: guardia sprite cammina dx_0
+      name: guard_walk_dx_0
       rect:
         serializedVersion: 2
         x: 0
@@ -132,7 +132,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_1
+      name: guard_walk_dx_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -154,7 +154,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_2
+      name: guard_walk_dx_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -176,7 +176,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_3
+      name: guard_walk_dx_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -198,7 +198,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_4
+      name: guard_walk_dx_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -220,7 +220,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_5
+      name: guard_walk_dx_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -242,7 +242,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_6
+      name: guard_walk_dx_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -264,7 +264,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_7
+      name: guard_walk_dx_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -286,7 +286,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_8
+      name: guard_walk_dx_8
       rect:
         serializedVersion: 2
         x: 0
@@ -308,7 +308,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_9
+      name: guard_walk_dx_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -330,7 +330,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_10
+      name: guard_walk_dx_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -352,7 +352,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_11
+      name: guard_walk_dx_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -374,7 +374,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_12
+      name: guard_walk_dx_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -396,7 +396,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_13
+      name: guard_walk_dx_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -418,7 +418,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_14
+      name: guard_walk_dx_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -440,7 +440,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_15
+      name: guard_walk_dx_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -462,7 +462,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_16
+      name: guard_walk_dx_16
       rect:
         serializedVersion: 2
         x: 0
@@ -484,7 +484,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_17
+      name: guard_walk_dx_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -506,7 +506,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_18
+      name: guard_walk_dx_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -528,7 +528,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_19
+      name: guard_walk_dx_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -550,7 +550,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_20
+      name: guard_walk_dx_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -572,7 +572,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_21
+      name: guard_walk_dx_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -594,7 +594,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_22
+      name: guard_walk_dx_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -616,7 +616,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_23
+      name: guard_walk_dx_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -638,7 +638,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_24
+      name: guard_walk_dx_24
       rect:
         serializedVersion: 2
         x: 0
@@ -660,7 +660,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_25
+      name: guard_walk_dx_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -682,7 +682,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_26
+      name: guard_walk_dx_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -704,7 +704,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_27
+      name: guard_walk_dx_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -726,7 +726,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_28
+      name: guard_walk_dx_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -748,7 +748,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_29
+      name: guard_walk_dx_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -770,7 +770,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_30
+      name: guard_walk_dx_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -792,7 +792,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_31
+      name: guard_walk_dx_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -814,7 +814,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_32
+      name: guard_walk_dx_32
       rect:
         serializedVersion: 2
         x: 0
@@ -836,7 +836,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_33
+      name: guard_walk_dx_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -858,7 +858,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_34
+      name: guard_walk_dx_34
       rect:
         serializedVersion: 2
         x: 2084
@@ -880,7 +880,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_35
+      name: guard_walk_dx_35
       rect:
         serializedVersion: 2
         x: 3126
@@ -902,7 +902,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_36
+      name: guard_walk_dx_36
       rect:
         serializedVersion: 2
         x: 4168
@@ -924,7 +924,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_37
+      name: guard_walk_dx_37
       rect:
         serializedVersion: 2
         x: 5210
@@ -946,7 +946,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina dx_38
+      name: guard_walk_dx_38
       rect:
         serializedVersion: 2
         x: 6252
@@ -983,45 +983,45 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      guardia sprite cammina dx_0: -16629469
-      guardia sprite cammina dx_1: 1439711120
-      guardia sprite cammina dx_10: -963562094
-      guardia sprite cammina dx_11: 701550357
-      guardia sprite cammina dx_12: 1676097189
-      guardia sprite cammina dx_13: -1038228163
-      guardia sprite cammina dx_14: 285266452
-      guardia sprite cammina dx_15: 916459797
-      guardia sprite cammina dx_16: -1487007128
-      guardia sprite cammina dx_17: 753581685
-      guardia sprite cammina dx_18: 1941433255
-      guardia sprite cammina dx_19: -1025977709
-      guardia sprite cammina dx_2: -416117188
-      guardia sprite cammina dx_20: -413216183
-      guardia sprite cammina dx_21: -452367070
-      guardia sprite cammina dx_22: 1954408593
-      guardia sprite cammina dx_23: -916009222
-      guardia sprite cammina dx_24: 1320258587
-      guardia sprite cammina dx_25: 1300605082
-      guardia sprite cammina dx_26: 1765707785
-      guardia sprite cammina dx_27: 428372992
-      guardia sprite cammina dx_28: 630700135
-      guardia sprite cammina dx_29: 1161032496
-      guardia sprite cammina dx_3: 1666923990
-      guardia sprite cammina dx_30: 513610972
-      guardia sprite cammina dx_31: 284261369
-      guardia sprite cammina dx_32: 195712706
-      guardia sprite cammina dx_33: -1450934022
-      guardia sprite cammina dx_34: 1023425003
-      guardia sprite cammina dx_35: 2089419478
-      guardia sprite cammina dx_36: -2073698410
-      guardia sprite cammina dx_37: 2004696007
-      guardia sprite cammina dx_38: 2133199429
-      guardia sprite cammina dx_4: -577982199
-      guardia sprite cammina dx_5: 813868372
-      guardia sprite cammina dx_6: 2021760900
-      guardia sprite cammina dx_7: -564670218
-      guardia sprite cammina dx_8: -905400632
-      guardia sprite cammina dx_9: -1376825730
+      guard_walk_dx_0: -16629469
+      guard_walk_dx_1: 1439711120
+      guard_walk_dx_10: -963562094
+      guard_walk_dx_11: 701550357
+      guard_walk_dx_12: 1676097189
+      guard_walk_dx_13: -1038228163
+      guard_walk_dx_14: 285266452
+      guard_walk_dx_15: 916459797
+      guard_walk_dx_16: -1487007128
+      guard_walk_dx_17: 753581685
+      guard_walk_dx_18: 1941433255
+      guard_walk_dx_19: -1025977709
+      guard_walk_dx_2: -416117188
+      guard_walk_dx_20: -413216183
+      guard_walk_dx_21: -452367070
+      guard_walk_dx_22: 1954408593
+      guard_walk_dx_23: -916009222
+      guard_walk_dx_24: 1320258587
+      guard_walk_dx_25: 1300605082
+      guard_walk_dx_26: 1765707785
+      guard_walk_dx_27: 428372992
+      guard_walk_dx_28: 630700135
+      guard_walk_dx_29: 1161032496
+      guard_walk_dx_3: 1666923990
+      guard_walk_dx_30: 513610972
+      guard_walk_dx_31: 284261369
+      guard_walk_dx_32: 195712706
+      guard_walk_dx_33: -1450934022
+      guard_walk_dx_34: 1023425003
+      guard_walk_dx_35: 2089419478
+      guard_walk_dx_36: -2073698410
+      guard_walk_dx_37: 2004696007
+      guard_walk_dx_38: 2133199429
+      guard_walk_dx_4: -577982199
+      guard_walk_dx_5: 813868372
+      guard_walk_dx_6: 2021760900
+      guard_walk_dx_7: -564670218
+      guard_walk_dx_8: -905400632
+      guard_walk_dx_9: -1376825730
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

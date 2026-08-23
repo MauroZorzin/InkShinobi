@@ -1,4 +1,4 @@
-Shader "Sprites/Outline2"
+Shader "SpriteOutline"
 {
     // Modernized from a legacy Built-in RP (CGPROGRAM + UnityCG.cginc) sprite outline shader to
     // native URP HLSL. Same properties, same modes (Solid/Gradient/Image, Contour/Frame), same
@@ -65,6 +65,7 @@ Shader "Sprites/Outline2"
             #pragma multi_compile_instancing
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/Core2D.hlsl"
 
             struct Attributes
             {
@@ -139,7 +140,14 @@ Shader "Sprites/Outline2"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
 
-                OUT.vertex = TransformObjectToHClip(IN.vertex.xyz);
+                // SpriteRenderer.flipX/flipY are stored in unity_SpriteProps for the instanced
+                // rendering path. Without applying those properties here, enabling GPU
+                // instancing makes the renderer report the correct flip while the shader still
+                // draws the original, unflipped geometry.
+                SetUpSpriteInstanceProperties();
+                float3 positionOS = UnityFlipSprite(IN.vertex.xyz, unity_SpriteProps.xy);
+
+                OUT.vertex = TransformObjectToHClip(positionOS);
                 OUT.texcoord = IN.texcoord;
                 OUT.color = IN.color * _Color;
                 #ifdef PIXELSNAP_ON

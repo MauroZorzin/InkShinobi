@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 086f4872371c66e47ad770575bcb7b72
+guid: f7eee24cca234f14e89b49aa07739803
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: guardia sprite cammina front_0
+      name: guard_idle_front_0
       rect:
         serializedVersion: 2
         x: 0
@@ -125,14 +125,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d95f6fbfa7ea7194fb19ceebfda9decf
-      internalID: -773879065
+      spriteID: 223ccb1fc449d2a409cab6ab1a1d67c1
+      internalID: 432422071
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_1
+      name: guard_idle_front_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -147,14 +147,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6a527de2f5a391c469f44554ae56bf18
-      internalID: 2145559557
+      spriteID: b9636fafeb0a0ae4b82c274fec6dad58
+      internalID: -1075775264
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_2
+      name: guard_idle_front_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -169,14 +169,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 495be308155991d45b535ab6321763d8
-      internalID: 1924736183
+      spriteID: 2a40251b37e6bb240b1eea73ed557ffb
+      internalID: 939062431
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_3
+      name: guard_idle_front_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -191,14 +191,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 27e4f224d16538d44ba2fa79fdb0de93
-      internalID: 758009612
+      spriteID: 6ba11f865300e2d43a32022123a9349f
+      internalID: -1359840626
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_4
+      name: guard_idle_front_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -213,14 +213,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 412ca3f5301a21640b3892c8b5474efd
-      internalID: 550454964
+      spriteID: 9e6d5e077ed168e47b090a0c3977b85f
+      internalID: -1724672886
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_5
+      name: guard_idle_front_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -235,14 +235,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f9cdb70d31055834b9e9d958c7f3ec21
-      internalID: -1898979165
+      spriteID: b1b869d5d7ded5e458c68d4bf4301cdf
+      internalID: -990098564
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_6
+      name: guard_idle_front_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9127a24de8c84454a80318259d7d4795
-      internalID: 1128052312
+      spriteID: 7b5a7b6153bf77140887884da4800eac
+      internalID: 471597668
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_7
+      name: guard_idle_front_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e0ec432427500e642922075c745e5ad4
-      internalID: -2072552343
+      spriteID: 908b6f233c76eb04b82086bf694ddcfd
+      internalID: -1165647449
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_8
+      name: guard_idle_front_8
       rect:
         serializedVersion: 2
         x: 0
@@ -301,14 +301,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 11cb0a7fe68e7994e87ff9d5b3b5f930
-      internalID: -1663980418
+      spriteID: 4e5ad8322b65f554f802a1b9cd1041a1
+      internalID: -777708111
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_9
+      name: guard_idle_front_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -323,14 +323,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a9b93e342394d714b8154e3812ff7811
-      internalID: -1903014578
+      spriteID: d12975819ccee4740affbb035fa97157
+      internalID: 1040773989
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_10
+      name: guard_idle_front_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -345,14 +345,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 83670890cac3369408537668ed252762
-      internalID: -1649916982
+      spriteID: 63fcc2447c861444a94ea51fad44344e
+      internalID: -1970968983
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_11
+      name: guard_idle_front_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -367,14 +367,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 867fa7056f7d9be449e17d7b4880e8eb
-      internalID: -650410994
+      spriteID: 1d5e7cee046f8f94a8ccb8b8b44f1d78
+      internalID: -1597468452
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_12
+      name: guard_idle_front_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -389,14 +389,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ac12169eab764c5498be0b92ea7f57f9
-      internalID: -1608695821
+      spriteID: fd575d351a54f11428b5ecdab18898ff
+      internalID: -1866465357
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_13
+      name: guard_idle_front_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -411,14 +411,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 45937d3f7ed7c024e878418fbf523554
-      internalID: -716405810
+      spriteID: 14c2172635421eb4aa9509d1ada7fe14
+      internalID: 199311462
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_14
+      name: guard_idle_front_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -433,14 +433,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5a8344bb5c784fa428bfa7a4d6744405
-      internalID: -1297000909
+      spriteID: 3d3e6ddbe6ae3ad4581144afeab98685
+      internalID: 1988055598
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_15
+      name: guard_idle_front_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -455,14 +455,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: af30b00fb2629ec49b5da21fdd14dd34
-      internalID: 22835985
+      spriteID: 08e37a4f47ce7824b8855bc361272ca8
+      internalID: 1730961077
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_16
+      name: guard_idle_front_16
       rect:
         serializedVersion: 2
         x: 0
@@ -477,14 +477,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c4015171f170f694780eb991466c1605
-      internalID: 211313924
+      spriteID: a04921d4f4248a6419a9ecf320803960
+      internalID: -1926008294
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_17
+      name: guard_idle_front_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -499,14 +499,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c83ea6087343189478e73feb40f0cbdd
-      internalID: -1818404596
+      spriteID: 02276822bd81e4b4283eda4f4f30716f
+      internalID: -939307155
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_18
+      name: guard_idle_front_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -521,14 +521,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 67b219c4e9ef7684f8ffce0c33530929
-      internalID: 350125328
+      spriteID: 29a88f40708d9f64c9cda9f966a71330
+      internalID: -507722121
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_19
+      name: guard_idle_front_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -543,14 +543,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a2f0e4e0d1e4e5f4193328f27ee44f4b
-      internalID: 324913757
+      spriteID: b97192a725569f04ebfb4401ad02bb8c
+      internalID: -793785359
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_20
+      name: guard_idle_front_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -565,14 +565,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5b46e505ffbd9b4479f0615666211e7b
-      internalID: -1935630325
+      spriteID: ad62a970f746e26419b118483fd918b3
+      internalID: 69567563
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_21
+      name: guard_idle_front_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -587,14 +587,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d79beda00777e374683787379746fe71
-      internalID: 923244430
+      spriteID: 2adf1e25da12e2e45850f0bf5756fca7
+      internalID: -714033501
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_22
+      name: guard_idle_front_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -609,14 +609,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4147a503326af1848917eead89a1380a
-      internalID: 2123679391
+      spriteID: 46e2e0240cef01944ab811ae4ad21728
+      internalID: 1501673796
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_23
+      name: guard_idle_front_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -631,14 +631,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7d6fa41f13dbf704d9f995a29111335f
-      internalID: -183884710
+      spriteID: f09db1c8ede2dab46b8469a7773e8812
+      internalID: -495382156
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_24
+      name: guard_idle_front_24
       rect:
         serializedVersion: 2
         x: 0
@@ -653,14 +653,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ed636e099f7740c4f886d918315f0505
-      internalID: -1585673825
+      spriteID: 135a99dae9bf0254abdb67ca22bdbaa8
+      internalID: 936351931
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_25
+      name: guard_idle_front_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -675,14 +675,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 026678227732ac04dbe90bd8c717e9b2
-      internalID: -1278584926
+      spriteID: 76542f6e26bf64c40a569d52a2f9304f
+      internalID: -426236853
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_26
+      name: guard_idle_front_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -697,14 +697,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c111f3c992a77154cb4b9a9f11d6868a
-      internalID: 600497928
+      spriteID: 2bf2b220e0514fc40bc4b2d99a4a96b6
+      internalID: -1070363619
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_27
+      name: guard_idle_front_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -719,14 +719,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6e1175c3e4cf88f4d81a0fb1de59155c
-      internalID: -780675740
+      spriteID: a392ac75ad213fd418d77cd472cd80c8
+      internalID: -1486912686
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_28
+      name: guard_idle_front_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -741,14 +741,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 42a742ccb81bbc14ea7bdb2da792a88f
-      internalID: 713080099
+      spriteID: e946b9affbe37dd4fa5080fee8fdef00
+      internalID: 1468477772
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_29
+      name: guard_idle_front_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -763,14 +763,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d072613a9f5359c44957e63a40d07068
-      internalID: 1978293808
+      spriteID: c499e08ee69ed7f41904a937b57b51f6
+      internalID: 1879361540
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_30
+      name: guard_idle_front_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -785,14 +785,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b0b96584fc01a244c9d61a2b5c12ddc2
-      internalID: -1200127127
+      spriteID: f313a23c678a13246b52b4b00800da9d
+      internalID: 285562827
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_31
+      name: guard_idle_front_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -807,14 +807,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4d261b8a8808aca4599cbae277023455
-      internalID: -463921342
+      spriteID: 845fff8d84ea3c94091e7c8e3880768a
+      internalID: -1741820749
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_32
+      name: guard_idle_front_32
       rect:
         serializedVersion: 2
         x: 0
@@ -829,14 +829,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6c123e447b549bb46af6e6b81da708c8
-      internalID: 118181174
+      spriteID: e65ac36a52d9f58418e01ba0dba4210b
+      internalID: 2086662563
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_33
+      name: guard_idle_front_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -851,14 +851,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8c5d20d52f6cbea4e8cff63fb4b91ac0
-      internalID: -225025113
+      spriteID: 0e3204e7540d64144a84503623b18662
+      internalID: -758342733
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_34
+      name: guard_idle_front_34
       rect:
         serializedVersion: 2
         x: 2084
@@ -873,14 +873,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 678c6cfdd45ace6489c1dfc664ed93ae
-      internalID: 764535045
+      spriteID: ea202854a6c44a0428b77d2bda045bb4
+      internalID: -1003640293
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_35
+      name: guard_idle_front_35
       rect:
         serializedVersion: 2
         x: 3126
@@ -895,14 +895,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d05568f494081444e91512e00de22264
-      internalID: -27919946
+      spriteID: f334c1c2e4b6de4479ee824a96ba12ee
+      internalID: 2021246751
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_36
+      name: guard_idle_front_36
       rect:
         serializedVersion: 2
         x: 4168
@@ -917,14 +917,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5b11686b59fde794d875fd028f07ca19
-      internalID: -221662979
+      spriteID: 2535a04536a449b409dd1543d6397c68
+      internalID: 1354779788
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_37
+      name: guard_idle_front_37
       rect:
         serializedVersion: 2
         x: 5210
@@ -939,14 +939,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b59b7cd0ccc431648a0d320615769cf3
-      internalID: 1967024322
+      spriteID: fb739ccad8e0c5e45850e76b88f28d49
+      internalID: 1600309199
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_38
+      name: guard_idle_front_38
       rect:
         serializedVersion: 2
         x: 6252
@@ -961,14 +961,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7373098844be09b449493e75b3ace72e
-      internalID: 829971792
+      spriteID: a67b50514af9022478b72707c300fbdf
+      internalID: 1712131145
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_39
+      name: guard_idle_front_39
       rect:
         serializedVersion: 2
         x: 7294
@@ -983,14 +983,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ecff475f45a48834fa42271b071a4021
-      internalID: -1647490591
+      spriteID: a57a3a9b40834984f9a6350de5cf4468
+      internalID: 977496531
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_40
+      name: guard_idle_front_40
       rect:
         serializedVersion: 2
         x: 0
@@ -1005,14 +1005,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7cd22822bdb07e14db14045e78031fd3
-      internalID: -255813410
+      spriteID: 8f2ed8c7de56dec4783d747d0276a726
+      internalID: -1791050914
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_41
+      name: guard_idle_front_41
       rect:
         serializedVersion: 2
         x: 1042
@@ -1027,14 +1027,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9fa241e6792f2ae4bb8a479f2f17454b
-      internalID: -1749199473
+      spriteID: c201364c28aaaa74d96898ca87bcc8e3
+      internalID: 648009223
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: guardia sprite cammina front_42
+      name: guard_idle_front_42
       rect:
         serializedVersion: 2
         x: 2084
@@ -1049,8 +1049,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5e762e5b78682684a9ed71c0427aa7da
-      internalID: 85299776
+      spriteID: 242f52be7192e6a4e9831e4b4b547bdd
+      internalID: 94860991
       vertices: []
       indices: 
       edges: []
@@ -1059,7 +1059,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 54998de661f167340a5767b0fcfbe5a7
+    spriteID: 73ec92b401491534abbf94baec376a61
     internalID: 0
     vertices: []
     indices: 
@@ -1071,49 +1071,49 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      guardia sprite cammina front_0: -773879065
-      guardia sprite cammina front_1: 2145559557
-      guardia sprite cammina front_10: -1649916982
-      guardia sprite cammina front_11: -650410994
-      guardia sprite cammina front_12: -1608695821
-      guardia sprite cammina front_13: -716405810
-      guardia sprite cammina front_14: -1297000909
-      guardia sprite cammina front_15: 22835985
-      guardia sprite cammina front_16: 211313924
-      guardia sprite cammina front_17: -1818404596
-      guardia sprite cammina front_18: 350125328
-      guardia sprite cammina front_19: 324913757
-      guardia sprite cammina front_2: 1924736183
-      guardia sprite cammina front_20: -1935630325
-      guardia sprite cammina front_21: 923244430
-      guardia sprite cammina front_22: 2123679391
-      guardia sprite cammina front_23: -183884710
-      guardia sprite cammina front_24: -1585673825
-      guardia sprite cammina front_25: -1278584926
-      guardia sprite cammina front_26: 600497928
-      guardia sprite cammina front_27: -780675740
-      guardia sprite cammina front_28: 713080099
-      guardia sprite cammina front_29: 1978293808
-      guardia sprite cammina front_3: 758009612
-      guardia sprite cammina front_30: -1200127127
-      guardia sprite cammina front_31: -463921342
-      guardia sprite cammina front_32: 118181174
-      guardia sprite cammina front_33: -225025113
-      guardia sprite cammina front_34: 764535045
-      guardia sprite cammina front_35: -27919946
-      guardia sprite cammina front_36: -221662979
-      guardia sprite cammina front_37: 1967024322
-      guardia sprite cammina front_38: 829971792
-      guardia sprite cammina front_39: -1647490591
-      guardia sprite cammina front_4: 550454964
-      guardia sprite cammina front_40: -255813410
-      guardia sprite cammina front_41: -1749199473
-      guardia sprite cammina front_42: 85299776
-      guardia sprite cammina front_5: -1898979165
-      guardia sprite cammina front_6: 1128052312
-      guardia sprite cammina front_7: -2072552343
-      guardia sprite cammina front_8: -1663980418
-      guardia sprite cammina front_9: -1903014578
+      guard_idle_front_0: 432422071
+      guard_idle_front_1: -1075775264
+      guard_idle_front_10: -1970968983
+      guard_idle_front_11: -1597468452
+      guard_idle_front_12: -1866465357
+      guard_idle_front_13: 199311462
+      guard_idle_front_14: 1988055598
+      guard_idle_front_15: 1730961077
+      guard_idle_front_16: -1926008294
+      guard_idle_front_17: -939307155
+      guard_idle_front_18: -507722121
+      guard_idle_front_19: -793785359
+      guard_idle_front_2: 939062431
+      guard_idle_front_20: 69567563
+      guard_idle_front_21: -714033501
+      guard_idle_front_22: 1501673796
+      guard_idle_front_23: -495382156
+      guard_idle_front_24: 936351931
+      guard_idle_front_25: -426236853
+      guard_idle_front_26: -1070363619
+      guard_idle_front_27: -1486912686
+      guard_idle_front_28: 1468477772
+      guard_idle_front_29: 1879361540
+      guard_idle_front_3: -1359840626
+      guard_idle_front_30: 285562827
+      guard_idle_front_31: -1741820749
+      guard_idle_front_32: 2086662563
+      guard_idle_front_33: -758342733
+      guard_idle_front_34: -1003640293
+      guard_idle_front_35: 2021246751
+      guard_idle_front_36: 1354779788
+      guard_idle_front_37: 1600309199
+      guard_idle_front_38: 1712131145
+      guard_idle_front_39: 977496531
+      guard_idle_front_4: -1724672886
+      guard_idle_front_40: -1791050914
+      guard_idle_front_41: 648009223
+      guard_idle_front_42: 94860991
+      guard_idle_front_5: -990098564
+      guard_idle_front_6: 471597668
+      guard_idle_front_7: -1165647449
+      guard_idle_front_8: -777708111
+      guard_idle_front_9: 1040773989
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 4e369bdde987f12498dffb0d6dab44e3
+guid: 41e9f45f627f2fb44968d2f26832383c
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_0
+      name: guard_idle_sx_0
       rect:
         serializedVersion: 2
         x: 0
@@ -125,14 +125,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 98d743b7577fd444cae89e7af9c95e8b
-      internalID: 1602677283
+      spriteID: 7587506004e2dde43975c00775d19801
+      internalID: 1710023899
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_1
+      name: guard_idle_sx_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -147,14 +147,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3ba9407882df1854db19126d1df2cd92
-      internalID: -1373936409
+      spriteID: 61ebc7cb7d4a36c44a62e3ec85f16c96
+      internalID: -476040187
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_2
+      name: guard_idle_sx_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -169,14 +169,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0a0245f0c24206f428d965b204e471ba
-      internalID: 1924701126
+      spriteID: 07c95c9b0cb79da44ba932a7ffe389f3
+      internalID: 843522507
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_3
+      name: guard_idle_sx_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -191,14 +191,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bb25e44026fee424e80a6a423cb28c14
-      internalID: -1217621560
+      spriteID: f9d173582b8226346bcbea87fdf27468
+      internalID: -553740928
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_4
+      name: guard_idle_sx_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -213,14 +213,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 97ea9107f5c6fe445b71916ee8f06bcd
-      internalID: -1377773995
+      spriteID: 699630be915a3094e87398481ce3cceb
+      internalID: -1027125616
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_5
+      name: guard_idle_sx_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -235,14 +235,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 991ca801bc7e0b24fb560c4bd5efbab5
-      internalID: -532284888
+      spriteID: 8fa98f2074a8b274f8790035d94bca52
+      internalID: -328062927
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_6
+      name: guard_idle_sx_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9f40587492eef7b4eb83a1b8812b9d75
-      internalID: 990940322
+      spriteID: d1d3cd300b35d7c4a99d1d7c9b4597a9
+      internalID: 1490336218
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_7
+      name: guard_idle_sx_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5ca64adc0d199774caf0010bb25abe17
-      internalID: 856205014
+      spriteID: 9767b9ff430219745a00ce70aa98105c
+      internalID: 1125814962
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_8
+      name: guard_idle_sx_8
       rect:
         serializedVersion: 2
         x: 0
@@ -301,14 +301,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c4cc02d65d8fe4a4aabc4db2da0d518e
-      internalID: -1905673986
+      spriteID: c8de92fa6ff99cb4094e816561a71c8c
+      internalID: 240603612
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_9
+      name: guard_idle_sx_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -323,14 +323,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cda3c77b7918ca14a94178a067d2ed9e
-      internalID: 529413847
+      spriteID: dbfe907904549ff4f998a68a4c9d04d3
+      internalID: -980698858
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_10
+      name: guard_idle_sx_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -345,14 +345,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bfa265c02e190ea489d854f1da4ebfa0
-      internalID: -1501127552
+      spriteID: df01e7841288fef439918a4b9efad5be
+      internalID: -1683349146
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_11
+      name: guard_idle_sx_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -367,14 +367,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a2832d237728b0b4f96d34a8d360a30f
-      internalID: -1653335349
+      spriteID: 675f4d84a7dc4cf4ea5b9d5f7ed660ad
+      internalID: -461968715
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_12
+      name: guard_idle_sx_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -389,14 +389,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 68c9c60844a4c8a4ebda8058a914b848
-      internalID: 678561814
+      spriteID: 0fc5b73877f480542bb2b884bbb8a3ce
+      internalID: -1547177042
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_13
+      name: guard_idle_sx_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -411,14 +411,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ddd70d62b9f7ea24fb5d380d51a17adf
-      internalID: 882507476
+      spriteID: b0de8bb42fad36749b487673c7a120de
+      internalID: -397923044
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_14
+      name: guard_idle_sx_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -433,14 +433,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a0c4f5ac601624849bd2c6e80fd67f11
-      internalID: 1953724121
+      spriteID: ef2759acbbe586844bc7a8bc741e2de4
+      internalID: 523614958
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_15
+      name: guard_idle_sx_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -455,14 +455,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1fc88cba4b100d3449611459732bf50c
-      internalID: 12801882
+      spriteID: 4f4619c930f220e46b77724f125d56f3
+      internalID: -536590840
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_16
+      name: guard_idle_sx_16
       rect:
         serializedVersion: 2
         x: 0
@@ -477,14 +477,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1475f7c12ac85a8479852d4025462770
-      internalID: 1886847606
+      spriteID: b6e56c49cfd60054d9f8293660d6932f
+      internalID: -1571253276
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_17
+      name: guard_idle_sx_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -499,14 +499,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d8ec45808f48cb648bc3f5f03ed746c0
-      internalID: -1773375614
+      spriteID: 4c357349d1973de4fab74d42272eeca2
+      internalID: 1540766912
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_18
+      name: guard_idle_sx_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -521,14 +521,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0f2595f9d417a414084e43e721b676e7
-      internalID: -918134505
+      spriteID: 8df5aaa93c91f3e4eae49ca403dd3295
+      internalID: -2096414675
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_19
+      name: guard_idle_sx_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -543,14 +543,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c0aab7b47d11d88458eb8630866962f2
-      internalID: 315506218
+      spriteID: 05480d085b28a79458ec26c0a8b14fd5
+      internalID: -762630754
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_20
+      name: guard_idle_sx_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -565,14 +565,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 186ceb5152305f940a7b57ea64768501
-      internalID: 628538318
+      spriteID: 5cf7cf0a9a2609443a20913f4a4b3f66
+      internalID: 2048969611
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_21
+      name: guard_idle_sx_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -587,14 +587,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c42c8d855537f454a9a70e94759b39bc
-      internalID: 64028148
+      spriteID: c6c2caf33d94b84438d4515bced60592
+      internalID: 1467107980
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_22
+      name: guard_idle_sx_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -609,14 +609,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4a2aabe264a361b42ada557f945cad01
-      internalID: 1715004129
+      spriteID: 281c827e22d7eb34481ba1a145816e76
+      internalID: 609973880
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_23
+      name: guard_idle_sx_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -631,14 +631,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cc3444400f86a6b44bdeb7bdccfd3ee3
-      internalID: -1217007708
+      spriteID: 6c4459e34eb6dd24fb06a930d90a0af9
+      internalID: -2057412956
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_24
+      name: guard_idle_sx_24
       rect:
         serializedVersion: 2
         x: 0
@@ -653,14 +653,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8f734221adef4de409a3f6d7eda49499
-      internalID: -541996900
+      spriteID: 0f915cb24531f014bb6eaeb3b15278a9
+      internalID: -435680392
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_25
+      name: guard_idle_sx_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -675,14 +675,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6c904ffc1b5107e4a8437a9c7f691925
-      internalID: 515610898
+      spriteID: 8e4cbd92c51df21488f9d511731654e4
+      internalID: -1359262805
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_26
+      name: guard_idle_sx_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -697,14 +697,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c7d0c0aafce8e034588ed1a382a364c0
-      internalID: -108221678
+      spriteID: c92e8631945cd8a42ba703a09881f483
+      internalID: -532612290
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_27
+      name: guard_idle_sx_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -719,14 +719,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b9916653a0dc6af40a6e549b0cd94429
-      internalID: 465704445
+      spriteID: 6edf202db4d59944c857ff1913069945
+      internalID: -1694422408
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_28
+      name: guard_idle_sx_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -741,14 +741,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5073dcd34818c4246af78d52c71d70df
-      internalID: 436955783
+      spriteID: d410972b15a512e42b8f6b3ed9f7737d
+      internalID: 242698239
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_29
+      name: guard_idle_sx_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -763,14 +763,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7b8e770ede5e38e4795fb3477ee7bdb6
-      internalID: -1383601598
+      spriteID: 4db941c8e209b0442aee34ce236419ac
+      internalID: 1745994866
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_30
+      name: guard_idle_sx_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -785,14 +785,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1205a4e73cc13b84f82033794c7a6d56
-      internalID: -1673569151
+      spriteID: f72bc861354a1f34aa0301efe204b007
+      internalID: 1393850412
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_31
+      name: guard_idle_sx_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -807,14 +807,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 53df2b65c233c014b95db266d22e3fec
-      internalID: -642943273
+      spriteID: ff248b75f9cb1e846a4565eff04fb7cd
+      internalID: -1687319139
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_32
+      name: guard_idle_sx_32
       rect:
         serializedVersion: 2
         x: 0
@@ -829,14 +829,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 47c2dc3c8092bec4c85acfcddf7c9713
-      internalID: -913886131
+      spriteID: d4fa09314d504c7479086553f12284b1
+      internalID: -870984151
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shinoobi camminata veloce sx_33
+      name: guard_idle_sx_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -851,8 +851,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 34d67af90a5706d42867bb6d5ab55767
-      internalID: -791631392
+      spriteID: 9012dceb134643a4b9236dc186831f3d
+      internalID: 216039243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: guard_idle_sx_34
+      rect:
+        serializedVersion: 2
+        x: 2084
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a854b9861365faf4e970ba5f07a2140a
+      internalID: 1176951045
       vertices: []
       indices: 
       edges: []
@@ -861,7 +883,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5a06bcd4bf4b11448a2fc0bdf1049ee9
+    spriteID: f9be66f9cc3cd454480b80d5bc61a763
     internalID: 0
     vertices: []
     indices: 
@@ -870,43 +892,46 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries:
+      - key: SpriteEditor.SliceOnImport
+        value: False
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      shinoobi camminata veloce sx_0: 1602677283
-      shinoobi camminata veloce sx_1: -1373936409
-      shinoobi camminata veloce sx_10: -1501127552
-      shinoobi camminata veloce sx_11: -1653335349
-      shinoobi camminata veloce sx_12: 678561814
-      shinoobi camminata veloce sx_13: 882507476
-      shinoobi camminata veloce sx_14: 1953724121
-      shinoobi camminata veloce sx_15: 12801882
-      shinoobi camminata veloce sx_16: 1886847606
-      shinoobi camminata veloce sx_17: -1773375614
-      shinoobi camminata veloce sx_18: -918134505
-      shinoobi camminata veloce sx_19: 315506218
-      shinoobi camminata veloce sx_2: 1924701126
-      shinoobi camminata veloce sx_20: 628538318
-      shinoobi camminata veloce sx_21: 64028148
-      shinoobi camminata veloce sx_22: 1715004129
-      shinoobi camminata veloce sx_23: -1217007708
-      shinoobi camminata veloce sx_24: -541996900
-      shinoobi camminata veloce sx_25: 515610898
-      shinoobi camminata veloce sx_26: -108221678
-      shinoobi camminata veloce sx_27: 465704445
-      shinoobi camminata veloce sx_28: 436955783
-      shinoobi camminata veloce sx_29: -1383601598
-      shinoobi camminata veloce sx_3: -1217621560
-      shinoobi camminata veloce sx_30: -1673569151
-      shinoobi camminata veloce sx_31: -642943273
-      shinoobi camminata veloce sx_32: -913886131
-      shinoobi camminata veloce sx_33: -791631392
-      shinoobi camminata veloce sx_4: -1377773995
-      shinoobi camminata veloce sx_5: -532284888
-      shinoobi camminata veloce sx_6: 990940322
-      shinoobi camminata veloce sx_7: 856205014
-      shinoobi camminata veloce sx_8: -1905673986
-      shinoobi camminata veloce sx_9: 529413847
+      guard_idle_sx_0: 1710023899
+      guard_idle_sx_1: -476040187
+      guard_idle_sx_10: -1683349146
+      guard_idle_sx_11: -461968715
+      guard_idle_sx_12: -1547177042
+      guard_idle_sx_13: -397923044
+      guard_idle_sx_14: 523614958
+      guard_idle_sx_15: -536590840
+      guard_idle_sx_16: -1571253276
+      guard_idle_sx_17: 1540766912
+      guard_idle_sx_18: -2096414675
+      guard_idle_sx_19: -762630754
+      guard_idle_sx_2: 843522507
+      guard_idle_sx_20: 2048969611
+      guard_idle_sx_21: 1467107980
+      guard_idle_sx_22: 609973880
+      guard_idle_sx_23: -2057412956
+      guard_idle_sx_24: -435680392
+      guard_idle_sx_25: -1359262805
+      guard_idle_sx_26: -532612290
+      guard_idle_sx_27: -1694422408
+      guard_idle_sx_28: 242698239
+      guard_idle_sx_29: 1745994866
+      guard_idle_sx_3: -553740928
+      guard_idle_sx_30: 1393850412
+      guard_idle_sx_31: -1687319139
+      guard_idle_sx_32: -870984151
+      guard_idle_sx_33: 216039243
+      guard_idle_sx_34: 1176951045
+      guard_idle_sx_4: -1027125616
+      guard_idle_sx_5: -328062927
+      guard_idle_sx_6: 1490336218
+      guard_idle_sx_7: 1125814962
+      guard_idle_sx_8: 240603612
+      guard_idle_sx_9: -980698858
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

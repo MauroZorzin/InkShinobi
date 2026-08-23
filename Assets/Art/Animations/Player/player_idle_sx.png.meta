@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 41e9f45f627f2fb44968d2f26832383c
+guid: d5c0b5db64fcea24ca45c02d678291f5
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -45,7 +45,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1500
@@ -110,7 +110,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: idle guardia sx_0
+      name: player_idle_sx_0
       rect:
         serializedVersion: 2
         x: 0
@@ -125,14 +125,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 7587506004e2dde43975c00775d19801
-      internalID: 1710023899
+      spriteID: 6a774de886390524bb1d3af021309859
+      internalID: 1012426723
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_1
+      name: player_idle_sx_1
       rect:
         serializedVersion: 2
         x: 1042
@@ -147,14 +147,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 61ebc7cb7d4a36c44a62e3ec85f16c96
-      internalID: -476040187
+      spriteID: 714bc7f1427d131488b35b65399c0fb5
+      internalID: -1733993508
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_2
+      name: player_idle_sx_2
       rect:
         serializedVersion: 2
         x: 2084
@@ -169,14 +169,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 07c95c9b0cb79da44ba932a7ffe389f3
-      internalID: 843522507
+      spriteID: 7ab42bb778aa4154687b0ae1f48324b0
+      internalID: 1668733197
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_3
+      name: player_idle_sx_3
       rect:
         serializedVersion: 2
         x: 3126
@@ -191,14 +191,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f9d173582b8226346bcbea87fdf27468
-      internalID: -553740928
+      spriteID: 1d783350be0371343b99448b3ecc499a
+      internalID: -1873662454
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_4
+      name: player_idle_sx_4
       rect:
         serializedVersion: 2
         x: 4168
@@ -213,14 +213,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 699630be915a3094e87398481ce3cceb
-      internalID: -1027125616
+      spriteID: 33ba17b45613e2f46b60b9f25ae4cc8f
+      internalID: -704200727
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_5
+      name: player_idle_sx_5
       rect:
         serializedVersion: 2
         x: 5210
@@ -235,14 +235,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8fa98f2074a8b274f8790035d94bca52
-      internalID: -328062927
+      spriteID: c30eb3e989f39b146a1d4ccd128be930
+      internalID: -2105429349
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_6
+      name: player_idle_sx_6
       rect:
         serializedVersion: 2
         x: 6252
@@ -257,14 +257,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d1d3cd300b35d7c4a99d1d7c9b4597a9
-      internalID: 1490336218
+      spriteID: b15d66341bfa5404f94469b2d1f84573
+      internalID: 1942867944
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_7
+      name: player_idle_sx_7
       rect:
         serializedVersion: 2
         x: 7294
@@ -279,14 +279,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9767b9ff430219745a00ce70aa98105c
-      internalID: 1125814962
+      spriteID: 3c9c9c51ce146a644b2beb873b55ceb8
+      internalID: 922908620
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_8
+      name: player_idle_sx_8
       rect:
         serializedVersion: 2
         x: 0
@@ -301,14 +301,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c8de92fa6ff99cb4094e816561a71c8c
-      internalID: 240603612
+      spriteID: b804ca17fc10e184facdfff9c91e9948
+      internalID: 197478975
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_9
+      name: player_idle_sx_9
       rect:
         serializedVersion: 2
         x: 1042
@@ -323,14 +323,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: dbfe907904549ff4f998a68a4c9d04d3
-      internalID: -980698858
+      spriteID: 97a209086b0ce1148abbfef9f87851ec
+      internalID: 859120988
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_10
+      name: player_idle_sx_10
       rect:
         serializedVersion: 2
         x: 2084
@@ -345,14 +345,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: df01e7841288fef439918a4b9efad5be
-      internalID: -1683349146
+      spriteID: ba7b54088dce3e7469415f8fb03627d1
+      internalID: 356890994
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_11
+      name: player_idle_sx_11
       rect:
         serializedVersion: 2
         x: 3126
@@ -367,14 +367,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 675f4d84a7dc4cf4ea5b9d5f7ed660ad
-      internalID: -461968715
+      spriteID: 3f24f785f25881145a71cdc65dbf2386
+      internalID: -824946356
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_12
+      name: player_idle_sx_12
       rect:
         serializedVersion: 2
         x: 4168
@@ -389,14 +389,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0fc5b73877f480542bb2b884bbb8a3ce
-      internalID: -1547177042
+      spriteID: 62ccd6fa7bf7fac439f4b914865433dc
+      internalID: -1773961738
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_13
+      name: player_idle_sx_13
       rect:
         serializedVersion: 2
         x: 5210
@@ -411,14 +411,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b0de8bb42fad36749b487673c7a120de
-      internalID: -397923044
+      spriteID: 0d0203ec1f4bafb4097b35385d81e963
+      internalID: -1532921972
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_14
+      name: player_idle_sx_14
       rect:
         serializedVersion: 2
         x: 6252
@@ -433,14 +433,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ef2759acbbe586844bc7a8bc741e2de4
-      internalID: 523614958
+      spriteID: 3be775b5b6c757840bdd5019277eb6ab
+      internalID: -362239170
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_15
+      name: player_idle_sx_15
       rect:
         serializedVersion: 2
         x: 7294
@@ -455,14 +455,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4f4619c930f220e46b77724f125d56f3
-      internalID: -536590840
+      spriteID: 342424a1802bc6841a4b9039ef652678
+      internalID: -1584559388
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_16
+      name: player_idle_sx_16
       rect:
         serializedVersion: 2
         x: 0
@@ -477,14 +477,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: b6e56c49cfd60054d9f8293660d6932f
-      internalID: -1571253276
+      spriteID: 7351c585de2ac814bbe875a3a74fead1
+      internalID: -529433301
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_17
+      name: player_idle_sx_17
       rect:
         serializedVersion: 2
         x: 1042
@@ -499,14 +499,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4c357349d1973de4fab74d42272eeca2
-      internalID: 1540766912
+      spriteID: 4682ce04a04da0b41aaa89d79912bd1d
+      internalID: -1076456734
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_18
+      name: player_idle_sx_18
       rect:
         serializedVersion: 2
         x: 2084
@@ -521,14 +521,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8df5aaa93c91f3e4eae49ca403dd3295
-      internalID: -2096414675
+      spriteID: ebc2a531f4951494ab7ac620837e9621
+      internalID: 141562523
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_19
+      name: player_idle_sx_19
       rect:
         serializedVersion: 2
         x: 3126
@@ -543,14 +543,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 05480d085b28a79458ec26c0a8b14fd5
-      internalID: -762630754
+      spriteID: dc3b33bdd1cb115488a14d3cfae0a03a
+      internalID: 1770548051
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_20
+      name: player_idle_sx_20
       rect:
         serializedVersion: 2
         x: 4168
@@ -565,14 +565,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5cf7cf0a9a2609443a20913f4a4b3f66
-      internalID: 2048969611
+      spriteID: 50bde83f613c4054aa627317e260e797
+      internalID: 2081052003
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_21
+      name: player_idle_sx_21
       rect:
         serializedVersion: 2
         x: 5210
@@ -587,14 +587,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c6c2caf33d94b84438d4515bced60592
-      internalID: 1467107980
+      spriteID: c3746518dee395e4596bcdde9c749e5c
+      internalID: 606085585
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_22
+      name: player_idle_sx_22
       rect:
         serializedVersion: 2
         x: 6252
@@ -609,14 +609,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 281c827e22d7eb34481ba1a145816e76
-      internalID: 609973880
+      spriteID: 4c273cb824f9a0d47a30af0a8ff6dc48
+      internalID: -318680131
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_23
+      name: player_idle_sx_23
       rect:
         serializedVersion: 2
         x: 7294
@@ -631,14 +631,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6c4459e34eb6dd24fb06a930d90a0af9
-      internalID: -2057412956
+      spriteID: 985db7d0858ab8a4283410018159ff98
+      internalID: 1900357719
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_24
+      name: player_idle_sx_24
       rect:
         serializedVersion: 2
         x: 0
@@ -653,14 +653,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 0f915cb24531f014bb6eaeb3b15278a9
-      internalID: -435680392
+      spriteID: 4def7bb93185f5947a52298d34056680
+      internalID: -1791458785
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_25
+      name: player_idle_sx_25
       rect:
         serializedVersion: 2
         x: 1042
@@ -675,14 +675,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8e4cbd92c51df21488f9d511731654e4
-      internalID: -1359262805
+      spriteID: 72f64aa7085c7a747977ad3fa1b3c2b7
+      internalID: -318529646
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_26
+      name: player_idle_sx_26
       rect:
         serializedVersion: 2
         x: 2084
@@ -697,14 +697,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c92e8631945cd8a42ba703a09881f483
-      internalID: -532612290
+      spriteID: 53cafebeebc9f0c4e9ecb97f5e2d0536
+      internalID: -273360932
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_27
+      name: player_idle_sx_27
       rect:
         serializedVersion: 2
         x: 3126
@@ -719,14 +719,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6edf202db4d59944c857ff1913069945
-      internalID: -1694422408
+      spriteID: a2172982db351164a9b1dfd1f1e92d14
+      internalID: 1751646186
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_28
+      name: player_idle_sx_28
       rect:
         serializedVersion: 2
         x: 4168
@@ -741,14 +741,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d410972b15a512e42b8f6b3ed9f7737d
-      internalID: 242698239
+      spriteID: 4f10b76513ebe5845a90463c5b2d0b95
+      internalID: 1225454161
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_29
+      name: player_idle_sx_29
       rect:
         serializedVersion: 2
         x: 5210
@@ -763,14 +763,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4db941c8e209b0442aee34ce236419ac
-      internalID: 1745994866
+      spriteID: 8eddf9b9884defb498a4050895599dae
+      internalID: 102987244
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_30
+      name: player_idle_sx_30
       rect:
         serializedVersion: 2
         x: 6252
@@ -785,14 +785,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f72bc861354a1f34aa0301efe204b007
-      internalID: 1393850412
+      spriteID: 76e46604796eb2147a377498277cd7b9
+      internalID: 1839234861
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_31
+      name: player_idle_sx_31
       rect:
         serializedVersion: 2
         x: 7294
@@ -807,14 +807,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: ff248b75f9cb1e846a4565eff04fb7cd
-      internalID: -1687319139
+      spriteID: cfe1e6a35a4de0445b58eb994731fe1a
+      internalID: -737495916
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_32
+      name: player_idle_sx_32
       rect:
         serializedVersion: 2
         x: 0
@@ -829,14 +829,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d4fa09314d504c7479086553f12284b1
-      internalID: -870984151
+      spriteID: 954fe6539fb943549b8fa1cd0a1ec785
+      internalID: 1125849553
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_33
+      name: player_idle_sx_33
       rect:
         serializedVersion: 2
         x: 1042
@@ -851,14 +851,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9012dceb134643a4b9236dc186831f3d
-      internalID: 216039243
+      spriteID: db5bad42773890e4d9cd2f858f56bfa7
+      internalID: 497314295
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle guardia sx_34
+      name: player_idle_sx_34
       rect:
         serializedVersion: 2
         x: 2084
@@ -873,8 +873,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a854b9861365faf4e970ba5f07a2140a
-      internalID: 1176951045
+      spriteID: e053fffbece0cbe4cb236fca89aa139e
+      internalID: 1236640972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: player_idle_sx_35
+      rect:
+        serializedVersion: 2
+        x: 3126
+        y: 1042
+        width: 1042
+        height: 1042
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f27f16a79cb6c7e4fb4cf2eb10f706b5
+      internalID: -748694664
       vertices: []
       indices: 
       edges: []
@@ -883,7 +905,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f9be66f9cc3cd454480b80d5bc61a763
+    spriteID: 5bb6325451c2aff44a2af28d34fb6c09
     internalID: 0
     vertices: []
     indices: 
@@ -892,46 +914,45 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries:
-      - key: SpriteEditor.SliceOnImport
-        value: False
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":8.0,"y":6.0},"gridSpriteSize":{"x":1042.0,"y":1042.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      idle guardia sx_0: 1710023899
-      idle guardia sx_1: -476040187
-      idle guardia sx_10: -1683349146
-      idle guardia sx_11: -461968715
-      idle guardia sx_12: -1547177042
-      idle guardia sx_13: -397923044
-      idle guardia sx_14: 523614958
-      idle guardia sx_15: -536590840
-      idle guardia sx_16: -1571253276
-      idle guardia sx_17: 1540766912
-      idle guardia sx_18: -2096414675
-      idle guardia sx_19: -762630754
-      idle guardia sx_2: 843522507
-      idle guardia sx_20: 2048969611
-      idle guardia sx_21: 1467107980
-      idle guardia sx_22: 609973880
-      idle guardia sx_23: -2057412956
-      idle guardia sx_24: -435680392
-      idle guardia sx_25: -1359262805
-      idle guardia sx_26: -532612290
-      idle guardia sx_27: -1694422408
-      idle guardia sx_28: 242698239
-      idle guardia sx_29: 1745994866
-      idle guardia sx_3: -553740928
-      idle guardia sx_30: 1393850412
-      idle guardia sx_31: -1687319139
-      idle guardia sx_32: -870984151
-      idle guardia sx_33: 216039243
-      idle guardia sx_34: 1176951045
-      idle guardia sx_4: -1027125616
-      idle guardia sx_5: -328062927
-      idle guardia sx_6: 1490336218
-      idle guardia sx_7: 1125814962
-      idle guardia sx_8: 240603612
-      idle guardia sx_9: -980698858
+      player_idle_sx_0: 1012426723
+      player_idle_sx_1: -1733993508
+      player_idle_sx_10: 356890994
+      player_idle_sx_11: -824946356
+      player_idle_sx_12: -1773961738
+      player_idle_sx_13: -1532921972
+      player_idle_sx_14: -362239170
+      player_idle_sx_15: -1584559388
+      player_idle_sx_16: -529433301
+      player_idle_sx_17: -1076456734
+      player_idle_sx_18: 141562523
+      player_idle_sx_19: 1770548051
+      player_idle_sx_2: 1668733197
+      player_idle_sx_20: 2081052003
+      player_idle_sx_21: 606085585
+      player_idle_sx_22: -318680131
+      player_idle_sx_23: 1900357719
+      player_idle_sx_24: -1791458785
+      player_idle_sx_25: -318529646
+      player_idle_sx_26: -273360932
+      player_idle_sx_27: 1751646186
+      player_idle_sx_28: 1225454161
+      player_idle_sx_29: 102987244
+      player_idle_sx_3: -1873662454
+      player_idle_sx_30: 1839234861
+      player_idle_sx_31: -737495916
+      player_idle_sx_32: 1125849553
+      player_idle_sx_33: 497314295
+      player_idle_sx_34: 1236640972
+      player_idle_sx_35: -748694664
+      player_idle_sx_4: -704200727
+      player_idle_sx_5: -2105429349
+      player_idle_sx_6: 1942867944
+      player_idle_sx_7: 922908620
+      player_idle_sx_8: 197478975
+      player_idle_sx_9: 859120988
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
