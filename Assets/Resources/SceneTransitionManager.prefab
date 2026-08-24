@@ -51,9 +51,11 @@ MonoBehaviour:
   savingFont: {fileID: 11400000, guid: b80b3a7d5c6a5f2489a2b318cafb74cc, type: 2}
   transitionIcon: {fileID: 2800000, guid: 9042553e5c1621c499c1cbe164337161, type: 3}
   transitionIconSize: {x: 240, y: 120}
-  iconGlowCycleDuration: 1.5
+  iconGlowCycleDuration: 1.6
+  iconGlowBrightnessBias: 0.5
   labelDotInterval: 0.4
-  minimumLoadTime: 2
+  minimumLoadTime: 3
+  postActivationSettleFrames: 3
   fadeInDuration: 0.5
   fadeOutDuration: 0.5
   audioFadeOutDuration: 0.75
@@ -73,6 +75,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InkTransition
   inkMaterial: {fileID: 2100000, guid: cd986c85cbe387b4ca48a2d42166c7e3, type: 2}
   duration: 1
-  transitionSound: {fileID: 8300000, guid: 73f38146f9ffd924190c2ee359a8ad9f, type: 3}
+  fadeInSound: {fileID: 8300000, guid: 73f38146f9ffd924190c2ee359a8ad9f, type: 3}
+  fadeOutSound: {fileID: 8300000, guid: c6fbd12398e64b9d8f31a66f2e913fab, type: 3}
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   revealSoundStartOffset: 0.12

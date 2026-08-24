@@ -120,7 +120,10 @@ namespace PxP.DOCS {
         return;
       }
 
-      if (Physics.SphereCast(targetPos, 0.1f, (m_camera.transform.position - targetPos).normalized, out RaycastHit hitInfo, maxDistance + 1f))
+      // Restrict detection to the segment between the target and camera. Extending the cast past
+      // the camera can select geometry that does not actually occlude the target, especially when
+      // the camera is placed close to it.
+      if (Physics.SphereCast(targetPos, 0.1f, (m_camera.transform.position - targetPos).normalized, out RaycastHit hitInfo, maxDistance))
         ApplyHit(hitInfo.point);
       else
         ApplyNoHit(targetPos);

@@ -1107,6 +1107,7 @@ MonoBehaviour:
   modalCanvas: {fileID: 7496886310745213564}
   backgroundBlur: {fileID: 43077707706302444}
   panelAnimation: {fileID: 1266300288417349911}
+  inputActions: {fileID: -944628639613478452, guid: 65ea5914d32546d419b9763e8bd8b1fe, type: 3}
   titleLabel: {fileID: 5777718853436315526}
   messageLabel: {fileID: 3026856483094086635}
   cancelButton: {fileID: 5037857844955380720}
