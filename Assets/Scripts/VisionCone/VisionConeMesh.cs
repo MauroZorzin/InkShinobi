@@ -10,6 +10,8 @@ public class VisionConeMesh : MonoBehaviour {
   public float eyeHeight = 1.6f;
   [Tooltip("Vertical thickness of the cone volume, centered on Eye Height.")]
   [Range(0.05f, 10f)] public float coneThickness = 1.5f;
+  [Tooltip("Minimum thickness (as a fraction of Cone Thickness) even where an obstacle clips a ray close to the apex — prevents the mesh from pinching to a torn-looking sliver right at that ray.")]
+  [Range(0f, 1f)] public float minThicknessScale = 0.25f;
 
   [Header("Occlusion")]
   [Tooltip("Layers that block the cone. Leave empty to never get cut off.")]
@@ -85,8 +87,7 @@ public class VisionConeMesh : MonoBehaviour {
     float halfThickness = coneThickness * 0.5f;
 
     int rimCount = segments + 1;
-    var apexTop = transform.InverseTransformPoint(origin + Vector3.up * halfThickness);
-    var apexBottom = transform.InverseTransformPoint(origin - Vector3.up * halfThickness);
+    var apex = transform.InverseTransformPoint(origin);
     var rimTop = new Vector3[rimCount];
     var rimBottom = new Vector3[rimCount];
 
@@ -99,21 +100,20 @@ public class VisionConeMesh : MonoBehaviour {
         distance = hit.distance;
       }
 
+      float thicknessScale = Mathf.Max(minThicknessScale, distance / Mathf.Max(0.001f, viewDistance));
+      float thicknessAtDistance = halfThickness * thicknessScale;
       Vector3 worldPoint = origin + direction * distance;
-      rimTop[i] = transform.InverseTransformPoint(worldPoint + Vector3.up * halfThickness);
-      rimBottom[i] = transform.InverseTransformPoint(worldPoint - Vector3.up * halfThickness);
+      rimTop[i] = transform.InverseTransformPoint(worldPoint + Vector3.up * thicknessAtDistance);
+      rimBottom[i] = transform.InverseTransformPoint(worldPoint - Vector3.up * thicknessAtDistance);
     }
 
-    // Layout: 0 = apexTop, 1 = apexBottom, then rimCount top rim, then rimCount bottom rim.
-    int topRimStart = 2;
+    int topRimStart = 1;
     int bottomRimStart = topRimStart + rimCount;
     var vertices = new Vector3[bottomRimStart + rimCount];
     var uvs = new Vector2[vertices.Length];
 
-    vertices[0] = apexTop;
-    vertices[1] = apexBottom;
+    vertices[0] = apex;
     uvs[0] = new Vector2(0.5f, 0f);
-    uvs[1] = new Vector2(0.5f, 0f);
 
     for (int i = 0; i < rimCount; i++) {
       vertices[topRimStart + i] = rimTop[i];
@@ -123,24 +123,21 @@ public class VisionConeMesh : MonoBehaviour {
       uvs[bottomRimStart + i] = new Vector2(u, 1f);
     }
 
-    var triangles = new int[(segments * 4 + 4) * 3];
+    var triangles = new int[(segments * 4 + 2) * 3];
     int t = 0;
 
-    // Top cap fan.
     for (int i = 0; i < segments; i++) {
       triangles[t++] = 0;
       triangles[t++] = topRimStart + i;
       triangles[t++] = topRimStart + i + 1;
     }
 
-    // Bottom cap fan (reversed winding so it faces down).
     for (int i = 0; i < segments; i++) {
-      triangles[t++] = 1;
+      triangles[t++] = 0;
       triangles[t++] = bottomRimStart + i + 1;
       triangles[t++] = bottomRimStart + i;
     }
 
-    // Outer curved wall between the top and bottom rims.
     for (int i = 0; i < segments; i++) {
       int topA = topRimStart + i;
       int topB = topRimStart + i + 1;
@@ -156,22 +153,15 @@ public class VisionConeMesh : MonoBehaviour {
       triangles[t++] = bottomA;
     }
 
-    // Flat end caps closing the two straight edges of the wedge.
     triangles[t++] = 0;
     triangles[t++] = bottomRimStart;
     triangles[t++] = topRimStart;
-    triangles[t++] = 0;
-    triangles[t++] = 1;
-    triangles[t++] = bottomRimStart;
 
     int lastTop = topRimStart + segments;
     int lastBottom = bottomRimStart + segments;
     triangles[t++] = 0;
     triangles[t++] = lastTop;
     triangles[t++] = lastBottom;
-    triangles[t++] = 0;
-    triangles[t++] = lastBottom;
-    triangles[t++] = 1;
 
     _mesh.Clear();
     _mesh.vertices = vertices;

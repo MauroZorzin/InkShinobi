@@ -43,6 +43,9 @@ public class LineFollowController : MonoBehaviour {
   [Tooltip("Degrees per second the whole-body facing rotation turns to catch up to its target orientation.")]
   public float facingRotationSpeed = 540f;
 
+  [Tooltip("Degrees per second the facing turns to catch up right after a line switch (SnapFacingToLine), independent of movement input.")]
+  public float switchFacingSnapSpeed = 1080f;
+
   [Tooltip("Defaults to this GameObject's PlayerFlipController if left empty. IsFlipped reverses which side of the path the player faces (and with it, move input and flipX). While IsFlipping is true, PlayerFlipController has exclusive control of transform.rotation and this script's own facing rotation is skipped.")]
   public PlayerFlipController flipController;
 
@@ -71,6 +74,7 @@ public class LineFollowController : MonoBehaviour {
   private float _moveInput;
   private float _verticalVelocity;
   private bool _jumpRequested;
+  private bool _isSnappingFacing;
 
   public bool movementEnabled = true;
 
@@ -159,9 +163,18 @@ public class LineFollowController : MonoBehaviour {
 
   private void UpdateFacing() {
     if (flipController != null && flipController.IsFlipping) return;
-    if (Mathf.Abs(_alongLineSpeed) < 0.01f) return;
 
     float targetYaw = Mathf.Atan2(_facingNormal.x, _facingNormal.z) * Mathf.Rad2Deg;
+
+    if (_isSnappingFacing) {
+      float snappedYaw = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetYaw, switchFacingSnapSpeed * Time.deltaTime);
+      transform.eulerAngles = new Vector3(0f, snappedYaw, 0f);
+      if (Mathf.Approximately(snappedYaw, targetYaw)) _isSnappingFacing = false;
+      return;
+    }
+
+    if (Mathf.Abs(_alongLineSpeed) < 0.01f) return;
+
     float newYaw = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetYaw, facingRotationSpeed * Time.deltaTime);
     transform.eulerAngles = new Vector3(0f, newYaw, 0f);
   }
@@ -269,6 +282,13 @@ public class LineFollowController : MonoBehaviour {
     currentStrand = strandIndex;
     _distanceAlongLine = distanceAlongLine;
     _alongLineSpeed = 0f;
+  }
+
+  public void SnapFacingToLine() {
+    if (currentLine == null) return;
+
+    UpdateFacingSide();
+    _isSnappingFacing = true;
   }
 
   public void ResetVelocity() {

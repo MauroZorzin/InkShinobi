@@ -167,6 +167,7 @@ public class LineSwitcher : MonoBehaviour {
 
     if (followController != null) {
       followController.SetLine(targetLine, targetStrand, targetDistance);
+      followController.SnapFacingToLine();
       followController.ResetVelocity();
       followController.movementEnabled = true;
     }
