@@ -1863,6 +1863,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2419360577604233760}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &9100000000000000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9100000000000000002}
+  m_Layer: 3
+  m_Name: FeetAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9100000000000000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9100000000000000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2419360577604233760}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6803016691086505379
 GameObject:
   m_ObjectHideFlags: 0
@@ -1917,6 +1948,7 @@ Transform:
   - {fileID: 6938652138959585228}
   - {fileID: 3288398090884541943}
   - {fileID: 3679497330622232566}
+  - {fileID: 9100000000000000002}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 270, z: 0}
 --- !u!212 &1444588734795641923
@@ -2206,22 +2238,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::LineFollowController
   currentLine: {fileID: 0}
   currentStrand: 0
+  feetAnchor: {fileID: 9100000000000000002}
   moveSpeed: 2
   acceleration: 10
   deceleration: 25
-  snapTolerance: 0.35
-  snapPullSpeed: 10
-  heightAboveLine: 0.05
-  gravity: -20
-  jumpHeight: 2.5
-  animator: {fileID: 6025009532012600146}
+  cornerEntryDistance: 0.25
+  cornerExitDistance: 0.2
+  cornerAssistSpeed: 1
+  minimumCornerAngle: 45
   facingRotationSpeed: 200
   flipController: {fileID: 0}
   spriteRenderer: {fileID: 1444588734795641923}
-  invertFlip: 0
+  animator: {fileID: 6025009532012600146}
   drawDebugGizmos: 1
-  logSnapWarnings: 1
-  movementEnabled: 1
 --- !u!114 &6804899910753299344
 MonoBehaviour:
   m_ObjectHideFlags: 0

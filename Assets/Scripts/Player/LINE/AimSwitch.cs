@@ -169,8 +169,9 @@ public class AimSwitch : MonoBehaviour {
   }
 
   private Vector3 GetHuggedTarget(Vector3 targetPoint) {
-    float hugHeight = followController != null ? followController.heightAboveLine : 0f;
-    return targetPoint + Vector3.up * Mathf.Max(0f, hugHeight);
+    return followController != null
+      ? followController.GetRootPositionForFeetAt(targetPoint)
+      : targetPoint;
   }
 
   public bool IsPathClear(Vector3 from, Vector3 to, out Collider blockingCollider) {

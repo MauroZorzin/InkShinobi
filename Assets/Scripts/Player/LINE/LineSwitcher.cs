@@ -97,8 +97,9 @@ public class LineSwitcher : MonoBehaviour {
   }
 
   private Vector3 GetHuggedTarget(Vector3 targetPoint) {
-    float hugHeight = followController != null ? followController.heightAboveLine : 0f;
-    return targetPoint + Vector3.up * Mathf.Max(0f, hugHeight);
+    return followController != null
+      ? followController.GetRootPositionForFeetAt(targetPoint)
+      : targetPoint;
   }
 
   public bool TrySwitchToLine(LinePath targetLine, int targetStrand, Vector3 targetPoint, float targetDistance, Action onComplete = null) {
@@ -123,7 +124,8 @@ public class LineSwitcher : MonoBehaviour {
 
   private IEnumerator SwitchRoutine(LinePath targetLine, int targetStrand, Vector3 targetPoint, float targetDistance, Action onComplete) {
     _isSwitching = true;
-    if (followController != null) followController.movementEnabled = false;
+    bool followWasEnabled = followController != null && followController.enabled;
+    if (followController != null) followController.enabled = false;
     if (_cc == null) _cc = GetComponent<CharacterController>();
 
     Vector3 startPos = transform.position;
@@ -167,8 +169,7 @@ public class LineSwitcher : MonoBehaviour {
 
     if (followController != null) {
       followController.SetLine(targetLine, targetStrand, targetDistance);
-      followController.ResetVelocity();
-      followController.movementEnabled = true;
+      followController.enabled = followWasEnabled;
     }
 
     _lastSwitchTime = Time.time;

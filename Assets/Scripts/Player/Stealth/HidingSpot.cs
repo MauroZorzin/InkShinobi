@@ -30,7 +30,7 @@ public class HidingSpot : MonoBehaviour, IInteractable {
   private TakedownController _takedownController;
   private InputAction _interactAction;
 
-  private bool _wasMovementEnabled;
+  private bool _wasLineFollowEnabled;
   private bool _wasSpriteEnabled;
   private bool _wasColliderEnabled;
   private bool _wasInteractorEnabled;
@@ -60,8 +60,8 @@ public class HidingSpot : MonoBehaviour, IInteractable {
     _interactAction = playerInput != null ? playerInput.actions["Interact"] : null;
 
     if (_lineFollowController != null) {
-      _wasMovementEnabled = _lineFollowController.movementEnabled;
-      _lineFollowController.movementEnabled = false;
+      _wasLineFollowEnabled = _lineFollowController.enabled;
+      _lineFollowController.enabled = false;
     }
 
     if (_playerCollider != null) {
@@ -148,7 +148,7 @@ public class HidingSpot : MonoBehaviour, IInteractable {
 
   private void OnRevealTransitionComplete() {
     if (_lineFollowController != null) {
-      _lineFollowController.movementEnabled = _wasMovementEnabled;
+      _lineFollowController.enabled = _wasLineFollowEnabled;
     }
 
     if (_playerCollider != null) {
