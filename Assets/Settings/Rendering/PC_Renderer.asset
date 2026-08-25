@@ -104,6 +104,22 @@ MonoBehaviour:
       restoreCamera: 1
       offset: {x: 0, y: 0, z: 0, w: 0}
       cameraFieldOfView: 4
+--- !u!114 &6200000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d306dbfa98cb4e75a21885a84f37c332, type: 3}
+  m_Name: Selective Color
+  m_EditorClassIdentifier: Assembly-CSharp::SelectiveColorRendererFeature
+  m_Active: 1
+  settings:
+    renderPassEvent: 600
+    compositeMaterial: {fileID: 2100000, guid: f52834061e7843cc9369e2752b4c6a54, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,8 +148,9 @@ MonoBehaviour:
   - {fileID: -262934802762065020}
   - {fileID: -3626916496631462233}
   - {fileID: 8798487543384238792}
+  - {fileID: 6200000000000000001}
   - {fileID: -3770087463233809289}
-  m_RendererFeatureMap: 849b47a230de59fca706479ca99aaacdc8ea1de8cd811a7a7794cb4d6df5adcb
+  m_RendererFeatureMap: 849b47a230de59fca706479ca99aaacdc8ea1de8cd811a7a01006ca726d30a567794cb4d6df5adcb
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}

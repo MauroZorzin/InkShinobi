@@ -5,6 +5,7 @@ using UnityEngine.AI;
 /// Maps a guard's NavMesh movement direction to camera-relative sprite facing and animation parameters.
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
+[DefaultExecutionOrder(100)]
 public class GuardSpriteFacing : MonoBehaviour {
   private enum FacingDirection {
     Front = 0,
@@ -37,12 +38,14 @@ public class GuardSpriteFacing : MonoBehaviour {
   private NavMeshAgent agent;
   private Vector3 lastMoveDirection = Vector3.forward;
   private float lastMovingTime = -999f;
+  private Vector3 previousPosition;
 
   private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
   private static readonly int FacingHash = Animator.StringToHash("Facing");
 
   private void Awake() {
     agent = GetComponent<NavMeshAgent>();
+    previousPosition = transform.position;
 
     if (gameCamera == null) {
       gameCamera = Camera.main;
@@ -75,7 +78,17 @@ public class GuardSpriteFacing : MonoBehaviour {
   /// </summary>
   /// <returns>True when current velocity is above the movement threshold.</returns>
   private bool UpdateLastMoveDirection() {
-    Vector3 velocity = agent.velocity;
+    float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
+    Vector3 displacementVelocity = (transform.position - previousPosition) / deltaTime;
+    Vector3 velocity = displacementVelocity;
+
+    if (agent != null && agent.enabled && agent.isOnNavMesh) {
+      Vector3 agentVelocity = agent.velocity;
+      // NavMesh-controlled guards report their true velocity here. Prototype motors such as
+      // GuardSquarePatrol move the Transform directly, so use whichever signal is stronger.
+      if (agentVelocity.sqrMagnitude > displacementVelocity.sqrMagnitude) velocity = agentVelocity;
+    }
+    previousPosition = transform.position;
     velocity.y = 0f;
 
     if (velocity.magnitude >= minimumMoveSpeed) {

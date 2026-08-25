@@ -9,6 +9,13 @@ Shader "SpriteOutline"
         [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
         _Color ("Main texture Tint", Color) = (1,1,1,1)
 
+        [Header(Region Recoloring)]
+        [MaterialToggle] _RegionRecolorEnabled ("Recolor Blue Garment", Float) = 0
+        _RegionTargetColor ("Garment Color", Color) = (0.35,0.65,1,1)
+        _RegionBlueThreshold ("Blue Detection Threshold", Range(0, 0.5)) = 0.08
+        _RegionSoftness ("Detection Softness", Range(0.001, 0.25)) = 0.04
+        _RegionReferenceLuminance ("Source Garment Luminance", Range(0.01, 1)) = 0.62
+
         [Header(General Settings)]
         [MaterialToggle] _OutlineEnabled ("Outline Enabled", Float) = 1
         [MaterialToggle] _ShowFill ("Show Sprite Fill", Float) = 1
@@ -96,6 +103,11 @@ Shader "SpriteOutline"
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _Color;
+                float _RegionRecolorEnabled;
+                half4 _RegionTargetColor;
+                float _RegionBlueThreshold;
+                float _RegionSoftness;
+                float _RegionReferenceLuminance;
                 float _Thickness;
                 float _AAWidth;
                 float _OutlineEnabled;
@@ -217,7 +229,26 @@ Shader "SpriteOutline"
                 float thicknessX = _Thickness / _MainTex_TexelSize.z;
                 float thicknessY = _Thickness / _MainTex_TexelSize.w;
 
-                half4 c = SampleSpriteTexture(IN.texcoord) * IN.color;
+                half4 sampled = SampleSpriteTexture(IN.texcoord);
+                if (_RegionRecolorEnabled != 0)
+                {
+                    half channelMin = min(sampled.r, min(sampled.g, sampled.b));
+                    half channelMax = max(sampled.r, max(sampled.g, sampled.b));
+                    half saturation = channelMax - channelMin;
+                    half blueDominance = sampled.b - sampled.r;
+                    half blueMask = smoothstep(
+                        _RegionBlueThreshold - _RegionSoftness,
+                        _RegionBlueThreshold + _RegionSoftness,
+                        blueDominance);
+                    blueMask *= smoothstep(0.035h, 0.12h, saturation);
+
+                    half sourceLuminance = dot(sampled.rgb, half3(0.2126h, 0.7152h, 0.0722h));
+                    half shade = sourceLuminance / max((half)_RegionReferenceLuminance, 0.01h);
+                    half3 recolored = saturate(_RegionTargetColor.rgb * shade);
+                    sampled.rgb = lerp(sampled.rgb, recolored, blueMask * _RegionTargetColor.a);
+                }
+
+                half4 c = sampled * IN.color;
                 c.rgb *= c.a;
 
                 if (_OutlineEnabled == 0)

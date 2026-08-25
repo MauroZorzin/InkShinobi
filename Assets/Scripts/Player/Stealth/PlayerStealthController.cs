@@ -35,7 +35,8 @@ public class PlayerStealthController : MonoBehaviour {
 
   // Convenient shorthands kept for backwards-compatibility with other systems.
   public bool IsHidden => CurrentState == StealthState.Hidden;
-  public bool IsInLight { get; private set; }
+  public bool IsInLight => _lightSourceCount > 0 || ResolveExposureProvider()?.IsExposed == true;
+  public float LightExposure => _lightSourceCount > 0 ? 1f : ResolveExposureProvider()?.Exposure ?? 0f;
   public int DetectingGuardCount { get; set; }
 
   // -------------------------------------------------------------------------
@@ -49,6 +50,9 @@ public class PlayerStealthController : MonoBehaviour {
   [Header("Subsystem References (auto-fetched if left blank)")]
   public TakedownController takedownController;
 
+  [Tooltip("Optional component implementing ILightExposureProvider. If empty, a provider on this GameObject is used.")]
+  [SerializeField] private MonoBehaviour lightExposureProvider;
+
   [Header("Debug")]
   [Tooltip("Draws the current stealth state above the player in the Game view.")]
   public bool debug = true;
@@ -59,6 +63,7 @@ public class PlayerStealthController : MonoBehaviour {
 
   private float _hiddenTimer;
   private int _lightSourceCount;
+  private ILightExposureProvider _resolvedExposureProvider;
 
   // -------------------------------------------------------------------------
   // Unity lifecycle
@@ -66,6 +71,7 @@ public class PlayerStealthController : MonoBehaviour {
 
   private void Awake() {
     ValidateSubsystems();
+    ResolveExposureProvider();
   }
 
   private void Update() {
@@ -174,15 +180,32 @@ public class PlayerStealthController : MonoBehaviour {
   public void EnterLight() {
     Debug.Log($"[PlayerStealthController] '{name}': EnterLight");
     _lightSourceCount++;
-    IsInLight = _lightSourceCount > 0;
     RefreshState();
   }
 
   public void ExitLight() {
     Debug.Log($"[PlayerStealthController] '{name}': ExitLight");
     _lightSourceCount = Mathf.Max(0, _lightSourceCount - 1);
-    IsInLight = _lightSourceCount > 0;
     RefreshState();
+  }
+
+  private ILightExposureProvider ResolveExposureProvider() {
+    if (_resolvedExposureProvider != null) return _resolvedExposureProvider;
+
+    if (lightExposureProvider is ILightExposureProvider assignedProvider) {
+      _resolvedExposureProvider = assignedProvider;
+      return _resolvedExposureProvider;
+    }
+
+    MonoBehaviour[] localBehaviours = GetComponents<MonoBehaviour>();
+    for (int i = 0; i < localBehaviours.Length; i++) {
+      if (localBehaviours[i] is not ILightExposureProvider provider) continue;
+      lightExposureProvider = localBehaviours[i];
+      _resolvedExposureProvider = provider;
+      break;
+    }
+
+    return _resolvedExposureProvider;
   }
 }
 

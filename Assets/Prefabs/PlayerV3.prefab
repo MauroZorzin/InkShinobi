@@ -957,6 +957,7 @@ GameObject:
   - component: {fileID: 4857575901157675262}
   - component: {fileID: 151022832583955296}
   - component: {fileID: 6798719118845860753}
+  - component: {fileID: 930000000000000001}
   m_Layer: 3
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1083,6 +1084,22 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &930000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4696473120811172803}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2f51b13c4f24ec580883f94f32b2b21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectiveColorCamera
+  effectEnabled: 1
+  intensity: 1
+  backgroundSaturation: 0
+  preservedColorStrength: 1
 --- !u!1 &5173478599848385869
 GameObject:
   m_ObjectHideFlags: 0
@@ -1905,6 +1922,7 @@ GameObject:
   - component: {fileID: 2419360577604233760}
   - component: {fileID: 1444588734795641923}
   - component: {fileID: 5472981477857108700}
+  - component: {fileID: 930000000000000010}
   - component: {fileID: 4909156121337861072}
   - component: {fileID: 6025009532012600146}
   - component: {fileID: 1805275345434962238}
@@ -1974,7 +1992,7 @@ SpriteRenderer:
   m_SmallMeshCulling: 1
   m_ForceMeshLod: -1
   m_MeshLodSelectionBias: 0
-  m_RenderingLayerMask: 4294967295
+  m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: ec1e9e03abfb2654dadda7c221faeb48, type: 2}
@@ -2035,6 +2053,24 @@ CharacterController:
   m_SkinWidth: 0.0001
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: -0.1, z: 0}
+--- !u!114 &930000000000000010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803016691086505379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41f92e80ef4341ee802519aa8d4e9e0e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PalaceLightExposure
+  body: {fileID: 5472981477857108700}
+  verticalSamples: 5
+  endInset: 0.03
+  halfWidth: 0.12
+  exposedThreshold: 0.15
+  showGizmos: 0
 --- !u!65 &4909156121337861072
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2196,6 +2232,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::PlayerStealthController
   timeToHide: 1
   takedownController: {fileID: 3861325504680876323}
+  lightExposureProvider: {fileID: 930000000000000010}
   debug: 0
 --- !u!114 &4849568163502928987
 MonoBehaviour:

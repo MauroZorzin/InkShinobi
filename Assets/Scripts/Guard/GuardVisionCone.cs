@@ -8,6 +8,9 @@ public class GuardVisionCone : MonoBehaviour {
   [Tooltip("World-space Y offset added to the guard pivot as the ray origin.")]
   public float eyeHeight = 1.6f;
 
+  [Tooltip("Horizontal offset of both vision-cone origins along the guard's local right axis. Positive values move them right; negative values move them left.")]
+  public float eyeHorizontalOffset = 0f;
+
   [Tooltip("World-space Y offset added to the player pivot as the aim target.")]
   public float playerAimHeight = 1.4f;
 
@@ -60,7 +63,9 @@ public class GuardVisionCone : MonoBehaviour {
   private bool _wasDetectedLastFrame = false;
   private PlayerStealthController _trackedPlayer;
 
-  private Vector3 EyeOrigin => new(transform.position.x, transform.position.y + eyeHeight, transform.position.z);
+  private Vector3 EyeOrigin => transform.position
+                               + Vector3.up * eyeHeight
+                               + transform.right * eyeHorizontalOffset;
 
   private void Start() {
     if (playerLayerMask.value == 0) {
@@ -85,7 +90,7 @@ public class GuardVisionCone : MonoBehaviour {
       Debug.Log($"[VisionCone] '{name}' | eye={eye:F2} | OverlapSphere(r={longRange}, mask={playerLayerMask.value}) -> {hits.Length} hit(s)");
     }
 
-    var playerVisible = false;
+    float strongestVisibility = 0f;
     PlayerStealthController candidate = null;
 
     foreach (Collider col in hits) {
@@ -118,13 +123,19 @@ public class GuardVisionCone : MonoBehaviour {
       Vector3 direction = (aimPosition - eye).normalized;
       var hasLineOfSight = HasLineOfSight(eye, direction, distance);
       var inShortCone = distance <= shortRange && horizontalAngle <= shortAngle * 0.5f;
-      var inLongCone = distance <= longRange && horizontalAngle <= longAngle * 0.5f && playerStealth.IsInLight;
-      var inCone = (inShortCone || inLongCone) && hasLineOfSight;
+      float playerExposure = playerStealth.LightExposure;
+      bool insideLongGeometry = distance <= longRange && horizontalAngle <= longAngle * 0.5f;
+      float visibilityStrength = hasLineOfSight
+        ? Mathf.Max(inShortCone ? 1f : 0f, insideLongGeometry && playerStealth.IsInLight ? playerExposure : 0f)
+        : 0f;
+      bool inLongCone = insideLongGeometry && playerStealth.IsInLight;
+      bool inCone = visibilityStrength > 0f;
 
       if (verboseLogging) {
         Debug.Log(
           $"[VisionCone] '{playerStealth.name}' | dist={distance:F2}m angle={horizontalAngle:F1} deg " +
-          $"| inShort={inShortCone} | inLong={inLongCone} | LOS={hasLineOfSight} -> result={inCone}"
+          $"| inShort={inShortCone} | inLong={inLongCone} | exposure={playerExposure:F2} " +
+          $"| LOS={hasLineOfSight} -> strength={visibilityStrength:F2}"
         );
       }
 
@@ -132,14 +143,13 @@ public class GuardVisionCone : MonoBehaviour {
         Debug.DrawLine(eye, aimPosition, inCone ? Color.green : Color.red);
       }
 
-      if (inCone) {
-        playerVisible = true;
+      if (visibilityStrength > strongestVisibility) {
+        strongestVisibility = visibilityStrength;
         candidate = playerStealth;
-        break;
       }
     }
 
-    UpdateDetectionState(playerVisible, candidate);
+    UpdateDetectionState(strongestVisibility, candidate);
   }
 
   /// <summary>
@@ -168,12 +178,12 @@ public class GuardVisionCone : MonoBehaviour {
   /// <summary>
   /// Advances or decays detection progress and sends stealth notifications on state transitions.
   /// </summary>
-  /// <param name="playerVisible">Whether a player is currently visible.</param>
+  /// <param name="visibilityStrength">Normalized detection strength. Near vision supplies one; far vision supplies light exposure.</param>
   /// <param name="candidate">The visible player, if any.</param>
-  private void UpdateDetectionState(bool playerVisible, PlayerStealthController candidate) {
-    if (playerVisible) {
+  private void UpdateDetectionState(float visibilityStrength, PlayerStealthController candidate) {
+    if (visibilityStrength > 0f && candidate != null) {
       _trackedPlayer = candidate;
-      _detectionProgress += Time.deltaTime;
+      _detectionProgress += Time.deltaTime * Mathf.Clamp01(visibilityStrength);
 
       if (_detectionProgress >= detectionTime && !PlayerDetected) {
         PlayerDetected = true;
