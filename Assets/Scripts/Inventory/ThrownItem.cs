@@ -28,7 +28,7 @@ public class ThrownItem : MonoBehaviour {
 
   private void Awake() {
     _rigidbody = GetComponent<Rigidbody>();
-    _rigidbody.isKinematic = true;
+    //_rigidbody.isKinematic = true;
     echoPrefab.gameObject.SetActive(false);
   }
 
