@@ -14,7 +14,7 @@ using UnityEngine;
 ///
 /// </summary>
 [RequireComponent(typeof(TakedownController))]
-public class PlayerStealthController : MonoBehaviour {
+public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   // -------------------------------------------------------------------------
   // Stealth state
   // -------------------------------------------------------------------------
@@ -38,6 +38,11 @@ public class PlayerStealthController : MonoBehaviour {
   public bool IsInLight => _lightSourceCount > 0 || ResolveExposureProvider()?.IsExposed == true;
   public float LightExposure => _lightSourceCount > 0 ? 1f : ResolveExposureProvider()?.Exposure ?? 0f;
   public int DetectingGuardCount { get; set; }
+  public int SeeingGuardCount { get; private set; }
+  public bool IsCurrentlyVisible => SeeingGuardCount > 0;
+
+  /// <summary>Unavailable from the first visible frame through the end of confirmed detection.</summary>
+  public bool CanWallSwitch => !IsCurrentlyVisible && DetectingGuardCount <= 0;
 
   // -------------------------------------------------------------------------
   // Inspector
@@ -171,6 +176,16 @@ public class PlayerStealthController : MonoBehaviour {
   public void OnGuardStopsDetecting() {
     DetectingGuardCount = Mathf.Max(0, DetectingGuardCount - 1);
     RefreshState();
+  }
+
+  /// <summary>Registers immediate line of sight, before the guard's confirmation timer completes.</summary>
+  public void OnGuardStartsSeeing() {
+    SeeingGuardCount++;
+  }
+
+  /// <summary>Releases one guard's immediate line-of-sight contribution.</summary>
+  public void OnGuardStopsSeeing() {
+    SeeingGuardCount = Mathf.Max(0, SeeingGuardCount - 1);
   }
 
   // -------------------------------------------------------------------------

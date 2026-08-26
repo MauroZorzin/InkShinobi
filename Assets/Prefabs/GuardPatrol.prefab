@@ -612,6 +612,7 @@ GameObject:
   - component: {fileID: 1520791010220140327}
   - component: {fileID: 1534752613705479263}
   - component: {fileID: 2640815573950704169}
+  - component: {fileID: 930000000000000030}
   m_Layer: 7
   m_Name: GuardPatrol
   m_TagString: Untagged
@@ -701,7 +702,7 @@ MonoBehaviour:
   lookAroundDuration: 1.5
   investigateLookCount: 3
   suspiciousLookCount: 2
-  takedownSound: {fileID: 8300000, guid: c5955b1ca51d47245ae5e5e10395d910, type: 3}
+  takedownSound: {fileID: 8300000, guid: 07641d5d6b5ba4241aa5545917231aaa, type: 3}
   takedownReplacementPrefab: {fileID: 0}
   takedownDestroyDelay: 2
   spotSound: {fileID: 8300000, guid: 2796991c2d63adf4c9c3d417a318aeaf, type: 3}
@@ -739,6 +740,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2419
   detectionTime: 0.8
+  detectionReleaseTime: 0.35
+  wallSwitchExposureThreshold: 0.15
   showGizmos: 1
   verboseLogging: 0
   showRuntimeRay: 1
@@ -765,3 +768,29 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.3, z: 0}
+--- !u!114 &930000000000000030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7859379029619327441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f3f226ac2574dc5abf7cd8a8fc1ac80, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::GuardWallSwitchTarget
+  suspiciousBlocksSwitch: 1
+  investigatingBlocksSwitch: 1
+  spriteRenderers:
+  - {fileID: 3485846223026709693}
+  vulnerableHighlight: {r: 0.9, g: 0.02, b: 0.015, a: 0.72}
+  blockingHighlight: {r: 0.015, g: 0.01, b: 0.01, a: 0.9}
+  highlightStrength: 0.72
+  dissolveStartDelay: 0.12
+  dissolveDuration: 1.1
+  dissolveEdgeColor: {r: 0.015, g: 0.01, b: 0.01, a: 1}
+  dissolveEdgeWidth: 0.12
+  airborneInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
+  airborneInkOffset: {x: 0, y: 0.25, z: 0}
+  airborneInkScale: 1.5

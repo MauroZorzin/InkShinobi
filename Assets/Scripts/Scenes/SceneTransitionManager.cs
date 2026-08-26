@@ -30,6 +30,7 @@ public class SceneTransitionManager : MonoBehaviour {
   private const float MaximumAnimationDelta = 1f / 30f;
 
   public static SceneTransitionManager Instance { get; private set; }
+  public static bool IsGamePaused => Instance != null && Instance._pauseDialog != null;
 
   private bool _isTransitioning;
   private ConfirmationModalView _pauseDialog;

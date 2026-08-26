@@ -123,6 +123,7 @@ public class GuardController : MonoBehaviour {
   private bool _lookingAround = false;
 
   private float _idleSoundTimer;
+  private bool _takedownAudioPlayed;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Unity lifecycle
@@ -130,6 +131,9 @@ public class GuardController : MonoBehaviour {
 
   private void Awake() {
     _agent = GetComponent<NavMeshAgent>();
+
+    // Request decompression early so the impact begins immediately even on the first takedown.
+    if (takedownSound != null) takedownSound.LoadAudioData();
 
     if (visionCone == null) {
       visionCone = GetComponentInChildren<GuardVisionCone>();
@@ -191,6 +195,17 @@ public class GuardController : MonoBehaviour {
   /// </summary>
   public void PerformTakedown() {
     SetState(GuardState.TakenDown);
+  }
+
+  /// <summary>
+  /// Plays the configured takedown impact once. The Palace wall-switch death presenter and the
+  /// legacy takedown sequence share this entry point so audio ownership and mixer routing stay
+  /// on the guard without risking duplicate playback.
+  /// </summary>
+  public void PlayTakedownAudio() {
+    if (_takedownAudioPlayed || takedownSound == null) return;
+    _takedownAudioPlayed = true;
+    OneShotAudio.PlayClipAtPoint(takedownSound, transform.position, 1f, mixerGroup);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -426,9 +441,7 @@ public class GuardController : MonoBehaviour {
       visionCone.enabled = false;
     }
 
-    if (takedownSound != null) {
-      OneShotAudio.PlayClipAtPoint(takedownSound, transform.position, 1f, mixerGroup);
-    }
+    PlayTakedownAudio();
 
     if (takedownReplacementPrefab != null) {
       Instantiate(takedownReplacementPrefab, transform.position, transform.rotation);

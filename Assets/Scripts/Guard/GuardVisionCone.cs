@@ -38,6 +38,12 @@ public class GuardVisionCone : MonoBehaviour {
   [Tooltip("Seconds required to fully detect the player. Zero means instant detection.")]
   public float detectionTime = 0.8f;
 
+  [Tooltip("Seconds required to release a fully confirmed detection after the player is no longer visible.")]
+  [Min(0.01f)] public float detectionReleaseTime = 0.35f;
+
+  [Tooltip("Minimum fixed-light exposure required for a wall-switch trajectory point to count as visible inside the long cone.")]
+  [Range(0f, 1f)] public float wallSwitchExposureThreshold = 0.15f;
+
   [Header("Debug")]
   [Tooltip("Draws vision cone gizmos in the Scene view.")]
   public bool showGizmos = true;
@@ -57,11 +63,15 @@ public class GuardVisionCone : MonoBehaviour {
   /// <summary>Normalized detection timer progress from 0 to 1.</summary>
   public float DetectionProgress => detectionTime > 0f ? Mathf.Clamp01(_detectionProgress / detectionTime) : (PlayerDetected ? 1f : 0f);
 
+  /// <summary>True during an unobstructed visible frame, before or after detection is confirmed.</summary>
+  public bool PlayerCurrentlyVisible => _visiblePlayer != null;
+
   private const float LineOfSightOriginOffset = 0.3f;
 
   private float _detectionProgress = 0f;
   private bool _wasDetectedLastFrame = false;
   private PlayerStealthController _trackedPlayer;
+  private PlayerStealthController _visiblePlayer;
 
   private Vector3 EyeOrigin => transform.position
                                + Vector3.up * eyeHeight
@@ -181,9 +191,15 @@ public class GuardVisionCone : MonoBehaviour {
   /// <param name="visibilityStrength">Normalized detection strength. Near vision supplies one; far vision supplies light exposure.</param>
   /// <param name="candidate">The visible player, if any.</param>
   private void UpdateDetectionState(float visibilityStrength, PlayerStealthController candidate) {
+    UpdateImmediateVisibility(visibilityStrength > 0f ? candidate : null);
+
     if (visibilityStrength > 0f && candidate != null) {
       _trackedPlayer = candidate;
-      _detectionProgress += Time.deltaTime * Mathf.Clamp01(visibilityStrength);
+      // Keep this as a bounded meter. Unbounded accumulation made the release delay depend on
+      // how long the player had remained visible, rather than on an authored release time.
+      _detectionProgress = Mathf.Min(
+        Mathf.Max(0f, detectionTime),
+        _detectionProgress + Time.deltaTime * Mathf.Clamp01(visibilityStrength));
 
       if (_detectionProgress >= detectionTime && !PlayerDetected) {
         PlayerDetected = true;
@@ -196,7 +212,10 @@ public class GuardVisionCone : MonoBehaviour {
       return;
     }
 
-    _detectionProgress = Mathf.Max(0f, _detectionProgress - Time.deltaTime * 2f);
+    float releaseRate = detectionTime > 0f
+      ? detectionTime / Mathf.Max(0.01f, detectionReleaseTime)
+      : 1f / Mathf.Max(0.01f, detectionReleaseTime);
+    _detectionProgress = Mathf.Max(0f, _detectionProgress - Time.deltaTime * releaseRate);
 
     if (_wasDetectedLastFrame && _detectionProgress <= 0f) {
       if (DetectedPlayer != null) {
@@ -208,6 +227,81 @@ public class GuardVisionCone : MonoBehaviour {
       _wasDetectedLastFrame = false;
       Debug.Log($"[VisionCone] '{name}' lost the player.");
     }
+  }
+
+  private void OnDisable() {
+    ReleaseDetection();
+  }
+
+  /// <summary>
+  /// Immediately releases this guard's contribution to the player's detected state. Takedown and
+  /// other lifecycle systems call this before disabling perception.
+  /// </summary>
+  public void ReleaseDetection() {
+    UpdateImmediateVisibility(null);
+    if (PlayerDetected && DetectedPlayer != null) DetectedPlayer.OnGuardStopsDetecting();
+    _detectionProgress = 0f;
+    PlayerDetected = false;
+    DetectedPlayer = null;
+    _trackedPlayer = null;
+    _wasDetectedLastFrame = false;
+  }
+
+  /// <summary>
+  /// Tests a thick wall-switch segment against the short cone and the light-conditional long cone.
+  /// This is a pure query and therefore does not advance detection state.
+  /// </summary>
+  public bool TryGetWallSwitchIntersection(
+    Vector3 start,
+    Vector3 end,
+    float trajectoryRadius,
+    out Vector3 intersection) {
+    Vector3 delta = end - start;
+    float length = delta.magnitude;
+    float spacing = Mathf.Clamp(Mathf.Max(trajectoryRadius * 0.5f, 0.05f), 0.05f, 0.2f);
+    int steps = Mathf.Max(1, Mathf.CeilToInt(length / spacing));
+    Vector3 eye = EyeOrigin;
+
+    for (int step = 0; step <= steps; step++) {
+      Vector3 point = Vector3.Lerp(start, end, step / (float)steps);
+      Vector3 sightPoint = new(point.x, eye.y, point.z);
+      Vector3 toPoint = sightPoint - eye;
+      float sightDistance = toPoint.magnitude;
+      if (sightDistance > 0.0001f && !HasLineOfSight(eye, toPoint / sightDistance, sightDistance)) continue;
+
+      bool insideShort = IsInsideExpandedCone(point, shortRange, shortAngle, trajectoryRadius);
+      bool insideLitLong = !insideShort
+                           && PalaceFixedLightSource.EvaluateCombinedExposure(point) >= wallSwitchExposureThreshold
+                           && IsInsideExpandedCone(point, longRange, longAngle, trajectoryRadius);
+      if (!insideShort && !insideLitLong) continue;
+
+      intersection = point;
+      return true;
+    }
+
+    intersection = Vector3.zero;
+    return false;
+  }
+
+  private bool IsInsideExpandedCone(Vector3 point, float range, float angle, float radius) {
+    Vector3 toPoint = point - EyeOrigin;
+    toPoint.y = 0f;
+    float distance = toPoint.magnitude;
+    if (distance > range + radius) return false;
+    if (distance <= radius || distance <= 0.0001f) return true;
+
+    Vector3 forward = transform.forward;
+    forward.y = 0f;
+    if (forward.sqrMagnitude <= 0.0001f) return false;
+    float radiusAngle = Mathf.Asin(Mathf.Clamp01(radius / distance)) * Mathf.Rad2Deg;
+    return Vector3.Angle(forward.normalized, toPoint / distance) <= angle * 0.5f + radiusAngle;
+  }
+
+  private void UpdateImmediateVisibility(PlayerStealthController visiblePlayer) {
+    if (_visiblePlayer == visiblePlayer) return;
+    if (_visiblePlayer != null) _visiblePlayer.OnGuardStopsSeeing();
+    _visiblePlayer = visiblePlayer;
+    if (_visiblePlayer != null) _visiblePlayer.OnGuardStartsSeeing();
   }
 
   private void OnDrawGizmos() {

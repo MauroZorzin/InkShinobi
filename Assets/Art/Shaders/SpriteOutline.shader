@@ -16,6 +16,14 @@ Shader "SpriteOutline"
         _RegionSoftness ("Detection Softness", Range(0.001, 0.25)) = 0.04
         _RegionReferenceLuminance ("Source Garment Luminance", Range(0.01, 1)) = 0.62
 
+        [Header(Wall Switch Preview and Death)]
+          _PreviewHighlightColor ("Preview Highlight Color", Color) = (1,0,0,0.75)
+          _PreviewHighlightStrength ("Preview Highlight Strength", Range(0, 1)) = 0
+          _InkDissolve ("Ink Dissolve", Range(0, 1)) = 0
+          [HideInInspector] _InkDissolveUvRect ("Ink Dissolve UV Rect", Vector) = (0,0,1,1)
+          _InkDissolveEdgeColor ("Ink Dissolve Edge Color", Color) = (0.015,0.01,0.01,1)
+          _InkDissolveEdgeWidth ("Ink Dissolve Edge Width", Range(0.01, 0.3)) = 0.12
+
         [Header(General Settings)]
         [MaterialToggle] _OutlineEnabled ("Outline Enabled", Float) = 1
         [MaterialToggle] _ShowFill ("Show Sprite Fill", Float) = 1
@@ -108,6 +116,12 @@ Shader "SpriteOutline"
                 float _RegionBlueThreshold;
                 float _RegionSoftness;
                 float _RegionReferenceLuminance;
+                  half4 _PreviewHighlightColor;
+                  float _PreviewHighlightStrength;
+                  float _InkDissolve;
+                  float4 _InkDissolveUvRect;
+                  half4 _InkDissolveEdgeColor;
+                  float _InkDissolveEdgeWidth;
                 float _Thickness;
                 float _AAWidth;
                 float _OutlineEnabled;
@@ -230,6 +244,24 @@ Shader "SpriteOutline"
                 float thicknessY = _Thickness / _MainTex_TexelSize.w;
 
                 half4 sampled = SampleSpriteTexture(IN.texcoord);
+                float dissolveEdge = 0;
+
+                // A noisy bottom-to-top removal shared by the sprite fill and its outline. Zero
+                // is a strict no-op, so ordinary player/guard materials retain their old look.
+                // Normalize atlas UVs into this sprite slice first; using raw atlas UVs makes a
+                // small slice cross the entire threshold almost instantly.
+                if (_InkDissolve > 0)
+                {
+                    float2 dissolveUv = saturate(
+                        (IN.texcoord - _InkDissolveUvRect.xy) / max(_InkDissolveUvRect.zw, 0.0001));
+                    float dissolveNoise = frac(sin(dot(dissolveUv, float2(12.9898, 78.233))) * 43758.5453);
+                    float dissolveField = dissolveUv.y * 0.75 + dissolveNoise * 0.25;
+                    float dissolveThreshold = _InkDissolve * 1.15 - 0.1;
+                    float dissolveDistance = dissolveField - dissolveThreshold;
+                    clip(dissolveDistance);
+                    dissolveEdge = 1.0 - smoothstep(0.0, _InkDissolveEdgeWidth, dissolveDistance);
+                }
+
                 if (_RegionRecolorEnabled != 0)
                 {
                     half channelMin = min(sampled.r, min(sampled.g, sampled.b));
@@ -247,6 +279,15 @@ Shader "SpriteOutline"
                     half3 recolored = saturate(_RegionTargetColor.rgb * shade);
                     sampled.rgb = lerp(sampled.rgb, recolored, blueMask * _RegionTargetColor.a);
                 }
+
+                sampled.rgb = lerp(
+                    sampled.rgb,
+                    _PreviewHighlightColor.rgb,
+                    saturate(_PreviewHighlightStrength) * _PreviewHighlightColor.a);
+                sampled.rgb = lerp(
+                    sampled.rgb,
+                    _InkDissolveEdgeColor.rgb,
+                    dissolveEdge * _InkDissolveEdgeColor.a);
 
                 half4 c = sampled * IN.color;
                 c.rgb *= c.a;

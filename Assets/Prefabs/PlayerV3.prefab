@@ -1923,6 +1923,8 @@ GameObject:
   - component: {fileID: 1444588734795641923}
   - component: {fileID: 5472981477857108700}
   - component: {fileID: 930000000000000010}
+  - component: {fileID: 930000000000000020}
+  - component: {fileID: 930000000000000021}
   - component: {fileID: 4909156121337861072}
   - component: {fileID: 6025009532012600146}
   - component: {fileID: 1805275345434962238}
@@ -2071,6 +2073,86 @@ MonoBehaviour:
   halfWidth: 0.12
   exposedThreshold: 0.15
   showGizmos: 0
+--- !u!114 &930000000000000020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803016691086505379}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f75ec9d63ad44fabd92d9029dd36987, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::WallSwitchPreview
+  inkMaterial: {fileID: 2100000, guid: 880eb54291e643b29ced468fd8a92aaf, type: 2}
+  destinationMaterial: {fileID: 2100000, guid: c842dd47f1764d9ac679bfe55774c76e, type: 2}
+  markerCamera: {fileID: 4857575901157675262}
+  trajectoryWidth: 0.16
+  validColor: {r: 0, g: 0.8, b: 0.02, a: 0.95}
+  invalidColor: {r: 1, g: 0.04, b: 0.02, a: 0.9}
+  executionColor: {r: 0.015, g: 0.01, b: 0.02, a: 1}
+  destinationRadius: 0.22
+  destinationOffset: {x: 0, y: 0.025, z: 0}
+  stainEdgeSoftness: 0.045
+  stainMotionSpeed: 1.2
+  stainDistortion: 0.16
+--- !u!114 &930000000000000021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803016691086505379}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cf7c3a2a6a94790873dbb8f42cf482d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PalaceWallSwitchController
+  network: {fileID: 0}
+  followController: {fileID: 1507978084170386215}
+  characterController: {fileID: 5472981477857108700}
+  playerInput: {fileID: 1805275345434962238}
+  aimCamera: {fileID: 4857575901157675262}
+  cameraTransform: {fileID: 7082278986317236725}
+  switchOrigin: {fileID: 0}
+  playerRenderer: {fileID: 1444588734795641923}
+  preview: {fileID: 930000000000000020}
+  permissionSource: {fileID: 6966390407689415549}
+  wallPathSearchRadius: 0.4
+  invalidMarkerCameraDistance: 8
+  minimumSwitchDistance: 0.75
+  maximumSwitchDistance: 14
+  parallelToleranceDegrees: 8
+  minimumDestinationPlaneSeparation: 0.5
+  destinationPointMargin: 0.2
+  switchOriginLocalOffset: {x: 0, y: 0.05, z: 0}
+  trajectoryRadius: 0.18
+  interactionLayers:
+    serializedVersion: 2
+    m_Bits: 128
+  wallObstructionLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  wallEndpointInset: 0.1
+  aimingTimeScale: 0.06
+  aimingCameraLocalPosition: {x: 0, y: 0.5, z: -3.75}
+  cameraAimDuration: 0.35
+  cameraSideSwitchDuration: 0.3
+  cameraReturnDelayAfterArrival: 0.8
+  cameraReturnDuration: 0.3
+  departureHoldDuration: 0.1
+  inkTravelDuration: 0.8
+  hitStopDuration: 0.08
+  takedownImpulsePosition: 0.035
+  takedownImpulseRotation: 0.8
+  takedownImpulseFrequency: 24
+  reappearDelay: 0.04
+  departureInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
+  arrivalInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
+  travelingInkPrefab: {fileID: 5045851490385637994, guid: a88532dc9dbd30d4e943836b248728cb, type: 3}
+  drawDebugGizmos: 1
+  verboseLogging: 0
 --- !u!65 &4909156121337861072
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2284,6 +2366,7 @@ MonoBehaviour:
   cornerAssistSpeed: 1
   minimumCornerAngle: 45
   facingRotationSpeed: 200
+  movementCamera: {fileID: 4857575901157675262}
   flipController: {fileID: 0}
   spriteRenderer: {fileID: 1444588734795641923}
   animator: {fileID: 6025009532012600146}

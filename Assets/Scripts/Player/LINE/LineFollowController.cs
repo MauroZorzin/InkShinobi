@@ -32,6 +32,8 @@ public class LineFollowController : MonoBehaviour {
 
   [Header("Facing")]
   [Min(0f)] public float facingRotationSpeed = 200f;
+  [Tooltip("Camera used to translate left/right input and sprite facing into screen space. Assign the player's gameplay camera.")]
+  public Camera movementCamera;
   public PlayerFlipController flipController;
   public SpriteRenderer spriteRenderer;
 
@@ -57,15 +59,20 @@ public class LineFollowController : MonoBehaviour {
   private float _cornerDirectionSign;
   private float _cornerExitStartDistance;
   private Vector3 _cornerEntryTangent;
+  private bool _facingTurnActive;
 
   public float DistanceAlongLine => _distanceAlongLine;
   public Vector3 FeetPosition => feetAnchor != null ? feetAnchor.position : transform.position;
+  public bool IsTurning => _cornerAssistActive
+                           || _facingTurnActive
+                           || (flipController != null && flipController.IsFlipping);
 
   private void Awake() {
     _characterController = GetComponent<CharacterController>();
     if (animator == null) animator = GetComponent<Animator>();
     if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
     if (flipController == null) flipController = GetComponent<PlayerFlipController>();
+    if (movementCamera == null) movementCamera = GetComponentInChildren<Camera>(true);
   }
 
   private void Start() {
@@ -85,6 +92,7 @@ public class LineFollowController : MonoBehaviour {
     _speed = 0f;
     _actualSignedSpeed = 0f;
     CancelCornerAssist();
+    _facingTurnActive = false;
     UpdateAnimator();
   }
 
@@ -110,7 +118,7 @@ public class LineFollowController : MonoBehaviour {
   }
 
   private void UpdateSpeed() {
-    float targetSpeed = _input * moveSpeed;
+    float targetSpeed = GetPathRelativeInput() * moveSpeed;
 
     if (_cornerAssistActive && Mathf.Abs(targetSpeed) < cornerAssistSpeed) {
       targetSpeed = _cornerDirectionSign * cornerAssistSpeed;
@@ -121,14 +129,15 @@ public class LineFollowController : MonoBehaviour {
   }
 
   private void UpdateCornerAssist() {
+    float pathRelativeInput = GetPathRelativeInput();
     if (_cornerAssistActive) {
-      if (_input * _cornerDirectionSign < -0.001f) CancelCornerAssist();
+      if (pathRelativeInput * _cornerDirectionSign < -0.001f) CancelCornerAssist();
       return;
     }
 
-    if (Mathf.Abs(_input) < 0.001f || cornerEntryDistance <= 0f) return;
+    if (Mathf.Abs(pathRelativeInput) < 0.001f || cornerEntryDistance <= 0f) return;
 
-    float directionSign = Mathf.Sign(_input);
+    float directionSign = Mathf.Sign(pathRelativeInput);
     float lookAheadDistance = _distanceAlongLine + directionSign * cornerEntryDistance;
 
     if (!currentLine.IsStrandClosedLoop(currentStrand)) {
@@ -220,7 +229,10 @@ public class LineFollowController : MonoBehaviour {
   }
 
   private void UpdateFacing() {
-    if (flipController != null && flipController.IsFlipping) return;
+    if (flipController != null && flipController.IsFlipping) {
+      _facingTurnActive = true;
+      return;
+    }
 
     Vector3 tangent = currentLine.GetDirectionAtDistance(currentStrand, _distanceAlongLine);
     tangent.y = 0f;
@@ -241,17 +253,41 @@ public class LineFollowController : MonoBehaviour {
     Vector3 normal = rawNormal * _facingSideSign;
 
     Quaternion targetRotation = Quaternion.LookRotation(normal, Vector3.up);
+    _facingTurnActive = Quaternion.Angle(transform.rotation, targetRotation) > 0.5f;
     transform.rotation = Quaternion.RotateTowards(
       transform.rotation,
       targetRotation,
       facingRotationSpeed * Time.deltaTime);
+    _facingTurnActive = Quaternion.Angle(transform.rotation, targetRotation) > 0.5f;
   }
 
   private void UpdateSpriteFlip() {
     if (spriteRenderer == null || Mathf.Abs(_actualSignedSpeed) < 0.001f) return;
 
-    bool movingBackward = _actualSignedSpeed < 0f;
-    spriteRenderer.flipX = movingBackward;
+    Vector3 movementDirection = GetHorizontalTangent(_distanceAlongLine) * Mathf.Sign(_actualSignedSpeed);
+    if (movementDirection == Vector3.zero) {
+      spriteRenderer.flipX = _actualSignedSpeed < 0f;
+      return;
+    }
+
+    Vector3 spriteRight = spriteRenderer.transform.right;
+    spriteRight.y = 0f;
+    spriteRenderer.flipX = spriteRight.sqrMagnitude > 0.0001f &&
+      Vector3.Dot(movementDirection, spriteRight.normalized) < 0f;
+  }
+
+  private float GetPathRelativeInput() {
+    if (Mathf.Abs(_input) < 0.001f || movementCamera == null) return _input;
+
+    Vector3 tangent = GetHorizontalTangent(_distanceAlongLine);
+    Vector3 cameraRight = movementCamera.transform.right;
+    cameraRight.y = 0f;
+    if (tangent == Vector3.zero || cameraRight.sqrMagnitude < 0.0001f) return _input;
+
+    // Positive input always means screen-right, independently of path point ordering or
+    // which side of the wall the camera currently occupies.
+    float increasingPathScreenDirection = Vector3.Dot(tangent, cameraRight.normalized) >= 0f ? 1f : -1f;
+    return _input * increasingPathScreenDirection;
   }
 
   private void UpdateAnimator() {
@@ -275,6 +311,7 @@ public class LineFollowController : MonoBehaviour {
     _speed = 0f;
     _actualSignedSpeed = 0f;
     _hasFacingSide = false;
+    _facingTurnActive = false;
     CancelCornerAssist();
   }
 

@@ -57,6 +57,41 @@ public class LinePath : MonoBehaviour {
   /// <summary>Whether a specific strand wraps (closed loop) rather than stopping at its ends.</summary>
   public bool IsStrandClosedLoop(int strandIndex) => TryGetStrand(strandIndex, out var s) && s.closedLoop;
 
+  /// <summary>Number of straight segments composing a strand.</summary>
+  public int GetSegmentCount(int strandIndex) {
+    if (!TryGetStrand(strandIndex, out var strand) || strand.worldPoints.Length < 2) return 0;
+    return strand.closedLoop ? strand.worldPoints.Length : strand.worldPoints.Length - 1;
+  }
+
+  /// <summary>
+  /// Exposes one authored segment without exposing the mutable internal point arrays. This lets
+  /// screen-space selection evaluate the real path geometry rather than approximating it with
+  /// scene-wide ray samples.
+  /// </summary>
+  public bool TryGetSegment(
+    int strandIndex,
+    int segmentIndex,
+    out Vector3 start,
+    out Vector3 end,
+    out float startDistance,
+    out float length) {
+    start = transform.position;
+    end = transform.position;
+    startDistance = 0f;
+    length = 0f;
+
+    if (!TryGetStrand(strandIndex, out var strand)) return false;
+    int segmentCount = strand.closedLoop ? strand.worldPoints.Length : strand.worldPoints.Length - 1;
+    if (segmentIndex < 0 || segmentIndex >= segmentCount) return false;
+
+    int nextIndex = (segmentIndex + 1) % strand.worldPoints.Length;
+    start = strand.worldPoints[segmentIndex];
+    end = strand.worldPoints[nextIndex];
+    startDistance = strand.cumulativeLengths[segmentIndex];
+    length = Vector3.Distance(start, end);
+    return length > 0.0001f;
+  }
+
   private static readonly List<LinePath> _all = new List<LinePath>();
 
   /// <summary>All enabled LinePaths currently in the scene. Used by AimSwitch to find switch targets.</summary>
