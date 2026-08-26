@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -17,23 +18,30 @@ public class KillCone : MonoBehaviour {
   [SerializeField] private AudioClip deathSound;
   [Tooltip("Mixer group deathSound is routed through (e.g. your \"FX\" group). Leave empty to go straight to Master.")]
   [SerializeField] private AudioMixerGroup mixerGroup;
+  private bool triggered;
 
   private void OnTriggerEnter(Collider other) {
     Debug.Log($"KillCone triggered by {other.gameObject.name} (Layer: {LayerMask.LayerToName(other.gameObject.layer)})");
     if (((1 << other.gameObject.layer) & playerLayer) == 0) {
       return;
     }
+    if (triggered) return;
+    triggered = true;
 
     if (deathSound != null) OneShotAudio.PlayClipAtPoint(deathSound, other.transform.position, 1f, mixerGroup);
 
-    if (reloadDelay > 0f) {
-      Invoke(nameof(ReloadScene), reloadDelay);
-    } else {
-      ReloadScene();
-    }
+    PlayerDeathSequence death = other.GetComponentInParent<PlayerDeathSequence>();
+    if (reloadDelay > 0f) StartCoroutine(KillAfterDelay(death));
+    else FinishKill(death);
   }
 
-  private void ReloadScene() {
-    SceneTransitionManager.ReloadCurrentScene();
+  private IEnumerator KillAfterDelay(PlayerDeathSequence death) {
+    yield return new WaitForSeconds(reloadDelay);
+    FinishKill(death);
+  }
+
+  private static void FinishKill(PlayerDeathSequence death) {
+    if (death != null) death.Kill(null);
+    else SceneTransitionManager.ReloadCurrentScene();
   }
 }

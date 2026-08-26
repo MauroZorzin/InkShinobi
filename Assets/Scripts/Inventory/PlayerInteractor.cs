@@ -100,6 +100,11 @@ public class PlayerInteractor : MonoBehaviour {
     if (text != null) promptLabel.text = text;
   }
 
+  private void OnDisable() {
+    _currentTarget = null;
+    if (promptLabel != null) promptLabel.gameObject.SetActive(false);
+  }
+
   private string TextForLayer(int layer) {
     foreach (LayerPrompt entry in layerPrompts) {
       if ((entry.layer.value & (1 << layer)) != 0) {

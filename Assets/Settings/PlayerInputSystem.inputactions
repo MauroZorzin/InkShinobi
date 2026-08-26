@@ -286,6 +286,34 @@
             ]
         },
         {
+            "name": "Hiding",
+            "id": "1797919e-d254-45e6-b7bb-fdd3bb137283",
+            "actions": [
+                {
+                    "name": "ExitHide",
+                    "type": "Button",
+                    "id": "a126779e-851c-478a-9d57-e0c969fb8a15",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "843898f2-11d1-4dbf-a91e-eed843b735f4",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "ExitHide",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
             "name": "UI",
             "id": "272f6d14-89ba-496f-b7ff-215263d3219f",
             "actions": [

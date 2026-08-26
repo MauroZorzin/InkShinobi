@@ -50,7 +50,7 @@ Light:
   m_InnerSpotAngle: 0
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -291,7 +291,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -613,6 +613,7 @@ GameObject:
   - component: {fileID: 1534752613705479263}
   - component: {fileID: 2640815573950704169}
   - component: {fileID: 930000000000000030}
+  - component: {fileID: 930000000000000031}
   m_Layer: 7
   m_Name: GuardPatrol
   m_TagString: Untagged
@@ -794,3 +795,19 @@ MonoBehaviour:
   airborneInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
   airborneInkOffset: {x: 0, y: 0.25, z: 0}
   airborneInkScale: 1.5
+--- !u!114 &930000000000000031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7859379029619327441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37ba35ab9de8416aa01a75fe7e440d91, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::GuardMotor
+  destinationSampleRadius: 0.75
+  startupSampleRadius: 1
+  turnSpeed: 360
+  facingVelocityThreshold: 0.02

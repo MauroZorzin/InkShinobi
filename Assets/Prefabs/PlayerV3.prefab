@@ -1938,6 +1938,9 @@ GameObject:
   - component: {fileID: 5152103179605560846}
   - component: {fileID: 7260696656252376487}
   - component: {fileID: 9164574844670884784}
+  - component: {fileID: 930000000000000022}
+  - component: {fileID: 930000000000000023}
+  - component: {fileID: 930000000000000024}
   m_Layer: 3
   m_Name: PlayerV3
   m_TagString: Player
@@ -2153,6 +2156,81 @@ MonoBehaviour:
   travelingInkPrefab: {fileID: 5045851490385637994, guid: a88532dc9dbd30d4e943836b248728cb, type: 3}
   drawDebugGizmos: 1
   verboseLogging: 0
+--- !u!114 &930000000000000022
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803016691086505379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29de9b10339d4c459a77ae6f6e4e241a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDeathSequence
+  spriteRenderers:
+  - {fileID: 1444588734795641923}
+  inkExplosionPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
+  inkExplosionOffset: {x: 0, y: 0.25, z: 0}
+  inkExplosionScale: 1.8
+  impactHold: 0.12
+  dissolveDuration: 1.05
+  impactColor: {r: 0.01, g: 0.005, b: 0.005, a: 1}
+  dissolveEdgeColor: {r: 0.01, g: 0.005, b: 0.005, a: 1}
+  dissolveEdgeWidth: 0.14
+  guardAlertFadeDuration: 0.2
+  gameCamera: {fileID: 4857575901157675262}
+  cameraImpulseDuration: 0.22
+  cameraPositionImpulse: 0.035
+  cameraRotationImpulse: 0.9
+  cameraImpulseFrequency: 25
+--- !u!114 &930000000000000023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803016691086505379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 30
+  blendDistance: 0
+  weight: 0
+  sharedProfile: {fileID: 0}
+--- !u!114 &930000000000000024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6803016691086505379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acd66c5864e7482c94254e6c87454c2d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHidingController
+  spriteRenderers:
+  - {fileID: 1444588734795641923}
+  dissolveEdgeColor: {r: 0.01, g: 0.005, b: 0.005, a: 1}
+  dissolveEdgeWidth: 0.14
+  transitionDuration: 0.45
+  cameraTransform: {fileID: 7082278986317236725}
+  hiddenCameraLocalOffset: {x: 0, y: -0.04, z: 0.45}
+  cameraBlendDuration: 0.4
+  vignetteVolume: {fileID: 930000000000000023}
+  vignetteProfile: {fileID: 11400000, guid: cd56201c4ae3f96f9650305f4e916ee8, type: 2}
+  vignetteColor: {r: 0.005, g: 0.003, b: 0.008, a: 1}
+  vignetteIntensity: 0.48
+  vignetteSmoothness: 0.42
+  playerInput: {fileID: 1805275345434962238}
+  stealth: {fileID: 6966390407689415549}
+  movement: {fileID: 1507978084170386215}
+  interactor: {fileID: 1971702218970736698}
+  characterController: {fileID: 5472981477857108700}
 --- !u!65 &4909156121337861072
 BoxCollider:
   m_ObjectHideFlags: 0

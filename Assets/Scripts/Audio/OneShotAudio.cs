@@ -9,8 +9,8 @@ using UnityEngine.Audio;
 /// mixer entirely.
 /// </summary>
 public static class OneShotAudio {
-  public static void PlayClipAtPoint(AudioClip clip, Vector3 position, float volume = 1f, AudioMixerGroup mixerGroup = null) {
-    if (clip == null) return;
+  public static AudioSource PlayClipAtPoint(AudioClip clip, Vector3 position, float volume = 1f, AudioMixerGroup mixerGroup = null) {
+    if (clip == null) return null;
 
     var go = new GameObject($"OneShotAudio_{clip.name}");
     go.transform.position = position;
@@ -23,5 +23,6 @@ public static class OneShotAudio {
     source.Play();
 
     Object.Destroy(go, clip.length);
+    return source;
   }
 }

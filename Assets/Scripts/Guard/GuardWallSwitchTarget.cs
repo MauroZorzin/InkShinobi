@@ -79,9 +79,9 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
     }
 
     bool aware = controller != null && controller.CurrentState switch {
-      GuardController.GuardState.Alerted => true,
-      GuardController.GuardState.Suspicious => suspiciousBlocksSwitch,
-      GuardController.GuardState.Investigating => investigatingBlocksSwitch,
+      GuardController.GuardState.Chasing => true,
+      GuardController.GuardState.Noticing => suspiciousBlocksSwitch,
+      GuardController.GuardState.Searching => investigatingBlocksSwitch,
       _ => false
     };
     return aware || currentlySeeingPlayer
@@ -138,6 +138,9 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
   private void ShutDownGameplay() {
     GuardSquarePatrol squarePatrol = GetComponent<GuardSquarePatrol>();
     if (squarePatrol != null) squarePatrol.enabled = false;
+
+    GuardMotor motor = GetComponent<GuardMotor>();
+    if (motor != null) motor.enabled = false;
 
     GuardController controller = GetComponent<GuardController>();
     if (controller != null) controller.enabled = false;

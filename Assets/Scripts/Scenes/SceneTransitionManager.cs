@@ -30,10 +30,17 @@ public class SceneTransitionManager : MonoBehaviour {
   private const float MaximumAnimationDelta = 1f / 30f;
 
   public static SceneTransitionManager Instance { get; private set; }
-  public static bool IsGamePaused => Instance != null && Instance._pauseDialog != null;
+  public static bool IsGamePaused => Instance != null
+    && (Instance._pauseDialog != null || Instance._deathDialog != null);
+  public static bool IsDeathSequenceActive => Instance != null && Instance._deathSequenceActive;
 
   private bool _isTransitioning;
   private ConfirmationModalView _pauseDialog;
+  private ConfirmationModalView _deathDialog;
+  private bool _deathSequenceActive;
+  private float _timeScaleBeforeDeath = 1f;
+  private CursorLockMode _cursorLockBeforeDeath;
+  private bool _cursorVisibleBeforeDeath;
   private float _timeScaleBeforePause = 1f;
   private CursorLockMode _cursorLockBeforePause;
   private bool _cursorVisibleBeforePause;
@@ -134,24 +141,32 @@ public class SceneTransitionManager : MonoBehaviour {
   }
 
   private void Update() {
-    if (_isTransitioning || !GameProgress.IsGameScene(SceneManager.GetActiveScene().name)) return;
+    if (_isTransitioning || _deathSequenceActive
+        || !GameProgress.IsGameScene(SceneManager.GetActiveScene().name)) return;
     if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
     if (_pauseDialog == null) ShowMainMenuConfirmation();
   }
 
   private void LateUpdate() {
-    if (_pauseDialog != null) Time.timeScale = 0f;
+    // Death presentation runs on unscaled time. Keep the simulation frozen from the instant the
+    // player dies, not merely after the recovery modal has appeared.
+    if (_deathSequenceActive || _pauseDialog != null || _deathDialog != null) Time.timeScale = 0f;
   }
 
   private void OnDestroy() {
     if (Instance != this) return;
 
-    Time.timeScale = _timeScaleBeforePause;
+    Time.timeScale = _deathSequenceActive
+      ? (Mathf.Approximately(_timeScaleBeforeDeath, 0f) ? 1f : _timeScaleBeforeDeath)
+      : _timeScaleBeforePause;
     RestoreGameplayInput();
     if (_pauseDialog != null) {
       Cursor.lockState = _cursorLockBeforePause;
       Cursor.visible = _cursorVisibleBeforePause;
+    } else if (_deathSequenceActive) {
+      Cursor.lockState = _cursorLockBeforeDeath;
+      Cursor.visible = _cursorVisibleBeforeDeath;
     }
     Instance = null;
   }
@@ -167,6 +182,34 @@ public class SceneTransitionManager : MonoBehaviour {
   /// <summary>Reloads the active scene with the configured transition unless disabled.</summary>
   public static void ReloadCurrentScene(bool useFade = true) =>
     LoadScene(SceneManager.GetActiveScene().buildIndex, useFade);
+
+  /// <summary>Reloads after a failed attempt without writing progress; the status reads Loading.</summary>
+  public static void ReloadCurrentSceneWithoutSaving(bool useFade = true) =>
+    Begin(
+      SceneManager.GetActiveScene().name,
+      () => SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex),
+      useFade,
+      false
+    );
+
+  /// <summary>Atomically reserves the one active player-death flow and suppresses pause input.</summary>
+  public static bool BeginPlayerDeath() {
+    EnsureInstance();
+    if (Instance._isTransitioning || Instance._deathSequenceActive) return false;
+    Instance._deathSequenceActive = true;
+    Instance._timeScaleBeforeDeath = Time.timeScale;
+    Time.timeScale = 0f;
+    Instance._cursorLockBeforeDeath = Cursor.lockState;
+    Instance._cursorVisibleBeforeDeath = Cursor.visible;
+    Instance.SwitchToUiInput();
+    return true;
+  }
+
+  /// <summary>Shows the shared parchment recovery modal after the player presentation finishes.</summary>
+  public static void ShowPlayerDeathModal() {
+    EnsureInstance();
+    Instance.ShowDeathConfirmation();
+  }
 
   public static void SetSavingFont(TMP_FontAsset font) {
     if (font == null) return;
@@ -197,14 +240,21 @@ public class SceneTransitionManager : MonoBehaviour {
     Instance._uiAudioSource.Play();
   }
 
-  private static void Begin(string destinationSceneName, Func<AsyncOperation> beginLoad, bool useFade) {
+  private static void Begin(
+    string destinationSceneName,
+    Func<AsyncOperation> beginLoad,
+    bool useFade,
+    bool allowSave = true
+  ) {
     EnsureInstance();
 
     if (Instance._isTransitioning) return;
 
     string sourceSceneName = SceneManager.GetActiveScene().name;
     bool shouldFade = useFade && !GameProgress.AreBothMenuScenes(sourceSceneName, destinationSceneName);
-    bool shouldSave = shouldFade && GameProgress.ShouldSaveDuringTransition(sourceSceneName);
+    bool shouldSave = allowSave
+      && shouldFade
+      && GameProgress.ShouldSaveDuringTransition(sourceSceneName);
     bool showSaving = shouldSave && GameProgress.IsGameScene(destinationSceneName);
 
     Instance.StartCoroutine(Instance.LoadSceneRoutine(
@@ -244,6 +294,7 @@ public class SceneTransitionManager : MonoBehaviour {
 
     if (!useFade) {
       yield return beginLoad();
+      CompleteDeathTransitionFreeze();
       _isTransitioning = false;
       yield break;
     }
@@ -330,7 +381,14 @@ public class SceneTransitionManager : MonoBehaviour {
     if (newCanvasStates != null) RestoreCanvasRenderStates(newCanvasStates);
 
     if (logTransitions) Debug.Log("[SceneTransitionManager] Transition complete.");
+    CompleteDeathTransitionFreeze();
     _isTransitioning = false;
+  }
+
+  private void CompleteDeathTransitionFreeze() {
+    if (!_deathSequenceActive) return;
+    _deathSequenceActive = false;
+    Time.timeScale = Mathf.Approximately(_timeScaleBeforeDeath, 0f) ? 1f : _timeScaleBeforeDeath;
   }
 
   private static SceneContentCache CaptureSceneContent() {
@@ -599,6 +657,57 @@ public class SceneTransitionManager : MonoBehaviour {
       Cursor.lockState = CursorLockMode.None;
       Cursor.visible = true;
       LoadScene("MainMenu");
+    });
+  }
+
+  private void ShowDeathConfirmation() {
+    if (!_deathSequenceActive || _deathDialog != null || _isTransitioning) return;
+
+    Time.timeScale = 0f;
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+    _deathDialog = ConfirmationModalView.Create(
+      "PlayerDeathConfirmation",
+      "You Have Fallen",
+      "Will the shinobi return to the shadows?",
+      "Retry",
+      "Main Menu",
+      RetryAfterDeath,
+      ReturnToMainMenuAfterDeath,
+      false
+    );
+
+    if (_deathDialog == null) {
+      // Keep the failed run frozen while the fallback reload covers and replaces it.
+      Time.timeScale = 0f;
+      ReloadCurrentSceneWithoutSaving();
+    }
+  }
+
+  private void RetryAfterDeath() {
+    CloseDeathDialog(() => {
+      Cursor.lockState = _cursorLockBeforeDeath;
+      Cursor.visible = _cursorVisibleBeforeDeath;
+      ReloadCurrentSceneWithoutSaving();
+    });
+  }
+
+  private void ReturnToMainMenuAfterDeath() {
+    CloseDeathDialog(() => {
+      Cursor.lockState = CursorLockMode.None;
+      Cursor.visible = true;
+      LoadScene("MainMenu");
+    });
+  }
+
+  private void CloseDeathDialog(Action onClosed) {
+    if (_deathDialog == null) return;
+    ConfirmationModalView dialog = _deathDialog;
+    dialog.Close(() => {
+      if (_deathDialog == dialog) _deathDialog = null;
+      // The death freeze belongs to the full recovery transition, not only to the modal.
+      Time.timeScale = 0f;
+      onClosed?.Invoke();
     });
   }
 

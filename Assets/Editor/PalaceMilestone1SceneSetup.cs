@@ -721,8 +721,10 @@ public static class PalaceMilestone1SceneSetup {
     if (guardGroup == null) return;
     Transform route = RequireTransform(guardGroup, "SquarePatrolRoute");
     Vector3[] patrolPoints = {
-      new(15f, 0f, 2f), new(30f, 0f, 2f),
-      new(30f, 0f, -13f), new(15f, 0f, -13f)
+      new(15f, 0f, 2f), new(20f, 0f, 2f), new(25f, 0f, 2f),
+      new(30f, 0f, 2f), new(30f, 0f, -3f), new(30f, 0f, -8f),
+      new(30f, 0f, -13f), new(25f, 0f, -13f), new(20f, 0f, -13f),
+      new(15f, 0f, -13f), new(15f, 0f, -8f), new(15f, 0f, -3f)
     };
     SetPathPoints(route, patrolPoints);
 
@@ -1087,10 +1089,10 @@ public static class PalaceMilestone1SceneSetup {
     var route = new GameObject("SquarePatrolRoute");
     route.transform.SetParent(guardGroup, false);
     Vector3[] routePositions = {
-      new(15f, 0f, 2f),
-      new(30f, 0f, 2f),
-      new(30f, 0f, -13f),
-      new(15f, 0f, -13f)
+      new(15f, 0f, 2f), new(20f, 0f, 2f), new(25f, 0f, 2f),
+      new(30f, 0f, 2f), new(30f, 0f, -3f), new(30f, 0f, -8f),
+      new(30f, 0f, -13f), new(25f, 0f, -13f), new(20f, 0f, -13f),
+      new(15f, 0f, -13f), new(15f, 0f, -8f), new(15f, 0f, -3f)
     };
 
     var routePoints = new Transform[routePositions.Length];

@@ -35,14 +35,15 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
 
   // Convenient shorthands kept for backwards-compatibility with other systems.
   public bool IsHidden => CurrentState == StealthState.Hidden;
-  public bool IsInLight => _lightSourceCount > 0 || ResolveExposureProvider()?.IsExposed == true;
-  public float LightExposure => _lightSourceCount > 0 ? 1f : ResolveExposureProvider()?.Exposure ?? 0f;
+  public bool IsConcealed => ResolveHidingController()?.IsConcealed == true;
+  public bool IsInLight => !IsConcealed && (_lightSourceCount > 0 || ResolveExposureProvider()?.IsExposed == true);
+  public float LightExposure => IsConcealed ? 0f : (_lightSourceCount > 0 ? 1f : ResolveExposureProvider()?.Exposure ?? 0f);
   public int DetectingGuardCount { get; set; }
   public int SeeingGuardCount { get; private set; }
-  public bool IsCurrentlyVisible => SeeingGuardCount > 0;
+  public bool IsCurrentlyVisible => !IsConcealed && SeeingGuardCount > 0;
 
   /// <summary>Unavailable from the first visible frame through the end of confirmed detection.</summary>
-  public bool CanWallSwitch => !IsCurrentlyVisible && DetectingGuardCount <= 0;
+  public bool CanWallSwitch => !IsConcealed && !IsCurrentlyVisible && DetectingGuardCount <= 0;
 
   // -------------------------------------------------------------------------
   // Inspector
@@ -69,6 +70,7 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   private float _hiddenTimer;
   private int _lightSourceCount;
   private ILightExposureProvider _resolvedExposureProvider;
+  private PlayerHidingController _hidingController;
 
   // -------------------------------------------------------------------------
   // Unity lifecycle
@@ -145,6 +147,7 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   }
 
   private StealthState ComputeState() {
+    if (IsConcealed) return StealthState.Hidden;
     if (DetectingGuardCount > 0) return StealthState.Detected;
     if (IsInLight) return StealthState.Exposed;
     if (_hiddenTimer >= timeToHide) return StealthState.Hidden;
@@ -177,6 +180,8 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
     DetectingGuardCount = Mathf.Max(0, DetectingGuardCount - 1);
     RefreshState();
   }
+
+  public void RefreshConcealmentState() => RefreshState();
 
   /// <summary>Registers immediate line of sight, before the guard's confirmation timer completes.</summary>
   public void OnGuardStartsSeeing() {
@@ -221,6 +226,11 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
     }
 
     return _resolvedExposureProvider;
+  }
+
+  private PlayerHidingController ResolveHidingController() {
+    if (_hidingController == null) _hidingController = GetComponent<PlayerHidingController>();
+    return _hidingController;
   }
 }
 

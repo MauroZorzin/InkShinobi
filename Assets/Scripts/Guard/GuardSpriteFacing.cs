@@ -84,8 +84,8 @@ public class GuardSpriteFacing : MonoBehaviour {
 
     if (agent != null && agent.enabled && agent.isOnNavMesh) {
       Vector3 agentVelocity = agent.velocity;
-      // NavMesh-controlled guards report their true velocity here. Prototype motors such as
-      // GuardSquarePatrol move the Transform directly, so use whichever signal is stronger.
+      // NavMesh-controlled guards report their true velocity here. Keep displacement as a safe
+      // fallback for scripted warps and legacy scenes.
       if (agentVelocity.sqrMagnitude > displacementVelocity.sqrMagnitude) velocity = agentVelocity;
     }
     previousPosition = transform.position;

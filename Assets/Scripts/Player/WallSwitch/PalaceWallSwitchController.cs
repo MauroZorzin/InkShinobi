@@ -202,7 +202,7 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
     return true;
   }
 
-  public void CancelForDeath() {
+  public void CancelForDeath(bool restoreCameraImmediately = false) {
     if (state == SwitchState.Idle) return;
     StopAllCoroutines();
     preview?.Hide();
@@ -211,7 +211,14 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
     UnlockPlayerActions();
     RestoreCursorState();
     RestoreTimeScale();
-    StartCameraBlend(normalCameraLocalPosition, normalCameraLocalRotation, cameraReturnDuration);
+    if (restoreCameraImmediately && cameraTransform != null) {
+      if (cameraRoutine != null) StopCoroutine(cameraRoutine);
+      cameraRoutine = null;
+      cameraTransform.localPosition = normalCameraLocalPosition;
+      cameraTransform.localRotation = normalCameraLocalRotation;
+    } else {
+      StartCameraBlend(normalCameraLocalPosition, normalCameraLocalRotation, cameraReturnDuration);
+    }
     state = SwitchState.Idle;
     currentEvaluation = WallSwitchEvaluation.Empty;
   }

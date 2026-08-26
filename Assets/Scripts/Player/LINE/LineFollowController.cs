@@ -319,6 +319,34 @@ public class LineFollowController : MonoBehaviour {
     return transform.position + feetPosition - FeetPosition;
   }
 
+  /// <summary>Moves the player to an authored distance while normal input movement is disabled.</summary>
+  public void SetScriptedPathPosition(int strand, float distanceAlongLine, float signedSpeed) {
+    if (currentLine == null || currentLine.StrandCount == 0) return;
+
+    currentStrand = Mathf.Clamp(strand, 0, currentLine.StrandCount - 1);
+    float length = currentLine.GetStrandLength(currentStrand);
+    if (currentLine.IsStrandClosedLoop(currentStrand) && length > 0f)
+      distanceAlongLine = Mathf.Repeat(distanceAlongLine, length);
+    else
+      distanceAlongLine = Mathf.Clamp(distanceAlongLine, 0f, length);
+
+    Vector3 targetFeetPosition = currentLine.GetPointAtDistance(currentStrand, distanceAlongLine);
+    transform.position = GetRootPositionForFeetAt(targetFeetPosition);
+    _distanceAlongLine = distanceAlongLine;
+    _speed = signedSpeed;
+    _actualSignedSpeed = signedSpeed;
+    UpdateFacing();
+    UpdateSpriteFlip();
+    UpdateAnimator();
+  }
+
+  /// <summary>Ends an externally driven path movement without changing its final path distance.</summary>
+  public void FinishScriptedPathMovement() {
+    _speed = 0f;
+    _actualSignedSpeed = 0f;
+    UpdateAnimator();
+  }
+
 #if UNITY_EDITOR
   private void OnDrawGizmosSelected() {
     if (!drawDebugGizmos) return;

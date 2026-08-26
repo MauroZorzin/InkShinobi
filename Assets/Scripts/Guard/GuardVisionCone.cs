@@ -66,6 +66,12 @@ public class GuardVisionCone : MonoBehaviour {
   /// <summary>True during an unobstructed visible frame, before or after detection is confirmed.</summary>
   public bool PlayerCurrentlyVisible => _visiblePlayer != null;
 
+  /// <summary>The player visible on the current frame, before confirmation, or null.</summary>
+  public PlayerStealthController VisiblePlayer => _visiblePlayer;
+
+  /// <summary>Current near/far visibility contribution used to advance the detection meter.</summary>
+  public float CurrentVisibilityStrength { get; private set; }
+
   private const float LineOfSightOriginOffset = 0.3f;
 
   private float _detectionProgress = 0f;
@@ -111,6 +117,7 @@ public class GuardVisionCone : MonoBehaviour {
         }
         continue;
       }
+      if (playerStealth.IsConcealed) continue;
 
       Vector3 aimPosition = new(
         playerStealth.transform.position.x,
@@ -191,6 +198,7 @@ public class GuardVisionCone : MonoBehaviour {
   /// <param name="visibilityStrength">Normalized detection strength. Near vision supplies one; far vision supplies light exposure.</param>
   /// <param name="candidate">The visible player, if any.</param>
   private void UpdateDetectionState(float visibilityStrength, PlayerStealthController candidate) {
+    CurrentVisibilityStrength = Mathf.Clamp01(visibilityStrength);
     UpdateImmediateVisibility(visibilityStrength > 0f ? candidate : null);
 
     if (visibilityStrength > 0f && candidate != null) {
@@ -245,6 +253,17 @@ public class GuardVisionCone : MonoBehaviour {
     DetectedPlayer = null;
     _trackedPlayer = null;
     _wasDetectedLastFrame = false;
+    CurrentVisibilityStrength = 0f;
+  }
+
+  /// <summary>Runs the same authored eye/obstacle query used by detection for a specific player.</summary>
+  public bool HasLineOfSightTo(PlayerStealthController player) {
+    if (player == null) return false;
+    Vector3 eye = EyeOrigin;
+    Vector3 target = player.transform.position + Vector3.up * playerAimHeight;
+    Vector3 delta = target - eye;
+    float distance = delta.magnitude;
+    return distance <= 0.0001f || HasLineOfSight(eye, delta / distance, distance);
   }
 
   /// <summary>
