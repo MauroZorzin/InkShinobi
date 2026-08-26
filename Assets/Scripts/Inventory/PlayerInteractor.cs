@@ -1,11 +1,12 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
 /// Tracks the closest nearby IInteractable every frame, dispatches interaction input to it, and drives
-/// a shared prompt label. Text defaults to the target's layer (see layerPrompts), but an interactable
-/// implementing IInteractionPrompt can override it with its own (state-dependent) text.
+/// the interaction-prompt slot on the shared DialogueHUD. Text defaults to the target's layer (see
+/// layerPrompts), but an interactable implementing IInteractionPrompt can override it with its own
+/// (state-dependent) text. DialogueHUD itself decides whether this prompt is actually visible — an
+/// active Dialogue message takes priority over it.
 /// </summary>
 public class PlayerInteractor : MonoBehaviour {
   [System.Serializable]
@@ -24,9 +25,6 @@ public class PlayerInteractor : MonoBehaviour {
 
   [Tooltip("Radius used to search for interactable objects around the interaction point.")]
   [SerializeField] private float interactionRadius = 0.8f;
-
-  [Tooltip("Text element the prompt is written to and shown/hidden on.")]
-  [SerializeField] private TextMeshProUGUI promptLabel;
 
   [Tooltip("Which layers count as interactable, and what prompt text to show for each.")]
   [SerializeField] private LayerPrompt[] layerPrompts = System.Array.Empty<LayerPrompt>();
@@ -90,7 +88,7 @@ public class PlayerInteractor : MonoBehaviour {
   }
 
   private void UpdatePrompt(Collider target, IInteractable interactable) {
-    if (promptLabel == null) {
+    if (DialogueHUD.Instance == null) {
       return;
     }
 
@@ -100,8 +98,8 @@ public class PlayerInteractor : MonoBehaviour {
       if (string.IsNullOrEmpty(text) && target != null) text = TextForLayer(target.gameObject.layer);
     }
 
-    promptLabel.gameObject.SetActive(text != null);
-    if (text != null) promptLabel.text = text;
+    if (string.IsNullOrEmpty(text)) DialogueHUD.Instance.ClearInteractionPrompt();
+    else DialogueHUD.Instance.ShowInteractionPrompt(text);
   }
 
   private string TextForLayer(int layer) {
