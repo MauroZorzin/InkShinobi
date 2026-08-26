@@ -11,6 +11,12 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
   private static readonly int DissolveEdgeColorId = Shader.PropertyToID("_InkDissolveEdgeColor");
   private static readonly int DissolveEdgeWidthId = Shader.PropertyToID("_InkDissolveEdgeWidth");
 
+  [Header("Timing")]
+  [Tooltip("Number of authored animation frames between a lethal hit request and the time freeze/death presentation. Zero starts immediately.")]
+  [SerializeField, Min(0)] private int startDelayFrames = 4;
+  [Tooltip("Frame rate used to convert Start Delay Frames into animation time. Guard attack clips currently use 24 FPS.")]
+  [SerializeField, Min(1)] private int delayFrameRate = 24;
+
   [Header("Presentation")]
   [SerializeField] private SpriteRenderer[] spriteRenderers = System.Array.Empty<SpriteRenderer>();
   [SerializeField] private GameObject inkExplosionPrefab;
@@ -35,15 +41,42 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
 
   private MaterialPropertyBlock propertyBlock;
   private bool dead;
+  private bool deathPending;
+  private bool caughtLocked;
+  private Coroutine delayedStartRoutine;
 
   public bool IsDead => dead;
 
   public void Kill(GuardController source) {
+    if (dead || deathPending) return;
+    if (startDelayFrames <= 0) {
+      BeginDeath(source);
+      return;
+    }
+
+    deathPending = true;
+    delayedStartRoutine = StartCoroutine(BeginDeathAfterFrames(source));
+  }
+
+  private IEnumerator BeginDeathAfterFrames(GuardController source) {
+    float totalDelay = startDelayFrames / (float)Mathf.Max(1, delayFrameRate);
+    float lockTime = totalDelay * 0.5f;
+    float elapsed = 0f;
+    while (elapsed < totalDelay) {
+      yield return null;
+      if (SceneTransitionManager.IsGamePaused) continue;
+
+      elapsed += Time.deltaTime;
+      if (!caughtLocked && elapsed >= lockTime) LockCaughtPlayer();
+    }
+
+    delayedStartRoutine = null;
+    deathPending = false;
+    BeginDeath(source);
+  }
+
+  private void BeginDeath(GuardController source) {
     if (dead) return;
-    PalaceWallSwitchController wallSwitch = GetComponent<PalaceWallSwitchController>();
-    if (wallSwitch != null) wallSwitch.CancelForDeath(true);
-    PalaceDistractionController distraction = GetComponent<PalaceDistractionController>();
-    if (distraction != null) distraction.CancelForDeath(true);
     if (!SceneTransitionManager.BeginPlayerDeath()) return;
     dead = true;
     GuardController.FadeOutAllAlertAudio(guardAlertFadeDuration);
@@ -52,6 +85,26 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
   }
 
   private void LockGameplay() {
+    LockCaughtPlayer();
+
+    Animator animator = GetComponent<Animator>();
+    if (animator != null) animator.speed = 0f;
+  }
+
+  /// <summary>
+  /// Stops player control midway through the attack/death wind-up while leaving animation and
+  /// world time running until the full configurable delay has elapsed.
+  /// </summary>
+  private void LockCaughtPlayer() {
+    if (caughtLocked) return;
+    caughtLocked = true;
+
+    PalaceWallSwitchController wallSwitch = GetComponent<PalaceWallSwitchController>();
+    if (wallSwitch != null) wallSwitch.CancelForDeath(true);
+
+    PalaceDistractionController distraction = GetComponent<PalaceDistractionController>();
+    if (distraction != null) distraction.CancelForDeath(true);
+
     LineFollowController movement = GetComponent<LineFollowController>();
     if (movement != null) movement.enabled = false;
 
@@ -60,9 +113,6 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
 
     PlayerInteractor interactor = GetComponent<PlayerInteractor>();
     if (interactor != null) interactor.enabled = false;
-
-    Animator animator = GetComponent<Animator>();
-    if (animator != null) animator.speed = 0f;
   }
 
   private IEnumerator DeathRoutine(GuardController source) {

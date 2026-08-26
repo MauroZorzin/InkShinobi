@@ -724,6 +724,7 @@ MonoBehaviour:
   visionCone: {fileID: 0}
   motor: {fileID: 0}
   patrolRoute: {fileID: 0}
+  spriteFacing: {fileID: 8265316895135642748}
   showStateLabel: 0
   verboseLogging: 0
 --- !u!114 &1534752613705479263
@@ -793,7 +794,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardWallSwitchTarget
   suspiciousBlocksSwitch: 1
-  investigatingBlocksSwitch: 1
+  investigatingBlocksSwitch: 0
   spriteRenderers:
   - {fileID: 3485846223026709693}
   vulnerableHighlight: {r: 0.9, g: 0.02, b: 0.015, a: 0.72}

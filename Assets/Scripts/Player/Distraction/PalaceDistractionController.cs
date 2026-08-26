@@ -37,7 +37,7 @@ public sealed class PalaceDistractionController : MonoBehaviour {
   [SerializeField] private LayerMask landingSurfaceLayers = 1 << 11;
   [SerializeField] private LayerMask trajectoryObstructionLayers = (1 << 8) | (1 << 11) | (1 << 16);
   [SerializeField, Min(0.1f)] private float cursorRayDistance = 60f;
-  [Tooltip("Minimum cursor movement in screen pixels before the world target is recalculated. This keeps a stationary target fixed while the aim camera blends.")]
+  [Tooltip("Minimum cursor movement in screen pixels before the world target is recalculated after the aim camera has settled.")]
   [SerializeField, Min(0f)] private float cursorMovementThreshold = 0.5f;
   [SerializeField, Min(0f)] private float minimumThrowDistance = 0.75f;
   [SerializeField, Min(0.1f)] private float maximumThrowDistance = 10f;
@@ -45,6 +45,8 @@ public sealed class PalaceDistractionController : MonoBehaviour {
   [SerializeField, Min(0.1f)] private float maximumThrowSpeed = 16f;
   [SerializeField, Range(0f, 1f)] private float minimumSurfaceNormalY = 0.45f;
   [SerializeField, Range(6, 48)] private int obstructionSamples = 22;
+  [Tooltip("Maximum world-space length of each collision-test segment along the curved preview. Smaller values catch corner-grazing throws more accurately.")]
+  [SerializeField, Min(0.02f)] private float maximumObstructionSegmentLength = 0.08f;
 
   [Header("Cooldown")]
   [SerializeField, Min(0f)] private float cooldown = 2f;
@@ -136,6 +138,7 @@ public sealed class PalaceDistractionController : MonoBehaviour {
     apexHeight = Mathf.Max(0.05f, apexHeight);
     maximumThrowSpeed = Mathf.Max(0.1f, maximumThrowSpeed);
     obstructionSamples = Mathf.Clamp(obstructionSamples, 6, 48);
+    maximumObstructionSegmentLength = Mathf.Max(0.02f, maximumObstructionSegmentLength);
     cooldown = Mathf.Max(0f, cooldown);
     cursorMovementThreshold = Mathf.Max(0f, cursorMovementThreshold);
     maximumAnchorOffset = Mathf.Max(0f, maximumAnchorOffset);
@@ -229,8 +232,11 @@ public sealed class PalaceDistractionController : MonoBehaviour {
   }
 
   private void ExitAim(bool attemptLaunch, bool restoreCameraImmediately) {
-    DistractionThrowEvaluation accepted = evaluation;
-    bool launched = attemptLaunch && accepted.IsValid && TryLaunch(accepted);
+    // Confirmation snapshots origin and landing point in world space. Camera movement from this
+    // point onward cannot alter either endpoint or the velocity solved from them.
+    DistractionThrowEvaluation lockedTrajectory = DistractionThrowEvaluation.Empty;
+    bool hasLockedTrajectory = attemptLaunch && TryLockCurrentTrajectory(out lockedTrajectory);
+    bool launched = hasLockedTrajectory && TryLaunch(lockedTrajectory);
     state = AimState.Idle;
     hasEvaluatedCursorPosition = false;
     hasCursorTarget = false;
@@ -279,6 +285,35 @@ public sealed class PalaceDistractionController : MonoBehaviour {
     return true;
   }
 
+  private bool TryLockCurrentTrajectory(out DistractionThrowEvaluation locked) {
+    locked = evaluation;
+    if (!evaluation.IsValid) return false;
+
+    float projectileRadius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0f;
+    Vector3 ballisticTarget = evaluation.Target + evaluation.TargetNormal * projectileRadius;
+    if (!BallisticThrowSolver.TrySolve(
+          evaluation.Origin,
+          ballisticTarget,
+          apexHeight,
+          maximumThrowSpeed,
+          out Vector3 velocity,
+          out float flightTime,
+          out bool tooFast)
+        || tooFast) return false;
+
+    locked = new DistractionThrowEvaluation(
+      true,
+      true,
+      DistractionThrowFailure.None,
+      evaluation.Origin,
+      evaluation.Target,
+      evaluation.TargetNormal,
+      velocity,
+      flightTime,
+      evaluation.TargetCollider);
+    return !IsAnchorObstructed(locked.Origin) && !IsTrajectoryObstructed(locked);
+  }
+
   private DistractionThrowEvaluation EvaluateTargetFromOrigin(Vector3 origin) {
     if (cooldownRemaining > 0f)
       return InvalidWithoutTarget(origin, DistractionThrowFailure.Cooldown);
@@ -320,6 +355,14 @@ public sealed class PalaceDistractionController : MonoBehaviour {
 
   private void UpdateCursorTargetWhenMoved() {
     if (Mouse.current == null) {
+      ClearCursorTarget();
+      hasEvaluatedCursorPosition = false;
+      return;
+    }
+
+    // Screen coordinates are converted only from the final authored aim view. During the blend
+    // there is deliberately no provisional target that could drift as the camera moves.
+    if (cameraRoutine != null) {
       ClearCursorTarget();
       hasEvaluatedCursorPosition = false;
       return;
@@ -403,9 +446,17 @@ public sealed class PalaceDistractionController : MonoBehaviour {
 
   private bool IsTrajectoryObstructed(DistractionThrowEvaluation result) {
     float radius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0.1f;
+    float estimatedArcLength = result.InitialVelocity.magnitude * result.FlightTime
+                               + 0.5f * Physics.gravity.magnitude
+                               * result.FlightTime * result.FlightTime;
+    int sampleCount = Mathf.Clamp(
+      Mathf.Max(obstructionSamples,
+        Mathf.CeilToInt(estimatedArcLength / Mathf.Max(0.02f, maximumObstructionSegmentLength))),
+      obstructionSamples,
+      256);
     Vector3 previous = result.Origin;
-    for (int i = 1; i <= obstructionSamples; i++) {
-      float normalized = i / (float)obstructionSamples;
+    for (int i = 1; i <= sampleCount; i++) {
+      float normalized = i / (float)sampleCount;
       Vector3 next = result.PositionAt(result.FlightTime * normalized);
       Vector3 segment = next - previous;
       float length = segment.magnitude;
@@ -416,7 +467,7 @@ public sealed class PalaceDistractionController : MonoBehaviour {
         for (int hitIndex = 0; hitIndex < count; hitIndex++) {
           Collider hit = obstructionHits[hitIndex].collider;
           if (hit == null || hit.transform.IsChildOf(transform)) continue;
-          bool finalTargetContact = hit == result.TargetCollider && i >= obstructionSamples - 1;
+          bool finalTargetContact = hit == result.TargetCollider && i >= sampleCount - 1;
           if (!finalTargetContact) return true;
         }
       }

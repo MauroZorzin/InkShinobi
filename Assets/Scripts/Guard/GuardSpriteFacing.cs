@@ -42,6 +42,7 @@ public class GuardSpriteFacing : MonoBehaviour {
 
   private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
   private static readonly int FacingHash = Animator.StringToHash("Facing");
+  private static readonly int IsAttackingHash = Animator.StringToHash("IsAttacking");
 
   private void Awake() {
     agent = GetComponent<NavMeshAgent>();
@@ -71,6 +72,11 @@ public class GuardSpriteFacing : MonoBehaviour {
 
     spriteAnimator.SetBool(IsMovingHash, shouldUseWalkAnimation);
     spriteAnimator.SetInteger(FacingHash, (int)facingDirection);
+  }
+
+  /// <summary>Lets the guard brain temporarily override locomotion with an attack animation.</summary>
+  public void SetAttacking(bool attacking) {
+    if (spriteAnimator != null) spriteAnimator.SetBool(IsAttackingHash, attacking);
   }
 
   /// <summary>

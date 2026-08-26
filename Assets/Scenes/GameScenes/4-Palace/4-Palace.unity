@@ -11343,7 +11343,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
       propertyPath: catchDistance
-      value: 0.5
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
+      propertyPath: alertMoveSpeed
+      value: 3.6
       objectReference: {fileID: 0}
     - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
       propertyPath: lostSightGrace
@@ -11352,6 +11356,22 @@ PrefabInstance:
     - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
       propertyPath: noticingTurnSpeed
       value: 360
+      objectReference: {fileID: 0}
+    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
+      propertyPath: lookAroundDuration
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
+      propertyPath: investigateDuration
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
+      propertyPath: chaseStoppingDistance
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
+      propertyPath: searchStoppingDistance
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 1534752613705479263, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
       propertyPath: eyeHeight
@@ -11809,6 +11829,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 930000000000000022, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: startDelayFrames
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000022, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: inkExplosionScale
       value: 1.5
       objectReference: {fileID: 0}
@@ -11942,7 +11966,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2419360577604233760, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.85
+      value: 0.75
       objectReference: {fileID: 0}
     - target: {fileID: 2419360577604233760, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_LocalRotation.w

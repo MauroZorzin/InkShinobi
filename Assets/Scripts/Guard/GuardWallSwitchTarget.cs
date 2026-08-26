@@ -21,8 +21,8 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
   [Header("Eligibility")]
   [Tooltip("A suspicious guard is aware enough to block wall switching and cannot be taken down by it.")]
   [SerializeField] private bool suspiciousBlocksSwitch = true;
-  [Tooltip("An investigating guard is aware enough to block wall switching and cannot be taken down by it.")]
-  [SerializeField] private bool investigatingBlocksSwitch = true;
+  [Tooltip("Whether a searching guard blocks wall switching. Keep disabled to make question-mark guards vulnerable.")]
+  [SerializeField] private bool investigatingBlocksSwitch;
 
   [Header("Presentation")]
   [Tooltip("Sprite renderers receiving whole-sprite preview and dissolve properties. Local children are used if empty.")]
@@ -72,7 +72,7 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
     GuardVisionCone[] visions = GetComponentsInChildren<GuardVisionCone>(true);
     bool currentlySeeingPlayer = false;
     for (int i = 0; i < visions.Length; i++) {
-      if (visions[i] != null && (visions[i].PlayerCurrentlyVisible || visions[i].PlayerDetected)) {
+      if (visions[i] != null && visions[i].PlayerCurrentlyVisible) {
         currentlySeeingPlayer = true;
         break;
       }

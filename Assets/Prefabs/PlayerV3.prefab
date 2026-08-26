@@ -2486,6 +2486,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29de9b10339d4c459a77ae6f6e4e241a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDeathSequence
+  startDelayFrames: 4
+  delayFrameRate: 24
   spriteRenderers:
   - {fileID: 1444588734795641923}
   inkExplosionPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
@@ -2607,6 +2609,7 @@ MonoBehaviour:
   maximumThrowSpeed: 16
   minimumSurfaceNormalY: 0.45
   obstructionSamples: 22
+  maximumObstructionSegmentLength: 0.08
   cooldown: 2
   cameraTransform: {fileID: 7082278986317236725}
   aimingCameraLocalPosition: {x: 0, y: 0.5, z: -3.75}

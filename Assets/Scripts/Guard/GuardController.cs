@@ -72,6 +72,7 @@ public class GuardController : MonoBehaviour {
   public GuardVisionCone visionCone;
   [SerializeField] private GuardMotor motor;
   [SerializeField] private GuardSquarePatrol patrolRoute;
+  [SerializeField] private GuardSpriteFacing spriteFacing;
 
   [Header("Debug")]
   public bool showStateLabel = true;
@@ -111,6 +112,7 @@ public class GuardController : MonoBehaviour {
 
   private void OnEnable() => ActiveGuardSet.Add(this);
   private void OnDisable() {
+    spriteFacing?.SetAttacking(false);
     StopChaseSound();
     ActiveGuardSet.Remove(this);
   }
@@ -157,6 +159,7 @@ public class GuardController : MonoBehaviour {
 
   public void PerformTakedown() {
     if (CurrentState == GuardState.TakenDown) return;
+    spriteFacing?.SetAttacking(false);
     EnterState(GuardState.TakenDown);
     PlayTakedownAudio();
     if (visionCone != null) {
@@ -306,6 +309,7 @@ public class GuardController : MonoBehaviour {
     if (visionCone != null && !visionCone.HasLineOfSightTo(player)) return;
     catchIssued = true;
     motor.Stop(true);
+    spriteFacing?.SetAttacking(true);
     PlayerDeathSequence death = player.GetComponent<PlayerDeathSequence>();
     if (death != null) death.Kill(this);
     else SceneTransitionManager.ReloadCurrentScene();
@@ -358,6 +362,7 @@ public class GuardController : MonoBehaviour {
   private void ResolveReferences() {
     if (motor == null) motor = GetComponent<GuardMotor>();
     if (patrolRoute == null) patrolRoute = GetComponent<GuardSquarePatrol>();
+    if (spriteFacing == null) spriteFacing = GetComponent<GuardSpriteFacing>();
     if (visionCone == null) visionCone = GetComponentInChildren<GuardVisionCone>(true);
   }
 
