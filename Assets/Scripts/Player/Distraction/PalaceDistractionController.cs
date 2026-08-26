@@ -1,0 +1,618 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public enum DistractionSupplyMode { Infinite, InventoryItem }
+
+/// <summary>Independent hold-to-aim distraction ability for the Palace vertical slice.</summary>
+[DisallowMultipleComponent]
+[RequireComponent(typeof(LineFollowController), typeof(PlayerInput))]
+public sealed class PalaceDistractionController : MonoBehaviour {
+  private enum AimState { Idle, Aiming }
+
+  [Header("Supply")]
+  [Tooltip("Infinite never touches inventory. Inventory Item requires and consumes the configured item only after a successful launch.")]
+  [SerializeField] private DistractionSupplyMode supplyMode = DistractionSupplyMode.Infinite;
+  [SerializeField] private ItemDefinition distractionItem;
+  [SerializeField] private PlayerInventory inventory;
+  [SerializeField] private ThrownDistraction projectilePrefab;
+
+  [Header("Targeting")]
+  [SerializeField] private Camera aimCamera;
+  [Tooltip("Authored child transform used as the rock's actual release point.")]
+  [SerializeField] private Transform throwAnchor;
+  [Tooltip("Height of the lateral throw-anchor segment relative to the player root. This is the authoritative vertical position used while aiming.")]
+  [SerializeField] private float throwAnchorHeight = 0.12f;
+  [Tooltip("Maximum distance the release point can move left or right from its authored position.")]
+  [SerializeField, Min(0f)] private float maximumAnchorOffset = 0.4f;
+  [Tooltip("Number of lateral release positions tested. Odd values include the centered anchor.")]
+  [SerializeField, Range(3, 21)] private int anchorSamples = 9;
+  [Tooltip("World units per unscaled second used to move the release point toward the selected solution.")]
+  [SerializeField, Min(0.01f)] private float anchorMovementSpeed = 3f;
+  [Tooltip("Penalty for moving the release point away from the player's center.")]
+  [SerializeField, Min(0f)] private float centeredAnchorPreference = 1f;
+  [Tooltip("Penalty for changing sides between successive solutions. Higher values reduce anchor oscillation.")]
+  [SerializeField, Min(0f)] private float anchorContinuityPreference = 0.35f;
+  [SerializeField] private LayerMask landingSurfaceLayers = 1 << 11;
+  [SerializeField] private LayerMask trajectoryObstructionLayers = (1 << 8) | (1 << 11) | (1 << 16);
+  [SerializeField, Min(0.1f)] private float cursorRayDistance = 60f;
+  [Tooltip("Minimum cursor movement in screen pixels before the world target is recalculated. This keeps a stationary target fixed while the aim camera blends.")]
+  [SerializeField, Min(0f)] private float cursorMovementThreshold = 0.5f;
+  [SerializeField, Min(0f)] private float minimumThrowDistance = 0.75f;
+  [SerializeField, Min(0.1f)] private float maximumThrowDistance = 10f;
+  [SerializeField, Min(0.05f)] private float apexHeight = 1.5f;
+  [SerializeField, Min(0.1f)] private float maximumThrowSpeed = 16f;
+  [SerializeField, Range(0f, 1f)] private float minimumSurfaceNormalY = 0.45f;
+  [SerializeField, Range(6, 48)] private int obstructionSamples = 22;
+
+  [Header("Cooldown")]
+  [SerializeField, Min(0f)] private float cooldown = 2f;
+
+  [Header("Aim presentation")]
+  [SerializeField] private Transform cameraTransform;
+  [SerializeField] private Vector3 aimingCameraLocalPosition = new(0f, 0.5f, -3.75f);
+  [SerializeField, Range(0.01f, 1f)] private float aimingTimeScale = 0.06f;
+  [SerializeField, Min(0f)] private float cameraAimDuration = 0.35f;
+  [SerializeField, Min(0f)] private float cameraReturnDuration = 0.3f;
+  [SerializeField] private DistractionTrajectoryPreview preview;
+  [Tooltip("Optional asset-free ink sleeve connecting the player body to the moving throw anchor.")]
+  [SerializeField] private ProceduralInkArm inkArm;
+
+  [Header("Player references")]
+  [SerializeField] private PlayerInput playerInput;
+  [SerializeField] private LineFollowController movement;
+  [SerializeField] private PlayerStealthController stealth;
+  [SerializeField] private PlayerDeathSequence deathSequence;
+  [SerializeField] private PalaceWallSwitchController wallSwitch;
+  [Tooltip("Sprite mirrored toward the moving throw anchor while distraction aiming is active. The aim point is used only while the anchor is centered.")]
+  [SerializeField] private SpriteRenderer playerRenderer;
+  [Tooltip("Horizontal camera-space distance from the player's symmetry axis inside which the anchor is considered centered and the aim point decides facing instead.")]
+  [SerializeField, Min(0f)] private float aimFacingDeadZone = 0.01f;
+  [SerializeField] private bool verboseLogging;
+
+  private static readonly string[] LockedActions = {
+    "Move", "RotateRight", "RotateLeft", "Takedown", "Switch",
+    "Interact", "Vision", "Confirm", "Look", "Drop"
+  };
+
+  private readonly List<InputAction> lockedActions = new();
+  private readonly RaycastHit[] obstructionHits = new RaycastHit[16];
+  private AimState state;
+  private DistractionThrowEvaluation evaluation = DistractionThrowEvaluation.Empty;
+  private float cooldownRemaining;
+  private bool movementWasEnabled;
+  private bool ownsTimeScale;
+  private float timeScaleBeforeAim = 1f;
+  private Vector3 normalCameraLocalPosition;
+  private Quaternion normalCameraLocalRotation;
+  private Vector3 authoredCameraLocalPosition;
+  private Quaternion authoredCameraLocalRotation;
+  private bool hasAuthoredCameraPose;
+  private Coroutine cameraRoutine;
+  private CursorLockMode cursorLockBeforeAim;
+  private bool cursorVisibleBeforeAim;
+  private Vector2 lastEvaluatedCursorPosition;
+  private bool hasEvaluatedCursorPosition;
+  private Vector3 anchorRestLocalPosition;
+  private float currentAnchorOffset;
+  private float desiredAnchorOffset;
+  private bool hasCursorTarget;
+  private Vector3 cursorTarget;
+  private Vector3 cursorTargetNormal = Vector3.up;
+  private Collider cursorTargetCollider;
+  private bool flipBeforeAim;
+  private bool hasAimFacingSnapshot;
+
+  public bool IsAiming => state == AimState.Aiming;
+  public bool IsCameraTransitioning => cameraRoutine != null;
+  public float CooldownRemaining => cooldownRemaining;
+  public float CooldownProgress => cooldown <= 0f ? 0f : Mathf.Clamp01(cooldownRemaining / cooldown);
+  public DistractionThrowEvaluation CurrentEvaluation => evaluation;
+
+  private void Awake() {
+    ResolveReferences();
+    CaptureAuthoredCameraPose();
+    CaptureAnchorRestPosition();
+  }
+
+  private void OnDisable() {
+    if (state == AimState.Aiming) ExitAim(false, true);
+    else if (cameraRoutine != null && cameraTransform != null) {
+      StopCoroutine(cameraRoutine);
+      cameraRoutine = null;
+      GetAuthoredCameraPoseForCurrentSide(out Vector3 position, out Quaternion rotation);
+      cameraTransform.localPosition = position;
+      cameraTransform.localRotation = rotation;
+    }
+    preview?.Hide();
+    inkArm?.Hide();
+  }
+
+#if UNITY_EDITOR
+  private void OnValidate() {
+    minimumThrowDistance = Mathf.Max(0f, minimumThrowDistance);
+    maximumThrowDistance = Mathf.Max(minimumThrowDistance, maximumThrowDistance);
+    apexHeight = Mathf.Max(0.05f, apexHeight);
+    maximumThrowSpeed = Mathf.Max(0.1f, maximumThrowSpeed);
+    obstructionSamples = Mathf.Clamp(obstructionSamples, 6, 48);
+    cooldown = Mathf.Max(0f, cooldown);
+    cursorMovementThreshold = Mathf.Max(0f, cursorMovementThreshold);
+    maximumAnchorOffset = Mathf.Max(0f, maximumAnchorOffset);
+    anchorSamples = Mathf.Clamp(anchorSamples, 3, 21);
+    if ((anchorSamples & 1) == 0) anchorSamples++;
+    anchorMovementSpeed = Mathf.Max(0.01f, anchorMovementSpeed);
+    centeredAnchorPreference = Mathf.Max(0f, centeredAnchorPreference);
+    anchorContinuityPreference = Mathf.Max(0f, anchorContinuityPreference);
+    aimFacingDeadZone = Mathf.Max(0f, aimFacingDeadZone);
+    if (throwAnchor != null && !Application.isPlaying) {
+      Vector3 anchorPosition = throwAnchor.localPosition;
+      anchorPosition.y = throwAnchorHeight;
+      throwAnchor.localPosition = anchorPosition;
+    }
+  }
+#endif
+
+#pragma warning disable IDE0051
+  private void OnDistractionAim(InputValue value) {
+    if (value.isPressed) BeginAim();
+    else if (state == AimState.Aiming) ExitAim(true, false);
+  }
+#pragma warning restore IDE0051
+
+  private void Update() {
+    if (cooldownRemaining > 0f && !SceneTransitionManager.IsGamePaused)
+      cooldownRemaining = Mathf.Max(0f, cooldownRemaining - Time.deltaTime);
+    if (state != AimState.Aiming || SceneTransitionManager.IsGamePaused) return;
+    EnsureActionsLocked();
+    UpdateCursorTargetWhenMoved();
+    UpdateAimFacing();
+    UpdateMovingAnchorAndTrajectory();
+    preview?.Show(evaluation);
+  }
+
+  public bool BeginAim() {
+    ResolveReferences();
+    if (!CanBeginAim()) return false;
+
+    state = AimState.Aiming;
+    CaptureAimFacing();
+    movementWasEnabled = movement.enabled;
+    movement.enabled = false;
+    EnsureActionsLocked();
+    cursorLockBeforeAim = Cursor.lockState;
+    cursorVisibleBeforeAim = Cursor.visible;
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+
+    timeScaleBeforeAim = Time.timeScale;
+    ownsTimeScale = true;
+    Time.timeScale = aimingTimeScale;
+    GetAuthoredCameraPoseForCurrentSide(out normalCameraLocalPosition, out normalCameraLocalRotation);
+    StartCameraBlend(GetSideAwareAimPosition(), normalCameraLocalRotation, cameraAimDuration);
+
+    CaptureAnchorRestPosition();
+    currentAnchorOffset = 0f;
+    desiredAnchorOffset = 0f;
+    ApplyAnchorOffset(0f);
+    hasEvaluatedCursorPosition = false;
+    UpdateCursorTargetWhenMoved();
+    UpdateAimFacing();
+    UpdateMovingAnchorAndTrajectory();
+    preview?.Show(evaluation);
+    inkArm?.Show();
+    if (verboseLogging) Debug.Log("[Distraction] Aim started.", this);
+    return true;
+  }
+
+  public void CancelForDeath(bool restoreCameraImmediately = false) {
+    if (state != AimState.Aiming) return;
+    ExitAim(false, restoreCameraImmediately);
+  }
+
+  private bool CanBeginAim() {
+    if (!enabled || state != AimState.Idle || cameraRoutine != null || SceneTransitionManager.IsGamePaused ||
+        SceneTransitionManager.IsDeathSequenceActive || cooldownRemaining > 0f) return false;
+    if (projectilePrefab == null || aimCamera == null || cameraTransform == null ||
+        throwAnchor == null || movement == null) return false;
+    if (movement.IsTurning || (wallSwitch != null &&
+        (wallSwitch.IsAiming || wallSwitch.IsExecuting || wallSwitch.IsCameraTransitioning))) return false;
+    if (stealth != null && stealth.IsConcealed) return false;
+    if (deathSequence != null && deathSequence.IsDead) return false;
+    return HasSupply();
+  }
+
+  private bool HasSupply() {
+    if (supplyMode == DistractionSupplyMode.Infinite) return true;
+    if (inventory == null || distractionItem == null || inventory.CurrentItem == null) return false;
+    return inventory.CurrentItem == distractionItem || inventory.HasItem(distractionItem.itemId);
+  }
+
+  private void ExitAim(bool attemptLaunch, bool restoreCameraImmediately) {
+    DistractionThrowEvaluation accepted = evaluation;
+    bool launched = attemptLaunch && accepted.IsValid && TryLaunch(accepted);
+    state = AimState.Idle;
+    hasEvaluatedCursorPosition = false;
+    hasCursorTarget = false;
+    evaluation = DistractionThrowEvaluation.Empty;
+    preview?.Hide();
+    inkArm?.Hide();
+    EndAimFacing(!launched);
+    ResetThrowAnchor();
+    UnlockActions();
+    if (movement != null) movement.enabled = movementWasEnabled;
+    Cursor.lockState = cursorLockBeforeAim;
+    Cursor.visible = cursorVisibleBeforeAim;
+    RestoreTimeScale();
+
+    if (cameraTransform != null) {
+      if (restoreCameraImmediately) {
+        if (cameraRoutine != null) StopCoroutine(cameraRoutine);
+        cameraRoutine = null;
+        cameraTransform.localPosition = normalCameraLocalPosition;
+        cameraTransform.localRotation = normalCameraLocalRotation;
+      } else {
+        StartCameraBlend(normalCameraLocalPosition, normalCameraLocalRotation, cameraReturnDuration);
+      }
+    }
+
+    if (launched) cooldownRemaining = cooldown;
+    if (verboseLogging)
+      Debug.Log(launched ? "[Distraction] Rock thrown." : "[Distraction] Aim cancelled.", this);
+  }
+
+  private bool TryLaunch(DistractionThrowEvaluation accepted) {
+    if (!HasSupply()) return false;
+    ThrownDistraction instance;
+    try {
+      instance = Instantiate(projectilePrefab, accepted.Origin, Quaternion.identity);
+    }
+    catch (System.Exception exception) {
+      Debug.LogError($"[Distraction] Could not instantiate the projectile.\n{exception}", this);
+      return false;
+    }
+    if (instance == null || !instance.Launch(accepted)) {
+      if (instance != null) Destroy(instance.gameObject);
+      return false;
+    }
+    if (supplyMode == DistractionSupplyMode.InventoryItem) inventory.ConsumeItem();
+    return true;
+  }
+
+  private DistractionThrowEvaluation EvaluateTargetFromOrigin(Vector3 origin) {
+    if (cooldownRemaining > 0f)
+      return InvalidWithoutTarget(origin, DistractionThrowFailure.Cooldown);
+    if (!HasSupply())
+      return InvalidWithoutTarget(origin, DistractionThrowFailure.NoInventoryItem);
+    if (!hasCursorTarget)
+      return InvalidWithoutTarget(origin, DistractionThrowFailure.NoSurface);
+
+    Vector3 flatDelta = cursorTarget - origin;
+    flatDelta.y = 0f;
+    float distance = flatDelta.magnitude;
+    DistractionThrowFailure initialFailure = cursorTargetNormal.y < minimumSurfaceNormalY
+      ? DistractionThrowFailure.InvalidSurface
+      : distance < minimumThrowDistance
+        ? DistractionThrowFailure.TooClose
+        : distance > maximumThrowDistance
+          ? DistractionThrowFailure.TooFar
+          : DistractionThrowFailure.None;
+
+    float projectileRadius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0f;
+    Vector3 ballisticTarget = cursorTarget + cursorTargetNormal * projectileRadius;
+    bool solved = BallisticThrowSolver.TrySolve(
+      origin, ballisticTarget, apexHeight, maximumThrowSpeed,
+      out Vector3 velocity, out float flightTime, out bool tooFast);
+    if (!solved) {
+      return new DistractionThrowEvaluation(
+        true, false, DistractionThrowFailure.NoBallisticSolution,
+        origin, cursorTarget, cursorTargetNormal, Vector3.zero, 0f, cursorTargetCollider);
+    }
+
+    DistractionThrowEvaluation result = new(
+      true, initialFailure == DistractionThrowFailure.None && !tooFast,
+      tooFast ? DistractionThrowFailure.TooFast : initialFailure,
+      origin, cursorTarget, cursorTargetNormal, velocity, flightTime, cursorTargetCollider);
+    if (result.IsValid && (IsAnchorObstructed(origin) || IsTrajectoryObstructed(result)))
+      result = result.Invalid(DistractionThrowFailure.Obstructed);
+    return result;
+  }
+
+  private void UpdateCursorTargetWhenMoved() {
+    if (Mouse.current == null) {
+      ClearCursorTarget();
+      hasEvaluatedCursorPosition = false;
+      return;
+    }
+
+    Vector2 cursorPosition = Mouse.current.position.ReadValue();
+    float thresholdSquared = cursorMovementThreshold * cursorMovementThreshold;
+    if (hasEvaluatedCursorPosition &&
+        (cursorPosition - lastEvaluatedCursorPosition).sqrMagnitude <= thresholdSquared) return;
+
+    lastEvaluatedCursorPosition = cursorPosition;
+    hasEvaluatedCursorPosition = true;
+    Ray ray = aimCamera.ScreenPointToRay(cursorPosition);
+    if (Physics.Raycast(ray, out RaycastHit targetHit, cursorRayDistance,
+          landingSurfaceLayers, QueryTriggerInteraction.Ignore)) {
+      hasCursorTarget = true;
+      cursorTarget = targetHit.point;
+      cursorTargetNormal = targetHit.normal;
+      cursorTargetCollider = targetHit.collider;
+    } else {
+      ClearCursorTarget();
+    }
+    SelectDesiredAnchorOffset();
+  }
+
+  private void UpdateMovingAnchorAndTrajectory() {
+    if (throwAnchor == null) {
+      evaluation = DistractionThrowEvaluation.Empty;
+      return;
+    }
+
+    float delta = anchorMovementSpeed * Time.unscaledDeltaTime;
+    currentAnchorOffset = Mathf.MoveTowards(currentAnchorOffset, desiredAnchorOffset, delta);
+    ApplyAnchorOffset(currentAnchorOffset);
+    evaluation = EvaluateTargetFromOrigin(throwAnchor.position);
+  }
+
+  private void SelectDesiredAnchorOffset() {
+    desiredAnchorOffset = 0f;
+    if (!hasCursorTarget || throwAnchor == null) return;
+
+    Vector3 center = GetAnchorCenterWorldPosition();
+    Vector3 lateral = GetAnchorLateralDirection();
+    int samples = Mathf.Max(3, anchorSamples | 1);
+    float bestScore = float.PositiveInfinity;
+    bool found = false;
+
+    for (int i = 0; i < samples; i++) {
+      float normalized = samples > 1 ? i / (float)(samples - 1) : 0.5f;
+      float offset = Mathf.Lerp(-maximumAnchorOffset, maximumAnchorOffset, normalized);
+      DistractionThrowEvaluation candidate = EvaluateTargetFromOrigin(center + lateral * offset);
+      if (!candidate.IsValid) continue;
+
+      float normalization = Mathf.Max(0.001f, maximumAnchorOffset);
+      float centeredCost = Mathf.Abs(offset) / normalization * centeredAnchorPreference;
+      float continuityCost = Mathf.Abs(offset - currentAnchorOffset) / normalization * anchorContinuityPreference;
+      float score = centeredCost + continuityCost;
+      if (score >= bestScore) continue;
+      bestScore = score;
+      desiredAnchorOffset = offset;
+      found = true;
+    }
+
+    if (!found) desiredAnchorOffset = 0f;
+  }
+
+  private bool IsAnchorObstructed(Vector3 origin) {
+    float radius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0.04f;
+    return Physics.CheckSphere(
+      origin, Mathf.Max(0.005f, radius * 0.9f), trajectoryObstructionLayers,
+      QueryTriggerInteraction.Ignore);
+  }
+
+  private void ClearCursorTarget() {
+    hasCursorTarget = false;
+    cursorTarget = Vector3.zero;
+    cursorTargetNormal = Vector3.up;
+    cursorTargetCollider = null;
+    desiredAnchorOffset = 0f;
+  }
+
+  private bool IsTrajectoryObstructed(DistractionThrowEvaluation result) {
+    float radius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0.1f;
+    Vector3 previous = result.Origin;
+    for (int i = 1; i <= obstructionSamples; i++) {
+      float normalized = i / (float)obstructionSamples;
+      Vector3 next = result.PositionAt(result.FlightTime * normalized);
+      Vector3 segment = next - previous;
+      float length = segment.magnitude;
+      if (length > 0.0001f) {
+        int count = Physics.SphereCastNonAlloc(
+          previous, radius, segment / length, obstructionHits, length,
+          trajectoryObstructionLayers, QueryTriggerInteraction.Ignore);
+        for (int hitIndex = 0; hitIndex < count; hitIndex++) {
+          Collider hit = obstructionHits[hitIndex].collider;
+          if (hit == null || hit.transform.IsChildOf(transform)) continue;
+          bool finalTargetContact = hit == result.TargetCollider && i >= obstructionSamples - 1;
+          if (!finalTargetContact) return true;
+        }
+      }
+      previous = next;
+    }
+    return false;
+  }
+
+  private static DistractionThrowEvaluation InvalidWithoutTarget(
+    Vector3 origin, DistractionThrowFailure failure) => new(
+      false, false, failure, origin, origin, Vector3.up, Vector3.zero, 0f, null);
+
+  private void CaptureAnchorRestPosition() {
+    if (throwAnchor != null) anchorRestLocalPosition = throwAnchor.localPosition;
+  }
+
+  private Vector3 GetAnchorCenterWorldPosition() {
+    if (throwAnchor == null) return transform.position;
+    Transform parent = throwAnchor.parent;
+    Vector3 centerLocalPosition = anchorRestLocalPosition;
+    centerLocalPosition.y = throwAnchorHeight;
+    return parent != null ? parent.TransformPoint(centerLocalPosition) : centerLocalPosition;
+  }
+
+  private Vector3 GetAnchorLateralDirection() {
+    Vector3 lateral = aimCamera != null
+      ? Vector3.ProjectOnPlane(aimCamera.transform.right, Vector3.up)
+      : Vector3.ProjectOnPlane(transform.right, Vector3.up);
+    if (lateral.sqrMagnitude < 0.0001f)
+      lateral = Vector3.ProjectOnPlane(transform.forward, Vector3.up);
+    return lateral.sqrMagnitude > 0.0001f ? lateral.normalized : Vector3.right;
+  }
+
+  private void ApplyAnchorOffset(float offset) {
+    if (throwAnchor == null) return;
+    throwAnchor.position = GetAnchorCenterWorldPosition() + GetAnchorLateralDirection() * offset;
+  }
+
+  private void ResetThrowAnchor() {
+    currentAnchorOffset = 0f;
+    desiredAnchorOffset = 0f;
+    if (throwAnchor != null) {
+      Vector3 restPosition = anchorRestLocalPosition;
+      restPosition.y = throwAnchorHeight;
+      throwAnchor.localPosition = restPosition;
+    }
+  }
+
+  private void CaptureAimFacing() {
+    if (playerRenderer == null) return;
+    flipBeforeAim = playerRenderer.flipX;
+    hasAimFacingSnapshot = true;
+  }
+
+  private void UpdateAimFacing() {
+    if (!hasAimFacingSnapshot || playerRenderer == null || aimCamera == null || !hasCursorTarget) return;
+
+    Vector3 cameraRight = aimCamera.transform.right;
+    Vector3 playerCenter = playerRenderer.bounds.center;
+    float targetSide = throwAnchor != null
+      ? Vector3.Dot(throwAnchor.position - playerCenter, cameraRight)
+      : 0f;
+
+    // A centered hand does not express a side, so let the actual intended destination break the
+    // tie. Once the moving anchor leaves the symmetry axis, it remains the primary visual cue.
+    if (Mathf.Abs(targetSide) <= aimFacingDeadZone)
+      targetSide = Vector3.Dot(cursorTarget - playerCenter, cameraRight);
+    if (Mathf.Abs(targetSide) <= aimFacingDeadZone) return;
+
+    // Account for either camera side: flipX mirrors the artwork relative to the renderer's
+    // unflipped local-right direction, which may itself point screen-left after a wall switch.
+    float unflippedRightSide = Vector3.Dot(playerRenderer.transform.right, cameraRight);
+    if (Mathf.Abs(unflippedRightSide) < 0.001f) unflippedRightSide = 1f;
+    playerRenderer.flipX = targetSide * unflippedRightSide < 0f;
+  }
+
+  private void EndAimFacing(bool restorePreviousFacing) {
+    if (!hasAimFacingSnapshot) return;
+    if (restorePreviousFacing && playerRenderer != null) playerRenderer.flipX = flipBeforeAim;
+    hasAimFacingSnapshot = false;
+  }
+
+  private void CaptureAuthoredCameraPose() {
+    if (hasAuthoredCameraPose || cameraTransform == null) return;
+    authoredCameraLocalPosition = cameraTransform.localPosition;
+    authoredCameraLocalRotation = cameraTransform.localRotation;
+    hasAuthoredCameraPose = true;
+  }
+
+  private void GetAuthoredCameraPoseForCurrentSide(out Vector3 position, out Quaternion rotation) {
+    CaptureAuthoredCameraPose();
+    if (!hasAuthoredCameraPose) {
+      position = cameraTransform != null ? cameraTransform.localPosition : Vector3.zero;
+      rotation = cameraTransform != null ? cameraTransform.localRotation : Quaternion.identity;
+      return;
+    }
+
+    Vector3 authoredHorizontal = new(authoredCameraLocalPosition.x, 0f, authoredCameraLocalPosition.z);
+    Vector3 currentHorizontal = cameraTransform != null
+      ? new Vector3(cameraTransform.localPosition.x, 0f, cameraTransform.localPosition.z)
+      : authoredHorizontal;
+    bool oppositeSide = authoredHorizontal.sqrMagnitude > 0.0001f
+                        && currentHorizontal.sqrMagnitude > 0.0001f
+                        && Vector3.Dot(authoredHorizontal, currentHorizontal) < 0f;
+    Quaternion sideTurn = oppositeSide ? Quaternion.AngleAxis(180f, Vector3.up) : Quaternion.identity;
+    position = sideTurn * authoredCameraLocalPosition;
+    rotation = sideTurn * authoredCameraLocalRotation;
+  }
+
+  private Vector3 GetSideAwareAimPosition() {
+    Vector3 currentHorizontal = new(normalCameraLocalPosition.x, 0f, normalCameraLocalPosition.z);
+    Vector3 authoredHorizontal = new(aimingCameraLocalPosition.x, 0f, aimingCameraLocalPosition.z);
+    if (currentHorizontal.sqrMagnitude < 0.0001f || authoredHorizontal.sqrMagnitude < 0.0001f)
+      return aimingCameraLocalPosition;
+    Vector3 horizontal = currentHorizontal.normalized * authoredHorizontal.magnitude;
+    return new Vector3(horizontal.x, aimingCameraLocalPosition.y, horizontal.z);
+  }
+
+  private void EnsureActionsLocked() {
+    if (playerInput == null || playerInput.actions == null) return;
+    InputActionMap map = playerInput.actions.FindActionMap("Player", false);
+    if (map == null) return;
+    for (int i = 0; i < LockedActions.Length; i++) {
+      InputAction action = map.FindAction(LockedActions[i], false);
+      if (action == null || !action.enabled || lockedActions.Contains(action)) continue;
+      action.Disable();
+      lockedActions.Add(action);
+    }
+  }
+
+  private void UnlockActions() {
+    for (int i = 0; i < lockedActions.Count; i++)
+      if (lockedActions[i] != null) lockedActions[i].Enable();
+    lockedActions.Clear();
+  }
+
+  private void RestoreTimeScale() {
+    if (!ownsTimeScale) return;
+    Time.timeScale = timeScaleBeforeAim;
+    ownsTimeScale = false;
+  }
+
+  private void StartCameraBlend(Vector3 position, Quaternion rotation, float duration) {
+    if (cameraTransform == null) return;
+    if (cameraRoutine != null) StopCoroutine(cameraRoutine);
+    cameraRoutine = StartCoroutine(CameraBlend(position, rotation, duration));
+  }
+
+  private IEnumerator CameraBlend(Vector3 position, Quaternion rotation, float duration) {
+    Vector3 startPosition = cameraTransform.localPosition;
+    Quaternion startRotation = cameraTransform.localRotation;
+    float elapsed = 0f;
+    while (elapsed < duration) {
+      if (!SceneTransitionManager.IsGamePaused) elapsed += Time.unscaledDeltaTime;
+      float normalized = duration > 0f ? Mathf.Clamp01(elapsed / duration) : 1f;
+      float smooth = normalized * normalized * (3f - 2f * normalized);
+      cameraTransform.localPosition = Vector3.Lerp(startPosition, position, smooth);
+      cameraTransform.localRotation = Quaternion.Slerp(startRotation, rotation, smooth);
+      yield return null;
+    }
+    cameraTransform.localPosition = position;
+    cameraTransform.localRotation = rotation;
+    cameraRoutine = null;
+  }
+
+  private void ResolveReferences() {
+    if (inventory == null) inventory = GetComponent<PlayerInventory>();
+    if (playerInput == null) playerInput = GetComponent<PlayerInput>();
+    if (movement == null) movement = GetComponent<LineFollowController>();
+    if (stealth == null) stealth = GetComponent<PlayerStealthController>();
+    if (deathSequence == null) deathSequence = GetComponent<PlayerDeathSequence>();
+    if (wallSwitch == null) wallSwitch = GetComponent<PalaceWallSwitchController>();
+    if (playerRenderer == null) playerRenderer = GetComponent<SpriteRenderer>();
+    if (aimCamera == null) aimCamera = GetComponentInChildren<Camera>(true);
+    if (cameraTransform == null && aimCamera != null) cameraTransform = aimCamera.transform;
+    if (preview == null) preview = GetComponent<DistractionTrajectoryPreview>();
+    if (inkArm == null) inkArm = GetComponent<ProceduralInkArm>();
+    if (throwAnchor == null) throwAnchor = transform.Find("DistractionThrowAnchor");
+  }
+
+#if UNITY_EDITOR
+  public void Configure(
+    ThrownDistraction projectile,
+    ItemDefinition item,
+    DistractionTrajectoryPreview authoredPreview,
+    Transform authoredThrowAnchor) {
+    projectilePrefab = projectile;
+    distractionItem = item;
+    preview = authoredPreview;
+    throwAnchor = authoredThrowAnchor;
+    ResolveReferences();
+    CaptureAnchorRestPosition();
+  }
+
+  public void IncludeTrajectoryObstructionLayer(int layer) {
+    if (layer >= 0 && layer < 32) trajectoryObstructionLayers |= 1 << layer;
+  }
+#endif
+}

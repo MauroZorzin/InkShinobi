@@ -42,6 +42,8 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
     if (dead) return;
     PalaceWallSwitchController wallSwitch = GetComponent<PalaceWallSwitchController>();
     if (wallSwitch != null) wallSwitch.CancelForDeath(true);
+    PalaceDistractionController distraction = GetComponent<PalaceDistractionController>();
+    if (distraction != null) distraction.CancelForDeath(true);
     if (!SceneTransitionManager.BeginPlayerDeath()) return;
     dead = true;
     GuardController.FadeOutAllAlertAudio(guardAlertFadeDuration);

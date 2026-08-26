@@ -697,25 +697,35 @@ MonoBehaviour:
   - {fileID: 0}
   waypointWaitTime: 2
   patrolMoveSpeed: 2
+  patrolStoppingDistance: 0.08
+  noticingTurnSpeed: 420
   alertMoveSpeed: 4
+  chaseRepathInterval: 0.12
+  lostSightGrace: 0.45
+  catchDistance: 0.55
+  chaseStoppingDistance: 0.18
   investigateDuration: 5
+  searchLookDuration: 3
   lookAroundAngle: 90
   lookAroundDuration: 1.5
   investigateLookCount: 3
   suspiciousLookCount: 2
+  searchStoppingDistance: 0.12
   takedownSound: {fileID: 8300000, guid: 07641d5d6b5ba4241aa5545917231aaa, type: 3}
   takedownReplacementPrefab: {fileID: 0}
   takedownDestroyDelay: 2
   spotSound: {fileID: 8300000, guid: 2796991c2d63adf4c9c3d417a318aeaf, type: 3}
   chaseStartSound: {fileID: 8300000, guid: 523fc9761fcbb7a47b2e382687e4538e, type: 3}
   loseSightSound: {fileID: 8300000, guid: 079df0609381f5b4c85e2041ab773adf, type: 3}
-  idleSounds:
-  - {fileID: 8300000, guid: 5454c8e9bd09fb54aab5081d6c950770, type: 3}
+  idleSounds: []
   idleSoundMinInterval: 8
   idleSoundMaxInterval: 20
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   visionCone: {fileID: 0}
+  motor: {fileID: 0}
+  patrolRoute: {fileID: 0}
   showStateLabel: 0
+  verboseLogging: 0
 --- !u!114 &1534752613705479263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -729,6 +739,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GameScripts::GuardVisionCone
   eyeHeight: 0.3
+  eyeHorizontalOffset: 0
   playerAimHeight: 0
   shortRange: 2.6
   shortAngle: 160
@@ -779,7 +790,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8f3f226ac2574dc5abf7cd8a8fc1ac80, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardWallSwitchTarget
   suspiciousBlocksSwitch: 1
   investigatingBlocksSwitch: 1
@@ -805,7 +816,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37ba35ab9de8416aa01a75fe7e440d91, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardMotor
   destinationSampleRadius: 0.75
   startupSampleRadius: 1

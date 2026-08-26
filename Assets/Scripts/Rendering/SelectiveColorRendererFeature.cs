@@ -21,6 +21,9 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
 
     [Tooltip("Fullscreen material using Hidden/InkShinobi/SelectiveColorComposite.")]
     public Material compositeMaterial;
+
+    [Tooltip("Outline-only shader used to preserve each guard's per-renderer color while it is behind geometry.")]
+    public Shader guardOccludedOutlineShader;
   }
 
   public Settings settings = new Settings();
@@ -45,7 +48,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       return;
     }
 
-    _pass.Setup(settings.compositeMaterial, cameraSettings);
+    _pass.Setup(settings.compositeMaterial, cameraSettings, settings.guardOccludedOutlineShader);
     _pass.renderPassEvent = settings.renderPassEvent;
     _pass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
     renderer.EnqueuePass(_pass);
@@ -75,6 +78,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private static readonly int ConeEndWallPositionsId = Shader.PropertyToID("_PalaceConeEndWallPositions");
     private static readonly int ConeEndWallNormalsId = Shader.PropertyToID("_PalaceConeEndWallNormals");
     private const uint PalaceLightReceiverRenderingLayerMask = 1u << 30;
+    private const int GuardLayerMask = 1 << 7;
 
     private static readonly Vector4 FullScaleBias = new(1f, 1f, 0f, 0f);
     private static readonly MaterialPropertyBlock PropertyBlock = new();
@@ -90,21 +94,28 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private float _intensity;
     private float _backgroundSaturation;
     private float _preservedColorStrength;
+    private Shader _guardOccludedOutlineShader;
 
     public SelectiveColorPass() {
       profilingSampler = new ProfilingSampler("Selective Color");
     }
 
-    public void Setup(Material compositeMaterial, SelectiveColorCamera cameraSettings) {
+    public void Setup(
+      Material compositeMaterial,
+      SelectiveColorCamera cameraSettings,
+      Shader guardOccludedOutlineShader) {
       _compositeMaterial = compositeMaterial;
       _intensity = cameraSettings.intensity;
       _backgroundSaturation = cameraSettings.backgroundSaturation;
       _preservedColorStrength = cameraSettings.preservedColorStrength;
+      _guardOccludedOutlineShader = guardOccludedOutlineShader;
     }
 
     private sealed class MaskPassData {
       public RendererListHandle opaqueRenderers;
       public RendererListHandle transparentRenderers;
+      public RendererListHandle occludedGuardRenderers;
+      public bool drawOccludedGuards;
     }
 
     private sealed class CompositePassData {
@@ -161,9 +172,14 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         passData.transparentRenderers = CreateRendererList(
           renderGraph, renderingData, cameraData, lightData, RenderQueueRange.transparent,
           SortingCriteria.CommonTransparent, CreateTransparentMaskState(), SelectiveColor.RenderingLayerMask);
+        passData.drawOccludedGuards = _guardOccludedOutlineShader != null;
+        if (passData.drawOccludedGuards)
+          passData.occludedGuardRenderers = CreateOccludedGuardRendererList(
+            renderGraph, renderingData, cameraData, lightData, _guardOccludedOutlineShader);
 
         builder.UseRendererList(passData.opaqueRenderers);
         builder.UseRendererList(passData.transparentRenderers);
+        if (passData.drawOccludedGuards) builder.UseRendererList(passData.occludedGuardRenderers);
         builder.SetRenderAttachment(preserveMask, 0, AccessFlags.Write);
         if (resourceData.activeDepthTexture.IsValid()) {
           builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Read);
@@ -175,6 +191,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           context.cmd.ClearRenderTarget(RTClearFlags.Color, Color.clear, 1f, 0);
           context.cmd.DrawRendererList(data.opaqueRenderers);
           context.cmd.DrawRendererList(data.transparentRenderers);
+          if (data.drawOccludedGuards) context.cmd.DrawRendererList(data.occludedGuardRenderers);
         });
       }
 
@@ -333,6 +350,46 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       return new RenderStateBlock(RenderStateMask.Blend | RenderStateMask.Depth) {
         blendState = new BlendState { blendState0 = targetBlend },
         depthState = new DepthState(false, CompareFunction.LessEqual)
+      };
+    }
+
+    private static RendererListHandle CreateOccludedGuardRendererList(
+      RenderGraph renderGraph,
+      UniversalRenderingData renderingData,
+      UniversalCameraData cameraData,
+      UniversalLightData lightData,
+      Shader overrideShader) {
+
+      FilteringSettings filtering = new(RenderQueueRange.transparent, GuardLayerMask);
+      DrawingSettings drawing = RenderingUtils.CreateDrawingSettings(
+        ShaderTags, renderingData, cameraData, lightData, SortingCriteria.CommonTransparent);
+      drawing.overrideShader = overrideShader;
+      drawing.overrideShaderPassIndex = 0;
+
+      NativeArray<ShaderTagId> tagValues = new(1, Allocator.Temp);
+      tagValues[0] = ShaderTagId.none;
+      NativeArray<RenderStateBlock> stateBlocks = new(1, Allocator.Temp);
+      stateBlocks[0] = CreateOccludedGuardMaskState();
+
+      RendererListParams parameters = new(renderingData.cullResults, drawing, filtering) {
+        tagValues = tagValues,
+        stateBlocks = stateBlocks,
+        isPassTagName = false
+      };
+      return renderGraph.CreateRendererList(parameters);
+    }
+
+    private static RenderStateBlock CreateOccludedGuardMaskState() {
+      RenderTargetBlendState targetBlend = new(
+        writeMask: ColorWriteMask.Alpha,
+        sourceColorBlendMode: BlendMode.Zero,
+        destinationColorBlendMode: BlendMode.One,
+        sourceAlphaBlendMode: BlendMode.One,
+        destinationAlphaBlendMode: BlendMode.OneMinusSrcAlpha);
+
+      return new RenderStateBlock(RenderStateMask.Blend | RenderStateMask.Depth) {
+        blendState = new BlendState { blendState0 = targetBlend },
+        depthState = new DepthState(false, CompareFunction.Greater)
       };
     }
   }

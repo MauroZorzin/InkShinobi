@@ -11639,6 +11639,8 @@ MonoBehaviour:
   blueDetectionThreshold: 0.08
   detectionSoftness: 0.04
   sourceGarmentLuminance: 0.62
+  useGarmentColorForOutline: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &663232497 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1520791010220140327, guid: 81b23d71eafa6d64189437f126d92b35, type: 3}
@@ -11661,6 +11663,10 @@ PrefabInstance:
     - target: {fileID: 150341891117698610, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 564025381225708751, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: 930000000000000001, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: intensity
@@ -11834,6 +11840,34 @@ PrefabInstance:
       propertyPath: hiddenCameraLocalOffset.z
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000025, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: bend
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000025, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: bodyWidth
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000025, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: handWidth
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000025, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: bodyOffset.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000025, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: bodyOffset.y
+      value: -0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000025, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: bodyOffset.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 930000000000000025, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: segmentCount
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 1401567992921745376, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -12002,6 +12036,22 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6736222325142663463, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736222325142663463, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: landingRadius
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736222325142663463, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: surfaceOffset
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736222325142663463, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: trajectoryWidth
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 6803016691086505379, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_Name
       value: PlayerV3
@@ -12045,6 +12095,22 @@ PrefabInstance:
     - target: {fileID: 7260696656252376487, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7364515423092994108, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7364515423092994108, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: apexHeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7364515423092994108, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: throwAnchorHeight
+      value: -0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7364515423092994108, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
+      propertyPath: maximumAnchorOffset
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 8458287121267554780, guid: 75cd41d6db5cd5d439d2aaa1d8d192cd, type: 3}
       propertyPath: m_IsActive
@@ -15021,7 +15087,8 @@ GameObject:
   - component: {fileID: 1086294237}
   - component: {fileID: 1086294239}
   - component: {fileID: 1086294238}
-  m_Layer: 11
+  - component: {fileID: 1086294240}
+  m_Layer: 16
   m_Name: Ceiling
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15100,6 +15167,27 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1086294236}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!65 &1086294240
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1086294236}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1104456670
 PrefabInstance:
   m_ObjectHideFlags: 0

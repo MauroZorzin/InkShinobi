@@ -22,6 +22,7 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
   [SerializeField] private Transform switchOrigin;
   [SerializeField] private SpriteRenderer playerRenderer;
   [SerializeField] private WallSwitchPreview preview;
+  [SerializeField] private PalaceDistractionController distractionController;
   [Tooltip("Optional component implementing IWallSwitchPermission for future hiding/death/detection rules.")]
   [SerializeField] private MonoBehaviour permissionSource;
 
@@ -86,7 +87,7 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
   private readonly HashSet<WallSwitchBlocker> uniqueBlockers = new();
   private readonly List<InputAction> lockedInputActions = new();
   private static readonly string[] ActionsLockedWhileSwitching = {
-    "Move", "RotateRight", "RotateLeft", "Takedown", "Interact", "Vision", "Confirm", "Look", "Drop"
+    "Move", "RotateRight", "RotateLeft", "Takedown", "Interact", "Vision", "Confirm", "Look", "Drop", "DistractionAim"
   };
   private SwitchState state;
   private WallSwitchEvaluation currentEvaluation = WallSwitchEvaluation.Empty;
@@ -96,6 +97,9 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
   private float timeScaleBeforeAim = 1f;
   private Vector3 normalCameraLocalPosition;
   private Quaternion normalCameraLocalRotation;
+  private Vector3 authoredCameraLocalPosition;
+  private Quaternion authoredCameraLocalRotation;
+  private bool hasAuthoredCameraPose;
   private Vector3 activeAimCameraLocalPosition;
   private Coroutine cameraRoutine;
   private CursorLockMode cursorLockBeforeAim;
@@ -104,10 +108,12 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
 
   public bool IsAiming => state == SwitchState.Aiming;
   public bool IsExecuting => state == SwitchState.Executing;
+  public bool IsCameraTransitioning => cameraRoutine != null;
   public WallSwitchEvaluation CurrentEvaluation => currentEvaluation;
 
   private void Awake() {
     ResolveLocalReferences();
+    CaptureAuthoredCameraPose();
     if (permissionSource is IWallSwitchPermission assignedPermission) permission = assignedPermission;
   }
 
@@ -123,15 +129,17 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
   }
 
   private void OnDisable() {
+    bool cameraWasTransitioning = cameraRoutine != null;
     StopAllCoroutines();
     if (cameraRoutine != null) cameraRoutine = null;
     preview?.Hide();
     if (playerRenderer != null) playerRenderer.enabled = true;
     if (followController != null && state != SwitchState.Idle) followController.enabled = followWasEnabled;
     UnlockPlayerActions();
-    if (cameraTransform != null && state != SwitchState.Idle) {
-      cameraTransform.localPosition = normalCameraLocalPosition;
-      cameraTransform.localRotation = normalCameraLocalRotation;
+    if (cameraTransform != null && (state != SwitchState.Idle || cameraWasTransitioning)) {
+      GetAuthoredCameraPoseForCurrentSide(out Vector3 position, out Quaternion rotation);
+      cameraTransform.localPosition = position;
+      cameraTransform.localRotation = rotation;
     }
     RestoreCursorState();
     RestoreTimeScale();
@@ -170,8 +178,7 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
     ownsTimeScale = true;
     Time.timeScale = aimingTimeScale;
 
-    normalCameraLocalPosition = cameraTransform.localPosition;
-    normalCameraLocalRotation = cameraTransform.localRotation;
+    GetAuthoredCameraPoseForCurrentSide(out normalCameraLocalPosition, out normalCameraLocalRotation);
     activeAimCameraLocalPosition = GetAimPositionForCurrentSide();
     StartCameraBlend(activeAimCameraLocalPosition, normalCameraLocalRotation, cameraAimDuration);
 
@@ -224,9 +231,11 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
   }
 
   private bool CanBeginAim() {
-    if (!enabled || state != SwitchState.Idle || SceneTransitionManager.IsGamePaused) return false;
+    if (!enabled || state != SwitchState.Idle || cameraRoutine != null || SceneTransitionManager.IsGamePaused) return false;
     if (network == null || followController == null || followController.currentLine == null || aimCamera == null || cameraTransform == null) return false;
     if (followController.IsTurning) return false;
+    if (distractionController != null &&
+        (distractionController.IsAiming || distractionController.IsCameraTransitioning)) return false;
     if (permission != null && !permission.CanWallSwitch) return false;
     return true;
   }
@@ -560,6 +569,34 @@ public sealed class PalaceWallSwitchController : MonoBehaviour {
     if (preview == null) preview = GetComponent<WallSwitchPreview>();
     if (aimCamera == null) aimCamera = GetComponentInChildren<Camera>(true);
     if (cameraTransform == null && aimCamera != null) cameraTransform = aimCamera.transform;
+    if (distractionController == null) distractionController = GetComponent<PalaceDistractionController>();
+  }
+
+  private void CaptureAuthoredCameraPose() {
+    if (hasAuthoredCameraPose || cameraTransform == null) return;
+    authoredCameraLocalPosition = cameraTransform.localPosition;
+    authoredCameraLocalRotation = cameraTransform.localRotation;
+    hasAuthoredCameraPose = true;
+  }
+
+  private void GetAuthoredCameraPoseForCurrentSide(out Vector3 position, out Quaternion rotation) {
+    CaptureAuthoredCameraPose();
+    if (!hasAuthoredCameraPose) {
+      position = cameraTransform != null ? cameraTransform.localPosition : Vector3.zero;
+      rotation = cameraTransform != null ? cameraTransform.localRotation : Quaternion.identity;
+      return;
+    }
+
+    Vector3 authoredHorizontal = new(authoredCameraLocalPosition.x, 0f, authoredCameraLocalPosition.z);
+    Vector3 currentHorizontal = cameraTransform != null
+      ? new Vector3(cameraTransform.localPosition.x, 0f, cameraTransform.localPosition.z)
+      : authoredHorizontal;
+    bool oppositeSide = authoredHorizontal.sqrMagnitude > 0.0001f
+                        && currentHorizontal.sqrMagnitude > 0.0001f
+                        && Vector3.Dot(authoredHorizontal, currentHorizontal) < 0f;
+    Quaternion sideTurn = oppositeSide ? Quaternion.AngleAxis(180f, Vector3.up) : Quaternion.identity;
+    position = sideTurn * authoredCameraLocalPosition;
+    rotation = sideTurn * authoredCameraLocalRotation;
   }
 
   private Vector3 GetAimPositionForCurrentSide() {

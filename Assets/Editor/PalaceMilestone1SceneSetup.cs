@@ -951,14 +951,12 @@ public static class PalaceMilestone1SceneSetup {
       ceilingObject = ceiling.gameObject;
     }
 
-    Transform floor = grayBox.transform.Find("Floor");
-    if (floor != null) ceilingObject.layer = floor.gameObject.layer;
+    ceilingObject.layer = LayerMask.NameToLayer("Ceiling");
     ceilingObject.transform.localPosition = new Vector3(0f, 2.1f, 0f);
     ceilingObject.transform.localRotation = Quaternion.identity;
     ceilingObject.transform.localScale = new Vector3(100f, 0.2f, 60f);
 
-    Collider ceilingCollider = ceilingObject.GetComponent<Collider>();
-    if (ceilingCollider != null) Object.DestroyImmediate(ceilingCollider);
+    if (ceilingObject.GetComponent<Collider>() == null) ceilingObject.AddComponent<BoxCollider>();
     MeshRenderer renderer = ceilingObject.GetComponent<MeshRenderer>();
     if (renderer != null) renderer.shadowCastingMode = ShadowCastingMode.Off;
   }

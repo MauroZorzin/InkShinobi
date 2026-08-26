@@ -12,12 +12,24 @@ public sealed class GuardPaletteTint : MonoBehaviour {
   private static readonly int ThresholdId = Shader.PropertyToID("_RegionBlueThreshold");
   private static readonly int SoftnessId = Shader.PropertyToID("_RegionSoftness");
   private static readonly int ReferenceLuminanceId = Shader.PropertyToID("_RegionReferenceLuminance");
+  private static readonly int SolidOutlineId = Shader.PropertyToID("_SolidOutline");
+  private static readonly int GradientOutline1Id = Shader.PropertyToID("_GradientOutline1");
+  private static readonly int GradientOutline2Id = Shader.PropertyToID("_GradientOutline2");
+  private static readonly int ImageOutlineId = Shader.PropertyToID("_ImageOutline");
+  private static readonly int DualOutlineColorId = Shader.PropertyToID("_DualOutlineColor");
 
   [SerializeField] private SpriteRenderer targetRenderer;
+
+  [Header("Garment")]
   [SerializeField] private Color garmentColor = new(0.28f, 0.72f, 1f, 1f);
   [SerializeField, Range(0f, 0.5f)] private float blueDetectionThreshold = 0.08f;
   [SerializeField, Range(0.001f, 0.25f)] private float detectionSoftness = 0.04f;
   [SerializeField, Range(0.01f, 1f)] private float sourceGarmentLuminance = 0.62f;
+
+  [Header("Outline")]
+  [Tooltip("When enabled, the outline automatically uses Garment Color. Disable it to use the explicit Outline Color below.")]
+  [SerializeField] private bool useGarmentColorForOutline = true;
+  [SerializeField] private Color outlineColor = Color.white;
 
   private MaterialPropertyBlock propertyBlock;
 
@@ -25,6 +37,23 @@ public sealed class GuardPaletteTint : MonoBehaviour {
     get => garmentColor;
     set {
       garmentColor = value;
+      Apply();
+    }
+  }
+
+  public Color OutlineColor {
+    get => useGarmentColorForOutline ? garmentColor : outlineColor;
+    set {
+      outlineColor = value;
+      useGarmentColorForOutline = false;
+      Apply();
+    }
+  }
+
+  public bool UseGarmentColorForOutline {
+    get => useGarmentColorForOutline;
+    set {
+      useGarmentColorForOutline = value;
       Apply();
     }
   }
@@ -37,6 +66,7 @@ public sealed class GuardPaletteTint : MonoBehaviour {
     EnsurePropertyBlock();
     targetRenderer.GetPropertyBlock(propertyBlock);
     propertyBlock.SetFloat(EnabledId, 0f);
+    RestoreMaterialOutlineColors(propertyBlock);
     targetRenderer.SetPropertyBlock(propertyBlock);
   }
 
@@ -60,6 +90,7 @@ public sealed class GuardPaletteTint : MonoBehaviour {
     propertyBlock.SetFloat(ThresholdId, blueDetectionThreshold);
     propertyBlock.SetFloat(SoftnessId, detectionSoftness);
     propertyBlock.SetFloat(ReferenceLuminanceId, sourceGarmentLuminance);
+    SetOutlineColors(propertyBlock, useGarmentColorForOutline ? garmentColor : outlineColor);
     targetRenderer.SetPropertyBlock(propertyBlock);
   }
 
@@ -76,4 +107,24 @@ public sealed class GuardPaletteTint : MonoBehaviour {
   private void EnsurePropertyBlock() {
     propertyBlock ??= new MaterialPropertyBlock();
   }
+
+  private static void SetOutlineColors(MaterialPropertyBlock block, Color color) {
+    block.SetColor(SolidOutlineId, color);
+    block.SetColor(GradientOutline1Id, color);
+    block.SetColor(GradientOutline2Id, color);
+    block.SetColor(ImageOutlineId, color);
+    block.SetColor(DualOutlineColorId, color);
+  }
+
+  private void RestoreMaterialOutlineColors(MaterialPropertyBlock block) {
+    Material material = targetRenderer != null ? targetRenderer.sharedMaterial : null;
+    block.SetColor(SolidOutlineId, GetMaterialColor(material, SolidOutlineId, Color.white));
+    block.SetColor(GradientOutline1Id, GetMaterialColor(material, GradientOutline1Id, Color.white));
+    block.SetColor(GradientOutline2Id, GetMaterialColor(material, GradientOutline2Id, Color.white));
+    block.SetColor(ImageOutlineId, GetMaterialColor(material, ImageOutlineId, Color.white));
+    block.SetColor(DualOutlineColorId, GetMaterialColor(material, DualOutlineColorId, Color.black));
+  }
+
+  private static Color GetMaterialColor(Material material, int propertyId, Color fallback) =>
+    material != null && material.HasProperty(propertyId) ? material.GetColor(propertyId) : fallback;
 }

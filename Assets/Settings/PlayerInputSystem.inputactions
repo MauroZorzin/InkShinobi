@@ -104,6 +104,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "DistractionAim",
+                    "type": "PassThrough",
+                    "id": "6df52e98-9b31-45c5-a94c-79fd178a9201",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -280,6 +289,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ae39821f-df83-4c7b-b621-b6194e623b0f",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "DistractionAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

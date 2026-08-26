@@ -147,9 +147,12 @@ public class GuardController : MonoBehaviour {
   }
 
   public void InvestigateSound(Vector3 soundPosition) {
-    if (CurrentState is GuardState.TakenDown or GuardState.Chasing) return;
+    if (CurrentState == GuardState.TakenDown) return;
+    if (visionCone != null && visionCone.PlayerDetected && visionCone.PlayerCurrentlyVisible) return;
     lastKnownPosition = soundPosition;
-    EnterState(GuardState.Searching);
+    // A newer sound is authoritative even while this guard is already searching. Re-entering the
+    // state resets its timers, abandons the old path/scan, and issues a fresh NavMesh destination.
+    EnterState(GuardState.Searching, CurrentState == GuardState.Searching);
   }
 
   public void PerformTakedown() {

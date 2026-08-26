@@ -44,9 +44,9 @@ MonoBehaviour:
       PassNames: []
     overrideMaterial: {fileID: 2100000, guid: c874cf1b3cd235d44991cce860714243, type: 2}
     overrideMaterialPassIndex: 0
-    overrideShader: {fileID: 0}
+    overrideShader: {fileID: 4800000, guid: 487ef058528e40aba28e5887019f5949, type: 3}
     overrideShaderPassIndex: 0
-    overrideMode: 1
+    overrideMode: 2
     overrideDepthState: 1
     depthCompareFunction: 5
     enableWrite: 0
@@ -120,6 +120,7 @@ MonoBehaviour:
   settings:
     renderPassEvent: 600
     compositeMaterial: {fileID: 2100000, guid: f52834061e7843cc9369e2752b4c6a54, type: 2}
+    guardOccludedOutlineShader: {fileID: 4800000, guid: 487ef058528e40aba28e5887019f5949, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
