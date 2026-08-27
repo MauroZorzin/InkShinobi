@@ -2,7 +2,7 @@ using UnityEngine;
 
 /// <summary>
 /// Opts one camera into the selective-color renderer feature. Keeping the settings on the camera
-/// allows the Palace to develop this art direction without changing every other scene.
+/// allows individual scenes to use this art direction without changing every other scene.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Camera))]

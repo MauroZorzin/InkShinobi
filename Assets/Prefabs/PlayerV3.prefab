@@ -2239,7 +2239,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41f92e80ef4341ee802519aa8d4e9e0e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PalaceLightExposure
+  m_EditorClassIdentifier: Assembly-CSharp::LightExposure
   body: {fileID: 5472981477857108700}
   verticalSamples: 5
   endInset: 0.03
@@ -2281,7 +2281,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0cf7c3a2a6a94790873dbb8f42cf482d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PalaceWallSwitchController
+  m_EditorClassIdentifier: Assembly-CSharp::WallSwitchController
   network: {fileID: 0}
   followController: {fileID: 1507978084170386215}
   characterController: {fileID: 5472981477857108700}
@@ -2749,7 +2749,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c2f97f709e1644afb51d62c436d90003, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PalaceDistractionController
+  m_EditorClassIdentifier: Assembly-CSharp::DistractionController
   supplyMode: 0
   distractionItem: {fileID: 11400000, guid: 41246617613c3254094bde0b32994d9a, type: 2}
   inventory: {fileID: 1401567992921745376}

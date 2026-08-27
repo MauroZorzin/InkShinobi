@@ -18,27 +18,27 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
       #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareNormalsTexture.hlsl"
 
       TEXTURE2D_X(_SelectiveColorMask);
-      TEXTURE2D_X(_PalaceLightReceiverMask);
+      TEXTURE2D_X(_LightReceiverMask);
 
       float _SelectiveColorIntensity;
       float _SelectiveColorSaturation;
       float _SelectiveColorPreserveStrength;
 
-      int _PalaceFixedLightCount;
-      float4 _PalaceFixedLightPositions[8];
-      half4 _PalaceFixedLightColors[8];
-      float _PalaceFixedLightFeathers[8];
-      float4 _PalaceFixedLightLooks[8];
+      int _FixedLightCount;
+      float4 _FixedLightPositions[8];
+      half4 _FixedLightColors[8];
+      float _FixedLightFeathers[8];
+      float4 _FixedLightLooks[8];
 
-      int _PalaceConeLightCount;
-      float4 _PalaceConeLightPositions[8];
-      float4 _PalaceConeLightDirections[8];
-      half4 _PalaceConeLightColors[8];
-      float4 _PalaceConeLightFeathers[8];
-      float4 _PalaceConeLightLooks[8];
-      float _PalaceConeVisibilityRanges[384];
-      float4 _PalaceConeEndWallPositions[8];
-      float4 _PalaceConeEndWallNormals[8];
+      int _ConeLightCount;
+      float4 _ConeLightPositions[8];
+      float4 _ConeLightDirections[8];
+      half4 _ConeLightColors[8];
+      float4 _ConeLightFeathers[8];
+      float4 _ConeLightLooks[8];
+      float _ConeVisibilityRanges[384];
+      float4 _ConeEndWallPositions[8];
+      float4 _ConeEndWallNormals[8];
 
       float SampleConeVisibilityRange(int coneIndex, float signedAngle, float halfAngle) {
         float normalizedAngle = saturate(signedAngle / max(halfAngle * 2.0, 0.0001) + 0.5);
@@ -47,8 +47,8 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
         float fraction = frac(samplePosition);
         int baseIndex = coneIndex * 48;
         return lerp(
-          _PalaceConeVisibilityRanges[baseIndex + lowerSample],
-          _PalaceConeVisibilityRanges[baseIndex + lowerSample + 1],
+          _ConeVisibilityRanges[baseIndex + lowerSample],
+          _ConeVisibilityRanges[baseIndex + lowerSample + 1],
           fraction);
       }
 
@@ -72,7 +72,7 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
         float2 uv = input.texcoord;
         half4 source = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_LinearClamp, uv);
         half coverage = SAMPLE_TEXTURE2D_X(_SelectiveColorMask, sampler_LinearClamp, uv).a;
-        half receiverCoverage = SAMPLE_TEXTURE2D_X(_PalaceLightReceiverMask, sampler_LinearClamp, uv).a;
+        half receiverCoverage = SAMPLE_TEXTURE2D_X(_LightReceiverMask, sampler_LinearClamp, uv).a;
         half receiverMask = smoothstep(0.0h, 0.15h, receiverCoverage);
 
         half luminance = dot(source.rgb, half3(0.2126h, 0.7152h, 0.0722h));
@@ -94,27 +94,27 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
 #else
         bool hasSurface = rawDepth < 0.99999;
 #endif
-        if (hasSurface && (_PalaceFixedLightCount > 0 || _PalaceConeLightCount > 0)) {
+        if (hasSurface && (_FixedLightCount > 0 || _ConeLightCount > 0)) {
           float3 worldPosition = ComputeWorldSpacePosition(uv, rawDepth, UNITY_MATRIX_I_VP);
           half strongestFixedWeight = 0.0h;
           half4 strongestFixedLight = 0.0h;
           float4 strongestFixedLook = 0.0;
           float3 strongestFixedPosition = 0.0;
 
-          if (_PalaceFixedLightCount > 0) {
+          if (_FixedLightCount > 0) {
             [loop]
-            for (int lightIndex = 0; lightIndex < _PalaceFixedLightCount; lightIndex++) {
-              float radius = _PalaceFixedLightPositions[lightIndex].w;
-              float feather = min(_PalaceFixedLightFeathers[lightIndex], radius);
+            for (int lightIndex = 0; lightIndex < _FixedLightCount; lightIndex++) {
+              float radius = _FixedLightPositions[lightIndex].w;
+              float feather = min(_FixedLightFeathers[lightIndex], radius);
               float innerRadius = max(0.0, radius - feather);
-              float distanceToLight = distance(worldPosition, _PalaceFixedLightPositions[lightIndex].xyz);
+              float distanceToLight = distance(worldPosition, _FixedLightPositions[lightIndex].xyz);
               half weight = (1.0h - smoothstep(innerRadius, max(innerRadius + 0.0001, radius), distanceToLight))
                             * receiverMask;
               if (weight > strongestFixedWeight) {
                 strongestFixedWeight = weight;
-                strongestFixedLight = _PalaceFixedLightColors[lightIndex];
-                strongestFixedLook = _PalaceFixedLightLooks[lightIndex];
-                strongestFixedPosition = _PalaceFixedLightPositions[lightIndex].xyz;
+                strongestFixedLight = _FixedLightColors[lightIndex];
+                strongestFixedLook = _FixedLightLooks[lightIndex];
+                strongestFixedPosition = _FixedLightPositions[lightIndex].xyz;
               }
             }
 
@@ -126,7 +126,7 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
             finalColor = lerp(finalColor, tintedLight, tintStrength);
           }
 
-          if (_PalaceConeLightCount > 0) {
+          if (_ConeLightCount > 0) {
             half3 worldNormal = SampleSceneNormals(uv);
             half floorReceiver = step(0.65h, worldNormal.y) * receiverMask;
             half wallReceiver = (1.0h - step(0.45h, abs(worldNormal.y))) * receiverMask;
@@ -140,24 +140,24 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
             float3 strongestFarPosition = 0.0;
 
             [loop]
-            for (int coneIndex = 0; coneIndex < _PalaceConeLightCount; coneIndex++) {
-              float3 toSurface = worldPosition - _PalaceConeLightPositions[coneIndex].xyz;
+            for (int coneIndex = 0; coneIndex < _ConeLightCount; coneIndex++) {
+              float3 toSurface = worldPosition - _ConeLightPositions[coneIndex].xyz;
               float distanceFromOrigin = length(toSurface.xz);
               float2 directionToSurface = toSurface.xz / max(distanceFromOrigin, 0.0001);
 
-              float range = _PalaceConeLightPositions[coneIndex].w;
-              float rangeFeather = min(_PalaceConeLightFeathers[coneIndex].x, range);
+              float range = _ConeLightPositions[coneIndex].w;
+              float rangeFeather = min(_ConeLightFeathers[coneIndex].x, range);
               float innerRange = max(0.0, range - rangeFeather);
               float rangeWeight = 1.0 - smoothstep(innerRange, max(innerRange + 0.0001, range), distanceFromOrigin);
 
-              float2 coneDirection = normalize(_PalaceConeLightDirections[coneIndex].xz);
+              float2 coneDirection = normalize(_ConeLightDirections[coneIndex].xz);
               float directionDot = distanceFromOrigin < 0.0001 ? 1.0 : dot(directionToSurface, coneDirection);
-              float outerCosine = _PalaceConeLightDirections[coneIndex].w;
-              float innerCosine = _PalaceConeLightFeathers[coneIndex].y;
+              float outerCosine = _ConeLightDirections[coneIndex].w;
+              float innerCosine = _ConeLightFeathers[coneIndex].y;
               float angleWeight = smoothstep(outerCosine, innerCosine, directionDot);
 
               // Sample the same horizontal ray fan used by the guard presentation so the
-              // authoritative floor field stops at Palace walls instead of shining through them.
+              // authoritative floor field stops at walls instead of shining through them.
               float halfAngle = acos(clamp(outerCosine, -1.0, 1.0));
               float signedAngle = atan2(
                 coneDirection.y * directionToSurface.x - coneDirection.x * directionToSurface.y,
@@ -169,8 +169,8 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
 
               // Walls only receive a compact circular mark where the guard looks directly at
               // an end wall. Side walls intentionally receive no literal cone intersection.
-              float4 endWall = _PalaceConeEndWallPositions[coneIndex];
-              float4 endNormal = _PalaceConeEndWallNormals[coneIndex];
+              float4 endWall = _ConeEndWallPositions[coneIndex];
+              float4 endNormal = _ConeEndWallNormals[coneIndex];
               float radiusAtWall = max(endWall.w, 0.0001);
               float circleDistance = distance(worldPosition, endWall.xyz);
               float endFacing = abs(dot(normalize(worldNormal.xz), normalize(endNormal.xz)));
@@ -179,17 +179,17 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
                 * step(0.72, endFacing) * endNormal.w) * wallReceiver;
 
               half weight = max(floorWeight, endWallWeight);
-              bool isNearField = _PalaceConeLightFeathers[coneIndex].z > 0.5;
+              bool isNearField = _ConeLightFeathers[coneIndex].z > 0.5;
               if (isNearField && weight > strongestNearWeight) {
                 strongestNearWeight = weight;
-                strongestNear = _PalaceConeLightColors[coneIndex];
-                strongestNearLook = _PalaceConeLightLooks[coneIndex];
-                strongestNearPosition = _PalaceConeLightPositions[coneIndex].xyz;
+                strongestNear = _ConeLightColors[coneIndex];
+                strongestNearLook = _ConeLightLooks[coneIndex];
+                strongestNearPosition = _ConeLightPositions[coneIndex].xyz;
               } else if (!isNearField && weight > strongestFarWeight) {
                 strongestFarWeight = weight;
-                strongestFar = _PalaceConeLightColors[coneIndex];
-                strongestFarLook = _PalaceConeLightLooks[coneIndex];
-                strongestFarPosition = _PalaceConeLightPositions[coneIndex].xyz;
+                strongestFar = _ConeLightColors[coneIndex];
+                strongestFarLook = _ConeLightLooks[coneIndex];
+                strongestFarPosition = _ConeLightPositions[coneIndex].xyz;
               }
             }
 

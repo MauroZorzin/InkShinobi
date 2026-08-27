@@ -290,7 +290,7 @@ public class GuardVisionCone : MonoBehaviour {
 
       bool insideShort = IsInsideExpandedCone(point, shortRange, shortAngle, trajectoryRadius);
       bool insideLitLong = !insideShort
-                           && PalaceFixedLightSource.EvaluateCombinedExposure(point) >= wallSwitchExposureThreshold
+                           && FixedLightSource.EvaluateCombinedExposure(point) >= wallSwitchExposureThreshold
                            && IsInsideExpandedCone(point, longRange, longAngle, trajectoryRadius);
       if (!insideShort && !insideLitLong) continue;
 

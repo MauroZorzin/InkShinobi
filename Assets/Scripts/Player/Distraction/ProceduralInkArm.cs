@@ -15,11 +15,11 @@ public sealed class ProceduralInkArm : MonoBehaviour {
   [Header("References")]
   [Tooltip("Transform used as the body end of the ink arm. Defaults to this Player transform.")]
   [SerializeField] private Transform bodyOrigin;
-  [Tooltip("The moving release point selected by PalaceDistractionController.")]
+  [Tooltip("The moving release point selected by DistractionController.")]
   [SerializeField] private Transform throwAnchor;
   [Tooltip("Camera used to interpret the body offset and keep the bend facing the player.")]
   [SerializeField] private Camera viewCamera;
-  [Tooltip("Ink material used by the generated ribbon. PalaceWallSwitchInk is suitable.")]
+  [Tooltip("Ink material used by the generated ribbon. WallSwitchInk is suitable.")]
   [SerializeField] private Material inkMaterial;
   [Tooltip("Optional player renderer whose sorting layer is copied by the ink arm.")]
   [SerializeField] private Renderer bodyRenderer;

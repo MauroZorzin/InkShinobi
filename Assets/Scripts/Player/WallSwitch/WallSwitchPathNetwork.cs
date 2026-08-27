@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Explicit scene-authored collection of paths that may participate in Palace wall switching.
+/// Explicit scene-authored collection of paths that may participate in wall switching.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class WallSwitchPathNetwork : MonoBehaviour {

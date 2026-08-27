@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Marks this object's renderers as exceptions to the Palace monochrome pass.
+/// Marks this object's renderers as exceptions to the monochrome pass.
 /// The marker uses one dedicated Rendering Layer bit, so it does not duplicate or replace
 /// materials and can coexist with ordinary GameObject layers.
 /// </summary>

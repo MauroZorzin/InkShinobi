@@ -33,7 +33,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
 
   public override void Create() {
     CoreUtils.Destroy(_doorAccentMaskMaterial);
-    Shader doorAccentShader = Shader.Find("Hidden/InkShinobi/PalaceDoorAccentMask");
+    Shader doorAccentShader = Shader.Find("Hidden/InkShinobi/DoorAccentMask");
     if (doorAccentShader != null)
       _doorAccentMaskMaterial = CoreUtils.CreateEngineMaterial(doorAccentShader);
     _pass = new SelectiveColorPass();
@@ -73,26 +73,26 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private static readonly int BlitTextureId = Shader.PropertyToID("_BlitTexture");
     private static readonly int BlitScaleBiasId = Shader.PropertyToID("_BlitScaleBias");
     private static readonly int PreserveMaskId = Shader.PropertyToID("_SelectiveColorMask");
-    private static readonly int LightReceiverMaskId = Shader.PropertyToID("_PalaceLightReceiverMask");
+    private static readonly int LightReceiverMaskId = Shader.PropertyToID("_LightReceiverMask");
     private static readonly int IntensityId = Shader.PropertyToID("_SelectiveColorIntensity");
     private static readonly int SaturationId = Shader.PropertyToID("_SelectiveColorSaturation");
     private static readonly int PreserveStrengthId = Shader.PropertyToID("_SelectiveColorPreserveStrength");
     private static readonly int CameraDepthTextureId = Shader.PropertyToID("_CameraDepthTexture");
-    private static readonly int FixedLightCountId = Shader.PropertyToID("_PalaceFixedLightCount");
-    private static readonly int FixedLightPositionsId = Shader.PropertyToID("_PalaceFixedLightPositions");
-    private static readonly int FixedLightColorsId = Shader.PropertyToID("_PalaceFixedLightColors");
-    private static readonly int FixedLightFeathersId = Shader.PropertyToID("_PalaceFixedLightFeathers");
-    private static readonly int FixedLightLooksId = Shader.PropertyToID("_PalaceFixedLightLooks");
-    private static readonly int ConeLightCountId = Shader.PropertyToID("_PalaceConeLightCount");
-    private static readonly int ConeLightPositionsId = Shader.PropertyToID("_PalaceConeLightPositions");
-    private static readonly int ConeLightDirectionsId = Shader.PropertyToID("_PalaceConeLightDirections");
-    private static readonly int ConeLightColorsId = Shader.PropertyToID("_PalaceConeLightColors");
-    private static readonly int ConeLightFeathersId = Shader.PropertyToID("_PalaceConeLightFeathers");
-    private static readonly int ConeLightLooksId = Shader.PropertyToID("_PalaceConeLightLooks");
-    private static readonly int ConeVisibilityRangesId = Shader.PropertyToID("_PalaceConeVisibilityRanges");
-    private static readonly int ConeEndWallPositionsId = Shader.PropertyToID("_PalaceConeEndWallPositions");
-    private static readonly int ConeEndWallNormalsId = Shader.PropertyToID("_PalaceConeEndWallNormals");
-    private const uint PalaceLightReceiverRenderingLayerMask = 1u << 30;
+    private static readonly int FixedLightCountId = Shader.PropertyToID("_FixedLightCount");
+    private static readonly int FixedLightPositionsId = Shader.PropertyToID("_FixedLightPositions");
+    private static readonly int FixedLightColorsId = Shader.PropertyToID("_FixedLightColors");
+    private static readonly int FixedLightFeathersId = Shader.PropertyToID("_FixedLightFeathers");
+    private static readonly int FixedLightLooksId = Shader.PropertyToID("_FixedLightLooks");
+    private static readonly int ConeLightCountId = Shader.PropertyToID("_ConeLightCount");
+    private static readonly int ConeLightPositionsId = Shader.PropertyToID("_ConeLightPositions");
+    private static readonly int ConeLightDirectionsId = Shader.PropertyToID("_ConeLightDirections");
+    private static readonly int ConeLightColorsId = Shader.PropertyToID("_ConeLightColors");
+    private static readonly int ConeLightFeathersId = Shader.PropertyToID("_ConeLightFeathers");
+    private static readonly int ConeLightLooksId = Shader.PropertyToID("_ConeLightLooks");
+    private static readonly int ConeVisibilityRangesId = Shader.PropertyToID("_ConeVisibilityRanges");
+    private static readonly int ConeEndWallPositionsId = Shader.PropertyToID("_ConeEndWallPositions");
+    private static readonly int ConeEndWallNormalsId = Shader.PropertyToID("_ConeEndWallNormals");
+    private const uint LightReceiverRenderingLayerMask = 1u << 30;
     private const int GuardLayerMask = 1 << 7;
 
     private static readonly Vector4 FullScaleBias = new(1f, 1f, 0f, 0f);
@@ -217,16 +217,16 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       }
 
       TextureDesc receiverDesc = maskDesc;
-      receiverDesc.name = "_PalaceLightReceiverMask";
+      receiverDesc.name = "_LightReceiverMask";
       TextureHandle lightReceiverMask = renderGraph.CreateTexture(receiverDesc);
 
-      using (var builder = renderGraph.AddRasterRenderPass<MaskPassData>("Palace Light Receiver Mask", out MaskPassData passData, profilingSampler)) {
+      using (var builder = renderGraph.AddRasterRenderPass<MaskPassData>("Light Receiver Mask", out MaskPassData passData, profilingSampler)) {
         passData.opaqueRenderers = CreateRendererList(
           renderGraph, renderingData, cameraData, lightData, RenderQueueRange.opaque,
-          cameraData.defaultOpaqueSortFlags, CreateOpaqueMaskState(), PalaceLightReceiverRenderingLayerMask);
+          cameraData.defaultOpaqueSortFlags, CreateOpaqueMaskState(), LightReceiverRenderingLayerMask);
         passData.transparentRenderers = CreateRendererList(
           renderGraph, renderingData, cameraData, lightData, RenderQueueRange.transparent,
-          SortingCriteria.CommonTransparent, CreateTransparentMaskState(), PalaceLightReceiverRenderingLayerMask);
+          SortingCriteria.CommonTransparent, CreateTransparentMaskState(), LightReceiverRenderingLayerMask);
 
         builder.UseRendererList(passData.opaqueRenderers);
         builder.UseRendererList(passData.transparentRenderers);
@@ -251,25 +251,25 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         passData.intensity = _intensity;
         passData.saturation = _backgroundSaturation;
         passData.preserveStrength = _preservedColorStrength;
-        passData.fixedLightPositions = new Vector4[PalaceFixedLightSource.MaximumVisibleLights];
-        passData.fixedLightColors = new Vector4[PalaceFixedLightSource.MaximumVisibleLights];
-        passData.fixedLightFeathers = new float[PalaceFixedLightSource.MaximumVisibleLights];
-        passData.fixedLightLooks = new Vector4[PalaceFixedLightSource.MaximumVisibleLights];
-        passData.fixedLightCount = PalaceFixedLightSource.FillShaderData(
+        passData.fixedLightPositions = new Vector4[FixedLightSource.MaximumVisibleLights];
+        passData.fixedLightColors = new Vector4[FixedLightSource.MaximumVisibleLights];
+        passData.fixedLightFeathers = new float[FixedLightSource.MaximumVisibleLights];
+        passData.fixedLightLooks = new Vector4[FixedLightSource.MaximumVisibleLights];
+        passData.fixedLightCount = FixedLightSource.FillShaderData(
           passData.fixedLightPositions,
           passData.fixedLightColors,
           passData.fixedLightFeathers,
           passData.fixedLightLooks);
-        passData.coneLightPositions = new Vector4[PalaceConeLightSource.MaximumVisibleCones];
-        passData.coneLightDirections = new Vector4[PalaceConeLightSource.MaximumVisibleCones];
-        passData.coneLightColors = new Vector4[PalaceConeLightSource.MaximumVisibleCones];
-        passData.coneLightFeathers = new Vector4[PalaceConeLightSource.MaximumVisibleCones];
-        passData.coneLightLooks = new Vector4[PalaceConeLightSource.MaximumVisibleCones];
+        passData.coneLightPositions = new Vector4[ConeLightSource.MaximumVisibleCones];
+        passData.coneLightDirections = new Vector4[ConeLightSource.MaximumVisibleCones];
+        passData.coneLightColors = new Vector4[ConeLightSource.MaximumVisibleCones];
+        passData.coneLightFeathers = new Vector4[ConeLightSource.MaximumVisibleCones];
+        passData.coneLightLooks = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneVisibilityRanges = new float[
-          PalaceConeLightSource.MaximumVisibleCones * PalaceConeLightSource.VisibilitySampleCount];
-        passData.coneEndWallPositions = new Vector4[PalaceConeLightSource.MaximumVisibleCones];
-        passData.coneEndWallNormals = new Vector4[PalaceConeLightSource.MaximumVisibleCones];
-        passData.coneLightCount = PalaceConeLightSource.FillShaderData(
+          ConeLightSource.MaximumVisibleCones * ConeLightSource.VisibilitySampleCount];
+        passData.coneEndWallPositions = new Vector4[ConeLightSource.MaximumVisibleCones];
+        passData.coneEndWallNormals = new Vector4[ConeLightSource.MaximumVisibleCones];
+        passData.coneLightCount = ConeLightSource.FillShaderData(
           passData.coneLightPositions,
           passData.coneLightDirections,
           passData.coneLightColors,

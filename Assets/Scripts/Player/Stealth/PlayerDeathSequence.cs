@@ -99,10 +99,10 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
     if (caughtLocked) return;
     caughtLocked = true;
 
-    PalaceWallSwitchController wallSwitch = GetComponent<PalaceWallSwitchController>();
+    WallSwitchController wallSwitch = GetComponent<WallSwitchController>();
     if (wallSwitch != null) wallSwitch.CancelForDeath(true);
 
-    PalaceDistractionController distraction = GetComponent<PalaceDistractionController>();
+    DistractionController distraction = GetComponent<DistractionController>();
     if (distraction != null) distraction.CancelForDeath(true);
 
     LineFollowController movement = GetComponent<LineFollowController>();

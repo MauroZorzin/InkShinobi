@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-/// <summary>Aggregates every active guard into one Palace threat vignette.</summary>
+/// <summary>Aggregates every active guard into one threat vignette.</summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Volume))]
 public sealed class GuardThreatFeedback : MonoBehaviour {

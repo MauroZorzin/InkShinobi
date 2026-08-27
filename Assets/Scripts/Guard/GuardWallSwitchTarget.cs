@@ -156,7 +156,7 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
     GuardVisionLightRig[] rigs = GetComponentsInChildren<GuardVisionLightRig>(true);
     for (int i = 0; i < rigs.Length; i++) rigs[i].enabled = false;
 
-    PalaceConeLightSource[] fields = GetComponentsInChildren<PalaceConeLightSource>(true);
+    ConeLightSource[] fields = GetComponentsInChildren<ConeLightSource>(true);
     for (int i = 0; i < fields.Length; i++) fields[i].enabled = false;
 
     NavMeshAgent agent = GetComponent<NavMeshAgent>();

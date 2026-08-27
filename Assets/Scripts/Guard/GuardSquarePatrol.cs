@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Authored loop-patrol route for the Palace guard. This component owns route data and tuning;
+/// Authored loop-patrol route for a guard. This component owns route data and tuning;
 /// GuardController chooses a point and GuardMotor performs all movement.
 /// </summary>
 [DisallowMultipleComponent]

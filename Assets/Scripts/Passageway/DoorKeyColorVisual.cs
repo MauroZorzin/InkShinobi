@@ -37,7 +37,7 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
   [Tooltip("Brightness applied to uncolored panels and the plaster part of the door frame.")]
   [SerializeField, Range(0f, 1f)] private float neutralArchitectureBrightness = 0.85f;
 
-  [Tooltip("Material slots on SM_doorWall that use the Palace plaster texture.")]
+  [Tooltip("Material slots on SM_doorWall that use the architectural plaster texture.")]
   [SerializeField] private int[] doorWallSlots = { 1 };
 
   [Tooltip("Material slots on the left panel that represent its white panel and handle.")]

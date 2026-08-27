@@ -10,8 +10,8 @@ public sealed class GuardVisionLightRig : MonoBehaviour {
   [SerializeField] private GuardVisionCone vision;
 
   [Header("Visual fields")]
-  [SerializeField] private PalaceConeLightSource nearField;
-  [SerializeField] private PalaceConeLightSource farField;
+  [SerializeField] private ConeLightSource nearField;
+  [SerializeField] private ConeLightSource farField;
 
   private float _lastShortRange;
   private float _lastShortAngle;
@@ -20,8 +20,8 @@ public sealed class GuardVisionLightRig : MonoBehaviour {
 
   public void Configure(
     GuardVisionCone source,
-    PalaceConeLightSource nearConeField,
-    PalaceConeLightSource farConeField) {
+    ConeLightSource nearConeField,
+    ConeLightSource farConeField) {
     vision = source;
     nearField = nearConeField;
     farField = farConeField;

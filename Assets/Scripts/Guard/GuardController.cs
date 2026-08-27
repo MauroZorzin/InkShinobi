@@ -17,7 +17,7 @@ public class GuardController : MonoBehaviour {
   public static IReadOnlyCollection<GuardController> ActiveGuards => ActiveGuardSet;
 
   [Header("Patrol")]
-  [Tooltip("Fallback route for scenes without GuardSquarePatrol. Palace reads its authored route component instead.")]
+  [Tooltip("Fallback route for guards without GuardSquarePatrol. Guards with an authored route use that component instead.")]
   public Transform[] patrolWaypoints = System.Array.Empty<Transform>();
   [Tooltip("Fallback pause at patrol points when no GuardSquarePatrol is present.")]
   public float waypointWaitTime = 2f;

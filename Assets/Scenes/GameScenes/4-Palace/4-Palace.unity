@@ -3296,7 +3296,7 @@ GameObject:
   - component: {fileID: 332228288}
   - component: {fileID: 332228290}
   m_Layer: 0
-  m_Name: PalaceWallFillB
+  m_Name: WallFillB
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4348,7 +4348,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c318d3651454c48a882415358ddff5b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PalaceLightReceiver
+  m_EditorClassIdentifier: Assembly-CSharp::LightReceiver
   includeChildren: 1
 --- !u!1 &410000010
 GameObject:
@@ -14986,7 +14986,7 @@ GameObject:
   - component: {fileID: 1314267464}
   - component: {fileID: 1314267466}
   m_Layer: 0
-  m_Name: PalaceAmbientFill
+  m_Name: AmbientFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16814,7 +16814,7 @@ GameObject:
   - component: {fileID: 1572548467}
   - component: {fileID: 1572548466}
   m_Layer: 0
-  m_Name: PalaceNavigation
+  m_Name: Navigation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16850,7 +16850,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 1
   m_VoxelSize: 0.08
   m_MinRegionArea: 0.25
-  m_NavMeshData: {fileID: 23800000, guid: 6f5877decd6c49b499f5e72912f37f19, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 1ab48ac6f530c0243b5c197a241a051d, type: 2}
   m_BuildHeightMesh: 0
 --- !u!4 &1572548467
 Transform:
@@ -18016,7 +18016,7 @@ GameObject:
   - component: {fileID: 1730147171}
   - component: {fileID: 1730147173}
   m_Layer: 0
-  m_Name: PalaceWallFillA
+  m_Name: WallFillA
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
