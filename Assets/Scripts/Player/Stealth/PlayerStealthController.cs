@@ -1,19 +1,15 @@
 using UnityEngine;
 
 /// <summary>
-/// Manages the player's stealth state and composes all stealth subsystems.
+/// Manages the player's authoritative stealth and visibility state.
 ///
 /// Responsibilities
 /// ─────────────────
 ///  - Maintain the authoritative <see cref="CurrentState"/> (<see cref="StealthState"/>).
-///  - React to state transitions by enabling / disabling dependent subsystems
-///    (e.g. disabling <see cref="TakedownController"/> while detected).
 ///  - Accept events from guards (<see cref="OnGuardStartsDetecting"/>) and
 ///    light zones (<see cref="EnterLight"/>/<see cref="ExitLight"/>).
-///  - Validate on Awake that every required stealth component is present.
 ///
 /// </summary>
-[RequireComponent(typeof(TakedownController))]
 public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   // -------------------------------------------------------------------------
   // Stealth state
@@ -53,7 +49,7 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   [Tooltip("Seconds of no detection before the player transitions back to Hidden.")]
   public float timeToHide = 1.0f;
 
-  [Header("Subsystem References (auto-fetched if left blank)")]
+  [Tooltip("Optional legacy takedown controller. Older player prefabs can retain it; PlayerV4 leaves it empty.")]
   public TakedownController takedownController;
 
   [Tooltip("Optional component implementing ILightExposureProvider. If empty, a provider on this GameObject is used.")]
@@ -77,47 +73,12 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   // -------------------------------------------------------------------------
 
   private void Awake() {
-    ValidateSubsystems();
     ResolveExposureProvider();
   }
 
   private void Update() {
     UpdateHiddenTimer();
     RefreshState();
-  }
-
-  // -------------------------------------------------------------------------
-  // Subsystem validation
-  // -------------------------------------------------------------------------
-
-  /// <summary>
-  /// Fetches required stealth components from this GameObject and logs clear
-  /// errors for anything missing, so setup mistakes surface immediately.
-  /// </summary>
-  private void ValidateSubsystems() {
-
-    if (!TryFetch(ref takedownController, nameof(TakedownController), mandatory: true))
-      return;
-
-  }
-
-
-  private bool TryFetch<T>(ref T component, string label, bool mandatory) where T : Component {
-    if (component != null) return true;     // already assigned in inspector
-
-    component = GetComponent<T>();
-
-    if (component != null) return true;
-
-    string severity = mandatory ? "ERROR" : "WARNING";
-    string message = $"[{nameof(PlayerStealthController)}] [{severity}] " +
-                      $"Required stealth subsystem '{label}' not found on '{name}'. " +
-                      (mandatory ? "Add the component to this GameObject."
-                                 : "Some stealth features will be unavailable.");
-
-    if (mandatory) { Debug.LogError(message, this); enabled = false; } else { Debug.LogWarning(message, this); }
-
-    return false;
   }
 
   // -------------------------------------------------------------------------
@@ -134,16 +95,15 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
 
   /// <summary>
   /// Re-evaluates and applies the current state every frame.
-  /// Transitions trigger <see cref="OnStateChanged"/> exactly once.
+  /// State changes are applied exactly once.
   /// </summary>
   private void RefreshState() {
     StealthState next = ComputeState();
     if (debug) Debug.Log($"[PlayerStealthController] '{name}': RefreshState() => {next} (HiddenTimer={_hiddenTimer:F2}, DetectingGuardCount={DetectingGuardCount}, IsInLight={IsInLight}), LightSourceCount={_lightSourceCount}", this);
     if (next == CurrentState) return;
 
-    StealthState previous = CurrentState;
     CurrentState = next;
-    OnStateChanged(previous, next);
+    OnStateChanged(next);
   }
 
   private StealthState ComputeState() {
@@ -154,16 +114,9 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
     return CurrentState; // stay as-is during the hide cooldown
   }
 
-  /// <summary>
-  /// Reacts to a state transition by updating dependent subsystems.
-  /// </summary>
-  private void OnStateChanged(StealthState from, StealthState to) {
-    // Takedown is only allowed while the player is undetected.
-    bool takedownAllowed = to != StealthState.Detected;
+  private void OnStateChanged(StealthState state) {
     if (takedownController != null)
-      takedownController.IsEnabled = takedownAllowed;
-
-    // Hook for future state-driven behaviour (sound, UI, animation triggers …)
+      takedownController.IsEnabled = state != StealthState.Detected;
   }
 
   // -------------------------------------------------------------------------
