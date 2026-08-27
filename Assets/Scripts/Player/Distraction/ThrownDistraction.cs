@@ -32,9 +32,10 @@ public sealed class ThrownDistraction : MonoBehaviour {
     if (soundSignal == null) soundSignal = GetComponentInChildren<GuardSoundSignal>(true);
   }
 
-  public bool Launch(DistractionThrowEvaluation evaluation) {
+  public bool Launch(DistractionThrowEvaluation evaluation, Collider[] ignoredThrowerColliders = null) {
     if (!evaluation.IsValid || body == null) return false;
     transform.SetPositionAndRotation(evaluation.Origin, Quaternion.identity);
+    IgnoreThrowerCollisions(ignoredThrowerColliders);
     body.isKinematic = false;
     body.linearVelocity = evaluation.InitialVelocity;
     body.angularVelocity = Random.onUnitSphere * 7f;
@@ -42,6 +43,19 @@ public sealed class ThrownDistraction : MonoBehaviour {
     landed = false;
     armedAt = Time.time + armDelay;
     return true;
+  }
+
+  private void IgnoreThrowerCollisions(Collider[] throwerColliders) {
+    if (throwerColliders == null || throwerColliders.Length == 0) return;
+    Collider[] projectileColliders = GetComponentsInChildren<Collider>(true);
+    for (int projectileIndex = 0; projectileIndex < projectileColliders.Length; projectileIndex++) {
+      Collider projectileCollider = projectileColliders[projectileIndex];
+      if (projectileCollider == null) continue;
+      for (int throwerIndex = 0; throwerIndex < throwerColliders.Length; throwerIndex++) {
+        Collider throwerCollider = throwerColliders[throwerIndex];
+        if (throwerCollider != null) Physics.IgnoreCollision(projectileCollider, throwerCollider, true);
+      }
+    }
   }
 
   private void OnCollisionEnter(Collision collision) {

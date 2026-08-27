@@ -105,6 +105,7 @@ public sealed class PalaceDistractionController : MonoBehaviour {
   private Collider cursorTargetCollider;
   private bool flipBeforeAim;
   private bool hasAimFacingSnapshot;
+  private Collider[] throwerColliders = System.Array.Empty<Collider>();
 
   public bool IsAiming => state == AimState.Aiming;
   public bool IsCameraTransitioning => cameraRoutine != null;
@@ -277,7 +278,7 @@ public sealed class PalaceDistractionController : MonoBehaviour {
       Debug.LogError($"[Distraction] Could not instantiate the projectile.\n{exception}", this);
       return false;
     }
-    if (instance == null || !instance.Launch(accepted)) {
+    if (instance == null || !instance.Launch(accepted, throwerColliders)) {
       if (instance != null) Destroy(instance.gameObject);
       return false;
     }
@@ -646,6 +647,8 @@ public sealed class PalaceDistractionController : MonoBehaviour {
     if (preview == null) preview = GetComponent<DistractionTrajectoryPreview>();
     if (inkArm == null) inkArm = GetComponent<ProceduralInkArm>();
     if (throwAnchor == null) throwAnchor = transform.Find("DistractionThrowAnchor");
+    if (throwerColliders == null || throwerColliders.Length == 0)
+      throwerColliders = GetComponentsInChildren<Collider>(true);
   }
 
 #if UNITY_EDITOR
