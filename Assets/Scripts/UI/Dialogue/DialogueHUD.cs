@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -17,8 +18,9 @@ using UnityEngine.UI;
 ///
 /// Whenever Information or Dialogue transitions from not-shown to shown (not on every repeated
 /// message while already the active source), it plays its show sound; Dialogue additionally slides
-/// its portrait in from offscreen. Re-showing while already the active source (e.g. a second line of
-/// the same conversation) only swaps the text — the portrait stays put and nothing replays.
+/// its portrait in from one offscreen side. The reverse — whenever either stops being the shown
+/// source — plays its own hide sound; Dialogue's background hides immediately, but the portrait
+/// slides out to the OPPOSITE offscreen side first and is only actually hidden once that finishes.
 ///
 /// One instance is expected per scene. Callers reach it via the static Instance rather than a
 /// per-caller Inspector reference.
@@ -40,15 +42,17 @@ public class DialogueHUD : MonoBehaviour {
   [Tooltip("Fixed portrait shown alongside every dialogue line — there is only one dialogue speaker (the player), so this isn't set per message.")]
   [SerializeField] private Image dialoguePortrait;
 
-  [Header("Portrait Slide-In")]
-  [Tooltip("How far offscreen (anchored-position units, local X) the portrait starts before sliding into its resting position.")]
+  [Header("Portrait Slide")]
+  [Tooltip("How far offscreen (anchored-position units, local X) the portrait sits when hidden, before sliding in / after sliding out.")]
   [SerializeField] private float portraitSlideOffset = 300f;
 
   [SerializeField] private float portraitSlideDuration = 0.35f;
 
   [Header("Sounds")]
   [SerializeField] private AudioClip informationShowSound;
+  [SerializeField] private AudioClip informationHideSound;
   [SerializeField] private AudioClip dialogueShowSound;
+  [SerializeField] private AudioClip dialogueHideSound;
   [SerializeField] private AudioMixerGroup uiMixerGroup;
 
   public static DialogueHUD Instance { get; private set; }
@@ -75,7 +79,13 @@ public class DialogueHUD : MonoBehaviour {
     if (dialoguePortrait != null) {
       _portraitRect = dialoguePortrait.rectTransform;
       _portraitRestPosition = _portraitRect.anchoredPosition;
+      // Parked offscreen whenever not shown — both before the first ShowDialogue and after every
+      // slide-out — so every slide-in animates from a consistent, already-correct starting point.
+      _portraitRect.anchoredPosition = _portraitRestPosition + new Vector2(portraitSlideOffset, 0f);
     }
+
+    if (dialogueBackground != null) dialogueBackground.SetActive(false);
+    if (dialoguePortrait != null) dialoguePortrait.gameObject.SetActive(false);
 
     Refresh();
   }
@@ -137,19 +147,23 @@ public class DialogueHUD : MonoBehaviour {
       if (_active[i]) { active = (Source)i; break; }
     }
 
+    bool changed = active != _lastActiveSource;
+
+    if (changed && _lastActiveSource.HasValue) PlayHideFeedback(_lastActiveSource.Value);
+
     if (active.HasValue) {
       int i = (int)active.Value;
       if (messageLabel != null) {
         messageLabel.gameObject.SetActive(true);
         messageLabel.text = _text[i];
       }
-      SetBackgrounds(active);
-
-      if (active != _lastActiveSource) PlayShowFeedback(active.Value);
-    } else {
-      if (messageLabel != null) messageLabel.gameObject.SetActive(false);
-      SetBackgrounds(null);
+    } else if (messageLabel != null) {
+      messageLabel.gameObject.SetActive(false);
     }
+
+    SetBackgrounds(active);
+
+    if (changed && active.HasValue) PlayShowFeedback(active.Value);
 
     _lastActiveSource = active;
   }
@@ -157,7 +171,13 @@ public class DialogueHUD : MonoBehaviour {
   private void SetBackgrounds(Source? active) {
     if (informationBackground != null) informationBackground.SetActive(active == Source.Information);
     if (dialogueBackground != null) dialogueBackground.SetActive(active == Source.Dialogue);
-    if (dialoguePortrait != null) dialoguePortrait.gameObject.SetActive(active == Source.Dialogue);
+
+    if (active == Source.Dialogue && dialoguePortrait != null) {
+      dialoguePortrait.gameObject.SetActive(true);
+    }
+    // Hiding the portrait when Dialogue stops being active is deferred to
+    // HidePortraitAfterSlideOut (triggered from PlayHideFeedback below) so it can slide off before
+    // disappearing — the background above hides immediately, only the portrait animates out.
   }
 
   private void PlayShowFeedback(Source source) {
@@ -172,26 +192,51 @@ public class DialogueHUD : MonoBehaviour {
     }
   }
 
+  private void PlayHideFeedback(Source source) {
+    switch (source) {
+      case Source.Information:
+        SceneTransitionManager.PlayUiSound(informationHideSound, uiMixerGroup);
+        break;
+      case Source.Dialogue:
+        SceneTransitionManager.PlayUiSound(dialogueHideSound, uiMixerGroup);
+        PlayPortraitSlideOut();
+        break;
+    }
+  }
+
   private void PlayPortraitSlideIn() {
     if (_portraitRect == null) return;
     if (_portraitAnimation != null) StopCoroutine(_portraitAnimation);
-    _portraitAnimation = StartCoroutine(AnimatePortraitSlideIn());
+    // Always snaps to the entry side first — entry and exit use opposite offscreen sides (see
+    // PlayPortraitSlideOut), so an interrupted slide-out (currently heading the other way) doesn't
+    // just reverse in place.
+    Vector2 entrySide = _portraitRestPosition + new Vector2(portraitSlideOffset, 0f);
+    _portraitAnimation = StartCoroutine(AnimatePortraitSlide(entrySide, _portraitRestPosition, null));
   }
 
-  private IEnumerator AnimatePortraitSlideIn() {
-    Vector2 start = _portraitRestPosition + new Vector2(portraitSlideOffset, 0f);
-    _portraitRect.anchoredPosition = start;
+  private void PlayPortraitSlideOut() {
+    if (_portraitRect == null) return;
+    if (_portraitAnimation != null) StopCoroutine(_portraitAnimation);
+    Vector2 exitSide = _portraitRestPosition - new Vector2(portraitSlideOffset, 0f);
+    _portraitAnimation = StartCoroutine(AnimatePortraitSlide(_portraitRect.anchoredPosition, exitSide, HidePortraitAfterSlideOut));
+  }
 
+  private void HidePortraitAfterSlideOut() {
+    if (dialoguePortrait != null) dialoguePortrait.gameObject.SetActive(false);
+  }
+
+  private IEnumerator AnimatePortraitSlide(Vector2 from, Vector2 to, Action onComplete) {
     float elapsed = 0f;
     while (elapsed < portraitSlideDuration) {
       yield return null;
       elapsed += Time.unscaledDeltaTime;
       float t = Mathf.Clamp01(elapsed / portraitSlideDuration);
       float eased = 1f - Mathf.Pow(1f - t, 3f);
-      _portraitRect.anchoredPosition = Vector2.LerpUnclamped(start, _portraitRestPosition, eased);
+      _portraitRect.anchoredPosition = Vector2.LerpUnclamped(from, to, eased);
     }
 
-    _portraitRect.anchoredPosition = _portraitRestPosition;
+    _portraitRect.anchoredPosition = to;
     _portraitAnimation = null;
+    onComplete?.Invoke();
   }
 }

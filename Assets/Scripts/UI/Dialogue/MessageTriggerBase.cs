@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -5,7 +6,8 @@ using UnityEngine;
 /// DialogTrigger — the two differ only in which DialogueHUD slot (and therefore priority) they
 /// write to, via the Show/Clear/LogTag overrides below.
 ///
-/// Fires once on player entry, never refires. Dismissal has three modes: OnExit (clears when the
+/// Fires on player entry. By default (One Shot = true) it never refires; with One Shot = false it
+/// re-arms on exit and fires again next entry. Dismissal has three modes: OnExit (clears when the
 /// player leaves the trigger volume — the GameObject is kept alive, even with destroyAfterUse set,
 /// until that actually happens, since a destroyed trigger's OnTriggerExit is not guaranteed to
 /// fire), Timed (auto-clears after Display Duration seconds regardless of the player's position), or
@@ -44,10 +46,20 @@ public abstract class MessageTriggerBase : MonoBehaviour {
   [SerializeField] private GameObject player;
 
   [Header("Lifecycle")]
-  [Tooltip("Destroy this trigger's GameObject once its message has been dismissed (or, for Persistent, right after firing).")]
+  [Tooltip("If true (default), this trigger fires at most once — re-entering afterward does nothing. If false, it re-arms when the player exits and fires again on the next entry, as long as its GameObject still exists (pair with Destroy After Use = false).")]
+  [SerializeField] private bool oneShot = true;
+
+  [Tooltip("Destroy this trigger's GameObject once its message has been dismissed (or, for Persistent, right after firing). Only makes sense combined with One Shot — otherwise the trigger gets destroyed before it can ever repeat.")]
   [SerializeField] private bool destroyAfterUse = true;
 
+  [Tooltip("If true, the first time the player enters does nothing (just counts) — the trigger only actually fires from the second entry onward.")]
+  [SerializeField] private bool displayOnSecondTrigger = false;
+
+  [Tooltip("Seconds to wait after the trigger fires before actually applying component actions and showing the message. 0 = immediate.")]
+  [SerializeField] private float delayBeforeDisplay = 0f;
+
   private bool _activated;
+  private int _enterCount;
 
   /// <summary>Short name used in warnings — override per concrete trigger type.</summary>
   protected abstract string LogTag { get; }
@@ -65,8 +77,24 @@ public abstract class MessageTriggerBase : MonoBehaviour {
 
   private void OnTriggerEnter(Collider other) {
     if (_activated || !other.CompareTag("Player")) return;
+
+    if (displayOnSecondTrigger) {
+      _enterCount++;
+      if (_enterCount < 2) return;
+    }
+
     _activated = true;
 
+    if (delayBeforeDisplay > 0f) StartCoroutine(FireAfterDelay());
+    else Fire();
+  }
+
+  private IEnumerator FireAfterDelay() {
+    yield return new WaitForSeconds(delayBeforeDisplay);
+    Fire();
+  }
+
+  private void Fire() {
     ApplyComponentActions();
 
     if (DialogueHUD.Instance == null) {
@@ -82,10 +110,14 @@ public abstract class MessageTriggerBase : MonoBehaviour {
   }
 
   private void OnTriggerExit(Collider other) {
-    if (!_activated || dismissMode != DismissMode.OnExit || !other.CompareTag("Player")) return;
+    if (!other.CompareTag("Player")) return;
 
-    if (DialogueHUD.Instance != null) Clear();
-    if (destroyAfterUse) Destroy(gameObject);
+    if (_activated && dismissMode == DismissMode.OnExit) {
+      if (DialogueHUD.Instance != null) Clear();
+      if (destroyAfterUse) Destroy(gameObject);
+    }
+
+    if (!oneShot) _activated = false;
   }
 
   private void ApplyComponentActions() {
