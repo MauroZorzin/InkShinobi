@@ -48,11 +48,11 @@ public sealed class PlayerHidingController : MonoBehaviour {
   private VolumeProfile runtimeVignetteProfile;
   private Vignette vignette;
   private string actionMapBeforeHiding = "Player";
-  private Vector3 exitPosition;
-  private Quaternion exitRotation;
-  private int exitPathStrand;
-  private float exitPathDistance;
-  private bool hasPathExit;
+  private Vector3 hidePosition;
+  private Quaternion hideRotation;
+  private int hidePathStrand;
+  private float hidePathDistance;
+  private bool hasPathHidePoint;
   private Vector3 normalCameraPosition;
   private Quaternion normalCameraRotation;
   private bool movementWasEnabled;
@@ -78,10 +78,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
     CurrentSpot = spot;
     IsConcealed = true;
     IsTransitioning = true;
-    ConfigurePathExit(spot);
+    ConfigureHidePoint(spot);
     // Hiding anchors define positions only. Rotating the player here would also rotate its child
     // camera in world space, while the hiding presentation is meant to be a pure camera zoom.
-    exitRotation = transform.rotation;
+    hideRotation = transform.rotation;
     CaptureAndLockGameplay();
     stealth?.RefreshConcealmentState();
     StartCoroutine(EnterRoutine());
@@ -103,16 +103,16 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
     Vector3 startPosition = transform.position;
     float startPathDistance = movement != null ? movement.DistanceAlongLine : 0f;
-    float pathTravel = hasPathExit ? GetShortestPathTravel(startPathDistance, exitPathDistance) : 0f;
+    float pathTravel = hasPathHidePoint ? GetShortestPathTravel(startPathDistance, hidePathDistance) : 0f;
     float scriptedSpeed = transitionDuration > 0f ? pathTravel / transitionDuration : 0f;
 
     float elapsed = 0f;
     while (elapsed < transitionDuration) {
       elapsed += PauseAwareDelta();
       float t = Mathf.Clamp01(elapsed / transitionDuration);
-      if (hasPathExit)
+      if (hasPathHidePoint)
         movement.SetScriptedPathPosition(
-          exitPathStrand,
+          hidePathStrand,
           startPathDistance + pathTravel * Smooth(t),
           scriptedSpeed);
       else
@@ -121,11 +121,11 @@ public sealed class PlayerHidingController : MonoBehaviour {
       yield return null;
     }
 
-    if (hasPathExit) {
-      movement.SetScriptedPathPosition(exitPathStrand, exitPathDistance, scriptedSpeed);
+    if (hasPathHidePoint) {
+      movement.SetScriptedPathPosition(hidePathStrand, hidePathDistance, scriptedSpeed);
       movement.FinishScriptedPathMovement();
-      exitPosition = transform.position;
-      exitRotation = transform.rotation;
+      hidePosition = transform.position;
+      hideRotation = transform.rotation;
     }
     SetRenderersEnabled(false);
     IsTransitioning = false;
@@ -135,8 +135,8 @@ public sealed class PlayerHidingController : MonoBehaviour {
     IsTransitioning = true;
     WardrobeHidingSpot spot = CurrentSpot;
     spot?.PlayInkEffect();
-    transform.SetPositionAndRotation(exitPosition, exitRotation);
-    if (hasPathExit) movement?.SetLine(movement.currentLine, exitPathStrand, exitPathDistance);
+    transform.SetPositionAndRotation(hidePosition, hideRotation);
+    if (hasPathHidePoint) movement?.SetLine(movement.currentLine, hidePathStrand, hidePathDistance);
     SetRenderersEnabled(true);
     ApplyDissolve(1f);
     StartCoroutine(BlendCamera(normalCameraPosition, normalCameraRotation));
@@ -158,35 +158,35 @@ public sealed class PlayerHidingController : MonoBehaviour {
     spot?.Release(this);
   }
 
-  private void ConfigurePathExit(WardrobeHidingSpot spot) {
-    hasPathExit = movement != null && movement.currentLine != null &&
+  private void ConfigureHidePoint(WardrobeHidingSpot spot) {
+    hasPathHidePoint = movement != null && movement.currentLine != null &&
                   movement.currentLine.StrandCount > 0;
-    Vector3 authoredExit = spot != null && spot.ExitPoint != null
-      ? spot.ExitPoint.position
+    Vector3 authoredHidePoint = spot != null && spot.HidePoint != null
+      ? spot.HidePoint.position
       : transform.position;
 
-    if (!hasPathExit) {
-      exitPosition = authoredExit;
-      exitPathStrand = 0;
-      exitPathDistance = 0f;
+    if (!hasPathHidePoint) {
+      hidePosition = authoredHidePoint;
+      hidePathStrand = 0;
+      hidePathDistance = 0f;
       return;
     }
 
-    exitPathStrand = Mathf.Clamp(movement.currentStrand, 0, movement.currentLine.StrandCount - 1);
-    exitPathDistance = movement.currentLine.FindClosestDistanceOnStrand(
-      exitPathStrand,
-      authoredExit,
+    hidePathStrand = Mathf.Clamp(movement.currentStrand, 0, movement.currentLine.StrandCount - 1);
+    hidePathDistance = movement.currentLine.FindClosestDistanceOnStrand(
+      hidePathStrand,
+      authoredHidePoint,
       out Vector3 pathPoint,
       out _);
-    exitPosition = movement.GetRootPositionForFeetAt(pathPoint);
+    hidePosition = movement.GetRootPositionForFeetAt(pathPoint);
   }
 
   private float GetShortestPathTravel(float fromDistance, float toDistance) {
     float travel = toDistance - fromDistance;
     if (movement == null || movement.currentLine == null ||
-        !movement.currentLine.IsStrandClosedLoop(exitPathStrand)) return travel;
+        !movement.currentLine.IsStrandClosedLoop(hidePathStrand)) return travel;
 
-    float length = movement.currentLine.GetStrandLength(exitPathStrand);
+    float length = movement.currentLine.GetStrandLength(hidePathStrand);
     if (length > 0f && Mathf.Abs(travel) > length * 0.5f)
       travel -= Mathf.Sign(travel) * length;
     return travel;

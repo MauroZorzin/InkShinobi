@@ -46,6 +46,7 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
   private Coroutine delayedStartRoutine;
 
   public bool IsDead => dead;
+  public bool IsDying => deathPending || dead;
 
   public void Kill(GuardController source) {
     if (dead || deathPending) return;

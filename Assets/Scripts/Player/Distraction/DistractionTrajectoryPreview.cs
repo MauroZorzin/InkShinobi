@@ -89,7 +89,7 @@ public sealed class DistractionTrajectoryPreview : MonoBehaviour {
     line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
     line.receiveShadows = false;
     line.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
-    line.renderingLayerMask |= SelectiveColor.RenderingLayerMask;
+    line.renderingLayerMask |= SelectiveColor.RenderingLayerMask | AimPreviewRendering.RenderingLayerMask;
     return line;
   }
 

@@ -91,7 +91,7 @@ public sealed class WallSwitchPreview : MonoBehaviour {
     if (hasDestination) {
       trajectory.positionCount = 2;
       trajectory.SetPosition(0, currentEvaluation.TrajectoryStart);
-      trajectory.SetPosition(1, currentEvaluation.TrajectoryEnd);
+      trajectory.SetPosition(1, GetVisibleTrajectoryEnd(currentEvaluation));
       // Invalid destinations stay visually distinct through color alone. Keeping the stroke
       // continuous makes the blocked trajectory just as legible as a valid one.
       ApplyLook(trajectory, trajectoryProperties, look, currentEvaluation.IsValid ? 0.24f : 0f, 1f);
@@ -99,9 +99,7 @@ public sealed class WallSwitchPreview : MonoBehaviour {
 
     Vector3 markerPosition = currentEvaluation.BlockingObject != null
       ? currentEvaluation.BlockingPoint + destinationOffset
-      : hasDestination
-        ? currentEvaluation.TrajectoryEnd + destinationOffset
-        : currentEvaluation.CursorWorldPoint + destinationOffset;
+      : currentEvaluation.CursorWorldPoint + destinationOffset;
     DrawDestination(markerPosition);
     ApplyMarkerLook(look);
     RefreshTargetHighlights(currentEvaluation);
@@ -118,7 +116,21 @@ public sealed class WallSwitchPreview : MonoBehaviour {
     if (trajectory == null || currentEvaluation == null || currentEvaluation.DestinationPath == null) return;
     trajectory.enabled = true;
     trajectory.SetPosition(0, currentEvaluation.TrajectoryStart);
-    trajectory.SetPosition(1, Vector3.Lerp(currentEvaluation.TrajectoryStart, currentEvaluation.TrajectoryEnd, Mathf.Clamp01(progress)));
+    trajectory.SetPosition(1, Vector3.Lerp(
+      currentEvaluation.TrajectoryStart,
+      GetVisibleTrajectoryEnd(currentEvaluation),
+      Mathf.Clamp01(progress)));
+  }
+
+  /// <summary>
+  /// The switch still teleports to TrajectoryEnd on the selected LinePath. Only the preview is
+  /// clipped to the first visible surface under the cursor, such as the front of a wardrobe.
+  /// </summary>
+  private static Vector3 GetVisibleTrajectoryEnd(WallSwitchEvaluation evaluation) {
+    if (evaluation == null) return Vector3.zero;
+    return evaluation.BlockingObject != null
+      ? evaluation.BlockingPoint
+      : evaluation.CursorWorldPoint;
   }
 
   public void Hide() {
@@ -155,7 +167,7 @@ public sealed class WallSwitchPreview : MonoBehaviour {
     line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
     line.receiveShadows = false;
     line.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
-    line.renderingLayerMask |= SelectiveColor.RenderingLayerMask;
+    line.renderingLayerMask |= SelectiveColor.RenderingLayerMask | AimPreviewRendering.RenderingLayerMask;
     return line;
   }
 
@@ -194,7 +206,7 @@ public sealed class WallSwitchPreview : MonoBehaviour {
     renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
     renderer.receiveShadows = false;
     renderer.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
-    renderer.renderingLayerMask |= SelectiveColor.RenderingLayerMask;
+    renderer.renderingLayerMask |= SelectiveColor.RenderingLayerMask | AimPreviewRendering.RenderingLayerMask;
     return renderer;
   }
 

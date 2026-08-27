@@ -24,6 +24,8 @@ public class GuardController : MonoBehaviour {
   [Tooltip("Fallback patrol speed when no GuardSquarePatrol is present.")]
   public float patrolMoveSpeed = 2f;
   [SerializeField, Min(0.01f)] private float patrolStoppingDistance = 0.08f;
+  [Tooltip("Delay before retrying the same patrol destination if it cannot currently produce a complete NavMesh path.")]
+  [SerializeField, Min(0.1f)] private float patrolPathRetryInterval = 1f;
 
   [Header("Noticing")]
   [Tooltip("How quickly a stationary noticing guard turns toward the player.")]
@@ -93,6 +95,8 @@ public class GuardController : MonoBehaviour {
   private bool searchHasArrived;
   private bool catchIssued;
   private bool takedownAudioPlayed;
+  private bool patrolDestinationPending;
+  private float nextPatrolPathRetryTime;
   private AudioSource chaseAudioSource;
   private AudioSource alertOneShotSource;
   private Coroutine alertAudioFadeRoutine;
@@ -196,6 +200,14 @@ public class GuardController : MonoBehaviour {
       if (waypointWaitRemaining <= 0f) MoveToPatrolPoint(patrolIndex);
       return;
     }
+    if (patrolDestinationPending) {
+      RetryPatrolDestination();
+      return;
+    }
+    if (motor.HasPathFailure) {
+      SchedulePatrolDestinationRetry();
+      return;
+    }
     if (!motor.HasArrived) return;
     waypointWaitRemaining = GetWaypointPause(patrolIndex);
     patrolIndex = NextPatrolIndex(patrolIndex);
@@ -224,7 +236,7 @@ public class GuardController : MonoBehaviour {
       lostSightElapsed = 0f;
       lastKnownPosition = visible.transform.position;
       if (Time.time >= nextRepathTime) {
-        motor.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance);
+        motor.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance, "Chasing");
         nextRepathTime = Time.time + chaseRepathInterval;
       }
       TryCatchPlayer(visible);
@@ -258,6 +270,14 @@ public class GuardController : MonoBehaviour {
       EnterState(GuardState.Noticing);
       return;
     }
+    if (patrolDestinationPending) {
+      RetryPatrolDestination();
+      return;
+    }
+    if (motor.HasPathFailure) {
+      SchedulePatrolDestinationRetry();
+      return;
+    }
     if (motor.HasArrived) EnterState(GuardState.Patrol);
   }
 
@@ -271,6 +291,7 @@ public class GuardController : MonoBehaviour {
     switch (next) {
       case GuardState.Patrol:
         waypointWaitRemaining = 0f;
+        patrolDestinationPending = false;
         MoveToPatrolPoint(patrolIndex);
         break;
       case GuardState.Noticing:
@@ -283,7 +304,7 @@ public class GuardController : MonoBehaviour {
         break;
       case GuardState.Searching:
         searchHasArrived = false;
-        motor?.MoveTo(lastKnownPosition, patrolMoveSpeed * 1.3f, searchStoppingDistance);
+        motor?.MoveTo(lastKnownPosition, patrolMoveSpeed * 1.3f, searchStoppingDistance, "Searching");
         if (previous == GuardState.Chasing && loseSightSound != null)
           alertOneShotSource = OneShotAudio.PlayClipAtPoint(
             loseSightSound, transform.position, 1f, mixerGroup);
@@ -320,13 +341,39 @@ public class GuardController : MonoBehaviour {
     else SceneTransitionManager.ReloadCurrentScene();
   }
 
-  private void MoveToPatrolPoint(int index) {
+  private bool MoveToPatrolPoint(int index) {
     Transform point = GetPatrolPoint(index);
-    if (point == null || motor == null) return;
+    if (point == null || motor == null) {
+      patrolDestinationPending = true;
+      nextPatrolPathRetryTime = Time.time + patrolPathRetryInterval;
+      return false;
+    }
     float speed = patrolRoute != null ? patrolRoute.Speed : patrolMoveSpeed;
     float stop = patrolRoute != null ? patrolRoute.ArrivalDistance : patrolStoppingDistance;
     if (patrolRoute != null) motor.SetRuntimeTurnSpeed(patrolRoute.TurnSpeed);
-    motor.MoveTo(point.position, speed, stop);
+    bool accepted = motor.MoveTo(point.position, speed, stop, $"Patrol[{index}] {point.name}");
+    patrolDestinationPending = !accepted;
+    if (!accepted) nextPatrolPathRetryTime = Time.time + patrolPathRetryInterval;
+    if (verboseLogging)
+      Debug.Log(
+        $"[Guard] '{name}' patrol request index={index}, point='{point.name}', " +
+        $"position={point.position}, accepted={accepted}.", this);
+    return accepted;
+  }
+
+  private void RetryPatrolDestination() {
+    if (Time.time < nextPatrolPathRetryTime) return;
+    MoveToPatrolPoint(patrolIndex);
+  }
+
+  private void SchedulePatrolDestinationRetry() {
+    motor.Stop(true);
+    patrolDestinationPending = true;
+    nextPatrolPathRetryTime = Time.time + patrolPathRetryInterval;
+    if (verboseLogging)
+      Debug.LogWarning(
+        $"[Guard] '{name}' lost its active path to patrol index {patrolIndex}; " +
+        $"retrying that same point in {patrolPathRetryInterval:F2}s.", this);
   }
 
   private Transform GetPatrolPoint(int index) {

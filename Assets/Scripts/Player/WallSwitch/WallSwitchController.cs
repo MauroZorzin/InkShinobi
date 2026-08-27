@@ -23,6 +23,8 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private SpriteRenderer playerRenderer;
   [SerializeField] private WallSwitchPreview preview;
   [SerializeField] private DistractionController distractionController;
+  [SerializeField] private PlayerDeathSequence deathSequence;
+  [SerializeField] private RejectedAimCameraFeedback rejectionFeedback;
   [Tooltip("Optional component implementing IWallSwitchPermission for future hiding/death/detection rules.")]
   [SerializeField] private MonoBehaviour permissionSource;
 
@@ -49,6 +51,10 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private LayerMask interactionLayers;
   [Tooltip("Solid palace walls that block the center of a switch trajectory. Keep props off these layers.")]
   [SerializeField] private LayerMask wallObstructionLayers = 1 << 8;
+  [Tooltip("Visible surfaces that may receive the destination stain. This is presentation-only: " +
+           "the selectable wall and final LinePath destination are still resolved independently.")]
+  [SerializeField] private LayerMask markerProjectionLayers = (1 << 8) | (1 << 13);
+  [SerializeField, Min(0f)] private float markerSurfaceOffset = 0.01f;
   [Tooltip("Distance ignored at both ends of the wall ray so the source and destination supporting surfaces do not block themselves.")]
   [SerializeField, Min(0f)] private float wallEndpointInset = 0.1f;
 
@@ -87,7 +93,7 @@ public sealed class WallSwitchController : MonoBehaviour {
   private readonly HashSet<WallSwitchBlocker> uniqueBlockers = new();
   private readonly List<InputAction> lockedInputActions = new();
   private static readonly string[] ActionsLockedWhileSwitching = {
-    "Move", "RotateRight", "RotateLeft", "Takedown", "Interact", "Vision", "Confirm", "Look", "Drop", "DistractionAim"
+    "Move", "RotateRight", "RotateLeft", "Takedown", "Interact", "Vision", "Confirm", "Look", "Drop"
   };
   private SwitchState state;
   private WallSwitchEvaluation currentEvaluation = WallSwitchEvaluation.Empty;
@@ -105,11 +111,13 @@ public sealed class WallSwitchController : MonoBehaviour {
   private CursorLockMode cursorLockBeforeAim;
   private bool cursorVisibleBeforeAim;
   private bool ownsCursorState;
+  private bool loggedInvalidConfiguration;
 
   public bool IsAiming => state == SwitchState.Aiming;
   public bool IsExecuting => state == SwitchState.Executing;
   public bool IsCameraTransitioning => cameraRoutine != null;
   public WallSwitchEvaluation CurrentEvaluation => currentEvaluation;
+  public AimEntryBlockReason LastAimEntryBlockReason { get; private set; }
 
   private void Awake() {
     ResolveLocalReferences();
@@ -126,6 +134,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     destinationPointMargin = Mathf.Max(0f, destinationPointMargin);
     trajectoryRadius = Mathf.Max(0.01f, trajectoryRadius);
     wallEndpointInset = Mathf.Max(0f, wallEndpointInset);
+    markerSurfaceOffset = Mathf.Max(0f, markerSurfaceOffset);
   }
 
   private void OnDisable() {
@@ -149,10 +158,10 @@ public sealed class WallSwitchController : MonoBehaviour {
 
 #pragma warning disable IDE0051
   private void OnSwitch(InputValue value) {
-    if (!value.isPressed || SceneTransitionManager.IsGamePaused) return;
+    if (!value.isPressed) return;
 
     if (state == SwitchState.Idle) BeginAim();
-    else if (state == SwitchState.Aiming) ExitAimWithoutSwitch();
+    else if (state == SwitchState.Aiming && !SceneTransitionManager.IsGamePaused) ExitAimWithoutSwitch();
   }
 #pragma warning restore IDE0051
 
@@ -167,7 +176,11 @@ public sealed class WallSwitchController : MonoBehaviour {
 
   public bool BeginAim() {
     ResolveLocalReferences();
-    if (!CanBeginAim()) return false;
+    LastAimEntryBlockReason = GetAimEntryBlockReason();
+    if (LastAimEntryBlockReason != AimEntryBlockReason.None) {
+      HandleRejectedEntry(LastAimEntryBlockReason);
+      return false;
+    }
 
     state = SwitchState.Aiming;
     followWasEnabled = followController.enabled;
@@ -190,7 +203,7 @@ public sealed class WallSwitchController : MonoBehaviour {
 
   public bool TryConfirmCurrent() {
     if (state != SwitchState.Aiming) return false;
-    if (permission != null && !permission.CanWallSwitch) {
+    if (permission != null && permission.WallSwitchBlockReason != AimEntryBlockReason.None) {
       currentEvaluation = EvaluateAtCursor();
       preview?.Show(currentEvaluation);
       return false;
@@ -230,14 +243,29 @@ public sealed class WallSwitchController : MonoBehaviour {
     currentEvaluation = WallSwitchEvaluation.Empty;
   }
 
-  private bool CanBeginAim() {
-    if (!enabled || state != SwitchState.Idle || cameraRoutine != null || SceneTransitionManager.IsGamePaused) return false;
-    if (network == null || followController == null || followController.currentLine == null || aimCamera == null || cameraTransform == null) return false;
-    if (followController.IsTurning) return false;
+  private AimEntryBlockReason GetAimEntryBlockReason() {
+    if (SceneTransitionManager.IsDeathSequenceActive || deathSequence != null && deathSequence.IsDying)
+      return AimEntryBlockReason.Dead;
+    if (SceneTransitionManager.IsGamePaused) return AimEntryBlockReason.Paused;
+    if (!enabled || state != SwitchState.Idle) return AimEntryBlockReason.InvalidConfiguration;
+    if (cameraRoutine != null) return AimEntryBlockReason.CameraTransitioning;
+    if (network == null || followController == null || aimCamera == null || cameraTransform == null)
+      return AimEntryBlockReason.InvalidConfiguration;
+    if (followController.currentLine == null) return AimEntryBlockReason.NoCurrentPath;
+    if (followController.IsTurning) return AimEntryBlockReason.PlayerTurning;
     if (distractionController != null &&
-        (distractionController.IsAiming || distractionController.IsCameraTransitioning)) return false;
-    if (permission != null && !permission.CanWallSwitch) return false;
-    return true;
+        (distractionController.IsAiming || distractionController.IsCameraTransitioning))
+      return AimEntryBlockReason.OtherAimModeActive;
+    return permission != null ? permission.WallSwitchBlockReason : AimEntryBlockReason.None;
+  }
+
+  private void HandleRejectedEntry(AimEntryBlockReason reason) {
+    if (reason == AimEntryBlockReason.InvalidConfiguration && !loggedInvalidConfiguration) {
+      loggedInvalidConfiguration = true;
+      Debug.LogError("[WallSwitch] Aim entry failed because a required reference is not configured.", this);
+    }
+    if (reason.ShouldPlayFeedback()) rejectionFeedback?.PlayRejectedAction();
+    if (verboseLogging) Debug.Log($"[WallSwitch] Aim entry rejected: {reason}.", this);
   }
 
   private WallSwitchEvaluation EvaluateAtCursor() {
@@ -246,7 +274,7 @@ public sealed class WallSwitchController : MonoBehaviour {
       : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
     Vector3 cursorWorld = ProjectCursorMarker(cursor);
 
-    if (permission != null && !permission.CanWallSwitch)
+    if (permission != null && permission.WallSwitchBlockReason != AimEntryBlockReason.None)
       return BuildInvalid(WallSwitchFailureReason.PlayerUnavailable, cursorWorld);
 
     LinePath sourcePath = followController.currentLine;
@@ -553,6 +581,15 @@ public sealed class WallSwitchController : MonoBehaviour {
 
   private Vector3 ProjectCursorMarker(Vector2 cursor) {
     if (aimCamera == null) return followController != null ? followController.FeetPosition : transform.position;
+    Ray ray = aimCamera.ScreenPointToRay(cursor);
+    if (markerProjectionLayers.value != 0 && Physics.Raycast(
+          ray,
+          out RaycastHit surfaceHit,
+          aimCamera.farClipPlane,
+          markerProjectionLayers,
+          QueryTriggerInteraction.Collide)) {
+      return surfaceHit.point + surfaceHit.normal * markerSurfaceOffset;
+    }
     float depth = Mathf.Max(invalidMarkerCameraDistance, aimCamera.nearClipPlane + 0.05f);
     return aimCamera.ScreenToWorldPoint(new Vector3(cursor.x, cursor.y, depth));
   }
@@ -570,6 +607,10 @@ public sealed class WallSwitchController : MonoBehaviour {
     if (aimCamera == null) aimCamera = GetComponentInChildren<Camera>(true);
     if (cameraTransform == null && aimCamera != null) cameraTransform = aimCamera.transform;
     if (distractionController == null) distractionController = GetComponent<DistractionController>();
+    if (deathSequence == null) deathSequence = GetComponent<PlayerDeathSequence>();
+    if (rejectionFeedback == null) rejectionFeedback = GetComponentInChildren<RejectedAimCameraFeedback>(true);
+    if (permission == null && permissionSource is IWallSwitchPermission assignedPermission)
+      permission = assignedPermission;
   }
 
   private void CaptureAuthoredCameraPose() {

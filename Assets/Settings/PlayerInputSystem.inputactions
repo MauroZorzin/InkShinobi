@@ -295,6 +295,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Switch",
+                    "type": "Button",
+                    "id": "926fc6fd-1339-42e9-a56e-64dde0df7247",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "DistractionAim",
+                    "type": "PassThrough",
+                    "id": "ef3f7931-0fae-4322-a98f-1de7e78f042e",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -306,6 +324,28 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "ExitHide",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "481207d4-eef3-4b59-9940-fae893e28fcb",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Switch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a8e0e6e7-53a5-44b5-905b-b3e514c6206b",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "DistractionAim",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

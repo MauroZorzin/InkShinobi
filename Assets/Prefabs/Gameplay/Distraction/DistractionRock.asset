@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707680e77bfbc86408cdd212fd16fc61, type: 3}
   m_Name: DistractionRock
   m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
+  category: 0
   itemId: distraction_rock
   displayName: Distraction Rock
   icon: {fileID: 2800000, guid: c1de9f5eb241dbf4cb7c652ceec26e72, type: 3}
   worldPrefab: {fileID: 9055337408190024310, guid: 49f8a20c08ee4884c84b3a5df3eab3c6, type: 3}
+  distractionProjectilePrefab: {fileID: 8667286146713081974, guid: 49f8a20c08ee4884c84b3a5df3eab3c6, type: 3}

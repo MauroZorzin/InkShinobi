@@ -57,6 +57,11 @@ public class DialogueHUD : MonoBehaviour {
 
   public static DialogueHUD Instance { get; private set; }
 
+  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+  private static void ResetStatics() {
+    Instance = null;
+  }
+
   private const int SourceCount = 3;
   private readonly string[] _text = new string[SourceCount];
   private readonly bool[] _active = new bool[SourceCount];

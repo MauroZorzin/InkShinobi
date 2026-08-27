@@ -237,7 +237,7 @@ MonoBehaviour:
   maskLowerPriorityCones: 0
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 2419
+    m_Bits: 67955
   rayOriginOffset: 0.05
   flickerAmount: 0.05
   flickerSpeed: 2
@@ -602,8 +602,8 @@ NavMeshAgent:
   m_AutoRepath: 1
   m_Height: 0.51
   m_BaseOffset: 0.05
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
+  m_WalkableMask: 1
+  m_ObstacleAvoidanceType: 0
 --- !u!114 &1942931681213939113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -639,6 +639,7 @@ MonoBehaviour:
   waypointWaitTime: 2
   patrolMoveSpeed: 2
   patrolStoppingDistance: 0.08
+  patrolPathRetryInterval: 1
   noticingTurnSpeed: 360
   alertMoveSpeed: 3.6
   chaseRepathInterval: 0.12
@@ -692,7 +693,7 @@ MonoBehaviour:
     m_Bits: 8
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 2419
+    m_Bits: 67955
   detectionTime: 1
   detectionReleaseTime: 1
   wallSwitchExposureThreshold: 0.1
@@ -765,6 +766,10 @@ MonoBehaviour:
   startupSampleRadius: 1
   turnSpeed: 180
   facingVelocityThreshold: 0.02
+  verboseNavigation: 0
+  stallWarningDelay: 0.75
+  repeatedWarningInterval: 1.5
+  stallVelocityThreshold: 0.02
 --- !u!114 &5734512930278582093
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -968,7 +973,7 @@ MonoBehaviour:
   maskLowerPriorityCones: 1
   obstacleMask:
     serializedVersion: 2
-    m_Bits: 2419
+    m_Bits: 67955
   rayOriginOffset: 0.05
   flickerAmount: 0.05
   flickerSpeed: 2

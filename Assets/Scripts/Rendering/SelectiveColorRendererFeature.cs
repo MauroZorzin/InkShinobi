@@ -7,6 +7,12 @@ using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.RenderGraphModule.Util;
 using UnityEngine.Rendering.Universal;
 
+/// <summary>Reserved rendering layer used to composite gameplay aim previews after lighting and vignette.</summary>
+public static class AimPreviewRendering {
+  public const int RenderingLayerIndex = 29;
+  public const uint RenderingLayerMask = 1u << RenderingLayerIndex;
+}
+
 /// <summary>
 /// Desaturates the world while restoring the original camera color wherever a renderer carries
 /// the SelectiveColor Rendering Layer bit. The mask is produced by drawing the marked renderers
@@ -74,6 +80,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private static readonly int BlitScaleBiasId = Shader.PropertyToID("_BlitScaleBias");
     private static readonly int PreserveMaskId = Shader.PropertyToID("_SelectiveColorMask");
     private static readonly int LightReceiverMaskId = Shader.PropertyToID("_LightReceiverMask");
+    private static readonly int AimPreviewColorId = Shader.PropertyToID("_AimPreviewColor");
     private static readonly int IntensityId = Shader.PropertyToID("_SelectiveColorIntensity");
     private static readonly int SaturationId = Shader.PropertyToID("_SelectiveColorSaturation");
     private static readonly int PreserveStrengthId = Shader.PropertyToID("_SelectiveColorPreserveStrength");
@@ -142,6 +149,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       public TextureHandle sourceColor;
       public TextureHandle preserveMask;
       public TextureHandle lightReceiverMask;
+      public TextureHandle aimPreviewColor;
       public TextureHandle depthTexture;
       public float intensity;
       public float saturation;
@@ -160,6 +168,10 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       public float[] coneVisibilityRanges;
       public Vector4[] coneEndWallPositions;
       public Vector4[] coneEndWallNormals;
+    }
+
+    private sealed class AimPreviewPassData {
+      public RendererListHandle transparentRenderers;
     }
 
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData) {
@@ -242,11 +254,45 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         });
       }
 
+      TextureDesc aimPreviewDesc = sourceDesc;
+      aimPreviewDesc.format = GraphicsFormat.R16G16B16A16_SFloat;
+      aimPreviewDesc.clearBuffer = true;
+      aimPreviewDesc.clearColor = Color.clear;
+      aimPreviewDesc.name = "_AimPreviewColor";
+      TextureHandle aimPreviewColor = renderGraph.CreateTexture(aimPreviewDesc);
+
+      // Capture the authored aim visuals again after post-processing. The final composite uses
+      // this clean color/alpha over the processed world, so fake lights and colored vignettes
+      // cannot turn a valid trajectory into a misleading warning color.
+      using (var builder = renderGraph.AddRasterRenderPass<AimPreviewPassData>(
+               "Aim Preview Color", out AimPreviewPassData passData, profilingSampler)) {
+        passData.transparentRenderers = CreateRendererList(
+          renderGraph,
+          renderingData,
+          cameraData,
+          lightData,
+          RenderQueueRange.transparent,
+          SortingCriteria.CommonTransparent,
+          CreateAimPreviewState(),
+          AimPreviewRendering.RenderingLayerMask);
+
+        builder.UseRendererList(passData.transparentRenderers);
+        builder.SetRenderAttachment(aimPreviewColor, 0, AccessFlags.Write);
+        if (resourceData.activeDepthTexture.IsValid())
+          builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Read);
+        builder.AllowPassCulling(false);
+        builder.SetRenderFunc(static (AimPreviewPassData data, RasterGraphContext context) => {
+          context.cmd.ClearRenderTarget(RTClearFlags.Color, Color.clear, 1f, 0);
+          context.cmd.DrawRendererList(data.transparentRenderers);
+        });
+      }
+
       using (var builder = renderGraph.AddRasterRenderPass<CompositePassData>("Selective Color Composite", out CompositePassData passData, profilingSampler)) {
         passData.material = _compositeMaterial;
         passData.sourceColor = sourceColor;
         passData.preserveMask = preserveMask;
         passData.lightReceiverMask = lightReceiverMask;
+        passData.aimPreviewColor = aimPreviewColor;
         passData.depthTexture = resourceData.activeDepthTexture;
         passData.intensity = _intensity;
         passData.saturation = _backgroundSaturation;
@@ -282,6 +328,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         builder.UseTexture(sourceColor);
         builder.UseTexture(preserveMask);
         builder.UseTexture(lightReceiverMask);
+        builder.UseTexture(aimPreviewColor);
         builder.UseTexture(passData.depthTexture);
         if (resourceData.cameraNormalsTexture.IsValid())
           builder.UseTexture(resourceData.cameraNormalsTexture);
@@ -291,6 +338,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           PropertyBlock.SetTexture(BlitTextureId, data.sourceColor);
           PropertyBlock.SetTexture(PreserveMaskId, data.preserveMask);
           PropertyBlock.SetTexture(LightReceiverMaskId, data.lightReceiverMask);
+          PropertyBlock.SetTexture(AimPreviewColorId, data.aimPreviewColor);
           PropertyBlock.SetTexture(CameraDepthTextureId, data.depthTexture);
           PropertyBlock.SetVector(BlitScaleBiasId, FullScaleBias);
           PropertyBlock.SetFloat(IntensityId, data.intensity);
@@ -367,6 +415,20 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         destinationColorBlendMode: BlendMode.One,
         sourceAlphaBlendMode: BlendMode.One,
         destinationAlphaBlendMode: BlendMode.OneMinusSrcAlpha);
+
+      return new RenderStateBlock(RenderStateMask.Blend | RenderStateMask.Depth) {
+        blendState = new BlendState { blendState0 = targetBlend },
+        depthState = new DepthState(false, CompareFunction.LessEqual)
+      };
+    }
+
+    private static RenderStateBlock CreateAimPreviewState() {
+      RenderTargetBlendState targetBlend = new(
+        writeMask: ColorWriteMask.All,
+        sourceColorBlendMode: BlendMode.One,
+        destinationColorBlendMode: BlendMode.Zero,
+        sourceAlphaBlendMode: BlendMode.One,
+        destinationAlphaBlendMode: BlendMode.Zero);
 
       return new RenderStateBlock(RenderStateMask.Blend | RenderStateMask.Depth) {
         blendState = new BlendState { blendState0 = targetBlend },

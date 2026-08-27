@@ -40,7 +40,15 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   public bool IsCurrentlyVisible => !IsConcealed && SeeingGuardCount > 0;
 
   /// <summary>Unavailable from the first visible frame through the end of confirmed detection.</summary>
-  public bool CanWallSwitch => !IsConcealed && !IsCurrentlyVisible && DetectingGuardCount <= 0;
+  public bool CanWallSwitch => WallSwitchBlockReason == AimEntryBlockReason.None;
+
+  public AimEntryBlockReason WallSwitchBlockReason {
+    get {
+      if (IsConcealed) return AimEntryBlockReason.Concealed;
+      if (IsCurrentlyVisible || DetectingGuardCount > 0) return AimEntryBlockReason.VisibleOrDetected;
+      return AimEntryBlockReason.None;
+    }
+  }
 
   // -------------------------------------------------------------------------
   // Inspector

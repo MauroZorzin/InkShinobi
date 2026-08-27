@@ -99,8 +99,13 @@ public class LinePath : MonoBehaviour {
   /// <summary>All enabled LinePaths currently in the scene. Used by wall-switch targeting.</summary>
   public static IReadOnlyList<LinePath> All => _all;
 
+  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+  private static void ResetRegistry() {
+    _all.Clear();
+  }
+
   private void OnEnable() {
-    _all.Add(this);
+    if (!_all.Contains(this)) _all.Add(this);
     Rebuild();
   }
 

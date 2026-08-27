@@ -19,6 +19,7 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
 
       TEXTURE2D_X(_SelectiveColorMask);
       TEXTURE2D_X(_LightReceiverMask);
+      TEXTURE2D_X(_AimPreviewColor);
 
       float _SelectiveColorIntensity;
       float _SelectiveColorSaturation;
@@ -222,6 +223,11 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
             finalColor = lerp(finalColor, nearTint, saturate(strongestNearWeight * strongestNear.a));
           }
         }
+
+        // Aim colors are gameplay semantics. Restore their unprocessed material output after
+        // monochrome, fake-light tinting, and Volume post effects have all been evaluated.
+        half4 aimPreview = SAMPLE_TEXTURE2D_X(_AimPreviewColor, sampler_LinearClamp, uv);
+        finalColor = lerp(finalColor, aimPreview.rgb, saturate(aimPreview.a));
 
         return half4(finalColor, source.a);
       }

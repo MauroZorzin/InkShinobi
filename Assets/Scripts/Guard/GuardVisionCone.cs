@@ -190,7 +190,16 @@ public class GuardVisionCone : MonoBehaviour {
 
     Vector3 origin = eye + direction * LineOfSightOriginOffset;
     var rayDistance = Mathf.Max(0f, distance - LineOfSightOriginOffset);
-    var blocked = Physics.Raycast(origin, direction, out RaycastHit hit, rayDistance, obstacleMask);
+    // Interaction volumes (for example a wardrobe's HideSpot trigger) describe where the
+    // player may interact; they are not physical surfaces and must not occlude guard sight.
+    // Real walls and other solid colliders in obstacleMask continue to block this ray.
+    var blocked = Physics.Raycast(
+      origin,
+      direction,
+      out RaycastHit hit,
+      rayDistance,
+      obstacleMask,
+      QueryTriggerInteraction.Ignore);
 
     if (blocked && verboseLogging) {
       Debug.Log($"[VisionCone] LOS blocked by '{hit.collider?.name}' at {hit.distance:F2}m.");

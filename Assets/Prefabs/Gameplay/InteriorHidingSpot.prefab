@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &48685450475642267
+--- !u!1 &910000000000000001
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,29 +8,68 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8495671273860430344}
-  m_Layer: 0
-  m_Name: HidePoint
+  - component: {fileID: 910000000000000002}
+  - component: {fileID: 910000000000000003}
+  - component: {fileID: 910000000000000004}
+  m_Layer: 8
+  m_Name: WardrobeObstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 8
   m_IsActive: 1
---- !u!4 &8495671273860430344
+--- !u!4 &910000000000000002
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 48685450475642267}
+  m_GameObject: {fileID: 910000000000000001}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.000007518525, y: 0.005, z: -0.075}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0.23}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5795814562849257011}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &910000000000000003
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910000000000000001}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.80487174, y: 0.80488765, z: 0.1911724}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!208 &910000000000000004
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 910000000000000001}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.40243587, y: 0.40244383, z: 0.0955862}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0
 --- !u!1 &1225619329838201271
 GameObject:
   m_ObjectHideFlags: 0
@@ -41,7 +80,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3530101988973669795}
   m_Layer: 0
-  m_Name: ExitPoint
+  m_Name: HidePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -94,7 +133,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7787330235740989991}
-  - {fileID: 8495671273860430344}
+  - {fileID: 910000000000000002}
   - {fileID: 3530101988973669795}
   - {fileID: 3786029610356809496}
   m_Father: {fileID: 0}
@@ -119,7 +158,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: -0.000007518525, y: 0.005, z: -0.075}
+  m_Center: {x: 0, y: 0.005, z: -0.075}
 --- !u!114 &7951603118200536318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -132,12 +171,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcf26523d12f4abc9016758df8f48f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WardrobeHidingSpot
-  hidePoint: {fileID: 8495671273860430344}
-  exitPoint: {fileID: 3530101988973669795}
+  hidePoint: {fileID: 3530101988973669795}
   effectPoint: {fileID: 3786029610356809496}
   inkCloudPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
   inkCloudScale: 2
-  inkCloudExitBias: 0.5
+  inkCloudHidePointBias: 0.5
   inkCloudVerticalOffset: 0.1
 --- !u!1 &2360071967661151330
 GameObject:
@@ -271,7 +309,7 @@ Transform:
   m_GameObject: {fileID: 4800797422507050036}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.000007518525, y: 0.005, z: -0.075}
+  m_LocalPosition: {x: 0, y: 0.005, z: -0.075}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

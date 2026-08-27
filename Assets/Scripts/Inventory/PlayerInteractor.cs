@@ -19,6 +19,9 @@ public class PlayerInteractor : MonoBehaviour {
   [Tooltip("Inventory used when interacting with nearby pickable objects.")]
   [SerializeField] private PlayerInventory inventory;
 
+  [Tooltip("Shared camera feedback used when interaction is pressed without a usable target.")]
+  [SerializeField] private RejectedAimCameraFeedback rejectionFeedback;
+
   [Header("Interaction")]
   [Tooltip("World point at the center of the interaction sphere.")]
   [SerializeField] private Transform interactionPoint;
@@ -38,24 +41,34 @@ public class PlayerInteractor : MonoBehaviour {
   private IInteractable _currentTarget;
   private IInteractionFocus _currentFocus;
 
+  private void Awake() {
+    if (rejectionFeedback == null)
+      rejectionFeedback = GetComponentInChildren<RejectedAimCameraFeedback>(true);
+  }
+
   private void Update() {
     Collider hit = FindNearest(out IInteractable interactable);
 
     IInteractionFocus nextFocus = interactable as IInteractionFocus;
     if (!ReferenceEquals(_currentFocus, nextFocus)) {
-      _currentFocus?.SetInteractionFocused(false, inventory);
+      SetFocusStateIfAlive(_currentFocus, false);
       _currentFocus = nextFocus;
     }
 
     _currentTarget = interactable;
-    _currentFocus?.SetInteractionFocused(true, inventory);
+    SetFocusStateIfAlive(_currentFocus, true);
     UpdatePrompt(hit, interactable);
   }
 
   public void OnInteract(InputValue value) {
-    if (value.isPressed && !interactionSuppressed) {
-      _currentTarget?.Interact(inventory);
+    if (!value.isPressed || interactionSuppressed) return;
+    if (!IsUnityInterfaceAlive(_currentTarget)) {
+      _currentTarget = null;
+      if (!SceneTransitionManager.IsGamePaused && !SceneTransitionManager.IsDeathSequenceActive)
+        rejectionFeedback?.PlayRejectedAction();
+      return;
     }
+    _currentTarget.Interact(inventory);
   }
 
   /// <summary>Searches the interaction volume for the closest object implementing IInteractable.</summary>
@@ -127,10 +140,19 @@ public class PlayerInteractor : MonoBehaviour {
   }
 
   private void OnDisable() {
-    _currentFocus?.SetInteractionFocused(false, inventory);
+    SetFocusStateIfAlive(_currentFocus, false);
     _currentFocus = null;
     _currentTarget = null;
     DialogueHUD.Instance?.ClearInteractionPrompt();
+  }
+
+  private void SetFocusStateIfAlive(IInteractionFocus focus, bool focused) {
+    if (IsUnityInterfaceAlive(focus)) focus.SetInteractionFocused(focused, inventory);
+  }
+
+  private static bool IsUnityInterfaceAlive(object value) {
+    if (value == null) return false;
+    return value is not Object unityObject || unityObject != null;
   }
 
   private string TextForLayer(int layer) {

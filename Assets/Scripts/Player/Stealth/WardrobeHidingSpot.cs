@@ -5,21 +5,19 @@ using UnityEngine;
 public sealed class WardrobeHidingSpot : MonoBehaviour, IInteractable {
   [Header("Anchors")]
   [SerializeField] private Transform hidePoint;
-  [SerializeField] private Transform exitPoint;
   [SerializeField] private Transform effectPoint;
 
   [Header("Ink")]
   [SerializeField] private GameObject inkCloudPrefab;
   [SerializeField, Min(0.1f)] private float inkCloudScale = 1.8f;
-  [Tooltip("Moves the cloud from its effect anchor toward ExitPoint, keeping it in front of the wardrobe.")]
-  [SerializeField, Range(0f, 1f)] private float inkCloudExitBias = 0.65f;
+  [Tooltip("Moves the cloud from its effect anchor toward HidePoint, keeping it in front of the wardrobe.")]
+  [SerializeField, Range(0f, 1f)] private float inkCloudHidePointBias = 0.65f;
   [Tooltip("Additional world-space height that keeps the cloud visible above the wardrobe base.")]
   [SerializeField] private float inkCloudVerticalOffset = 0.12f;
 
   private PlayerHidingController occupant;
 
   public Transform HidePoint => hidePoint;
-  public Transform ExitPoint => exitPoint;
   public Transform EffectPoint => effectPoint != null ? effectPoint : hidePoint;
 
   public void Interact(PlayerInventory inventory) {
@@ -42,8 +40,8 @@ public sealed class WardrobeHidingSpot : MonoBehaviour, IInteractable {
   public void PlayInkEffect() {
     if (inkCloudPrefab == null) return;
     Transform anchor = EffectPoint != null ? EffectPoint : transform;
-    Vector3 spawnPosition = exitPoint != null
-      ? Vector3.Lerp(anchor.position, exitPoint.position, inkCloudExitBias)
+    Vector3 spawnPosition = hidePoint != null
+      ? Vector3.Lerp(anchor.position, hidePoint.position, inkCloudHidePointBias)
       : anchor.position;
     spawnPosition += Vector3.up * inkCloudVerticalOffset;
     GameObject instance = Instantiate(inkCloudPrefab, spawnPosition, anchor.rotation);
@@ -67,11 +65,9 @@ public sealed class WardrobeHidingSpot : MonoBehaviour, IInteractable {
 #if UNITY_EDITOR
   public void Configure(
     Transform authoredHidePoint,
-    Transform authoredExitPoint,
     Transform authoredEffectPoint,
     GameObject authoredInkCloud) {
     hidePoint = authoredHidePoint;
-    exitPoint = authoredExitPoint;
     effectPoint = authoredEffectPoint;
     inkCloudPrefab = authoredInkCloud;
   }

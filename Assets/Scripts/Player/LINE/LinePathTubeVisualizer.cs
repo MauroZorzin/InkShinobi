@@ -167,7 +167,7 @@ public class LinePathTubeVisualizer : MonoBehaviour {
 
       float length = _strandLengths[strand];
       bool active = progressSource != null && progressSource.currentLine == _linePath && progressSource.currentStrand == strand;
-      float dist = active ? progressSource.GetDistanceAlongLine() : 0f;
+      float dist = active ? progressSource.DistanceAlongLine : 0f;
       float progress = _strandClosed[strand] ? Mathf.Repeat(dist, Mathf.Max(length, 0.0001f)) : Mathf.Clamp(dist, 0f, length);
 
       mat.SetFloat(ProgressDistanceId, showProgress && active ? progress : length);

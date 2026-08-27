@@ -48,8 +48,11 @@ public sealed class DoorLinePathState : MonoBehaviour {
 
   private static void SetPathsActive(LinePath[] paths, bool active) {
     if (paths == null) return;
-    foreach (LinePath path in paths)
-      if (path != null && path.gameObject.activeSelf != active) path.gameObject.SetActive(active);
+    foreach (LinePath path in paths) {
+      if (path == null) continue;
+      if (path.gameObject.activeSelf != active) path.gameObject.SetActive(active);
+      if (active) path.Rebuild();
+    }
   }
 
   private static bool Contains(LinePath[] paths, LinePath candidate) {

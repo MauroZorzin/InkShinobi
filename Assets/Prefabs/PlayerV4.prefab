@@ -1,5 +1,55 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &920000000000000100
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 920000000000000101}
+  - component: {fileID: 920000000000000102}
+  m_Layer: 3
+  m_Name: CameraFeedbackPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &920000000000000101
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000000000000100}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8507084339620739715}
+  m_Father: {fileID: 8143050556635903949}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &920000000000000102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000000000000100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97e02159fa8048baa6a3cd0b6f21fbd6, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::RejectedAimCameraFeedback
+  duration: 0.14
+  positionAmplitude: 0.012
+  rotationAmplitude: 0.25
+  frequency: 22
+  retriggerInterval: 0.18
 --- !u!1 &1685918869072870553
 GameObject:
   m_ObjectHideFlags: 0
@@ -33,7 +83,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8143050556635903949}
+  m_Father: {fileID: 920000000000000101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &5948567116382397242
 Camera:
@@ -489,7 +539,7 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5827677309423672436}
-  - {fileID: 8507084339620739715}
+  - {fileID: 920000000000000101}
   - {fileID: 1707577869086618160}
   - {fileID: 6627677826625895651}
   - {fileID: 8941715411320078927}
@@ -643,6 +693,8 @@ MonoBehaviour:
   playerRenderer: {fileID: 7663793291761389288}
   preview: {fileID: 2427498142248905901}
   distractionController: {fileID: 0}
+  deathSequence: {fileID: 3184917800318066482}
+  rejectionFeedback: {fileID: 920000000000000102}
   permissionSource: {fileID: 2222925367310345421}
   wallPathSearchRadius: 0.4
   invalidMarkerCameraDistance: 8
@@ -659,6 +711,10 @@ MonoBehaviour:
   wallObstructionLayers:
     serializedVersion: 2
     m_Bits: 320
+  markerProjectionLayers:
+    serializedVersion: 2
+    m_Bits: 8448
+  markerSurfaceOffset: 0.01
   wallEndpointInset: 0.1
   aimingTimeScale: 0.1
   aimingCameraLocalPosition: {x: 0, y: 0.5, z: -3.75}
@@ -756,6 +812,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GameScripts::PlayerInteractor
   inventory: {fileID: 2539817075629536952}
+  rejectionFeedback: {fileID: 920000000000000102}
   interactionPoint: {fileID: 8143050556635903949}
   interactionRadius: 0.5
   extendedInteractionSearchRadius: 1
@@ -931,9 +988,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DistractionController
   supplyMode: 0
-  distractionItem: {fileID: 11400000, guid: 41246617613c3254094bde0b32994d9a, type: 2}
   inventory: {fileID: 2539817075629536952}
-  projectilePrefab: {fileID: 8667286146713081974, guid: 49f8a20c08ee4884c84b3a5df3eab3c6, type: 3}
+  infiniteProjectilePrefab: {fileID: 8667286146713081974, guid: 49f8a20c08ee4884c84b3a5df3eab3c6, type: 3}
   aimCamera: {fileID: 5948567116382397242}
   throwAnchor: {fileID: 8941715411320078927}
   throwAnchorHeight: -0.1
@@ -970,6 +1026,7 @@ MonoBehaviour:
   stealth: {fileID: 2222925367310345421}
   deathSequence: {fileID: 3184917800318066482}
   wallSwitch: {fileID: 1166221941834595135}
+  rejectionFeedback: {fileID: 920000000000000102}
   playerRenderer: {fileID: 7663793291761389288}
   aimFacingDeadZone: 0.01
   verboseLogging: 0

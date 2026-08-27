@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707680e77bfbc86408cdd212fd16fc61, type: 3}
   m_Name: Door Key Blue
   m_EditorClassIdentifier: GameScripts::ItemDefinition
+  category: 1
   itemId: door_key_blue
   displayName: Door Key Blue
   icon: {fileID: 2800000, guid: bfc52735ef3b3364e94f9fd234b7e5ab, type: 3}
   worldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
+  distractionProjectilePrefab: {fileID: 0}
