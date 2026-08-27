@@ -41,6 +41,8 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
   [SerializeField] private Vector3 airborneInkOffset = new(0f, 0.25f, 0f);
   [Tooltip("Scale multiplier applied to the airborne ink effect spawned by this death.")]
   [SerializeField, Min(0.1f)] private float airborneInkScale = 1.5f;
+  [Tooltip("Normalized dissolve progress at which an optional carried key becomes visible.")]
+  [SerializeField, Range(0f, 1f)] private float keyDropProgress = 0.82f;
 
   private MaterialPropertyBlock propertyBlock;
   private bool dying;
@@ -179,6 +181,7 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
     }
 
     float elapsed = 0f;
+    bool keyDropRequested = false;
     while (elapsed < dissolveDuration) {
       if (SceneTransitionManager.IsGamePaused) {
         yield return null;
@@ -188,8 +191,14 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
       elapsed += Time.unscaledDeltaTime;
       float t = Mathf.Clamp01(elapsed / dissolveDuration);
       ApplyProperties(vulnerableHighlight, Mathf.Lerp(highlightStrength, 0f, t), t);
+      if (!keyDropRequested && t >= keyDropProgress) {
+        keyDropRequested = true;
+        GetComponent<GuardKeyCarrier>()?.DropKey();
+      }
       yield return null;
     }
+
+    if (!keyDropRequested) GetComponent<GuardKeyCarrier>()?.DropKey();
 
     Destroy(gameObject);
   }

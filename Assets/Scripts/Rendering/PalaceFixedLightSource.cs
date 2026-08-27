@@ -35,6 +35,20 @@ public sealed class PalaceFixedLightSource : MonoBehaviour {
   [Tooltip("The real Point Light used for illumination and shadows. If empty, the light on Origin is used.")]
   [SerializeField] private Light surfaceLight;
 
+  [Header("Visible core")]
+  [Tooltip("When enabled, this light drives its visible core without modifying the shared core material.")]
+  [SerializeField] private bool driveCoreVisual;
+
+  [SerializeField] private Renderer coreRenderer;
+
+  [Tooltip("Authored core hue before its independent brightness and flicker are applied.")]
+  [SerializeField] private Color coreColor = new(1f, 0.84f, 0.45f, 1f);
+
+  [SerializeField, Range(0f, 1f)] private float coreBrightness = 0.35f;
+
+  [Tooltip("How strongly the shared light flicker affects the visible core. Zero is steady; one exactly follows the light.")]
+  [SerializeField, Range(0f, 1f)] private float coreFlickerInfluence = 0.75f;
+
   [Header("Flicker")]
   [SerializeField] private bool flickerEnabled = true;
 
@@ -48,6 +62,9 @@ public sealed class PalaceFixedLightSource : MonoBehaviour {
 
   private float authoredSurfaceIntensity;
   private bool surfaceIntensityCaptured;
+  private MaterialPropertyBlock corePropertyBlock;
+  private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+  private static readonly int ColorId = Shader.PropertyToID("_Color");
 
   public void Configure(Transform lightOrigin, Color lightColor, float lightRadius, float feather, float intensity) {
     origin = lightOrigin;
@@ -62,6 +79,8 @@ public sealed class PalaceFixedLightSource : MonoBehaviour {
     if (!ActiveSources.Contains(this)) ActiveSources.Add(this);
     ResolveSurfaceLight();
     CaptureSurfaceIntensity();
+    ResolveCoreRenderer();
+    ApplyCoreVisual(1f);
   }
 
   private void OnValidate() {
@@ -70,22 +89,32 @@ public sealed class PalaceFixedLightSource : MonoBehaviour {
     flickerAmount = Mathf.Clamp(flickerAmount, 0f, 0.25f);
     flickerSpeed = Mathf.Max(0.01f, flickerSpeed);
     flickerIrregularity = Mathf.Clamp01(flickerIrregularity);
+    coreBrightness = Mathf.Clamp01(coreBrightness);
+    coreFlickerInfluence = Mathf.Clamp01(coreFlickerInfluence);
     ResolveSurfaceLight();
+    ResolveCoreRenderer();
+    ApplyCoreVisual(1f);
   }
 
   private void Update() {
-    if (!Application.isPlaying || surfaceLight == null) return;
-    CaptureSurfaceIntensity();
-    surfaceLight.intensity = authoredSurfaceIntensity * EvaluateFlickerMultiplier(Time.unscaledTime);
+    if (!Application.isPlaying) return;
+    float flickerMultiplier = EvaluateFlickerMultiplier(Time.time);
+    if (surfaceLight != null) {
+      CaptureSurfaceIntensity();
+      surfaceLight.intensity = authoredSurfaceIntensity * flickerMultiplier;
+    }
+    ApplyCoreVisual(flickerMultiplier);
   }
 
   private void OnDisable() {
     RestoreSurfaceIntensity();
+    ClearCoreVisual();
     ActiveSources.Remove(this);
   }
 
   private void OnDestroy() {
     RestoreSurfaceIntensity();
+    ClearCoreVisual();
     ActiveSources.Remove(this);
   }
 
@@ -93,6 +122,36 @@ public sealed class PalaceFixedLightSource : MonoBehaviour {
   private void ResolveSurfaceLight() {
     if (surfaceLight == null && origin != null) surfaceLight = origin.GetComponent<Light>();
     if (surfaceLight == null) surfaceLight = GetComponentInChildren<Light>(true);
+  }
+
+  private void ResolveCoreRenderer() {
+    if (!driveCoreVisual || coreRenderer != null) return;
+    Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+    for (int i = 0; i < renderers.Length; i++) {
+      if (renderers[i].name != "ColoredLightCore") continue;
+      coreRenderer = renderers[i];
+      break;
+    }
+  }
+
+  private void ApplyCoreVisual(float flickerMultiplier) {
+    if (!driveCoreVisual || coreRenderer == null) return;
+    corePropertyBlock ??= new MaterialPropertyBlock();
+    coreRenderer.GetPropertyBlock(corePropertyBlock);
+    float visibleFlicker = Mathf.Lerp(1f, flickerMultiplier, coreFlickerInfluence);
+    Color visibleColor = new(
+      coreColor.r * coreBrightness * visibleFlicker,
+      coreColor.g * coreBrightness * visibleFlicker,
+      coreColor.b * coreBrightness * visibleFlicker,
+      coreColor.a);
+    corePropertyBlock.SetColor(BaseColorId, visibleColor);
+    corePropertyBlock.SetColor(ColorId, visibleColor);
+    coreRenderer.SetPropertyBlock(corePropertyBlock);
+  }
+
+  private void ClearCoreVisual() {
+    if (!driveCoreVisual || coreRenderer == null) return;
+    coreRenderer.SetPropertyBlock(null);
   }
 
   public static int FillShaderData(

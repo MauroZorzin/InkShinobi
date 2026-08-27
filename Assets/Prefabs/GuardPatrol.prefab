@@ -614,6 +614,7 @@ GameObject:
   - component: {fileID: 2640815573950704169}
   - component: {fileID: 930000000000000030}
   - component: {fileID: 930000000000000031}
+  - component: {fileID: 930000000000000032}
   m_Layer: 7
   m_Name: GuardPatrol
   m_TagString: Untagged
@@ -807,6 +808,7 @@ MonoBehaviour:
   airborneInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
   airborneInkOffset: {x: 0, y: 0.25, z: 0}
   airborneInkScale: 1.5
+  keyDropProgress: 0.82
 --- !u!114 &930000000000000031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -823,3 +825,20 @@ MonoBehaviour:
   startupSampleRadius: 1
   turnSpeed: 360
   facingVelocityThreshold: 0.02
+--- !u!114 &930000000000000032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7859379029619327441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e188064908e144268a21a39f965af6e2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::GuardKeyCarrier
+  carriesKey: 0
+  keyId:
+  keyWorldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
+  dropAnchor: {fileID: 0}
+  dropOffset: {x: 0, y: 0.14, z: 0}

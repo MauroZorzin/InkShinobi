@@ -8,3 +8,20 @@ public interface IInteractable {
   /// <param name="inventory">The inventory that can receive or spend items during the interaction.</param>
   void Interact(PlayerInventory inventory);
 }
+
+/// <summary>Optional dynamic prompt supplied by an interactable instead of its layer fallback.</summary>
+public interface IInteractionPrompt {
+  string GetInteractionPrompt(PlayerInventory inventory);
+}
+
+/// <summary>Optional focus feedback driven while an interactable is the player's current target.</summary>
+public interface IInteractionFocus {
+  void SetInteractionFocused(bool focused, PlayerInventory inventory);
+}
+
+/// <summary>
+/// Optional per-object interaction distance. Values at or below zero use the player's default.
+/// </summary>
+public interface IInteractionRange {
+  float InteractionRange { get; }
+}

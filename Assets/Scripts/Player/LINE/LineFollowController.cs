@@ -30,6 +30,10 @@ public class LineFollowController : MonoBehaviour {
   [Tooltip("Small direction changes below this angle are not treated as corners.")]
   [Range(0f, 180f)] public float minimumCornerAngle = 45f;
 
+  [Header("Path Connections")]
+  [Tooltip("Maximum world-space separation between authored endpoints that should connect.")]
+  [Min(0.001f)] public float endpointConnectionTolerance = 0.03f;
+
   [Header("Facing")]
   [Min(0f)] public float facingRotationSpeed = 200f;
   [Tooltip("Camera used to translate left/right input and sprite facing into screen space. Assign the player's gameplay camera.")]
@@ -59,11 +63,17 @@ public class LineFollowController : MonoBehaviour {
   private float _cornerDirectionSign;
   private float _cornerExitStartDistance;
   private Vector3 _cornerEntryTangent;
+  private bool _connectionAssistActive;
+  private float _connectionDirectionSign;
+  private float _connectionExitStartDistance;
+  private bool _hasConnectionFacingNormal;
+  private Vector3 _connectionFacingNormal;
   private bool _facingTurnActive;
 
   public float DistanceAlongLine => _distanceAlongLine;
   public Vector3 FeetPosition => feetAnchor != null ? feetAnchor.position : transform.position;
   public bool IsTurning => _cornerAssistActive
+                           || _connectionAssistActive
                            || _facingTurnActive
                            || (flipController != null && flipController.IsFlipping);
 
@@ -92,6 +102,8 @@ public class LineFollowController : MonoBehaviour {
     _speed = 0f;
     _actualSignedSpeed = 0f;
     CancelCornerAssist();
+    CancelConnectionAssist();
+    _hasConnectionFacingNormal = false;
     _facingTurnActive = false;
     UpdateAnimator();
   }
@@ -113,6 +125,7 @@ public class LineFollowController : MonoBehaviour {
     FollowLine();
     UpdateCornerAssistProgress();
     UpdateFacing();
+    UpdateConnectionAssistProgress();
     UpdateSpriteFlip();
     UpdateAnimator();
   }
@@ -124,11 +137,17 @@ public class LineFollowController : MonoBehaviour {
       targetSpeed = _cornerDirectionSign * cornerAssistSpeed;
     }
 
+    if (_connectionAssistActive) {
+      float committedSpeed = Mathf.Max(Mathf.Abs(targetSpeed), cornerAssistSpeed);
+      targetSpeed = _connectionDirectionSign * committedSpeed;
+    }
+
     float rate = Mathf.Abs(targetSpeed) > 0.001f ? acceleration : deceleration;
     _speed = Mathf.MoveTowards(_speed, targetSpeed, rate * Time.deltaTime);
   }
 
   private void UpdateCornerAssist() {
+    if (_connectionAssistActive) return;
     float pathRelativeInput = GetPathRelativeInput();
     if (_cornerAssistActive) {
       if (pathRelativeInput * _cornerDirectionSign < -0.001f) CancelCornerAssist();
@@ -139,16 +158,35 @@ public class LineFollowController : MonoBehaviour {
 
     float directionSign = Mathf.Sign(pathRelativeInput);
     float lookAheadDistance = _distanceAlongLine + directionSign * cornerEntryDistance;
+    Vector3 futureTangent;
 
     if (!currentLine.IsStrandClosedLoop(currentStrand)) {
-      lookAheadDistance = Mathf.Clamp(
-        lookAheadDistance,
-        0f,
-        currentLine.GetStrandLength(currentStrand));
+      float length = currentLine.GetStrandLength(currentStrand);
+      bool reachesStart = lookAheadDistance < 0f;
+      bool reachesEnd = lookAheadDistance > length;
+      if (reachesStart || reachesEnd) {
+        float endpointDistance = reachesEnd ? length : 0f;
+        Vector3 endpoint = currentLine.GetPointAtDistance(currentStrand, endpointDistance);
+        if (!LinePath.TryFindConnectedEndpoint(
+              currentLine,
+              currentStrand,
+              endpoint,
+              GetPreferredConnectionDirection(),
+              endpointConnectionTolerance,
+              out LinePath.EndpointTransition transition)) return;
+
+        futureTangent = transition.Path.GetDirectionAtDistance(
+          transition.Strand,
+          transition.EndpointDistance) * transition.InwardDirection;
+        futureTangent.y = 0f;
+      } else {
+        futureTangent = GetHorizontalTangent(lookAheadDistance) * directionSign;
+      }
+    } else {
+      futureTangent = GetHorizontalTangent(lookAheadDistance) * directionSign;
     }
 
-    Vector3 currentTangent = GetHorizontalTangent(_distanceAlongLine);
-    Vector3 futureTangent = GetHorizontalTangent(lookAheadDistance);
+    Vector3 currentTangent = GetHorizontalTangent(_distanceAlongLine) * directionSign;
     if (currentTangent == Vector3.zero || futureTangent == Vector3.zero) return;
     if (Vector3.Angle(currentTangent, futureTangent) < minimumCornerAngle) return;
 
@@ -161,7 +199,7 @@ public class LineFollowController : MonoBehaviour {
   private void UpdateCornerAssistProgress() {
     if (!_cornerAssistActive) return;
 
-    Vector3 currentTangent = GetHorizontalTangent(_distanceAlongLine);
+    Vector3 currentTangent = GetHorizontalTangent(_distanceAlongLine) * _cornerDirectionSign;
     if (!_cornerWasPassed) {
       if (currentTangent == Vector3.zero ||
           Vector3.Angle(_cornerEntryTangent, currentTangent) < minimumCornerAngle) {
@@ -196,15 +234,72 @@ public class LineFollowController : MonoBehaviour {
     _cornerWasPassed = false;
   }
 
+  private void BeginConnectionAssist(float inwardDirection, float endpointDistance) {
+    _connectionAssistActive = true;
+    _connectionDirectionSign = inwardDirection;
+    _connectionExitStartDistance = endpointDistance;
+  }
+
+  private void UpdateConnectionAssistProgress() {
+    if (!_connectionAssistActive) return;
+    float travelled = GetDirectedDistance(
+      _connectionExitStartDistance,
+      _distanceAlongLine,
+      _connectionDirectionSign);
+    if (travelled >= cornerExitDistance && !_facingTurnActive &&
+        (flipController == null || !flipController.IsFlipping)) {
+      CancelConnectionAssist();
+    }
+  }
+
+  private void CancelConnectionAssist() => _connectionAssistActive = false;
+
   private void FollowLine() {
+    Vector3 previousFeetPosition = FeetPosition;
     float previousDistance = _distanceAlongLine;
     float wantedDistance = previousDistance + _speed * Time.deltaTime;
+    bool transferredPath = false;
+    float transferredDirection = 0f;
 
     if (!currentLine.IsStrandClosedLoop(currentStrand)) {
       float length = currentLine.GetStrandLength(currentStrand);
-      wantedDistance = Mathf.Clamp(wantedDistance, 0f, length);
-      if (Mathf.Approximately(wantedDistance, previousDistance) && Mathf.Abs(_speed) > 0f) {
-        _speed = 0f;
+      bool crossedStart = wantedDistance < 0f;
+      bool crossedEnd = wantedDistance > length;
+
+      if (crossedStart || crossedEnd) {
+        Vector3 incomingTravelDirection = GetHorizontalTangent(previousDistance) * Mathf.Sign(_speed);
+        float overflow = crossedEnd ? wantedDistance - length : -wantedDistance;
+        Vector3 endpointPoint = currentLine.GetPointAtDistance(
+          currentStrand,
+          crossedEnd ? length : 0f);
+
+        if (LinePath.TryFindConnectedEndpoint(
+              currentLine,
+              currentStrand,
+              endpointPoint,
+              GetPreferredConnectionDirection(),
+              endpointConnectionTolerance,
+              out LinePath.EndpointTransition transition)) {
+          currentLine = transition.Path;
+          currentStrand = transition.Strand;
+          transferredDirection = transition.InwardDirection;
+          Vector3 outgoingTravelDirection = GetHorizontalTangent(transition.EndpointDistance) * transferredDirection;
+          SetConnectionFacingNormal(incomingTravelDirection, outgoingTravelDirection);
+          wantedDistance = transition.EndpointDistance + overflow * transferredDirection;
+          float targetLength = currentLine.GetStrandLength(currentStrand);
+          wantedDistance = Mathf.Clamp(wantedDistance, 0f, targetLength);
+          _speed = Mathf.Abs(_speed) * transferredDirection;
+          _hasFacingSide = false;
+          _facingTurnActive = true;
+          CancelCornerAssist();
+          BeginConnectionAssist(transferredDirection, transition.EndpointDistance);
+          transferredPath = true;
+        } else {
+          CancelConnectionAssist();
+          wantedDistance = Mathf.Clamp(wantedDistance, 0f, length);
+          if (Mathf.Approximately(wantedDistance, previousDistance) && Mathf.Abs(_speed) > 0f)
+            _speed = 0f;
+        }
       }
     }
 
@@ -217,8 +312,14 @@ public class LineFollowController : MonoBehaviour {
       out _,
       out _);
 
-    float signedDistance = _distanceAlongLine - previousDistance;
-    if (currentLine.IsStrandClosedLoop(currentStrand)) {
+    float signedDistance;
+    if (transferredPath) {
+      signedDistance = Vector3.Distance(previousFeetPosition, FeetPosition) * transferredDirection;
+    } else {
+      signedDistance = _distanceAlongLine - previousDistance;
+    }
+
+    if (!transferredPath && currentLine.IsStrandClosedLoop(currentStrand)) {
       float length = currentLine.GetStrandLength(currentStrand);
       if (length > 0f && Mathf.Abs(signedDistance) > length * 0.5f) {
         signedDistance -= Mathf.Sign(signedDistance) * length;
@@ -226,6 +327,36 @@ public class LineFollowController : MonoBehaviour {
     }
 
     _actualSignedSpeed = Time.deltaTime > 0f ? signedDistance / Time.deltaTime : 0f;
+  }
+
+  private Vector3 GetPreferredConnectionDirection() {
+    if (movementCamera != null && Mathf.Abs(_input) > 0.001f) {
+      Vector3 cameraRight = movementCamera.transform.right;
+      cameraRight.y = 0f;
+      if (cameraRight.sqrMagnitude > 0.0001f) return cameraRight.normalized * Mathf.Sign(_input);
+    }
+
+    return GetHorizontalTangent(_distanceAlongLine) * Mathf.Sign(_speed);
+  }
+
+  private void SetConnectionFacingNormal(Vector3 incomingTravelDirection, Vector3 outgoingTravelDirection) {
+    incomingTravelDirection.y = 0f;
+    outgoingTravelDirection.y = 0f;
+    if (incomingTravelDirection.sqrMagnitude < 0.0001f || outgoingTravelDirection.sqrMagnitude < 0.0001f) {
+      _hasConnectionFacingNormal = false;
+      return;
+    }
+
+    // At a right-angle connection both normals of the destination path are equally
+    // close to the current view. Carrying the supporting-wall normal through the
+    // same signed turn as travel removes that ambiguity and keeps the camera outside.
+    Quaternion travelTurn = Quaternion.FromToRotation(
+      incomingTravelDirection.normalized,
+      outgoingTravelDirection.normalized);
+    _connectionFacingNormal = travelTurn * transform.forward;
+    _connectionFacingNormal.y = 0f;
+    _hasConnectionFacingNormal = _connectionFacingNormal.sqrMagnitude > 0.0001f;
+    if (_hasConnectionFacingNormal) _connectionFacingNormal.Normalize();
   }
 
   private void UpdateFacing() {
@@ -242,7 +373,11 @@ public class LineFollowController : MonoBehaviour {
     bool flipState = flipController != null && flipController.IsFlipped;
 
     if (!_hasFacingSide) {
-      _facingSideSign = Vector3.Dot(rawNormal, transform.forward) >= 0f ? 1f : -1f;
+      Vector3 referenceNormal = _hasConnectionFacingNormal
+        ? _connectionFacingNormal
+        : transform.forward;
+      _facingSideSign = Vector3.Dot(rawNormal, referenceNormal) >= 0f ? 1f : -1f;
+      _hasConnectionFacingNormal = false;
       _lastFlipState = flipState;
       _hasFacingSide = true;
     } else if (flipState != _lastFlipState) {
@@ -311,8 +446,10 @@ public class LineFollowController : MonoBehaviour {
     _speed = 0f;
     _actualSignedSpeed = 0f;
     _hasFacingSide = false;
+    _hasConnectionFacingNormal = false;
     _facingTurnActive = false;
     CancelCornerAssist();
+    CancelConnectionAssist();
   }
 
   public Vector3 GetRootPositionForFeetAt(Vector3 feetPosition) {

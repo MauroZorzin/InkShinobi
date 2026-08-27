@@ -29,9 +29,20 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
   public Settings settings = new Settings();
 
   private SelectiveColorPass _pass;
+  private Material _doorAccentMaskMaterial;
 
   public override void Create() {
+    CoreUtils.Destroy(_doorAccentMaskMaterial);
+    Shader doorAccentShader = Shader.Find("Hidden/InkShinobi/PalaceDoorAccentMask");
+    if (doorAccentShader != null)
+      _doorAccentMaskMaterial = CoreUtils.CreateEngineMaterial(doorAccentShader);
     _pass = new SelectiveColorPass();
+  }
+
+  protected override void Dispose(bool disposing) {
+    CoreUtils.Destroy(_doorAccentMaskMaterial);
+    _doorAccentMaskMaterial = null;
+    base.Dispose(disposing);
   }
 
   public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData) {
@@ -48,7 +59,11 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       return;
     }
 
-    _pass.Setup(settings.compositeMaterial, cameraSettings, settings.guardOccludedOutlineShader);
+    _pass.Setup(
+      settings.compositeMaterial,
+      cameraSettings,
+      settings.guardOccludedOutlineShader,
+      _doorAccentMaskMaterial);
     _pass.renderPassEvent = settings.renderPassEvent;
     _pass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
     renderer.EnqueuePass(_pass);
@@ -95,6 +110,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private float _backgroundSaturation;
     private float _preservedColorStrength;
     private Shader _guardOccludedOutlineShader;
+    private Material _doorAccentMaskMaterial;
 
     public SelectiveColorPass() {
       profilingSampler = new ProfilingSampler("Selective Color");
@@ -103,12 +119,14 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     public void Setup(
       Material compositeMaterial,
       SelectiveColorCamera cameraSettings,
-      Shader guardOccludedOutlineShader) {
+      Shader guardOccludedOutlineShader,
+      Material doorAccentMaskMaterial) {
       _compositeMaterial = compositeMaterial;
       _intensity = cameraSettings.intensity;
       _backgroundSaturation = cameraSettings.backgroundSaturation;
       _preservedColorStrength = cameraSettings.preservedColorStrength;
       _guardOccludedOutlineShader = guardOccludedOutlineShader;
+      _doorAccentMaskMaterial = doorAccentMaskMaterial;
     }
 
     private sealed class MaskPassData {
@@ -116,6 +134,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       public RendererListHandle transparentRenderers;
       public RendererListHandle occludedGuardRenderers;
       public bool drawOccludedGuards;
+      public Material doorAccentMaskMaterial;
     }
 
     private sealed class CompositePassData {
@@ -172,6 +191,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         passData.transparentRenderers = CreateRendererList(
           renderGraph, renderingData, cameraData, lightData, RenderQueueRange.transparent,
           SortingCriteria.CommonTransparent, CreateTransparentMaskState(), SelectiveColor.RenderingLayerMask);
+        passData.doorAccentMaskMaterial = _doorAccentMaskMaterial;
         passData.drawOccludedGuards = _guardOccludedOutlineShader != null;
         if (passData.drawOccludedGuards)
           passData.occludedGuardRenderers = CreateOccludedGuardRendererList(
@@ -191,6 +211,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           context.cmd.ClearRenderTarget(RTClearFlags.Color, Color.clear, 1f, 0);
           context.cmd.DrawRendererList(data.opaqueRenderers);
           context.cmd.DrawRendererList(data.transparentRenderers);
+          DoorKeyColorVisual.DrawActiveAccentMasks(context.cmd, data.doorAccentMaskMaterial);
           if (data.drawOccludedGuards) context.cmd.DrawRendererList(data.occludedGuardRenderers);
         });
       }

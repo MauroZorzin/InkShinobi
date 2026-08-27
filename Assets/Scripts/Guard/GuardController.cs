@@ -168,8 +168,13 @@ public class GuardController : MonoBehaviour {
     }
     if (motor != null) motor.ShutDown();
     foreach (Collider col in GetComponentsInChildren<Collider>(true)) col.enabled = false;
-    if (takedownReplacementPrefab != null)
+    GuardKeyCarrier keyCarrier = GetComponent<GuardKeyCarrier>();
+    if (keyCarrier != null) {
+      keyCarrier.DropKey();
+    } else if (takedownReplacementPrefab != null) {
+      // Compatibility fallback for older scenes not yet migrated to GuardKeyCarrier.
       Instantiate(takedownReplacementPrefab, transform.position, transform.rotation);
+    }
     Destroy(gameObject, Mathf.Max(0f, takedownDestroyDelay));
   }
 

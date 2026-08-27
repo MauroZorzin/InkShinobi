@@ -24,6 +24,9 @@ public class PlayerInteractor : MonoBehaviour {
   [Tooltip("Radius used to search for interactable objects around the interaction point.")]
   [SerializeField] private float interactionRadius = 0.8f;
 
+  [Tooltip("Broad search radius used to discover interactables with a larger per-object range, such as keys. This must be at least as large as the largest authored interaction range.")]
+  [SerializeField, Min(0f)] private float extendedInteractionSearchRadius = 1f;
+
   [Tooltip("Text element the prompt is written to and shown/hidden on.")]
   [SerializeField] private TextMeshProUGUI promptLabel;
 
@@ -32,14 +35,20 @@ public class PlayerInteractor : MonoBehaviour {
 
   private readonly Collider[] _hitBuffer = new Collider[16];
   private IInteractable _currentTarget;
+  private IInteractionFocus _currentFocus;
 
   private void Update() {
     Collider hit = FindNearest(out IInteractable interactable);
 
-    if (interactable != _currentTarget) {
-      _currentTarget = interactable;
-      UpdatePrompt(hit);
+    IInteractionFocus nextFocus = interactable as IInteractionFocus;
+    if (!ReferenceEquals(_currentFocus, nextFocus)) {
+      _currentFocus?.SetInteractionFocused(false, inventory);
+      _currentFocus = nextFocus;
     }
+
+    _currentTarget = interactable;
+    _currentFocus?.SetInteractionFocused(true, inventory);
+    UpdatePrompt(hit, interactable);
   }
 
   public void OnInteract(InputValue value) {
@@ -56,7 +65,8 @@ public class PlayerInteractor : MonoBehaviour {
       return null;
     }
 
-    int hitCount = Physics.OverlapSphereNonAlloc(interactionPoint.position, interactionRadius, _hitBuffer, InteractableMask(), QueryTriggerInteraction.Collide);
+    float searchRadius = Mathf.Max(interactionRadius, extendedInteractionSearchRadius);
+    int hitCount = Physics.OverlapSphereNonAlloc(interactionPoint.position, searchRadius, _hitBuffer, InteractableMask(), QueryTriggerInteraction.Collide);
 
     Collider closestCollider = null;
     var closestDistance = float.MaxValue;
@@ -69,7 +79,16 @@ public class PlayerInteractor : MonoBehaviour {
         continue;
       }
 
-      var distance = Vector3.Distance(interactionPoint.position, hit.transform.position);
+      float allowedRange = interactionRadius;
+      if (candidate is IInteractionRange customRange && customRange.InteractionRange > 0f) {
+        allowedRange = customRange.InteractionRange;
+      }
+
+      Vector3 closestPoint = hit.ClosestPoint(interactionPoint.position);
+      float distance = Vector3.Distance(interactionPoint.position, closestPoint);
+      if (distance > allowedRange) {
+        continue;
+      }
 
       if (distance < closestDistance) {
         closestDistance = distance;
@@ -89,18 +108,22 @@ public class PlayerInteractor : MonoBehaviour {
     return mask;
   }
 
-  private void UpdatePrompt(Collider target) {
+  private void UpdatePrompt(Collider target, IInteractable interactable) {
     if (promptLabel == null) {
       return;
     }
 
-    string text = target != null ? TextForLayer(target.gameObject.layer) : null;
+    string text = interactable is IInteractionPrompt prompt
+      ? prompt.GetInteractionPrompt(inventory)
+      : target != null ? TextForLayer(target.gameObject.layer) : null;
 
     promptLabel.gameObject.SetActive(text != null);
     if (text != null) promptLabel.text = text;
   }
 
   private void OnDisable() {
+    _currentFocus?.SetInteractionFocused(false, inventory);
+    _currentFocus = null;
     _currentTarget = null;
     if (promptLabel != null) promptLabel.gameObject.SetActive(false);
   }
@@ -120,5 +143,12 @@ public class PlayerInteractor : MonoBehaviour {
     }
 
     Gizmos.DrawWireSphere(interactionPoint.position, interactionRadius);
+
+    if (extendedInteractionSearchRadius > interactionRadius) {
+      Color previousColor = Gizmos.color;
+      Gizmos.color = Color.cyan;
+      Gizmos.DrawWireSphere(interactionPoint.position, extendedInteractionSearchRadius);
+      Gizmos.color = previousColor;
+    }
   }
 }
