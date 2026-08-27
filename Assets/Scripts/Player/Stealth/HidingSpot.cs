@@ -35,16 +35,12 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
   private SpriteRenderer _spriteRenderer;
   private BoxCollider _playerCollider;
   private PlayerInteractor _playerInteractor;
-  private AimSwitch _lineAimSwitchController;
-  private TakedownController _takedownController;
   private PlayerStealthController _playerStealthController;
   private InputAction _interactAction;
 
-  private bool _wasMovementEnabled;
+  private bool _wasLineFollowEnabled;
   private bool _wasSpriteEnabled;
   private bool _wasColliderEnabled;
-  private bool _wasLineAimEnabled;
-  private bool _wasTakedownEnabled;
   private Vector3 _storedPosition;
   private Quaternion _storedRotation;
 
@@ -80,16 +76,14 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
     _spriteRenderer = player.GetComponent<SpriteRenderer>();
     _playerCollider = player.GetComponent<BoxCollider>();
     _playerInteractor = player.GetComponent<PlayerInteractor>();
-    _lineAimSwitchController = player.GetComponent<AimSwitch>();
-    _takedownController = player.GetComponent<TakedownController>();
     _playerStealthController = player.GetComponent<PlayerStealthController>();
 
     PlayerInput playerInput = player.GetComponent<PlayerInput>();
     _interactAction = playerInput != null ? playerInput.actions["Interact"] : null;
 
     if (_lineFollowController != null) {
-      _wasMovementEnabled = _lineFollowController.movementEnabled;
-      _lineFollowController.movementEnabled = false;
+      _wasLineFollowEnabled = _lineFollowController.enabled;
+      _lineFollowController.enabled = false;
     }
 
     if (_playerCollider != null) {
@@ -99,16 +93,6 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
 
     if (_playerInteractor != null) {
       _playerInteractor.interactionSuppressed = true;
-    }
-
-    if (_lineAimSwitchController != null) {
-      _wasLineAimEnabled = _lineAimSwitchController.enabled;
-      _lineAimSwitchController.enabled = false;
-    }
-
-    if (_takedownController != null) {
-      _wasTakedownEnabled = _takedownController.enabled;
-      _takedownController.enabled = false;
     }
 
     _storedPosition = player.position;
@@ -183,7 +167,7 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
 
   private void OnRevealTransitionComplete() {
     if (_lineFollowController != null) {
-      _lineFollowController.movementEnabled = _wasMovementEnabled;
+      _lineFollowController.enabled = _wasLineFollowEnabled;
     }
 
     if (_playerCollider != null) {
@@ -192,14 +176,6 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
 
     if (_playerInteractor != null) {
       _playerInteractor.interactionSuppressed = false;
-    }
-
-    if (_lineAimSwitchController != null) {
-      _lineAimSwitchController.enabled = _wasLineAimEnabled;
-    }
-
-    if (_takedownController != null) {
-      _takedownController.enabled = _wasTakedownEnabled;
     }
 
     _interactAction = null;

@@ -1,496 +1,457 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Audio;
 
 /// <summary>
-/// Controls guard state transitions for patrolling, investigating, alerting, and takedowns.
+/// High-level guard brain. It selects behavior and destinations while GuardMotor remains the
+/// sole movement authority and GuardSpriteFacing remains the sole sprite presentation authority.
 /// </summary>
-[RequireComponent(typeof(NavMeshAgent))]
+[DisallowMultipleComponent]
+[RequireComponent(typeof(NavMeshAgent), typeof(GuardMotor))]
 public class GuardController : MonoBehaviour {
-  public enum GuardState {
-    /// <summary>The guard is following its waypoint route.</summary>
-    Patrol,
-    /// <summary>The guard is briefly looking around after losing a weaker stimulus.</summary>
-    Suspicious,
-    /// <summary>The guard is moving toward a heard sound or last known player position.</summary>
-    Investigating,
-    /// <summary>The guard has detected the player and is pursuing them.</summary>
-    Alerted,
-    /// <summary>The guard has been disabled by a player takedown.</summary>
-    TakenDown
-  }
+  public enum GuardState { Patrol, Noticing, Chasing, Searching, Returning, TakenDown }
 
-  // ── Patrol ────────────────────────────────────────────────────────────────
+  private static readonly HashSet<GuardController> ActiveGuardSet = new();
+  public static IReadOnlyCollection<GuardController> ActiveGuards => ActiveGuardSet;
 
   [Header("Patrol")]
-  [Tooltip("World-space waypoints the guard walks between.")]
+  [Tooltip("Fallback route for guards without GuardSquarePatrol. Guards with an authored route use that component instead.")]
   public Transform[] patrolWaypoints = System.Array.Empty<Transform>();
-
-  [Tooltip("Seconds the guard waits at each patrol waypoint.")]
+  [Tooltip("Fallback pause at patrol points when no GuardSquarePatrol is present.")]
   public float waypointWaitTime = 2f;
-
-  [Tooltip("Movement speed used during normal patrol.")]
+  [Tooltip("Fallback patrol speed when no GuardSquarePatrol is present.")]
   public float patrolMoveSpeed = 2f;
+  [SerializeField, Min(0.01f)] private float patrolStoppingDistance = 0.08f;
 
-  // ── Alert ─────────────────────────────────────────────────────────────────
+  [Header("Noticing")]
+  [Tooltip("How quickly a stationary noticing guard turns toward the player.")]
+  [SerializeField, Min(0f)] private float noticingTurnSpeed = 420f;
 
-  [Header("Alert")]
-  [Tooltip("Movement speed used while chasing a detected player.")]
+  [Header("Chase")]
+  [Tooltip("Movement speed used while pursuing a confirmed player.")]
   public float alertMoveSpeed = 4f;
+  [SerializeField, Min(0.02f)] private float chaseRepathInterval = 0.12f;
+  [Tooltip("Time without direct sight before searching the last known position.")]
+  [SerializeField, Min(0f)] private float lostSightGrace = 0.45f;
+  [Tooltip("Distance at which an unobstructed chasing guard catches the player.")]
+  [SerializeField, Min(0.05f)] private float catchDistance = 0.55f;
+  [SerializeField, Min(0f)] private float chaseStoppingDistance = 0.18f;
 
-  [Tooltip("Seconds the guard investigates the last known player or sound position.")]
+  [Header("Search")]
+  [Tooltip("Maximum time spent reaching the last known player or sound position.")]
   public float investigateDuration = 5f;
-
-  // ── Look-Around ───────────────────────────────────────────────────────────
-
-  [Header("Look-Around")]
-  [Tooltip("Total angle swept to each side during a look-around scan (degrees).")]
-  [Range(30f, 180f)] public float lookAroundAngle = 90f;
-
-  [Tooltip("Seconds to complete one left-to-right sweep.")]
-  [Range(0.5f, 5f)] public float lookAroundDuration = 1.5f;
-
-  [Tooltip("How many left/right sweeps during investigation look-around.")]
+  [Tooltip("Duration of the scan after reaching the last known position.")]
+  [SerializeField, Min(0f)] private float searchLookDuration = 3f;
+  [Tooltip("Total left/right scan angle at the search position.")]
+  [Range(10f, 180f)] public float lookAroundAngle = 90f;
+  [Tooltip("Seconds per complete left-right search sweep.")]
+  [Range(0.25f, 5f)] public float lookAroundDuration = 1.5f;
+  [Tooltip("Legacy prefab value retained for serialization; search is now duration-based.")]
   [Range(1, 6)] public int investigateLookCount = 3;
-
-  [Tooltip("How many left/right sweeps during suspicious look-around (shorter).")]
+  [Tooltip("Legacy prefab value retained for serialization; noticing follows detection progress.")]
   [Range(1, 4)] public int suspiciousLookCount = 2;
-
-  // ── Takedown ──────────────────────────────────────────────────────────────
+  [SerializeField, Min(0.01f)] private float searchStoppingDistance = 0.12f;
 
   [Header("Takedown")]
-  [Tooltip("Sound played the moment the takedown is triggered.")]
   public AudioClip takedownSound;
-
-  [Tooltip("Prefab spawned at the guard's position on takedown. Leave empty to skip.")]
   public GameObject takedownReplacementPrefab;
-
-  [Tooltip("Seconds to wait after takedown before destroying this guard GameObject.")]
   public float takedownDestroyDelay = 0.5f;
 
-  // ── Audio ─────────────────────────────────────────────────────────────────
-
   [Header("Audio")]
-  [Tooltip("Played once the instant this guard first spots the player (transitions into Alerted).")]
   public AudioClip spotSound;
-
-  [Tooltip("Played alongside spotSound, the instant the chase begins.")]
   public AudioClip chaseStartSound;
-
-  [Tooltip("Played when this guard gives up the chase after losing track of the player.")]
   public AudioClip loseSightSound;
-
-  [Tooltip("Random idle lines played occasionally while patrolling. Leave empty to disable.")]
   public AudioClip[] idleSounds = System.Array.Empty<AudioClip>();
-
-  [Tooltip("Minimum seconds between idle lines.")]
   public float idleSoundMinInterval = 8f;
-
-  [Tooltip("Maximum seconds between idle lines.")]
   public float idleSoundMaxInterval = 20f;
-
-  [Tooltip("Mixer group all of this guard's sounds are routed through (e.g. your \"FX\" group). Leave empty to go straight to Master.")]
   public AudioMixerGroup mixerGroup;
 
-  // ── References ────────────────────────────────────────────────────────────
-
   [Header("References")]
-  [Tooltip("Vision cone used to detect the player. Leave empty to auto-find on child GameObjects.")]
   public GuardVisionCone visionCone;
-
-  // ── Debug ─────────────────────────────────────────────────────────────────
+  [SerializeField] private GuardMotor motor;
+  [SerializeField] private GuardSquarePatrol patrolRoute;
+  [SerializeField] private GuardSpriteFacing spriteFacing;
 
   [Header("Debug")]
-  [Tooltip("Draws the current guard state above the guard in the Game view.")]
   public bool showStateLabel = true;
+  [SerializeField] private bool verboseLogging;
 
-  // ── Public state ──────────────────────────────────────────────────────────
-
-  /// <summary>The current high-level behavior state for this guard.</summary>
   public GuardState CurrentState { get; private set; } = GuardState.Patrol;
+  public float DetectionProgress => visionCone != null ? visionCone.DetectionProgress : 0f;
+  public Vector3 LastKnownPlayerPosition => lastKnownPosition;
 
-  // ── Private fields ────────────────────────────────────────────────────────
+  private int patrolIndex;
+  private float stateElapsed;
+  private float waypointWaitRemaining;
+  private float lostSightElapsed;
+  private float nextRepathTime;
+  private float idleSoundTimer;
+  private Vector3 lastKnownPosition;
+  private Quaternion searchBaseRotation;
+  private bool searchHasArrived;
+  private bool catchIssued;
+  private bool takedownAudioPlayed;
+  private AudioSource chaseAudioSource;
+  private AudioSource alertOneShotSource;
+  private Coroutine alertAudioFadeRoutine;
 
-  private NavMeshAgent _agent;
-  private int _waypointIndex = 0;
-  private float _waitTimer = 0f;
-  private float _investigateTimer = 0f;
-  private Vector3 _lastKnownPosition;
-  private bool _waitingAtWaypoint = false;
-
-  /// <summary>Set to true while a look-around coroutine is running so Update doesn't fight it.</summary>
-  private bool _lookingAround = false;
-
-  private float _idleSoundTimer;
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Unity lifecycle
-  // ─────────────────────────────────────────────────────────────────────────
+  /// <summary>Fades only guard alert/chase audio, leaving music and unrelated SFX untouched.</summary>
+  public static void FadeOutAllAlertAudio(float duration) {
+    foreach (GuardController guard in ActiveGuardSet)
+      if (guard != null && guard.isActiveAndEnabled) guard.BeginAlertAudioFade(duration);
+  }
 
   private void Awake() {
-    _agent = GetComponent<NavMeshAgent>();
+    ResolveReferences();
+    CreateChaseAudioSource();
+    if (takedownSound != null) takedownSound.LoadAudioData();
+    idleSoundTimer = Random.Range(idleSoundMinInterval, idleSoundMaxInterval);
+  }
 
-    if (visionCone == null) {
-      visionCone = GetComponentInChildren<GuardVisionCone>();
-    }
+  private void OnEnable() => ActiveGuardSet.Add(this);
+  private void OnDisable() {
+    spriteFacing?.SetAttacking(false);
+    StopChaseSound();
+    ActiveGuardSet.Remove(this);
+  }
 
-    if (visionCone == null) {
-      Debug.LogWarning($"[Guard] {name}: No GuardVisionCone found.", this);
-    }
-
-    _idleSoundTimer = Random.Range(idleSoundMinInterval, idleSoundMaxInterval);
+  private void OnDestroy() {
+    StopChaseSound();
+    ActiveGuardSet.Remove(this);
   }
 
   private void Start() {
-    if (patrolWaypoints != null && patrolWaypoints.Length > 0) {
-      GoToWaypoint(_waypointIndex);
+    ResolveReferences();
+    if (motor == null || !motor.EnsureOnNavMesh()) {
+      Debug.LogError($"[Guard] '{name}' cannot start because no usable NavMesh is available.", this);
+      enabled = false;
+      return;
     }
+    patrolIndex = patrolRoute != null && patrolRoute.Count > 0
+      ? patrolRoute.InitialPointIndex
+      : FindNearestFallbackWaypoint();
+    EnterState(GuardState.Patrol, true);
   }
 
   private void Update() {
-    if (CurrentState == GuardState.TakenDown) {
-      return;
-    }
-
-    // Vision cone escalation — highest priority.
-    if (visionCone != null && visionCone.PlayerDetected) {
-      _lastKnownPosition = visionCone.DetectedPlayer.transform.position;
-      if (CurrentState != GuardState.Alerted) PlaySpottedSounds();
-      SetState(GuardState.Alerted);
-    }
-
+    if (CurrentState == GuardState.TakenDown || motor == null) return;
+    stateElapsed += Time.deltaTime;
+    UpdateKnownPlayerPosition();
     switch (CurrentState) {
       case GuardState.Patrol: UpdatePatrol(); break;
-      case GuardState.Suspicious: UpdateSuspicious(); break;
-      case GuardState.Investigating: UpdateInvestigating(); break;
-      case GuardState.Alerted: UpdateAlerted(); break;
+      case GuardState.Noticing: UpdateNoticing(); break;
+      case GuardState.Chasing: UpdateChasing(); break;
+      case GuardState.Searching: UpdateSearching(); break;
+      case GuardState.Returning: UpdateReturning(); break;
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Public API
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /// <summary>
-  /// Sends the guard to investigate a sound unless it is already alerted or taken down.
-  /// </summary>
-  /// <param name="soundPosition">World position of the sound source.</param>
   public void InvestigateSound(Vector3 soundPosition) {
-    if (CurrentState == GuardState.TakenDown || CurrentState == GuardState.Alerted) {
-      return;
-    }
-
-    _lastKnownPosition = soundPosition;
-    SetState(GuardState.Investigating);
-    Debug.Log($"[Guard] '{name}' heard a sound at {soundPosition:F1}; investigating.");
+    if (CurrentState == GuardState.TakenDown) return;
+    if (visionCone != null && visionCone.PlayerDetected && visionCone.PlayerCurrentlyVisible) return;
+    lastKnownPosition = soundPosition;
+    // A newer sound is authoritative even while this guard is already searching. Re-entering the
+    // state resets its timers, abandons the old path/scan, and issues a fresh NavMesh destination.
+    EnterState(GuardState.Searching, CurrentState == GuardState.Searching);
   }
 
-  /// <summary>
-  /// Transitions the guard into the taken-down state.
-  /// </summary>
   public void PerformTakedown() {
-    SetState(GuardState.TakenDown);
+    if (CurrentState == GuardState.TakenDown) return;
+    spriteFacing?.SetAttacking(false);
+    EnterState(GuardState.TakenDown);
+    PlayTakedownAudio();
+    if (visionCone != null) {
+      visionCone.ReleaseDetection();
+      visionCone.enabled = false;
+    }
+    if (motor != null) motor.ShutDown();
+    foreach (Collider col in GetComponentsInChildren<Collider>(true)) col.enabled = false;
+    GuardKeyCarrier keyCarrier = GetComponent<GuardKeyCarrier>();
+    if (keyCarrier != null) {
+      keyCarrier.DropKey();
+    } else if (takedownReplacementPrefab != null) {
+      // Compatibility fallback for older scenes not yet migrated to GuardKeyCarrier.
+      Instantiate(takedownReplacementPrefab, transform.position, transform.rotation);
+    }
+    Destroy(gameObject, Mathf.Max(0f, takedownDestroyDelay));
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // State machine
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /// <summary>
-  /// Changes guard state and applies speed, destination, and timer side effects.
-  /// </summary>
-  private void SetState(GuardState newState) {
-    if (CurrentState == newState) {
-      return;
-    }
-
-    // Cancel any running look-around when escalating.
-    if (_lookingAround && (newState == GuardState.Alerted || newState == GuardState.TakenDown)) {
-      StopAllCoroutines();
-      _lookingAround = false;
-    }
-
-    CurrentState = newState;
-
-    switch (newState) {
-      case GuardState.Patrol:
-        _agent.speed = patrolMoveSpeed;
-        _agent.isStopped = false;
-        GoToWaypoint(_waypointIndex);
-        break;
-
-      case GuardState.Suspicious:
-        _agent.speed = patrolMoveSpeed;
-        _agent.isStopped = true;
-        StartCoroutine(LookAroundThenTransition(suspiciousLookCount, GuardState.Patrol));
-        break;
-
-      case GuardState.Investigating:
-        _agent.speed = patrolMoveSpeed * 1.3f;
-        _agent.isStopped = false;
-        _agent.SetDestination(_lastKnownPosition);
-        _investigateTimer = investigateDuration;
-        _lookingAround = false;
-        break;
-
-      case GuardState.Alerted:
-        _agent.speed = alertMoveSpeed;
-        _agent.isStopped = false;
-        _agent.SetDestination(_lastKnownPosition);
-        _investigateTimer = investigateDuration;
-        break;
-
-      case GuardState.TakenDown:
-        StartCoroutine(TakedownSequence());
-        break;
-    }
+  public void PlayTakedownAudio() {
+    if (takedownAudioPlayed || takedownSound == null) return;
+    takedownAudioPlayed = true;
+    OneShotAudio.PlayClipAtPoint(takedownSound, transform.position, 1f, mixerGroup);
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Per-state update methods
-  // ─────────────────────────────────────────────────────────────────────────
 
   private void UpdatePatrol() {
     UpdateIdleSound();
-
-    if (patrolWaypoints == null || patrolWaypoints.Length == 0) {
+    if (ShouldNoticePlayer()) {
+      EnterState(GuardState.Noticing);
       return;
     }
-
-    if (_waitingAtWaypoint) {
-      _waitTimer -= Time.deltaTime;
-      if (_waitTimer <= 0f) {
-        _waitingAtWaypoint = false;
-        _waypointIndex = (_waypointIndex + 1) % patrolWaypoints.Length;
-        GoToWaypoint(_waypointIndex);
-      }
-
+    if (waypointWaitRemaining > 0f) {
+      waypointWaitRemaining -= Time.deltaTime;
+      motor.Stop();
+      if (waypointWaitRemaining <= 0f) MoveToPatrolPoint(patrolIndex);
       return;
     }
-
-    if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance) {
-      _waitingAtWaypoint = true;
-      _waitTimer = waypointWaitTime;
-    }
+    if (!motor.HasArrived) return;
+    waypointWaitRemaining = GetWaypointPause(patrolIndex);
+    patrolIndex = NextPatrolIndex(patrolIndex);
+    motor.Stop();
+    if (waypointWaitRemaining <= 0f) MoveToPatrolPoint(patrolIndex);
   }
 
-  /// <summary>
-  /// Suspicious is fully driven by the LookAround coroutine; nothing extra needed here.
-  /// </summary>
-  private void UpdateSuspicious() {
-    // Handled by LookAroundThenTransition coroutine.
-  }
-
-  /// <summary>
-  /// Moves toward the last known position; when close enough (or time runs out)
-  /// starts a look-around before falling back to Suspicious.
-  /// </summary>
-  private void UpdateInvestigating() {
-    if (_lookingAround) {
-      return; // coroutine owns rotation, don't touch the timer.
-    }
-
-    bool arrivedAtDestination = !_agent.pathPending &&
-                                _agent.remainingDistance <= _agent.stoppingDistance + 0.05f;
-
-    if (arrivedAtDestination) {
-      // Reached the point — stop and look around.
-      _agent.isStopped = true;
-      StartCoroutine(LookAroundThenTransition(investigateLookCount, GuardState.Suspicious));
-      return;
-    }
-
-    _investigateTimer -= Time.deltaTime;
-    if (_investigateTimer <= 0f) {
-      // Timed out before arriving — look around in place then become suspicious.
-      _agent.isStopped = true;
-      StartCoroutine(LookAroundThenTransition(investigateLookCount, GuardState.Suspicious));
-    }
-  }
-
-  /// <summary>
-  /// Chases the detected player or times out into suspicion after losing sight.
-  /// </summary>
-  private void UpdateAlerted() {
+  private void UpdateNoticing() {
+    motor.Stop();
+    PlayerStealthController visible = visionCone != null ? visionCone.VisiblePlayer : null;
+    if (visible != null) motor.FaceDirection(visible.transform.position - transform.position, noticingTurnSpeed);
     if (visionCone != null && visionCone.PlayerDetected) {
-      _lastKnownPosition = visionCone.DetectedPlayer.transform.position;
-      _agent.SetDestination(_lastKnownPosition);
-      _investigateTimer = investigateDuration;
+      EnterState(GuardState.Chasing);
       return;
     }
-
-    _investigateTimer -= Time.deltaTime;
-
-    if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance) {
-      _investigateTimer -= Time.deltaTime * 2f;
-    }
-
-    if (_investigateTimer <= 0f) {
-      if (loseSightSound != null) OneShotAudio.PlayClipAtPoint(loseSightSound, transform.position, 1f, mixerGroup);
-      SetState(GuardState.Suspicious);
-    }
+    // Even an unconfirmed glimpse gives the guard a last known position worth investigating.
+    // DetectionProgress may continue decaying after sight is lost, but it must not send the guard
+    // directly back to patrol or repeatedly bounce Searching back into Noticing.
+    if (visionCone == null) EnterState(GuardState.Returning);
+    else if (!visionCone.PlayerCurrentlyVisible) EnterState(GuardState.Searching);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Look-around coroutine
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /// <summary>
-  /// Rotates the guard left then right <paramref name="sweepCount"/> times,
-  /// then transitions to <paramref name="nextState"/>.
-  /// </summary>
-  private IEnumerator LookAroundThenTransition(int sweepCount, GuardState nextState) {
-    _lookingAround = true;
-    _agent.isStopped = true;
-    _agent.updateRotation = false; // We'll drive rotation manually.
-
-    Quaternion baseRotation = transform.rotation;
-    float halfAngle = lookAroundAngle * 0.5f;
-
-    for (var sweep = 0; sweep < sweepCount; sweep++) {
-      // Sweep left.
-      yield return RotateTo(baseRotation * Quaternion.Euler(0f, -halfAngle, 0f), lookAroundDuration * 0.5f);
-      // Sweep right.
-      yield return RotateTo(baseRotation * Quaternion.Euler(0f, halfAngle, 0f), lookAroundDuration);
-      // Return to center.
-      yield return RotateTo(baseRotation, lookAroundDuration * 0.5f);
+  private void UpdateChasing() {
+    PlayerStealthController visible = visionCone != null ? visionCone.VisiblePlayer : null;
+    if (visible != null) {
+      lostSightElapsed = 0f;
+      lastKnownPosition = visible.transform.position;
+      if (Time.time >= nextRepathTime) {
+        motor.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance);
+        nextRepathTime = Time.time + chaseRepathInterval;
+      }
+      TryCatchPlayer(visible);
+      return;
     }
-
-    _agent.updateRotation = true;
-    _lookingAround = false;
-    SetState(nextState);
+    lostSightElapsed += Time.deltaTime;
+    if (lostSightElapsed >= lostSightGrace) EnterState(GuardState.Searching);
   }
 
-  /// <summary>
-  /// Smoothly rotates to <paramref name="target"/> over <paramref name="duration"/> seconds.
-  /// </summary>
-  private IEnumerator RotateTo(Quaternion target, float duration) {
-    Quaternion start = transform.rotation;
+  private void UpdateSearching() {
+    if (ShouldNoticePlayer()) {
+      EnterState(visionCone != null && visionCone.PlayerDetected ? GuardState.Chasing : GuardState.Noticing);
+      return;
+    }
+    if (!searchHasArrived) {
+      if (!motor.HasArrived && stateElapsed < investigateDuration) return;
+      searchHasArrived = true;
+      stateElapsed = 0f;
+      searchBaseRotation = transform.rotation;
+      motor.Stop(true);
+    }
+    float phase = stateElapsed / Mathf.Max(0.01f, lookAroundDuration) * Mathf.PI * 2f;
+    float yaw = Mathf.Sin(phase) * lookAroundAngle * 0.5f;
+    Vector3 direction = (searchBaseRotation * Quaternion.Euler(0f, yaw, 0f)) * Vector3.forward;
+    motor.FaceDirection(direction, noticingTurnSpeed);
+    if (stateElapsed >= searchLookDuration) EnterState(GuardState.Returning);
+  }
+
+  private void UpdateReturning() {
+    if (ShouldNoticePlayer()) {
+      EnterState(GuardState.Noticing);
+      return;
+    }
+    if (motor.HasArrived) EnterState(GuardState.Patrol);
+  }
+
+  private void EnterState(GuardState next, bool force = false) {
+    if (!force && CurrentState == next) return;
+    GuardState previous = CurrentState;
+    if (previous == GuardState.Chasing && next != GuardState.Chasing) StopChaseSound();
+    CurrentState = next;
+    stateElapsed = 0f;
+    motor?.ReleaseManualFacing();
+    switch (next) {
+      case GuardState.Patrol:
+        waypointWaitRemaining = 0f;
+        MoveToPatrolPoint(patrolIndex);
+        break;
+      case GuardState.Noticing:
+        motor?.Stop();
+        break;
+      case GuardState.Chasing:
+        lostSightElapsed = 0f;
+        nextRepathTime = 0f;
+        PlaySpottedSounds();
+        break;
+      case GuardState.Searching:
+        searchHasArrived = false;
+        motor?.MoveTo(lastKnownPosition, patrolMoveSpeed * 1.3f, searchStoppingDistance);
+        if (previous == GuardState.Chasing && loseSightSound != null)
+          alertOneShotSource = OneShotAudio.PlayClipAtPoint(
+            loseSightSound, transform.position, 1f, mixerGroup);
+        break;
+      case GuardState.Returning:
+        patrolIndex = FindNearestPatrolPoint();
+        MoveToPatrolPoint(patrolIndex);
+        break;
+      case GuardState.TakenDown:
+        motor?.Stop(true);
+        break;
+    }
+    if (verboseLogging) Debug.Log($"[Guard] '{name}': {previous} -> {next}.", this);
+  }
+
+  private bool ShouldNoticePlayer() => visionCone != null && visionCone.PlayerCurrentlyVisible;
+
+  private void UpdateKnownPlayerPosition() {
+    PlayerStealthController visible = visionCone != null ? visionCone.VisiblePlayer : null;
+    if (visible != null) lastKnownPosition = visible.transform.position;
+  }
+
+  private void TryCatchPlayer(PlayerStealthController player) {
+    if (catchIssued || player == null) return;
+    Vector3 delta = player.transform.position - transform.position;
+    delta.y = 0f;
+    if (delta.sqrMagnitude > catchDistance * catchDistance) return;
+    if (visionCone != null && !visionCone.HasLineOfSightTo(player)) return;
+    catchIssued = true;
+    motor.Stop(true);
+    spriteFacing?.SetAttacking(true);
+    PlayerDeathSequence death = player.GetComponent<PlayerDeathSequence>();
+    if (death != null) death.Kill(this);
+    else SceneTransitionManager.ReloadCurrentScene();
+  }
+
+  private void MoveToPatrolPoint(int index) {
+    Transform point = GetPatrolPoint(index);
+    if (point == null || motor == null) return;
+    float speed = patrolRoute != null ? patrolRoute.Speed : patrolMoveSpeed;
+    float stop = patrolRoute != null ? patrolRoute.ArrivalDistance : patrolStoppingDistance;
+    if (patrolRoute != null) motor.SetRuntimeTurnSpeed(patrolRoute.TurnSpeed);
+    motor.MoveTo(point.position, speed, stop);
+  }
+
+  private Transform GetPatrolPoint(int index) {
+    if (patrolRoute != null && patrolRoute.Count > 0) return patrolRoute.GetPoint(index);
+    if (patrolWaypoints == null || patrolWaypoints.Length == 0) return null;
+    int wrapped = ((index % patrolWaypoints.Length) + patrolWaypoints.Length) % patrolWaypoints.Length;
+    return patrolWaypoints[wrapped];
+  }
+
+  private int PatrolPointCount => patrolRoute != null && patrolRoute.Count > 0
+    ? patrolRoute.Count
+    : patrolWaypoints?.Length ?? 0;
+  private int NextPatrolIndex(int current) => PatrolPointCount > 0 ? (current + 1) % PatrolPointCount : 0;
+  private float GetWaypointPause(int reachedPointIndex) => patrolRoute != null
+    ? (patrolRoute.IsCorner(reachedPointIndex) ? patrolRoute.CornerPause : 0f)
+    : waypointWaitTime;
+
+  private int FindNearestPatrolPoint() {
+    if (patrolRoute != null && patrolRoute.Count > 0)
+      return patrolRoute.FindNearestPointIndex(transform.position);
+    return FindNearestFallbackWaypoint();
+  }
+
+  private int FindNearestFallbackWaypoint() {
+    if (patrolWaypoints == null || patrolWaypoints.Length == 0) return 0;
+    int nearest = 0;
+    float best = float.PositiveInfinity;
+    for (int i = 0; i < patrolWaypoints.Length; i++) {
+      if (patrolWaypoints[i] == null) continue;
+      float distance = (patrolWaypoints[i].position - transform.position).sqrMagnitude;
+      if (distance >= best) continue;
+      best = distance;
+      nearest = i;
+    }
+    return nearest;
+  }
+
+  private void ResolveReferences() {
+    if (motor == null) motor = GetComponent<GuardMotor>();
+    if (patrolRoute == null) patrolRoute = GetComponent<GuardSquarePatrol>();
+    if (spriteFacing == null) spriteFacing = GetComponent<GuardSpriteFacing>();
+    if (visionCone == null) visionCone = GetComponentInChildren<GuardVisionCone>(true);
+  }
+
+  private void PlaySpottedSounds() {
+    if (spotSound != null)
+      alertOneShotSource = OneShotAudio.PlayClipAtPoint(
+        spotSound, transform.position, 1f, mixerGroup);
+    if (chaseStartSound == null) return;
+    CreateChaseAudioSource();
+    chaseAudioSource.Stop();
+    chaseAudioSource.clip = chaseStartSound;
+    chaseAudioSource.outputAudioMixerGroup = mixerGroup;
+    chaseAudioSource.Play();
+  }
+
+  private void CreateChaseAudioSource() {
+    if (chaseAudioSource != null) return;
+    chaseAudioSource = gameObject.AddComponent<AudioSource>();
+    chaseAudioSource.playOnAwake = false;
+    chaseAudioSource.loop = false;
+    chaseAudioSource.spatialBlend = 1f;
+    chaseAudioSource.dopplerLevel = 0f;
+    chaseAudioSource.outputAudioMixerGroup = mixerGroup;
+  }
+
+  private void StopChaseSound() {
+    if (chaseAudioSource == null) return;
+    chaseAudioSource.Stop();
+    chaseAudioSource.clip = null;
+  }
+
+  private void BeginAlertAudioFade(float duration) {
+    if (alertAudioFadeRoutine != null) StopCoroutine(alertAudioFadeRoutine);
+    alertAudioFadeRoutine = StartCoroutine(FadeAlertAudioRoutine(Mathf.Max(0f, duration)));
+  }
+
+  private IEnumerator FadeAlertAudioRoutine(float duration) {
+    AudioSource chase = chaseAudioSource;
+    AudioSource alert = alertOneShotSource;
+    float chaseVolume = chase != null ? chase.volume : 0f;
+    float alertVolume = alert != null ? alert.volume : 0f;
     float elapsed = 0f;
 
-    while (elapsed < duration) {
-      elapsed += Time.deltaTime;
-      transform.rotation = Quaternion.Slerp(start, target, elapsed / duration);
+    while (elapsed < duration && (chase != null || alert != null)) {
+      elapsed += Time.unscaledDeltaTime;
+      float volumeFactor = 1f - Mathf.Clamp01(elapsed / Mathf.Max(0.001f, duration));
+      if (chase != null) chase.volume = chaseVolume * volumeFactor;
+      if (alert != null) alert.volume = alertVolume * volumeFactor;
       yield return null;
     }
 
-    transform.rotation = target;
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Patrol helpers
-  // ─────────────────────────────────────────────────────────────────────────
-
-  private void GoToWaypoint(int index) {
-    if (patrolWaypoints == null || patrolWaypoints.Length == 0) {
-      return;
+    if (chase != null) {
+      chase.Stop();
+      chase.clip = null;
+      chase.volume = chaseVolume;
     }
-
-    _agent.isStopped = false;
-    _agent.SetDestination(patrolWaypoints[index].position);
+    if (alert != null) {
+      alert.Stop();
+      Destroy(alert.gameObject);
+    }
+    if (alertOneShotSource == alert) alertOneShotSource = null;
+    alertAudioFadeRoutine = null;
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // Audio helpers
-  // ─────────────────────────────────────────────────────────────────────────
-
-  private void PlaySpottedSounds() {
-    if (spotSound != null) OneShotAudio.PlayClipAtPoint(spotSound, transform.position, 1f, mixerGroup);
-    if (chaseStartSound != null) OneShotAudio.PlayClipAtPoint(chaseStartSound, transform.position, 1f, mixerGroup);
-  }
-
-  /// <summary>Ticks down to a random idle line while patrolling, replaying the countdown (also randomized) each time one fires.</summary>
   private void UpdateIdleSound() {
     if (idleSounds == null || idleSounds.Length == 0) return;
-
-    _idleSoundTimer -= Time.deltaTime;
-    if (_idleSoundTimer > 0f) return;
-
+    idleSoundTimer -= Time.deltaTime;
+    if (idleSoundTimer > 0f) return;
     AudioClip clip = idleSounds[Random.Range(0, idleSounds.Length)];
     if (clip != null) OneShotAudio.PlayClipAtPoint(clip, transform.position, 1f, mixerGroup);
-    _idleSoundTimer = Random.Range(idleSoundMinInterval, idleSoundMaxInterval);
+    idleSoundTimer = Random.Range(idleSoundMinInterval, idleSoundMaxInterval);
   }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Takedown sequence
-  // ─────────────────────────────────────────────────────────────────────────
-
-  private IEnumerator TakedownSequence() {
-    if (_agent != null && _agent.isOnNavMesh) {
-      _agent.isStopped = true;
-      _agent.enabled = false;
-    }
-
-    if (visionCone != null) {
-      visionCone.enabled = false;
-    }
-
-    if (takedownSound != null) {
-      OneShotAudio.PlayClipAtPoint(takedownSound, transform.position, 1f, mixerGroup);
-    }
-
-    if (takedownReplacementPrefab != null) {
-      Instantiate(takedownReplacementPrefab, transform.position, transform.rotation);
-    }
-
-    foreach (Collider col in GetComponentsInChildren<Collider>()) {
-      col.enabled = false;
-    }
-
-    Debug.Log($"[Guard] '{name}' taken down; destroying in {takedownDestroyDelay}s.");
-
-    yield return new WaitForSeconds(takedownDestroyDelay);
-    Destroy(gameObject);
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Editor helpers
-  // ─────────────────────────────────────────────────────────────────────────
 
 #if UNITY_EDITOR
   private void OnDrawGizmosSelected() {
-    if (patrolWaypoints == null) {
-      return;
-    }
-
     Gizmos.color = Color.cyan;
-    for (var i = 0; i < patrolWaypoints.Length; i++) {
-      if (patrolWaypoints[i] == null) {
-        continue;
-      }
-
-      Gizmos.DrawSphere(patrolWaypoints[i].position, 0.15f);
-      var next = (i + 1) % patrolWaypoints.Length;
-      if (patrolWaypoints[next] != null) {
-        Gizmos.DrawLine(patrolWaypoints[i].position, patrolWaypoints[next].position);
-      }
+    int count = patrolRoute != null && patrolRoute.Count > 0 ? patrolRoute.Count : patrolWaypoints?.Length ?? 0;
+    for (int i = 0; i < count; i++) {
+      Transform a = GetPatrolPoint(i);
+      Transform b = GetPatrolPoint((i + 1) % Mathf.Max(1, count));
+      if (a == null) continue;
+      Gizmos.DrawSphere(a.position, 0.12f);
+      if (b != null && count > 1) Gizmos.DrawLine(a.position, b.position);
     }
-  }
-
-  private void OnGUI() {
-    if (!showStateLabel || Camera.main == null) {
-      return;
-    }
-
-    Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + Vector3.up * 2f);
-    if (screenPosition.z < 0) {
-      return;
-    }
-
-    var label = $"[{name}] {CurrentState}";
-    Color color = CurrentState switch {
-      GuardState.Patrol => Color.green,
-      GuardState.Suspicious => Color.yellow,
-      GuardState.Investigating => new Color(1f, 0.6f, 0f),
-      GuardState.Alerted => Color.red,
-      GuardState.TakenDown => Color.gray,
-      _ => Color.white
-    };
-
-    GUI.color = color;
-    GUI.Label(new Rect(screenPosition.x - 60, Screen.height - screenPosition.y - 20, 160, 25), label);
-    GUI.color = Color.white;
   }
 #endif
 }

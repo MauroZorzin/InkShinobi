@@ -3,9 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// Defines one or more disjoint traceable lines ("strands") in the scene. LineFollowController
-/// locks the player's movement onto the nearest point of one strand at a time; LineSwitcher/
-/// AimSwitch let the player jump to a different strand — either on a different
-/// LinePath object, or a different, disconnected strand on this SAME LinePath object.
+/// locks the player's movement onto the nearest point of one strand at a time. The wall-switch
+/// system can move the player to another authored strand or LinePath.
 ///
 /// Authoring (useChildrenAsPoints = true, the default):
 ///  - SIMPLE: add child empty GameObjects directly under this object, in order. That's one
@@ -30,6 +29,9 @@ public class LinePath : MonoBehaviour {
 
   [Tooltip("Local-space points for a single strand. Only used when useChildrenAsPoints is false.")]
   public Vector3[] points = new Vector3[0];
+
+  [Tooltip("Optional shared point anchors. When assigned, these take precedence over Points while Use Children As Points is disabled.")]
+  public Transform[] externalPointTransforms = new Transform[0];
 
   [Tooltip("Default closed-loop setting for strands that don't have their own LineStrandMarker.")]
   public bool closedLoop = false;
@@ -57,9 +59,44 @@ public class LinePath : MonoBehaviour {
   /// <summary>Whether a specific strand wraps (closed loop) rather than stopping at its ends.</summary>
   public bool IsStrandClosedLoop(int strandIndex) => TryGetStrand(strandIndex, out var s) && s.closedLoop;
 
+  /// <summary>Number of straight segments composing a strand.</summary>
+  public int GetSegmentCount(int strandIndex) {
+    if (!TryGetStrand(strandIndex, out var strand) || strand.worldPoints.Length < 2) return 0;
+    return strand.closedLoop ? strand.worldPoints.Length : strand.worldPoints.Length - 1;
+  }
+
+  /// <summary>
+  /// Exposes one authored segment without exposing the mutable internal point arrays. This lets
+  /// screen-space selection evaluate the real path geometry rather than approximating it with
+  /// scene-wide ray samples.
+  /// </summary>
+  public bool TryGetSegment(
+    int strandIndex,
+    int segmentIndex,
+    out Vector3 start,
+    out Vector3 end,
+    out float startDistance,
+    out float length) {
+    start = transform.position;
+    end = transform.position;
+    startDistance = 0f;
+    length = 0f;
+
+    if (!TryGetStrand(strandIndex, out var strand)) return false;
+    int segmentCount = strand.closedLoop ? strand.worldPoints.Length : strand.worldPoints.Length - 1;
+    if (segmentIndex < 0 || segmentIndex >= segmentCount) return false;
+
+    int nextIndex = (segmentIndex + 1) % strand.worldPoints.Length;
+    start = strand.worldPoints[segmentIndex];
+    end = strand.worldPoints[nextIndex];
+    startDistance = strand.cumulativeLengths[segmentIndex];
+    length = Vector3.Distance(start, end);
+    return length > 0.0001f;
+  }
+
   private static readonly List<LinePath> _all = new List<LinePath>();
 
-  /// <summary>All enabled LinePaths currently in the scene. Used by AimSwitch to find switch targets.</summary>
+  /// <summary>All enabled LinePaths currently in the scene. Used by wall-switch targeting.</summary>
   public static IReadOnlyList<LinePath> All => _all;
 
   private void OnEnable() {
@@ -113,10 +150,78 @@ public class LinePath : MonoBehaviour {
         for (int i = 0; i < transform.childCount; i++) pts.Add(transform.GetChild(i).position);
         AddStrand(pts, closedLoop, gizmoColor);
       }
+    } else if (externalPointTransforms != null && externalPointTransforms.Length > 0) {
+      var pts = new List<Vector3>();
+      foreach (Transform pointTransform in externalPointTransforms)
+        if (pointTransform != null) pts.Add(pointTransform.position);
+      AddStrand(pts, closedLoop, gizmoColor);
     } else if (points != null && points.Length > 0) {
       var pts = new List<Vector3>();
       foreach (var p in points) pts.Add(transform.TransformPoint(p));
       AddStrand(pts, closedLoop, gizmoColor);
+    }
+  }
+
+  public void ConfigureExternalPoints(params Transform[] pointTransforms) {
+    useChildrenAsPoints = false;
+    externalPointTransforms = pointTransforms ?? new Transform[0];
+    Rebuild();
+  }
+
+  /// <summary>Finds the best enabled path endpoint coincident with a source endpoint.</summary>
+  public static bool TryFindConnectedEndpoint(
+    LinePath sourcePath,
+    int sourceStrand,
+    Vector3 sourcePoint,
+    Vector3 preferredDirection,
+    float tolerance,
+    out EndpointTransition transition) {
+    EndpointTransition bestTransition = default;
+    float bestScore = float.NegativeInfinity;
+    float toleranceSquared = tolerance * tolerance;
+
+    foreach (LinePath candidate in _all) {
+      if (candidate == null || !candidate.isActiveAndEnabled) continue;
+      for (int strand = 0; strand < candidate.StrandCount; strand++) {
+        if (candidate == sourcePath && strand == sourceStrand) continue;
+        float length = candidate.GetStrandLength(strand);
+        if (length <= 0.0001f) continue;
+
+        EvaluateEndpoint(candidate, strand, 0f, 1f);
+        EvaluateEndpoint(candidate, strand, length, -1f);
+      }
+    }
+
+    transition = bestTransition;
+    return bestTransition.Path != null;
+
+    void EvaluateEndpoint(LinePath path, int strand, float distance, float inwardDirection) {
+      Vector3 point = path.GetPointAtDistance(strand, distance);
+      if ((point - sourcePoint).sqrMagnitude > toleranceSquared) return;
+
+      Vector3 tangent = path.GetDirectionAtDistance(strand, distance) * inwardDirection;
+      tangent.y = 0f;
+      float score = preferredDirection.sqrMagnitude > 0.0001f && tangent.sqrMagnitude > 0.0001f
+        ? Vector3.Dot(preferredDirection.normalized, tangent.normalized)
+        : 0f;
+      if (score <= bestScore) return;
+
+      bestScore = score;
+      bestTransition = new EndpointTransition(path, strand, distance, inwardDirection);
+    }
+  }
+
+  public readonly struct EndpointTransition {
+    public LinePath Path { get; }
+    public int Strand { get; }
+    public float EndpointDistance { get; }
+    public float InwardDirection { get; }
+
+    public EndpointTransition(LinePath path, int strand, float endpointDistance, float inwardDirection) {
+      Path = path;
+      Strand = strand;
+      EndpointDistance = endpointDistance;
+      InwardDirection = inwardDirection;
     }
   }
 

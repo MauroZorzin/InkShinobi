@@ -1,308 +1,522 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 public class LineFollowController : MonoBehaviour {
   [Header("Line")]
-  [Tooltip("The LinePath the player currently walks along. Assign a starting line here, or leave empty and call SetLine() at runtime.")]
+  [Tooltip("The line and strand the player currently follows.")]
   public LinePath currentLine;
+  public int currentStrand;
 
-  [Tooltip("Which strand (disjoint sub-path) of currentLine the player is on. Most LinePaths only have strand 0 unless authored with multiple groups — see LinePath's summary.")]
-  public int currentStrand = 0;
+  [Header("Feet")]
+  [Tooltip("Place this child transform at the soles of the player's feet.")]
+  public Transform feetAnchor;
 
   [Header("Movement")]
-  [Tooltip("Units per second moved along the line's length at full input.")]
-  public float moveSpeed = 4f;
+  [Min(0f)] public float moveSpeed = 2f;
+  [Min(0f)] public float acceleration = 10f;
+  [Min(0f)] public float deceleration = 25f;
 
-  [Tooltip("Rate at which along-line speed approaches moveSpeed while input is held.")]
-  public float acceleration = 20f;
+  [FormerlySerializedAs("movementEnabled")]
+  [SerializeField, Tooltip("Controls manual player movement without disabling scripted path positioning.")]
+  private bool manualMovementEnabled = true;
 
-  [Tooltip("Rate at which along-line speed returns to zero when input is released.")]
-  public float deceleration = 25f;
+  public bool movementEnabled {
+    get => manualMovementEnabled;
+    set {
+      if (manualMovementEnabled == value) return;
+      manualMovementEnabled = value;
+      if (!manualMovementEnabled) StopManualMovement();
+    }
+  }
 
-  [Header("Snapping")]
-  [Tooltip("How far (world units) the player may drift off the line before being pulled back. Keep small — this is a tolerance for float drift/collision jitter, not a lane width.")]
-  public float snapTolerance = 0.15f;
+  [Header("Corner Assist")]
+  [Tooltip("How far ahead the controller looks for a corner before committing to it.")]
+  [Min(0f)] public float cornerEntryDistance = 0.25f;
 
-  [Tooltip("How fast the player is pulled back onto the line once outside snapTolerance, in units/second.")]
-  public float snapPullSpeed = 10f;
+  [Tooltip("How far onto the new segment the player is carried before normal deceleration resumes.")]
+  [Min(0f)] public float cornerExitDistance = 0.2f;
 
-  [Tooltip("Height above the line's own Y the player sits at — e.g. so a ground-level line doesn't visually clip into the player's feet. LineSwitcher reads this same value so a switch lands the player at exactly the height normal walking will then treat as 'on the line', instead of the two disagreeing and fighting each other.")]
-  public float heightAboveLine = 0.05f;
+  [Tooltip("Minimum movement speed maintained while carrying the player through a corner.")]
+  [Min(0f)] public float cornerAssistSpeed = 1f;
 
-  [Header("Gravity")]
-  public float gravity = -20f;
+  [Tooltip("Small direction changes below this angle are not treated as corners.")]
+  [Range(0f, 180f)] public float minimumCornerAngle = 45f;
 
-  [Tooltip("Peak jump height used to calculate initial jump velocity.")]
-  public float jumpHeight = 2.5f;
-
-  [Header("Animation")]
-  [Tooltip("Drives isRunning/Velocity/isJumping/isFalling on PlayerAnimatorController. Defaults to this GameObject's Animator if left empty.")]
-  public Animator animator;
+  [Header("Path Connections")]
+  [Tooltip("Maximum world-space separation between authored endpoints that should connect.")]
+  [Min(0.001f)] public float endpointConnectionTolerance = 0.03f;
 
   [Header("Facing")]
-  [Tooltip("Degrees per second the whole-body facing rotation turns to catch up to its target orientation.")]
-  public float facingRotationSpeed = 540f;
-
-  [Tooltip("Degrees per second the facing turns to catch up right after a line switch (SnapFacingToLine), independent of movement input.")]
-  public float switchFacingSnapSpeed = 1080f;
-
-  [Tooltip("Defaults to this GameObject's PlayerFlipController if left empty. IsFlipped reverses which side of the path the player faces (and with it, move input and flipX). While IsFlipping is true, PlayerFlipController has exclusive control of transform.rotation and this script's own facing rotation is skipped.")]
+  [Min(0f)] public float facingRotationSpeed = 200f;
+  [Tooltip("Camera used to translate left/right input and sprite facing into screen space. Assign the player's gameplay camera.")]
+  public Camera movementCamera;
   public PlayerFlipController flipController;
-
-  [Header("Sprite Flip")]
-  [Tooltip("Defaults to this GameObject's SpriteRenderer if left empty.")]
   public SpriteRenderer spriteRenderer;
 
-  [Tooltip("Swap which way flipX points when moving backward along the line.")]
-  public bool invertFlip = false;
+  [Header("Animation")]
+  public Animator animator;
 
   [Header("Debug")]
   public bool drawDebugGizmos = true;
-  public bool logSnapWarnings = true;
 
   private static readonly int IsRunningHash = Animator.StringToHash("isRunning");
   private static readonly int VelocityHash = Animator.StringToHash("Velocity");
-  private static readonly int IsJumpingHash = Animator.StringToHash("isJumping");
-  private static readonly int IsFallingHash = Animator.StringToHash("isFalling");
 
-  private CharacterController _cc;
-  private Vector3 _facingNormal;
-  private Vector3 _rawNormal = Vector3.forward;
-  private bool _lastFlipped;
+  private CharacterController _characterController;
   private float _distanceAlongLine;
-  private float _alongLineSpeed;
-  private float _moveInput;
-  private float _verticalVelocity;
-  private bool _jumpRequested;
-  private bool _isSnappingFacing;
+  private float _input;
+  private float _speed;
+  private float _actualSignedSpeed;
+  private float _facingSideSign = 1f;
+  private bool _hasFacingSide;
+  private bool _lastFlipState;
+  private bool _cornerAssistActive;
+  private bool _cornerWasPassed;
+  private float _cornerDirectionSign;
+  private float _cornerExitStartDistance;
+  private Vector3 _cornerEntryTangent;
+  private bool _connectionAssistActive;
+  private float _connectionDirectionSign;
+  private float _connectionExitStartDistance;
+  private bool _hasConnectionFacingNormal;
+  private Vector3 _connectionFacingNormal;
+  private bool _facingTurnActive;
 
-  public bool movementEnabled = true;
-
-  public float GetDistanceAlongLine() => _distanceAlongLine;
-
-  public bool IsOnLine { get; private set; } = true;
+  public float DistanceAlongLine => _distanceAlongLine;
+  public Vector3 FeetPosition => feetAnchor != null ? feetAnchor.position : transform.position;
+  public bool IsTurning => _cornerAssistActive
+                           || _connectionAssistActive
+                           || _facingTurnActive
+                           || (flipController != null && flipController.IsFlipping);
 
   private void Awake() {
-    _cc = GetComponent<CharacterController>();
+    _characterController = GetComponent<CharacterController>();
     if (animator == null) animator = GetComponent<Animator>();
     if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
     if (flipController == null) flipController = GetComponent<PlayerFlipController>();
-
-    Vector3 initialForward = transform.forward;
-    initialForward.y = 0f;
-    _facingNormal = initialForward.sqrMagnitude > 0.0001f ? initialForward.normalized : Vector3.forward;
-  }
-
-  private void OnDisable() {
-    _moveInput = 0f;
-    _alongLineSpeed = 0f;
-    _jumpRequested = false;
-
-    if (animator == null) return;
-
-    animator.SetBool(IsRunningHash, false);
-    animator.SetFloat(VelocityHash, 0f);
-    animator.SetBool(IsJumpingHash, false);
-    animator.SetBool(IsFallingHash, false);
+    if (movementCamera == null) movementCamera = GetComponentInChildren<Camera>(true);
   }
 
   private void Start() {
-    if (currentLine != null) {
-      var dist = currentLine.FindClosestDistance(transform.position, out _, out _, out int strand);
-      SetLine(currentLine, strand, dist);
-    }
-    _lastFlipped = flipController != null && flipController.IsFlipped;
+    if (currentLine == null) return;
+
+    float distance = currentLine.FindClosestDistance(
+      FeetPosition,
+      out _,
+      out _,
+      out int strand);
+
+    SetLine(currentLine, strand, distance);
+  }
+
+  private void OnDisable() {
+    _input = 0f;
+    _speed = 0f;
+    _actualSignedSpeed = 0f;
+    CancelCornerAssist();
+    CancelConnectionAssist();
+    _hasConnectionFacingNormal = false;
+    _facingTurnActive = false;
+    UpdateAnimator();
   }
 
 #pragma warning disable IDE0051
-  private void OnMove(UnityEngine.InputSystem.InputValue value) {
-    _moveInput = value.Get<float>();
-  }
-
-  private void OnJump(UnityEngine.InputSystem.InputValue value) {
-    if (value.isPressed) {
-      RequestJump();
-    }
+  private void OnMove(InputValue value) {
+    _input = manualMovementEnabled ? value.Get<float>() : 0f;
   }
 #pragma warning restore IDE0051
 
-  public void RequestJump() {
-    _jumpRequested = true;
-  }
-
   private void Update() {
-    if (!movementEnabled || currentLine == null) {
+    if (!manualMovementEnabled) return;
+
+    if (currentLine == null || currentLine.StrandCount == 0) {
+      StopMoving();
       return;
     }
 
-    UpdateFacingSide();
-    UpdateAlongLineSpeed();
-    var horizontalDelta = ComputeHorizontalDelta();
-    ApplyGravityAndMove(horizontalDelta);
-    UpdateSnapState();
-    UpdateAnimator();
+    UpdateCornerAssist();
+    UpdateSpeed();
+    FollowLine();
+    UpdateCornerAssistProgress();
     UpdateFacing();
+    UpdateConnectionAssistProgress();
     UpdateSpriteFlip();
+    UpdateAnimator();
   }
 
-  private void UpdateFacingSide() {
-    Vector3 tangent = currentLine.GetDirectionAtDistance(currentStrand, _distanceAlongLine);
-    tangent.y = 0f;
-    if (tangent.sqrMagnitude < 0.0001f) return;
-    tangent.Normalize();
+  private void UpdateSpeed() {
+    float targetSpeed = GetPathRelativeInput() * moveSpeed;
 
-    _rawNormal = Vector3.Cross(Vector3.up, tangent);
-    _facingNormal = Vector3.Dot(_rawNormal, _facingNormal) < 0f ? -_rawNormal : _rawNormal;
-
-    bool flipped = flipController != null && flipController.IsFlipped;
-    if (flipped != _lastFlipped) {
-      _facingNormal = -_facingNormal;
-      _lastFlipped = flipped;
+    if (_cornerAssistActive && Mathf.Abs(targetSpeed) < cornerAssistSpeed) {
+      targetSpeed = _cornerDirectionSign * cornerAssistSpeed;
     }
+
+    if (_connectionAssistActive) {
+      float committedSpeed = Mathf.Max(Mathf.Abs(targetSpeed), cornerAssistSpeed);
+      targetSpeed = _connectionDirectionSign * committedSpeed;
+    }
+
+    float rate = Mathf.Abs(targetSpeed) > 0.001f ? acceleration : deceleration;
+    _speed = Mathf.MoveTowards(_speed, targetSpeed, rate * Time.deltaTime);
+  }
+
+  private void UpdateCornerAssist() {
+    if (_connectionAssistActive) return;
+    float pathRelativeInput = GetPathRelativeInput();
+    if (_cornerAssistActive) {
+      if (pathRelativeInput * _cornerDirectionSign < -0.001f) CancelCornerAssist();
+      return;
+    }
+
+    if (Mathf.Abs(pathRelativeInput) < 0.001f || cornerEntryDistance <= 0f) return;
+
+    float directionSign = Mathf.Sign(pathRelativeInput);
+    float lookAheadDistance = _distanceAlongLine + directionSign * cornerEntryDistance;
+    Vector3 futureTangent;
+
+    if (!currentLine.IsStrandClosedLoop(currentStrand)) {
+      float length = currentLine.GetStrandLength(currentStrand);
+      bool reachesStart = lookAheadDistance < 0f;
+      bool reachesEnd = lookAheadDistance > length;
+      if (reachesStart || reachesEnd) {
+        float endpointDistance = reachesEnd ? length : 0f;
+        Vector3 endpoint = currentLine.GetPointAtDistance(currentStrand, endpointDistance);
+        if (!LinePath.TryFindConnectedEndpoint(
+              currentLine,
+              currentStrand,
+              endpoint,
+              GetPreferredConnectionDirection(),
+              endpointConnectionTolerance,
+              out LinePath.EndpointTransition transition)) return;
+
+        futureTangent = transition.Path.GetDirectionAtDistance(
+          transition.Strand,
+          transition.EndpointDistance) * transition.InwardDirection;
+        futureTangent.y = 0f;
+      } else {
+        futureTangent = GetHorizontalTangent(lookAheadDistance) * directionSign;
+      }
+    } else {
+      futureTangent = GetHorizontalTangent(lookAheadDistance) * directionSign;
+    }
+
+    Vector3 currentTangent = GetHorizontalTangent(_distanceAlongLine) * directionSign;
+    if (currentTangent == Vector3.zero || futureTangent == Vector3.zero) return;
+    if (Vector3.Angle(currentTangent, futureTangent) < minimumCornerAngle) return;
+
+    _cornerAssistActive = true;
+    _cornerWasPassed = false;
+    _cornerDirectionSign = directionSign;
+    _cornerEntryTangent = currentTangent;
+  }
+
+  private void UpdateCornerAssistProgress() {
+    if (!_cornerAssistActive) return;
+
+    Vector3 currentTangent = GetHorizontalTangent(_distanceAlongLine) * _cornerDirectionSign;
+    if (!_cornerWasPassed) {
+      if (currentTangent == Vector3.zero ||
+          Vector3.Angle(_cornerEntryTangent, currentTangent) < minimumCornerAngle) {
+        return;
+      }
+
+      _cornerWasPassed = true;
+      _cornerExitStartDistance = _distanceAlongLine;
+    }
+
+    if (GetDirectedDistance(_cornerExitStartDistance, _distanceAlongLine, _cornerDirectionSign) >= cornerExitDistance) {
+      CancelCornerAssist();
+    }
+  }
+
+  private Vector3 GetHorizontalTangent(float distance) {
+    Vector3 tangent = currentLine.GetDirectionAtDistance(currentStrand, distance);
+    tangent.y = 0f;
+    return tangent.sqrMagnitude > 0.0001f ? tangent.normalized : Vector3.zero;
+  }
+
+  private float GetDirectedDistance(float from, float to, float directionSign) {
+    float directedDistance = (to - from) * directionSign;
+    if (currentLine.IsStrandClosedLoop(currentStrand) && directedDistance < 0f) {
+      directedDistance += currentLine.GetStrandLength(currentStrand);
+    }
+    return Mathf.Max(0f, directedDistance);
+  }
+
+  private void CancelCornerAssist() {
+    _cornerAssistActive = false;
+    _cornerWasPassed = false;
+  }
+
+  private void BeginConnectionAssist(float inwardDirection, float endpointDistance) {
+    _connectionAssistActive = true;
+    _connectionDirectionSign = inwardDirection;
+    _connectionExitStartDistance = endpointDistance;
+  }
+
+  private void UpdateConnectionAssistProgress() {
+    if (!_connectionAssistActive) return;
+    float travelled = GetDirectedDistance(
+      _connectionExitStartDistance,
+      _distanceAlongLine,
+      _connectionDirectionSign);
+    if (travelled >= cornerExitDistance && !_facingTurnActive &&
+        (flipController == null || !flipController.IsFlipping)) {
+      CancelConnectionAssist();
+    }
+  }
+
+  private void CancelConnectionAssist() => _connectionAssistActive = false;
+
+  private void FollowLine() {
+    Vector3 previousFeetPosition = FeetPosition;
+    float previousDistance = _distanceAlongLine;
+    float wantedDistance = previousDistance + _speed * Time.deltaTime;
+    bool transferredPath = false;
+    float transferredDirection = 0f;
+
+    if (!currentLine.IsStrandClosedLoop(currentStrand)) {
+      float length = currentLine.GetStrandLength(currentStrand);
+      bool crossedStart = wantedDistance < 0f;
+      bool crossedEnd = wantedDistance > length;
+
+      if (crossedStart || crossedEnd) {
+        Vector3 incomingTravelDirection = GetHorizontalTangent(previousDistance) * Mathf.Sign(_speed);
+        float overflow = crossedEnd ? wantedDistance - length : -wantedDistance;
+        Vector3 endpointPoint = currentLine.GetPointAtDistance(
+          currentStrand,
+          crossedEnd ? length : 0f);
+
+        if (LinePath.TryFindConnectedEndpoint(
+              currentLine,
+              currentStrand,
+              endpointPoint,
+              GetPreferredConnectionDirection(),
+              endpointConnectionTolerance,
+              out LinePath.EndpointTransition transition)) {
+          currentLine = transition.Path;
+          currentStrand = transition.Strand;
+          transferredDirection = transition.InwardDirection;
+          Vector3 outgoingTravelDirection = GetHorizontalTangent(transition.EndpointDistance) * transferredDirection;
+          SetConnectionFacingNormal(incomingTravelDirection, outgoingTravelDirection);
+          wantedDistance = transition.EndpointDistance + overflow * transferredDirection;
+          float targetLength = currentLine.GetStrandLength(currentStrand);
+          wantedDistance = Mathf.Clamp(wantedDistance, 0f, targetLength);
+          _speed = Mathf.Abs(_speed) * transferredDirection;
+          _hasFacingSide = false;
+          _facingTurnActive = true;
+          CancelCornerAssist();
+          BeginConnectionAssist(transferredDirection, transition.EndpointDistance);
+          transferredPath = true;
+        } else {
+          CancelConnectionAssist();
+          wantedDistance = Mathf.Clamp(wantedDistance, 0f, length);
+          if (Mathf.Approximately(wantedDistance, previousDistance) && Mathf.Abs(_speed) > 0f)
+            _speed = 0f;
+        }
+      }
+    }
+
+    Vector3 targetFeetPosition = currentLine.GetPointAtDistance(currentStrand, wantedDistance);
+    _characterController.Move(targetFeetPosition - FeetPosition);
+
+    _distanceAlongLine = currentLine.FindClosestDistanceOnStrand(
+      currentStrand,
+      FeetPosition,
+      out _,
+      out _);
+
+    float signedDistance;
+    if (transferredPath) {
+      signedDistance = Vector3.Distance(previousFeetPosition, FeetPosition) * transferredDirection;
+    } else {
+      signedDistance = _distanceAlongLine - previousDistance;
+    }
+
+    if (!transferredPath && currentLine.IsStrandClosedLoop(currentStrand)) {
+      float length = currentLine.GetStrandLength(currentStrand);
+      if (length > 0f && Mathf.Abs(signedDistance) > length * 0.5f) {
+        signedDistance -= Mathf.Sign(signedDistance) * length;
+      }
+    }
+
+    _actualSignedSpeed = Time.deltaTime > 0f ? signedDistance / Time.deltaTime : 0f;
+  }
+
+  private Vector3 GetPreferredConnectionDirection() {
+    if (movementCamera != null && Mathf.Abs(_input) > 0.001f) {
+      Vector3 cameraRight = movementCamera.transform.right;
+      cameraRight.y = 0f;
+      if (cameraRight.sqrMagnitude > 0.0001f) return cameraRight.normalized * Mathf.Sign(_input);
+    }
+
+    return GetHorizontalTangent(_distanceAlongLine) * Mathf.Sign(_speed);
+  }
+
+  private void SetConnectionFacingNormal(Vector3 incomingTravelDirection, Vector3 outgoingTravelDirection) {
+    incomingTravelDirection.y = 0f;
+    outgoingTravelDirection.y = 0f;
+    if (incomingTravelDirection.sqrMagnitude < 0.0001f || outgoingTravelDirection.sqrMagnitude < 0.0001f) {
+      _hasConnectionFacingNormal = false;
+      return;
+    }
+
+    // At a right-angle connection both normals of the destination path are equally
+    // close to the current view. Carrying the supporting-wall normal through the
+    // same signed turn as travel removes that ambiguity and keeps the camera outside.
+    Quaternion travelTurn = Quaternion.FromToRotation(
+      incomingTravelDirection.normalized,
+      outgoingTravelDirection.normalized);
+    _connectionFacingNormal = travelTurn * transform.forward;
+    _connectionFacingNormal.y = 0f;
+    _hasConnectionFacingNormal = _connectionFacingNormal.sqrMagnitude > 0.0001f;
+    if (_hasConnectionFacingNormal) _connectionFacingNormal.Normalize();
   }
 
   private void UpdateFacing() {
-    if (flipController != null && flipController.IsFlipping) return;
-
-    float targetYaw = Mathf.Atan2(_facingNormal.x, _facingNormal.z) * Mathf.Rad2Deg;
-
-    if (_isSnappingFacing) {
-      float snappedYaw = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetYaw, switchFacingSnapSpeed * Time.deltaTime);
-      transform.eulerAngles = new Vector3(0f, snappedYaw, 0f);
-      if (Mathf.Approximately(snappedYaw, targetYaw)) _isSnappingFacing = false;
+    if (flipController != null && flipController.IsFlipping) {
+      _facingTurnActive = true;
       return;
     }
 
-    if (Mathf.Abs(_alongLineSpeed) < 0.01f) return;
+    Vector3 tangent = currentLine.GetDirectionAtDistance(currentStrand, _distanceAlongLine);
+    tangent.y = 0f;
+    if (tangent.sqrMagnitude < 0.0001f) return;
 
-    float newYaw = Mathf.MoveTowardsAngle(transform.eulerAngles.y, targetYaw, facingRotationSpeed * Time.deltaTime);
-    transform.eulerAngles = new Vector3(0f, newYaw, 0f);
+    Vector3 rawNormal = Vector3.Cross(Vector3.up, tangent.normalized);
+    bool flipState = flipController != null && flipController.IsFlipped;
+
+    if (!_hasFacingSide) {
+      Vector3 referenceNormal = _hasConnectionFacingNormal
+        ? _connectionFacingNormal
+        : transform.forward;
+      _facingSideSign = Vector3.Dot(rawNormal, referenceNormal) >= 0f ? 1f : -1f;
+      _hasConnectionFacingNormal = false;
+      _lastFlipState = flipState;
+      _hasFacingSide = true;
+    } else if (flipState != _lastFlipState) {
+      _facingSideSign = -_facingSideSign;
+      _lastFlipState = flipState;
+    }
+
+    Vector3 normal = rawNormal * _facingSideSign;
+
+    Quaternion targetRotation = Quaternion.LookRotation(normal, Vector3.up);
+    _facingTurnActive = Quaternion.Angle(transform.rotation, targetRotation) > 0.5f;
+    transform.rotation = Quaternion.RotateTowards(
+      transform.rotation,
+      targetRotation,
+      facingRotationSpeed * Time.deltaTime);
+    _facingTurnActive = Quaternion.Angle(transform.rotation, targetRotation) > 0.5f;
   }
 
   private void UpdateSpriteFlip() {
-    // Input becomes zero before deceleration finishes. Do not treat that release frame as
-    // rightward movement, otherwise the sprite always flips back to its default when it idles.
-    if (spriteRenderer == null || Mathf.Abs(_moveInput) < 0.01f) return;
-    bool movingBackward = _moveInput < 0f;
-    spriteRenderer.flipX = invertFlip ? !movingBackward : movingBackward;
+    if (spriteRenderer == null || Mathf.Abs(_actualSignedSpeed) < 0.001f) return;
+
+    Vector3 movementDirection = GetHorizontalTangent(_distanceAlongLine) * Mathf.Sign(_actualSignedSpeed);
+    if (movementDirection == Vector3.zero) {
+      spriteRenderer.flipX = _actualSignedSpeed < 0f;
+      return;
+    }
+
+    Vector3 spriteRight = spriteRenderer.transform.right;
+    spriteRight.y = 0f;
+    spriteRenderer.flipX = spriteRight.sqrMagnitude > 0.0001f &&
+      Vector3.Dot(movementDirection, spriteRight.normalized) < 0f;
+  }
+
+  private float GetPathRelativeInput() {
+    if (Mathf.Abs(_input) < 0.001f || movementCamera == null) return _input;
+
+    Vector3 tangent = GetHorizontalTangent(_distanceAlongLine);
+    Vector3 cameraRight = movementCamera.transform.right;
+    cameraRight.y = 0f;
+    if (tangent == Vector3.zero || cameraRight.sqrMagnitude < 0.0001f) return _input;
+
+    // Positive input always means screen-right, independently of path point ordering or
+    // which side of the wall the camera currently occupies.
+    float increasingPathScreenDirection = Vector3.Dot(tangent, cameraRight.normalized) >= 0f ? 1f : -1f;
+    return _input * increasingPathScreenDirection;
   }
 
   private void UpdateAnimator() {
     if (animator == null) return;
 
-    bool grounded = _cc.isGrounded;
-    // Held input at an open line endpoint does not mean the character is moving.
-    animator.SetBool(IsRunningHash, Mathf.Abs(_alongLineSpeed) > 0.01f);
-    animator.SetFloat(VelocityHash, Mathf.Abs(_alongLineSpeed));
-    animator.SetBool(IsJumpingHash, !grounded && _verticalVelocity > 0f);
-    animator.SetBool(IsFallingHash, !grounded && _verticalVelocity < 0f);
+    float speed = Mathf.Abs(_actualSignedSpeed);
+    animator.SetBool(IsRunningHash, speed > 0.01f);
+    animator.SetFloat(VelocityHash, speed);
   }
 
-  private void UpdateAlongLineSpeed() {
-    float sign = Vector3.Dot(_facingNormal, _rawNormal) < 0f ? 1f : -1f;
-    float input = _moveInput * sign;
-    var target = input * moveSpeed;
-    var rate = (input != 0f) ? acceleration : deceleration;
-    _alongLineSpeed = Mathf.MoveTowards(_alongLineSpeed, target, rate * Time.deltaTime);
+  private void StopMoving() {
+    _speed = 0f;
+    _actualSignedSpeed = 0f;
+    UpdateAnimator();
   }
 
-  private Vector3 GetHuggedPoint(float distance) {
-    return currentLine.GetPointAtDistance(currentStrand, distance) + Vector3.up * heightAboveLine;
+  private void StopManualMovement() {
+    _input = 0f;
+    CancelCornerAssist();
+    CancelConnectionAssist();
+    _hasConnectionFacingNormal = false;
+    _facingTurnActive = false;
+    StopMoving();
   }
 
-  private Vector3 ComputeHorizontalDelta() {
-    Vector3 beforePos = GetHuggedPoint(_distanceAlongLine);
-    var wantedDistance = _distanceAlongLine + _alongLineSpeed * Time.deltaTime;
-
-    if (currentLine.IsStrandClosedLoop(currentStrand)) {
-      _distanceAlongLine = wantedDistance;
-    } else {
-      var strandLength = currentLine.GetStrandLength(currentStrand);
-      _distanceAlongLine = Mathf.Clamp(wantedDistance, 0f, strandLength);
-      if (!Mathf.Approximately(_distanceAlongLine, wantedDistance)) {
-        _alongLineSpeed = 0f;
-      }
-    }
-
-    Vector3 afterPos = GetHuggedPoint(_distanceAlongLine);
-    return afterPos - beforePos;
-  }
-
-  private void ApplyGravityAndMove(Vector3 horizontalDelta) {
-    if (_cc.isGrounded && _verticalVelocity < 0f) {
-      _verticalVelocity = -2f;
-    }
-
-    if (_jumpRequested) {
-      _verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-      _jumpRequested = false;
-    }
-
-    _verticalVelocity += gravity * Time.deltaTime;
-
-    Vector3 correction = ComputeSnapCorrection();
-
-    Vector3 move = horizontalDelta + correction + Vector3.up * (_verticalVelocity * Time.deltaTime);
-    _cc.Move(move);
-  }
-
-  private Vector3 ComputeSnapCorrection() {
-    if (currentLine == null) return Vector3.zero;
-
-    var distAlong = currentLine.FindClosestDistanceOnStrand(currentStrand, transform.position, out Vector3 closestPoint, out _);
-    Vector3 huggedPoint = closestPoint + Vector3.up * heightAboveLine;
-    float distToHugged = Vector3.Distance(transform.position, huggedPoint);
-
-    if (distToHugged <= snapTolerance) {
-      return Vector3.zero;
-    }
-
-    if (logSnapWarnings) {
-      Debug.LogWarning($"[LineFollowController] Off line by {distToHugged:F2}m (tolerance {snapTolerance:F2}m) — snapping back.");
-    }
-
-    _distanceAlongLine = distAlong;
-
-    Vector3 toLine = huggedPoint - transform.position;
-    Vector3 step = Vector3.ClampMagnitude(toLine * snapPullSpeed * Time.deltaTime, toLine.magnitude);
-    return step;
-  }
-
-  private void UpdateSnapState() {
-    if (currentLine == null) {
-      IsOnLine = false;
-      return;
-    }
-
-    currentLine.FindClosestDistanceOnStrand(currentStrand, transform.position, out Vector3 closestPoint, out _);
-    float distToHugged = Vector3.Distance(transform.position, closestPoint + Vector3.up * heightAboveLine);
-    IsOnLine = distToHugged <= snapTolerance;
-  }
-
-  public void SetLine(LinePath newLine, int strandIndex, float distanceAlongLine) {
-    currentLine = newLine;
-    currentStrand = strandIndex;
+  public void SetLine(LinePath line, int strand, float distanceAlongLine) {
+    currentLine = line;
+    currentStrand = strand;
     _distanceAlongLine = distanceAlongLine;
-    _alongLineSpeed = 0f;
+    _speed = 0f;
+    _actualSignedSpeed = 0f;
+    _hasFacingSide = false;
+    _hasConnectionFacingNormal = false;
+    _facingTurnActive = false;
+    CancelCornerAssist();
+    CancelConnectionAssist();
   }
 
-  public void SnapFacingToLine() {
-    if (currentLine == null) return;
-
-    UpdateFacingSide();
-    _isSnappingFacing = true;
+  public Vector3 GetRootPositionForFeetAt(Vector3 feetPosition) {
+    return transform.position + feetPosition - FeetPosition;
   }
 
-  public void ResetVelocity() {
-    _alongLineSpeed = 0f;
-    _verticalVelocity = 0f;
+  /// <summary>Moves the player to an authored distance while normal input movement is disabled.</summary>
+  public void SetScriptedPathPosition(int strand, float distanceAlongLine, float signedSpeed) {
+    if (currentLine == null || currentLine.StrandCount == 0) return;
+
+    currentStrand = Mathf.Clamp(strand, 0, currentLine.StrandCount - 1);
+    float length = currentLine.GetStrandLength(currentStrand);
+    if (currentLine.IsStrandClosedLoop(currentStrand) && length > 0f)
+      distanceAlongLine = Mathf.Repeat(distanceAlongLine, length);
+    else
+      distanceAlongLine = Mathf.Clamp(distanceAlongLine, 0f, length);
+
+    Vector3 targetFeetPosition = currentLine.GetPointAtDistance(currentStrand, distanceAlongLine);
+    transform.position = GetRootPositionForFeetAt(targetFeetPosition);
+    _distanceAlongLine = distanceAlongLine;
+    _speed = signedSpeed;
+    _actualSignedSpeed = signedSpeed;
+    UpdateFacing();
+    UpdateSpriteFlip();
+    UpdateAnimator();
+  }
+
+  /// <summary>Ends an externally driven path movement without changing its final path distance.</summary>
+  public void FinishScriptedPathMovement() {
+    _speed = 0f;
+    _actualSignedSpeed = 0f;
+    UpdateAnimator();
   }
 
 #if UNITY_EDITOR
   private void OnDrawGizmosSelected() {
-    if (!drawDebugGizmos || currentLine == null) return;
-    Gizmos.color = IsOnLine ? Color.green : Color.red;
-    Gizmos.DrawWireSphere(transform.position, snapTolerance);
+    if (!drawDebugGizmos) return;
+
+    Gizmos.color = Color.green;
+    Gizmos.DrawWireSphere(
+      feetAnchor != null ? feetAnchor.position : transform.position,
+      0.06f);
   }
 #endif
 }

@@ -2,9 +2,11 @@ using UnityEngine;
 using UnityEngine.AI;
 
 /// <summary>
-/// Maps a guard's NavMesh movement direction to camera-relative sprite facing and animation parameters.
+/// Maps a guard's transform facing to camera-relative sprite facing and uses movement only to
+/// select between idle and walking animations.
 /// </summary>
 [RequireComponent(typeof(NavMeshAgent))]
+[DefaultExecutionOrder(100)]
 public class GuardSpriteFacing : MonoBehaviour {
   private enum FacingDirection {
     Front = 0,
@@ -24,7 +26,7 @@ public class GuardSpriteFacing : MonoBehaviour {
   [SerializeField] private Animator spriteAnimator;
 
   [Header("Movement Detection")]
-  [Tooltip("Minimum horizontal NavMeshAgent speed required to refresh movement direction.")]
+  [Tooltip("Minimum horizontal NavMeshAgent speed required to use the walk animation.")]
   [SerializeField] private float minimumMoveSpeed = 0.05f;
 
   [Tooltip("Seconds to keep walk animation active after movement falls below the threshold.")]
@@ -35,14 +37,16 @@ public class GuardSpriteFacing : MonoBehaviour {
   [SerializeField] private bool rotateSpriteToFaceCamera = true;
 
   private NavMeshAgent agent;
-  private Vector3 lastMoveDirection = Vector3.forward;
   private float lastMovingTime = -999f;
+  private Vector3 previousPosition;
 
   private static readonly int IsMovingHash = Animator.StringToHash("IsMoving");
   private static readonly int FacingHash = Animator.StringToHash("Facing");
+  private static readonly int IsAttackingHash = Animator.StringToHash("IsAttacking");
 
   private void Awake() {
     agent = GetComponent<NavMeshAgent>();
+    previousPosition = transform.position;
 
     if (gameCamera == null) {
       gameCamera = Camera.main;
@@ -53,7 +57,7 @@ public class GuardSpriteFacing : MonoBehaviour {
     }
   }
 
-  private void Update() {
+  private void LateUpdate() {
     if (gameCamera == null || spriteAnimator == null) {
       return;
     }
@@ -62,7 +66,7 @@ public class GuardSpriteFacing : MonoBehaviour {
       RotateVisualTowardCamera();
     }
 
-    var isCurrentlyMoving = UpdateLastMoveDirection();
+    var isCurrentlyMoving = UpdateMovementState();
     var shouldUseWalkAnimation = isCurrentlyMoving || Time.time < lastMovingTime + idleDelay;
     FacingDirection facingDirection = GetCameraRelativeDirection();
 
@@ -70,16 +74,30 @@ public class GuardSpriteFacing : MonoBehaviour {
     spriteAnimator.SetInteger(FacingHash, (int)facingDirection);
   }
 
+  /// <summary>Lets the guard brain temporarily override locomotion with an attack animation.</summary>
+  public void SetAttacking(bool attacking) {
+    if (spriteAnimator != null) spriteAnimator.SetBool(IsAttackingHash, attacking);
+  }
+
   /// <summary>
-  /// Updates the cached movement direction from the NavMeshAgent velocity.
+  /// Reads movement speed from the NavMeshAgent, with displacement as a fallback.
   /// </summary>
   /// <returns>True when current velocity is above the movement threshold.</returns>
-  private bool UpdateLastMoveDirection() {
-    Vector3 velocity = agent.velocity;
+  private bool UpdateMovementState() {
+    float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
+    Vector3 displacementVelocity = (transform.position - previousPosition) / deltaTime;
+    Vector3 velocity = displacementVelocity;
+
+    if (agent != null && agent.enabled && agent.isOnNavMesh) {
+      Vector3 agentVelocity = agent.velocity;
+      // NavMesh-controlled guards report their true velocity here. Keep displacement as a safe
+      // fallback for scripted warps and legacy scenes.
+      if (agentVelocity.sqrMagnitude > displacementVelocity.sqrMagnitude) velocity = agentVelocity;
+    }
+    previousPosition = transform.position;
     velocity.y = 0f;
 
     if (velocity.magnitude >= minimumMoveSpeed) {
-      lastMoveDirection = velocity.normalized;
       lastMovingTime = Time.time;
       return true;
     }
@@ -88,10 +106,15 @@ public class GuardSpriteFacing : MonoBehaviour {
   }
 
   /// <summary>
-  /// Converts the cached movement direction into a camera-relative facing enum.
+  /// Converts the guard transform's forward direction into a camera-relative facing enum.
   /// </summary>
   /// <returns>The camera-relative facing direction.</returns>
   private FacingDirection GetCameraRelativeDirection() {
+    Vector3 facingDirection = transform.forward;
+    facingDirection.y = 0f;
+    if (facingDirection.sqrMagnitude < 0.0001f) facingDirection = Vector3.forward;
+    else facingDirection.Normalize();
+
     Vector3 cameraForward = gameCamera.transform.forward;
     cameraForward.y = 0f;
 
@@ -110,8 +133,8 @@ public class GuardSpriteFacing : MonoBehaviour {
       cameraRight.Normalize();
     }
 
-    var forwardDot = Vector3.Dot(lastMoveDirection, cameraForward);
-    var rightDot = Vector3.Dot(lastMoveDirection, cameraRight);
+    var forwardDot = Vector3.Dot(facingDirection, cameraForward);
+    var rightDot = Vector3.Dot(facingDirection, cameraRight);
 
     if (Mathf.Abs(forwardDot) >= Mathf.Abs(rightDot)) {
       if (forwardDot > 0f) {

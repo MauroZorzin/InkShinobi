@@ -105,10 +105,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6d787c9c6823c2949a35a68425825ae1, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   item: {fileID: 11400000, guid: f3c3a4cb98e4a51429925f3f9fc756a7, type: 2}
   destroyOnPickup: 1
+  pickupInteractionRange: 1
 --- !u!114 &45845111724665248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,10 +120,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a46aabfbcf20f740a3976971f42eee8, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::ItemFloatAnimation
   spinSpeed: 90
-  bobHeight: 0.15
+  bobHeight: 0.05
   bobSpeed: 0.5
 --- !u!65 &8873897222095774894
 BoxCollider:

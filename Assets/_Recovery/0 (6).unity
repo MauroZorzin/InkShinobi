@@ -1892,7 +1892,6 @@ GameObject:
   - component: {fileID: 886249025}
   - component: {fileID: 886249023}
   - component: {fileID: 886249026}
-  - component: {fileID: 886249027}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -2157,26 +2156,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GameScripts::PlayerStealthController
   timeToHide: 1
-  takedownController: {fileID: 886249027}
---- !u!114 &886249027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 886249014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 59cc53cda97e5f04092e77c2eaf2af4a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: GameScripts::TakedownController
-  enabledAtStart: 1
-  takedownRange: 1.5
-  takedownAngle: 60
-  guardLayerMask:
-    serializedVersion: 2
-    m_Bits: 136
-  verboseLogging: 1
 --- !u!1 &907899049
 GameObject:
   m_ObjectHideFlags: 0

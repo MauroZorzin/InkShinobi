@@ -1,93 +1,55 @@
 using System.Collections;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 
 /// <summary>
-/// Sliding passageway door, toggled via PlayerInteractor like any other IInteractable. Optionally
-/// gated by an inventory item id — set Required Item Id to a key's itemId to link them, or leave
-/// Requires Item To Open/Close off for a door that opens freely.
+/// Sliding passageway door. A door may start locked; the matching runtime key is consumed once,
+/// after which the door stays unlocked and can always be opened and closed.
 /// </summary>
-public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt {
-  private enum SlideAxis {
-    LocalX,
-    LocalZ,
-  }
-
-  private enum MotionEasing {
-    Linear,
-    SmoothStep,
-    EaseInOutSine,
-    EaseOutCubic,
-    EaseInOutCubic,
-    CustomCurve,
-  }
+public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, IInteractionFocus {
+  public enum PassageState { Closed, Opening, Open, Closing }
+  private enum SlideAxis { LocalX, LocalZ }
+  private enum MotionEasing { Linear, SmoothStep, EaseInOutSine, EaseOutCubic, EaseInOutCubic, CustomCurve }
 
   [Header("Door Panels")]
-  [Tooltip("Panel moved in the positive local slide direction when the door opens.")]
   [SerializeField] private Transform leftDoorPanel;
-
-  [Tooltip("Panel moved in the negative local slide direction when the door opens.")]
   [SerializeField] private Transform rightDoorPanel;
-
-  [Tooltip("Collider that blocks the passage while closed and becomes a trigger while open.")]
+  [Tooltip("Collider that blocks movement and wall switching while the door is closed.")]
   [SerializeField] private Collider blockingCollider;
-
-  [Tooltip("Optional NavMesh obstacle associated with the closed doorway.")]
+  [Tooltip("Obstacle carved into the guard NavMesh only while the door is closed.")]
   [SerializeField] private NavMeshObstacle navMeshObstacle;
 
   [Header("Door State")]
-  [Tooltip("Whether the door begins open when the scene starts.")]
-  [SerializeField] private bool startsOpen = false;
-
-  [Tooltip("Automatically starts an opening animation on Start when the door begins closed.")]
-  [SerializeField] private bool autoOpenOnStart = false;
-
-  [Tooltip("Automatically starts a closing animation on Start when the door begins open.")]
-  [SerializeField] private bool autoCloseOnStart = false;
-
-  [Tooltip("Local axis used by the panels when sliding open or closed.")]
+  [SerializeField] private bool startsOpen;
+  [SerializeField] private bool autoOpenOnStart;
+  [SerializeField] private bool autoCloseOnStart;
   [SerializeField] private SlideAxis slideAxis = SlideAxis.LocalX;
-
-  [Tooltip("Distance each panel moves away from its closed position.")]
   [SerializeField] private float panelSlideDistance = 0.75f;
-
-  [Tooltip("Seconds used for each open or close animation.")]
-  [SerializeField] private float animationDuration = 0.35f;
-
-  [Tooltip("Easing function used to interpolate panel movement.")]
+  [SerializeField, Min(0.01f)] private float animationDuration = 0.35f;
   [SerializeField] private MotionEasing motionEasing = MotionEasing.SmoothStep;
-
-  [Tooltip("Curve used when Motion Easing is set to Custom Curve.")]
   [SerializeField] private AnimationCurve customEasingCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+  [Header("Lock")]
+  [FormerlySerializedAs("requiresItemToOpen")]
+  [Tooltip("When enabled, this door begins locked and needs the matching key once.")]
+  [SerializeField] private bool startsLocked;
+  [FormerlySerializedAs("requiredItemId")]
+  [Tooltip("Stable id that must match the runtime id of the carried key.")]
+  [SerializeField] private string requiredKeyId = "door_key";
+  [Tooltip("Authored lock/key colour. Door-panel colouring can use this in the later visual pass.")]
+  [SerializeField] private Color requiredKeyColor = new(0.25f, 0.7f, 1f, 1f);
+  [FormerlySerializedAs("requiresItemToClose")]
+  [SerializeField, HideInInspector] private bool obsoleteRequiresItemToClose;
+
   [Header("Audio")]
-  [Tooltip("Audio source used to play transition sounds.")]
   [SerializeField] private AudioSource audioSource;
-
-  [Tooltip("Clip played when an opening animation starts.")]
   [SerializeField] private AudioClip openStartClip;
-
-  [Tooltip("Clip played when a closing animation starts.")]
   [SerializeField] private AudioClip closeStartClip;
-
-  [Tooltip("Clip played when an opening animation finishes.")]
   [SerializeField] private AudioClip openEndClip;
-
-  [Tooltip("Clip played when a closing animation finishes.")]
   [SerializeField] private AudioClip closeEndClip;
-
-  [Tooltip("Volume multiplier used for all door transition sounds.")]
   [SerializeField, Range(0f, 1f)] private float audioVolume = 1f;
-
-  [Header("Item Requirement")]
-  [Tooltip("Whether opening this door requires the configured inventory item.")]
-  [SerializeField] private bool requiresItemToOpen = false;
-
-  [Tooltip("Whether closing this door requires the configured inventory item.")]
-  [SerializeField] private bool requiresItemToClose = false;
-
-  [Tooltip("Inventory item id required when open or close requirements are enabled.")]
-  [SerializeField] private string requiredItemId = "door_key";
 
   [Header("Interaction Prompt")]
   [Tooltip("Shown while the door is closed and doesn't require an item to open.")]
@@ -100,240 +62,207 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt {
   [SerializeField] private string lockedPromptText = "Serve una chiave";
 
   public bool IsOpen { get; private set; }
+  public PassageState CurrentState { get; private set; } = PassageState.Closed;
+  public bool IsAnimating => CurrentState == PassageState.Opening || CurrentState == PassageState.Closing;
+  public event Action<PassageState> PassageStateChanged;
+  public bool IsLocked { get; private set; }
+  public bool StartsLocked => startsLocked;
+  public string RequiredKeyId => requiredKeyId;
+  public Color RequiredKeyColor => requiredKeyColor;
+  public Transform LeftDoorPanel => leftDoorPanel;
+  public Transform RightDoorPanel => rightDoorPanel;
 
   private Vector3 leftClosedLocalPosition;
   private Vector3 rightClosedLocalPosition;
   private Vector3 leftOpenLocalPosition;
   private Vector3 rightOpenLocalPosition;
   private Coroutine animationCoroutine;
+  private DoorLinePathState linePathState;
+  private DoorKeyColorVisual keyColorVisual;
 
-  public void Interact(PlayerInventory inventory) {
-    TryToggle(inventory);
-  }
+  public void Interact(PlayerInventory inventory) => TryToggle(inventory);
 
   public string GetPromptText(PlayerInventory inventory) {
+    if (animationCoroutine != null) return null;
+    if (PlayerOccupiesDoorPath(inventory)) return null;
     if (IsOpen) return openPromptText;
-    return requiresItemToOpen && !PlayerHasRequiredItem(inventory) ? lockedPromptText : closedPromptText;
+    if (!IsLocked) return closedPromptText;
+    return PlayerHasRequiredKey(inventory) ? openPromptText : lockedPromptText;
   }
 
   private void Awake() {
-    if (audioSource == null) {
-      audioSource = GetComponent<AudioSource>();
-    }
-
-    if (leftDoorPanel == null && transform.childCount > 0) {
-      leftDoorPanel = transform.GetChild(0);
-    }
-
-    if (rightDoorPanel == null && transform.childCount > 1) {
-      rightDoorPanel = transform.GetChild(1);
-    }
-
-    if (blockingCollider != null) {
-      blockingCollider.enabled = true;
-      blockingCollider.isTrigger = startsOpen;
-    }
+    if (audioSource == null) audioSource = GetComponent<AudioSource>();
+    if (leftDoorPanel == null && transform.childCount > 0) leftDoorPanel = transform.GetChild(0);
+    if (rightDoorPanel == null && transform.childCount > 1) rightDoorPanel = transform.GetChild(1);
+    linePathState = GetComponentInChildren<DoorLinePathState>(true);
+    keyColorVisual = GetComponent<DoorKeyColorVisual>();
 
     leftClosedLocalPosition = leftDoorPanel != null ? leftDoorPanel.localPosition : Vector3.zero;
     rightClosedLocalPosition = rightDoorPanel != null ? rightDoorPanel.localPosition : Vector3.zero;
-
-
-
-    if (navMeshObstacle != null) {
-      navMeshObstacle.enabled = true;
-      navMeshObstacle.carving = false;
-    }
+    CalculateOpenPositions();
 
     IsOpen = startsOpen;
+    IsLocked = startsLocked && !startsOpen;
+    SetPassageState(IsOpen ? PassageState.Open : PassageState.Closed);
     ApplyPanelPositions(IsOpen);
     ApplyPassageBlockingState(IsOpen);
+    keyColorVisual?.Apply();
   }
 
   private void Start() {
     bool shouldAutoOpen = !startsOpen && autoOpenOnStart;
     bool shouldAutoClose = startsOpen && autoCloseOnStart;
+    if (!shouldAutoOpen && !shouldAutoClose) return;
 
-    if (!shouldAutoOpen && !shouldAutoClose) {
-      return;
-    }
-
-    // Startup transitions should not depend on inventory requirements.
-    if (animationCoroutine != null) {
-      StopCoroutine(animationCoroutine);
-    }
-
+    if (shouldAutoOpen) IsLocked = false;
     animationCoroutine = StartCoroutine(AnimateDoor(shouldAutoOpen));
   }
 
-  /// <summary>
-  /// Checks whether the supplied inventory can perform the next door toggle.
-  /// </summary>
-  /// <param name="inventory">The inventory used for item-gated doors.</param>
-  /// <returns>True when the next open or close action is allowed.</returns>
   public bool CanToggle(PlayerInventory inventory) {
-    var wantsToOpen = !IsOpen;
-
-    if (wantsToOpen && requiresItemToOpen) {
-      return PlayerHasRequiredItem(inventory);
-    }
-
-    if (!wantsToOpen && requiresItemToClose) {
-      return PlayerHasRequiredItem(inventory);
-    }
-
-    return true;
+    if (animationCoroutine != null) return false;
+    if (PlayerOccupiesDoorPath(inventory)) return false;
+    return IsOpen || !IsLocked || PlayerHasRequiredKey(inventory);
   }
 
-  /// <summary>
-  /// Toggles the door to the opposite state when requirements are met.
-  /// </summary>
-  /// <param name="inventory">The inventory used for item-gated doors.</param>
-  /// <returns>True when the toggle was accepted.</returns>
+  public void SetInteractionFocused(bool focused, PlayerInventory inventory) {
+    if (keyColorVisual == null) keyColorVisual = GetComponent<DoorKeyColorVisual>();
+    keyColorVisual?.SetHandleInteractionState(focused, focused && CanToggle(inventory));
+  }
+
   public bool TryToggle(PlayerInventory inventory) {
+    if (!CanToggle(inventory)) return false;
     return TrySetOpen(!IsOpen, inventory);
   }
 
-  /// <summary>
-  /// Starts an open or close transition when requirements are met.
-  /// </summary>
-  /// <param name="open">True to open the door; false to close it.</param>
-  /// <param name="inventory">The inventory used for item-gated doors.</param>
-  /// <returns>True when the requested state is accepted or already reached.</returns>
   public bool TrySetOpen(bool open, PlayerInventory inventory) {
-    if (open == IsOpen && animationCoroutine == null) {
-      return true;
-    }
+    if (animationCoroutine != null) return false;
+    if (open == IsOpen) return true;
 
-    if (open && requiresItemToOpen && !PlayerHasRequiredItem(inventory)) {
-      Debug.LogWarning($"{name}: This door requires item '{requiredItemId}' to open.");
-      return false;
-    }
+    if (open && IsLocked) {
+      if (!PlayerHasRequiredKey(inventory)) {
+        Debug.LogWarning($"{name}: This door requires key '{requiredKeyId}' to open.", this);
+        return false;
+      }
 
-    if (!open && requiresItemToClose && !PlayerHasRequiredItem(inventory)) {
-      Debug.LogWarning($"{name}: This door requires item '{requiredItemId}' to close.");
-      return false;
-    }
-
-    if (animationCoroutine != null) {
-      StopCoroutine(animationCoroutine);
+      inventory.ConsumeItem();
+      IsLocked = false;
     }
 
     animationCoroutine = StartCoroutine(AnimateDoor(open));
     return true;
   }
 
-  private bool PlayerHasRequiredItem(PlayerInventory inventory) {
-    if (inventory == null) {
-      return false;
-    }
+  private bool PlayerHasRequiredKey(PlayerInventory inventory) =>
+    inventory != null && !string.IsNullOrWhiteSpace(requiredKeyId) && inventory.HasItem(requiredKeyId);
 
-    return inventory.HasItem(requiredItemId);
+  private bool PlayerOccupiesDoorPath(PlayerInventory inventory) {
+    if (inventory == null) return false;
+    if (linePathState == null) linePathState = GetComponentInChildren<DoorLinePathState>(true);
+    if (linePathState == null) return false;
+
+    LineFollowController movement = inventory.GetComponentInParent<LineFollowController>();
+    if (movement == null) movement = inventory.GetComponentInChildren<LineFollowController>(true);
+    return movement != null && linePathState.Contains(movement.currentLine);
   }
 
-  /// <summary>
-  /// Animates panel positions and applies the final blocking state.
-  /// </summary>
-  /// <param name="open">True when animating toward the open state.</param>
   private IEnumerator AnimateDoor(bool open) {
     Vector3 leftStart = leftDoorPanel != null ? leftDoorPanel.localPosition : Vector3.zero;
     Vector3 rightStart = rightDoorPanel != null ? rightDoorPanel.localPosition : Vector3.zero;
     Vector3 leftTarget = open ? leftOpenLocalPosition : leftClosedLocalPosition;
     Vector3 rightTarget = open ? rightOpenLocalPosition : rightClosedLocalPosition;
 
-    if (!open) {
-      ApplyPassageBlockingState(false);
-    }
+    SetPassageState(open ? PassageState.Opening : PassageState.Closing);
 
+    // A closing door blocks immediately. An opening door stays blocked until the panels finish.
+    if (!open) ApplyPassageBlockingState(false);
     PlayTransitionClip(open, true);
 
-    var elapsed = 0f;
-
+    float elapsed = 0f;
     while (elapsed < animationDuration) {
       elapsed += Time.deltaTime;
-
-      var t = Mathf.Clamp01(elapsed / animationDuration);
-      var easedT = EvaluateEasing(t);
-
-      if (leftDoorPanel != null) {
-        leftDoorPanel.localPosition = Vector3.Lerp(leftStart, leftTarget, easedT);
-      }
-
-      if (rightDoorPanel != null) {
-        rightDoorPanel.localPosition = Vector3.Lerp(rightStart, rightTarget, easedT);
-      }
-
+      float t = Mathf.Clamp01(elapsed / animationDuration);
+      float easedT = EvaluateEasing(t);
+      if (leftDoorPanel != null) leftDoorPanel.localPosition = Vector3.Lerp(leftStart, leftTarget, easedT);
+      if (rightDoorPanel != null) rightDoorPanel.localPosition = Vector3.Lerp(rightStart, rightTarget, easedT);
       yield return null;
     }
 
     ApplyPanelPositions(open);
     IsOpen = open;
-    ApplyPassageBlockingState(IsOpen);
-
+    ApplyPassageBlockingState(open);
+    SetPassageState(open ? PassageState.Open : PassageState.Closed);
     PlayTransitionClip(open, false);
     animationCoroutine = null;
   }
 
-  /// <summary>
-  /// Evaluates the configured easing mode for a normalized animation time.
-  /// </summary>
-  /// <param name="t">Normalized time in the range 0..1.</param>
-  /// <returns>The eased interpolation value.</returns>
-  private float EvaluateEasing(float t) {
-    return motionEasing switch {
-      MotionEasing.Linear => t,
-      MotionEasing.SmoothStep => Mathf.SmoothStep(0f, 1f, t),
-      MotionEasing.EaseInOutSine => 0.5f - 0.5f * Mathf.Cos(Mathf.PI * t),
-      MotionEasing.EaseOutCubic => 1f - Mathf.Pow(1f - t, 3f),
-      MotionEasing.EaseInOutCubic => t < 0.5f ? 4f * t * t * t : 1f - Mathf.Pow(-2f * t + 2f, 3f) / 2f,
-      MotionEasing.CustomCurve => customEasingCurve == null ? t : Mathf.Clamp01(customEasingCurve.Evaluate(t)),
-      _ => t,
-    };
+  private void SetPassageState(PassageState state) {
+    if (CurrentState == state) return;
+    CurrentState = state;
+    keyColorVisual?.Apply();
+    PassageStateChanged?.Invoke(state);
   }
 
+  private float EvaluateEasing(float t) => motionEasing switch {
+    MotionEasing.Linear => t,
+    MotionEasing.SmoothStep => Mathf.SmoothStep(0f, 1f, t),
+    MotionEasing.EaseInOutSine => 0.5f - 0.5f * Mathf.Cos(Mathf.PI * t),
+    MotionEasing.EaseOutCubic => 1f - Mathf.Pow(1f - t, 3f),
+    MotionEasing.EaseInOutCubic => t < 0.5f ? 4f * t * t * t : 1f - Mathf.Pow(-2f * t + 2f, 3f) / 2f,
+    MotionEasing.CustomCurve => customEasingCurve == null ? t : Mathf.Clamp01(customEasingCurve.Evaluate(t)),
+    _ => t,
+  };
+
   private void PlayTransitionClip(bool opening, bool atStart) {
-    if (audioSource == null) {
-      return;
-    }
+    if (audioSource == null) return;
+    AudioClip clip = opening
+      ? atStart ? openStartClip : openEndClip
+      : atStart ? closeStartClip : closeEndClip;
+    if (clip != null) audioSource.PlayOneShot(clip, audioVolume);
+  }
 
-    AudioClip clip;
+  private void CalculateOpenPositions() {
+    Vector3 doorLocalDirection = slideAxis == SlideAxis.LocalX ? Vector3.right : Vector3.forward;
+    Vector3 worldOffset = transform.TransformDirection(doorLocalDirection).normalized * panelSlideDistance;
 
-    if (opening) {
-      clip = atStart ? openStartClip : openEndClip;
-    } else {
-      clip = atStart ? closeStartClip : closeEndClip;
-    }
+    // Panels may live below a scaled imported-model root. Convert the desired door-space movement
+    // back into each panel parent's local space so model import scale never multiplies slide distance.
+    leftOpenLocalPosition = OffsetInParentSpace(leftDoorPanel, leftClosedLocalPosition, worldOffset);
+    rightOpenLocalPosition = OffsetInParentSpace(rightDoorPanel, rightClosedLocalPosition, -worldOffset);
+  }
 
-    if (clip == null) {
-      return;
-    }
-
-    audioSource.PlayOneShot(clip, audioVolume);
+  private static Vector3 OffsetInParentSpace(Transform panel, Vector3 closedLocalPosition, Vector3 worldOffset) {
+    if (panel == null || panel.parent == null) return closedLocalPosition;
+    Vector3 closedWorldPosition = panel.parent.TransformPoint(closedLocalPosition);
+    return panel.parent.InverseTransformPoint(closedWorldPosition + worldOffset);
   }
 
   private void ApplyPanelPositions(bool open) {
-
-    Vector3 localSlideDirection = slideAxis == SlideAxis.LocalX ? Vector3.right : Vector3.forward;
-    leftOpenLocalPosition = leftClosedLocalPosition + localSlideDirection * panelSlideDistance;
-    rightOpenLocalPosition = rightClosedLocalPosition - localSlideDirection * panelSlideDistance;
-
-    if (leftDoorPanel != null) {
-      leftDoorPanel.localPosition = open ? leftOpenLocalPosition : leftClosedLocalPosition;
-    }
-
-    if (rightDoorPanel != null) {
-      rightDoorPanel.localPosition = open ? rightOpenLocalPosition : rightClosedLocalPosition;
-    }
+    CalculateOpenPositions();
+    if (leftDoorPanel != null) leftDoorPanel.localPosition = open ? leftOpenLocalPosition : leftClosedLocalPosition;
+    if (rightDoorPanel != null) rightDoorPanel.localPosition = open ? rightOpenLocalPosition : rightClosedLocalPosition;
   }
 
   private void ApplyPassageBlockingState(bool open) {
     if (blockingCollider != null) {
-      blockingCollider.enabled = true;
-      blockingCollider.isTrigger = open;
+      blockingCollider.isTrigger = false;
+      blockingCollider.enabled = !open;
     }
 
     if (navMeshObstacle != null) {
-      navMeshObstacle.enabled = true;
-      navMeshObstacle.carving = false;
+      navMeshObstacle.carving = !open;
+      navMeshObstacle.enabled = !open;
     }
   }
+
+#if UNITY_EDITOR
+  private void OnValidate() {
+    if (startsLocked && string.IsNullOrWhiteSpace(requiredKeyId))
+      Debug.LogWarning($"[PassagewayDoor] '{name}' starts locked but Required Key Id is empty.", this);
+    if (startsLocked && startsOpen)
+      Debug.LogWarning($"[PassagewayDoor] '{name}' starts open, so its initial lock will be ignored.", this);
+
+    DoorKeyColorVisual colorVisual = GetComponent<DoorKeyColorVisual>();
+    if (colorVisual != null) colorVisual.Apply();
+  }
+#endif
 }

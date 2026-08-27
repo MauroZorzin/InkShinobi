@@ -30,6 +30,7 @@ Shader "Custom/InkTrail"
         _EdgeRoughness ("Edge Roughness Amount", Range(0, 0.5)) = 0.18
 
         _AlphaMultiplier ("Overall Alpha Multiplier", Range(0, 1)) = 1
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest ("Depth Test", Float) = 4
     }
 
     SubShader
@@ -39,6 +40,7 @@ Shader "Custom/InkTrail"
         Cull Off
         Lighting Off
         ZWrite Off
+        ZTest [_ZTest]
         Offset -1, -1
         Blend SrcAlpha OneMinusSrcAlpha
 

@@ -2,109 +2,114 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/// <summary>Per-instance data kept separate from the shared ItemDefinition asset.</summary>
+[Serializable]
+public sealed class InventoryItemInstance {
+  public ItemDefinition Definition { get; }
+  public string ItemId { get; }
+  public bool HasColorOverride { get; }
+  public Color DisplayColor { get; }
+
+  public InventoryItemInstance(
+      ItemDefinition definition,
+      string itemId = null,
+      bool hasColorOverride = false,
+      Color displayColor = default) {
+    Definition = definition;
+    ItemId = string.IsNullOrWhiteSpace(itemId)
+        ? definition != null ? definition.itemId : string.Empty
+        : itemId.Trim();
+    HasColorOverride = hasColorOverride;
+    DisplayColor = hasColorOverride ? displayColor : Color.white;
+  }
+}
+
 /// <summary>
-/// Single-slot inventory. Pickup happens via PlayerInteractor finding a WorldItem (IInteractable) and
-/// calling TryPickUp. Drop (right mouse) drops whatever is currently held in place, or throws it at
-/// the current aim point (see ThrownItem) if AimSwitch is aiming when Drop is pressed.
+/// Single-slot inventory. It owns runtime item identity and presentation data, supports pickup and
+/// consumption, and drops the held item when the Drop input is performed. Aiming belongs to separate abilities.
 /// </summary>
 public class PlayerInventory : MonoBehaviour {
   [Header("Drop")]
   [Tooltip("Point items are dropped from. Leave empty to use this transform.")]
   public Transform dropPoint;
 
-  [Header("Throw")]
-  [Tooltip("If aiming when Drop is pressed, the item is thrown at the aim point instead of dropped in place. Defaults to this GameObject's AimSwitch if left empty.")]
-  public AimSwitch aimSwitch;
+  public event Action<InventoryItemInstance> ItemInstanceChanged;
 
-  public event Action<ItemDefinition> ItemChanged;
+  public InventoryItemInstance CurrentItemInstance { get; private set; }
+  public string CurrentItemId => CurrentItemInstance != null ? CurrentItemInstance.ItemId : string.Empty;
+  public bool IsHoldingItem => CurrentItemInstance != null;
 
-  public ItemDefinition CurrentItem { get; private set; }
-  public bool IsHoldingItem => CurrentItem != null;
-
-  /// <summary>Checks whether the carried item matches the given id. Empty ids are treated as no requirement.</summary>
+  /// <summary>Checks the runtime id of the carried item. Empty ids mean no requirement.</summary>
   public bool HasItem(string itemId) {
     if (string.IsNullOrWhiteSpace(itemId)) {
       return true;
     }
 
-    return CurrentItem != null && string.Equals(CurrentItem.itemId, itemId, StringComparison.OrdinalIgnoreCase);
-  }
-
-  private void Awake() {
-    if (aimSwitch == null) aimSwitch = GetComponent<AimSwitch>();
+    return CurrentItemInstance != null
+        && string.Equals(CurrentItemInstance.ItemId, itemId.Trim(), StringComparison.OrdinalIgnoreCase);
   }
 
 #pragma warning disable IDE0051
   private void OnDrop(InputValue value) {
-    if (!value.isPressed) return;
-
-    bool aiming = aimSwitch != null && aimSwitch.IsAiming;
-    Debug.Log($"[PlayerInventory] OnDrop pressed. aimSwitch={(aimSwitch != null ? aimSwitch.name : "NULL")}, IsAiming={aiming} -> {(aiming ? "TryThrow" : "TryDrop")}");
-
-    if (aiming) TryThrow();
-    else TryDrop();
+    if (value.isPressed) TryDrop();
   }
 #pragma warning restore IDE0051
 
-  /// <summary>Picks up an item. Called by WorldItem.Interact via PlayerInteractor. Fails if already holding one.</summary>
   public bool TryPickUp(ItemDefinition item) {
-    if (item == null || IsHoldingItem) {
+    return TryPickUp(new InventoryItemInstance(item));
+  }
+
+  public bool TryPickUp(ItemDefinition item, string itemId, bool hasColorOverride, Color displayColor) {
+    return TryPickUp(new InventoryItemInstance(item, itemId, hasColorOverride, displayColor));
+  }
+
+  public bool TryPickUp(InventoryItemInstance itemInstance) {
+    if (itemInstance == null || itemInstance.Definition == null || IsHoldingItem) {
       return false;
     }
 
-    CurrentItem = item;
-    ItemChanged?.Invoke(CurrentItem);
+    CurrentItemInstance = itemInstance;
+    NotifyItemInstanceChanged();
     return true;
   }
 
-  /// <summary>Drops the carried item back into the world (via its worldPrefab, if set) and clears the slot.</summary>
   public bool TryDrop() {
     if (!IsHoldingItem) {
       return false;
     }
 
-    SpawnWorldPrefab();
-    CurrentItem = null;
-    ItemChanged?.Invoke(null);
+    InventoryItemInstance itemInstance = CurrentItemInstance;
+    ItemDefinition definition = itemInstance.Definition;
+    if (definition.worldPrefab != null) {
+      Vector3 position = dropPoint != null ? dropPoint.position : transform.position;
+      GameObject spawned = Instantiate(definition.worldPrefab, position, Quaternion.identity);
+      WorldItem worldItem = spawned.GetComponent<WorldItem>();
+      if (worldItem != null) {
+        worldItem.ConfigureRuntimeIdentity(
+          itemInstance.ItemId,
+          itemInstance.HasColorOverride,
+          itemInstance.DisplayColor);
+      }
+      Debug.Log($"[PlayerInventory] Dropped '{definition.displayName}' -> spawned '{spawned.name}' at {position:F2}.");
+    } else {
+      Debug.LogWarning($"[PlayerInventory] '{definition.displayName}' has no World Prefab assigned - dropping it only clears the slot.");
+    }
+
+    CurrentItemInstance = null;
+    NotifyItemInstanceChanged();
     return true;
   }
 
-  /// <summary>Throws the carried item toward the current aim point (a distraction) and clears the slot.</summary>
-  public bool TryThrow() {
-    if (!IsHoldingItem) {
-      return false;
-    }
-
-    GameObject spawned = SpawnWorldPrefab();
-    ThrownItem thrown = spawned != null ? spawned.GetComponent<ThrownItem>() : null;
-    Debug.Log($"[PlayerInventory] TryThrow: spawned={(spawned != null ? spawned.name : "NULL")}, ThrownItem={(thrown != null ? "found" : "MISSING")}, aimSwitch={(aimSwitch != null ? "ok" : "NULL")}");
-
-    if (thrown != null && aimSwitch != null) {
-      thrown.Launch(aimSwitch.AimWorldPoint);
-    }
-
-    CurrentItem = null;
-    ItemChanged?.Invoke(null);
-    return true;
-  }
-
-  private GameObject SpawnWorldPrefab() {
-    if (CurrentItem.worldPrefab == null) {
-      Debug.LogWarning($"[PlayerInventory] '{CurrentItem.displayName}' has no World Prefab assigned — nothing spawns in the scene.");
-      return null;
-    }
-
-    Vector3 position = dropPoint != null ? dropPoint.position : transform.position;
-    return Instantiate(CurrentItem.worldPrefab, position, Quaternion.identity);
-  }
-
-  /// <summary>Clears the carried item without spawning it back into the world — for when it's consumed/used up.</summary>
   public void ConsumeItem() {
     if (!IsHoldingItem) {
       return;
     }
 
-    CurrentItem = null;
-    ItemChanged?.Invoke(null);
+    CurrentItemInstance = null;
+    NotifyItemInstanceChanged();
+  }
+
+  private void NotifyItemInstanceChanged() {
+    ItemInstanceChanged?.Invoke(CurrentItemInstance);
   }
 }

@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 707680e77bfbc86408cdd212fd16fc61, type: 3}
+  m_Name: DistractionRock
+  m_EditorClassIdentifier: Assembly-CSharp::ItemDefinition
+  itemId: distraction_rock
+  displayName: Distraction Rock
+  icon: {fileID: 2800000, guid: c1de9f5eb241dbf4cb7c652ceec26e72, type: 3}
+  worldPrefab: {fileID: 9055337408190024310, guid: 49f8a20c08ee4884c84b3a5df3eab3c6, type: 3}

@@ -7,8 +7,7 @@ using UnityEngine.InputSystem;
 /// directly via CharacterController.Move() along an explicit world-space direction (flattened and
 /// normalized once at Start()), for walkDistance world units. No waypoints, no LinePath needed.
 ///
-/// Follows the same "temporarily take over the CharacterController" pattern LineSwitcher already
-/// uses for line-switch moves: disables LineFollowController.movementEnabled for the duration (if a
+/// Temporarily takes over the CharacterController: disables LineFollowController.movementEnabled for the duration (if a
 /// LineFollowController is present — this script doesn't require one), applies its own minimal
 /// gravity (mirroring LineFollowController.ApplyGravityAndMove so the walk doesn't float on uneven
 /// ground), and drives the same Animator parameters (isRunning/Velocity) so the existing walk

@@ -22,7 +22,7 @@ public abstract class MessageTriggerBase : MonoBehaviour {
 
   [System.Serializable]
   public class ComponentAction {
-    [Tooltip("Player component name (e.g. 'TakedownController').")]
+    [Tooltip("Player component name (e.g. 'PlayerInteractor').")]
     public string componentName;
 
     public ActionType action = ActionType.None;

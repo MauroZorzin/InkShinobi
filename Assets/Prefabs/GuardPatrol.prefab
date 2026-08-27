@@ -50,7 +50,7 @@ Light:
   m_InnerSpotAngle: 0
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -236,7 +236,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: 
+  m_WarningMessage:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -291,7 +291,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
-    m_Type: 1
+    m_Type: 0
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -349,7 +349,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -469,7 +469,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92e116532a517c548bfeaaccf432264b, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::VisionConeMesh
   fieldOfView: 180
   viewDistance: 2.5
@@ -585,7 +585,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92e116532a517c548bfeaaccf432264b, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::VisionConeMesh
   fieldOfView: 50
   viewDistance: 5
@@ -614,7 +614,9 @@ GameObject:
   - component: {fileID: 1520791010220140327}
   - component: {fileID: 1534752613705479263}
   - component: {fileID: 2640815573950704169}
-  - component: {fileID: 7499688073125512219}
+  - component: {fileID: 930000000000000030}
+  - component: {fileID: 930000000000000031}
+  - component: {fileID: 930000000000000032}
   m_Layer: 7
   m_Name: GuardPatrol
   m_TagString: Untagged
@@ -674,7 +676,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 654f1ab64da608b46929090b1c4f720f, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::GuardSpriteFacing
   gameCamera: {fileID: 0}
   spriteVisual: {fileID: 8862525270312487251}
@@ -692,52 +694,42 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a05eb359dfb1684080caee5c9241447, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::GuardController
   patrolWaypoints:
   - {fileID: 0}
   waypointWaitTime: 2
-  patrolMoveSpeed: 0.5
-  alertMoveSpeed: 3
+  patrolMoveSpeed: 2
+  patrolStoppingDistance: 0.08
+  noticingTurnSpeed: 420
+  alertMoveSpeed: 4
+  chaseRepathInterval: 0.12
+  lostSightGrace: 0.45
+  catchDistance: 0.55
+  chaseStoppingDistance: 0.18
   investigateDuration: 5
+  searchLookDuration: 3
   lookAroundAngle: 90
   lookAroundDuration: 1.5
   investigateLookCount: 3
   suspiciousLookCount: 2
-  takedownSound: {fileID: 8300000, guid: c5955b1ca51d47245ae5e5e10395d910, type: 3}
-  takedownReplacementPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
+  searchStoppingDistance: 0.12
+  takedownSound: {fileID: 8300000, guid: 07641d5d6b5ba4241aa5545917231aaa, type: 3}
+  takedownReplacementPrefab: {fileID: 0}
   takedownDestroyDelay: 2
-  spotSound: {fileID: 8300000, guid: 11113da5b07f5e44398bb4b84e0ac40e, type: 3}
-  chaseStartSound: {fileID: 8300000, guid: f1405405e5d06c547a825830fdc5f47d, type: 3}
-  loseSightSound: {fileID: 8300000, guid: fa6030c2ec1cb8d449472c4ff0747a0d, type: 3}
-  idleSounds:
-  - {fileID: 8300000, guid: 37f4a3c8f23ee0f43a88a6394a733ec5, type: 3}
-  - {fileID: 8300000, guid: 98f0bd38817e2004ebd59ae087fa11c8, type: 3}
-  - {fileID: 8300000, guid: 89078727888592442a34b0bb683ca01c, type: 3}
-  - {fileID: 8300000, guid: 098b196dee9dd1d408673a643be680bb, type: 3}
-  - {fileID: 8300000, guid: 58b8d5902a2fc5442b5479cf0c5ddd9d, type: 3}
-  - {fileID: 8300000, guid: f1bc888c507c1844c81f6193da9b15b8, type: 3}
-  - {fileID: 8300000, guid: ac84e845673d8e74d8ae1c8d60ff7ba5, type: 3}
-  - {fileID: 8300000, guid: f45d62392d901004d9ad7677000eba3f, type: 3}
-  - {fileID: 8300000, guid: b2eb73206cc87ab488ec4417fbfdbb4c, type: 3}
-  - {fileID: 8300000, guid: 11a2789b75805784ab1f683aee9e6a16, type: 3}
-  - {fileID: 8300000, guid: 28c76c64a95961f45a31378375fe9684, type: 3}
-  - {fileID: 8300000, guid: 7ae53d2bc2a1d8c45b18582ada9bef92, type: 3}
-  - {fileID: 8300000, guid: d497de7d5c298544bbc91cdd04436cbc, type: 3}
-  - {fileID: 8300000, guid: a467e5d8e0a6466429e02f44cd51a0ee, type: 3}
-  - {fileID: 8300000, guid: 1cf6d3b74c2127744abb19a58bd4d409, type: 3}
-  - {fileID: 8300000, guid: 3fe04919d4f6e1d4b9bf6484c09524db, type: 3}
-  - {fileID: 8300000, guid: e81b88c04bc83034a87032b500c55aa6, type: 3}
-  - {fileID: 8300000, guid: 1469665853445f840bbdeef4f2b8663d, type: 3}
-  - {fileID: 8300000, guid: 0bc89fd39f6a01c4db2661154fbb090c, type: 3}
-  - {fileID: 8300000, guid: 10a9e8aff20c6e940923ed44c6a14898, type: 3}
-  - {fileID: 8300000, guid: d7b8080b9fdc55942b2c2744a70a9889, type: 3}
-  - {fileID: 8300000, guid: 68fa641e4bd39814cb0d6b71df0f14a7, type: 3}
+  spotSound: {fileID: 8300000, guid: 2796991c2d63adf4c9c3d417a318aeaf, type: 3}
+  chaseStartSound: {fileID: 8300000, guid: 523fc9761fcbb7a47b2e382687e4538e, type: 3}
+  loseSightSound: {fileID: 8300000, guid: 079df0609381f5b4c85e2041ab773adf, type: 3}
+  idleSounds: []
   idleSoundMinInterval: 8
   idleSoundMaxInterval: 20
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   visionCone: {fileID: 0}
+  motor: {fileID: 0}
+  patrolRoute: {fileID: 0}
+  spriteFacing: {fileID: 8265316895135642748}
   showStateLabel: 0
+  verboseLogging: 0
 --- !u!114 &1534752613705479263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -748,9 +740,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 54ba3f67ccd034d4eb9aa5726a8dfa8f, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: GameScripts::GuardVisionCone
   eyeHeight: 0.3
+  eyeHorizontalOffset: 0
   playerAimHeight: 0
   shortRange: 2.6
   shortAngle: 160
@@ -763,6 +756,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2385
   detectionTime: 0.8
+  detectionReleaseTime: 0.35
+  wallSwitchExposureThreshold: 0.15
   showGizmos: 1
   verboseLogging: 0
   showRuntimeRay: 1
@@ -789,7 +784,7 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.3, z: 0}
---- !u!114 &7499688073125512219
+--- !u!114 &930000000000000030
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -798,18 +793,54 @@ MonoBehaviour:
   m_GameObject: {fileID: 7859379029619327441}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 510545817a43af64497344fea0a2050e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FootstepPlayer
-  library: {fileID: 11400000, guid: 92e6e1265c8fed64f9899a9f0162082d, type: 2}
-  raycastHeight: 0.5
-  raycastDistance: 2
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 2048
-  stepDistance: 1
-  minSpeedToStep: 0.05
-  volume: 1
-  pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
-  verboseLogging: 0
+  m_Script: {fileID: 11500000, guid: 8f3f226ac2574dc5abf7cd8a8fc1ac80, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::GuardWallSwitchTarget
+  suspiciousBlocksSwitch: 1
+  investigatingBlocksSwitch: 0
+  spriteRenderers:
+  - {fileID: 3485846223026709693}
+  vulnerableHighlight: {r: 0.9, g: 0.02, b: 0.015, a: 0.72}
+  blockingHighlight: {r: 0.015, g: 0.01, b: 0.01, a: 0.9}
+  highlightStrength: 0.72
+  dissolveStartDelay: 0.12
+  dissolveDuration: 1.1
+  dissolveEdgeColor: {r: 0.015, g: 0.01, b: 0.01, a: 1}
+  dissolveEdgeWidth: 0.12
+  airborneInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
+  airborneInkOffset: {x: 0, y: 0.25, z: 0}
+  airborneInkScale: 1.5
+  keyDropProgress: 0.82
+--- !u!114 &930000000000000031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7859379029619327441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37ba35ab9de8416aa01a75fe7e440d91, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::GuardMotor
+  destinationSampleRadius: 0.75
+  startupSampleRadius: 1
+  turnSpeed: 360
+  facingVelocityThreshold: 0.02
+--- !u!114 &930000000000000032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7859379029619327441}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e188064908e144268a21a39f965af6e2, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::GuardKeyCarrier
+  carriesKey: 0
+  keyId:
+  keyWorldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
+  dropAnchor: {fileID: 0}
+  dropOffset: {x: 0, y: 0.14, z: 0}

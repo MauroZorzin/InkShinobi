@@ -42,6 +42,7 @@ public sealed class ConfirmationModalView : MonoBehaviour {
   private readonly System.Collections.Generic.List<InputActionReference> _ownedActionReferences = new();
   private Action _onCancel;
   private int _openedFrame;
+  private bool _closeOnEscape = true;
 
   public bool IsClosing => panelAnimation != null && panelAnimation.IsClosing;
 
@@ -52,7 +53,8 @@ public sealed class ConfirmationModalView : MonoBehaviour {
     string cancelText,
     string confirmText,
     Action onCancel,
-    Action onConfirm
+    Action onConfirm,
+    bool closeOnEscape = true
   ) {
     ConfirmationModalView prefab = Resources.Load<ConfirmationModalView>(ResourceName);
     if (prefab == null) {
@@ -62,7 +64,7 @@ public sealed class ConfirmationModalView : MonoBehaviour {
 
     ConfirmationModalView instance = Instantiate(prefab);
     instance.gameObject.name = objectName;
-    instance.Initialize(title, message, cancelText, confirmText, onCancel, onConfirm);
+    instance.Initialize(title, message, cancelText, confirmText, onCancel, onConfirm, closeOnEscape);
     return instance;
   }
 
@@ -72,9 +74,11 @@ public sealed class ConfirmationModalView : MonoBehaviour {
     string cancelText,
     string confirmText,
     Action onCancel,
-    Action onConfirm
+    Action onConfirm,
+    bool closeOnEscape
   ) {
     _onCancel = onCancel;
+    _closeOnEscape = closeOnEscape;
     _openedFrame = Time.frameCount;
     titleLabel.text = title;
     messageLabel.text = message;
@@ -102,7 +106,7 @@ public sealed class ConfirmationModalView : MonoBehaviour {
   }
 
   private void Update() {
-    if (Time.frameCount == _openedFrame || IsClosing) return;
+    if (!_closeOnEscape || Time.frameCount == _openedFrame || IsClosing) return;
     if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
     _onCancel?.Invoke();

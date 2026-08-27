@@ -87,7 +87,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Takedown
+  m_Name: PLAYER_TAKEDOWN
   m_Speed: 0.5
   m_CycleOffset: 0
   m_Transitions:
@@ -223,7 +223,7 @@ AnimatorController:
     m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
-    m_DefaultBool: 1
+    m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
   - m_Name: Velocity
     m_Type: 1
@@ -409,7 +409,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PLAYER_MOVE
+  m_Name: PLAYER_WALK
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -538,7 +538,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PLAYER_MOVE_SNEAKY
+  m_Name: PLAYER_SNEAK
   m_Speed: 0.8
   m_CycleOffset: 0
   m_Transitions:

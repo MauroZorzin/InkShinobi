@@ -1,127 +1,132 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Emits an investigate signal to guards that enter the trigger collider while active.
-/// Call Activate() / Deactivate(), or set IsActive in the Inspector.
-/// Auto-deactivates after <see cref="lifetime"/> seconds if lifetime > 0.
-///
-/// Requires a Collider on this GameObject with Is Trigger checked.
+/// Emits a sound stimulus and guarantees that one emission notifies each guard at most once.
+/// The one-shot path is used by thrown distractions; Activate remains for legacy trigger-based scenes.
 /// </summary>
+[DisallowMultipleComponent]
 [RequireComponent(typeof(Collider))]
-public class GuardSoundSignal : MonoBehaviour {
-
+public sealed class GuardSoundSignal : MonoBehaviour {
   [Header("Signal")]
-  [Tooltip("Whether the signal is currently active.")]
-  public bool IsActive = false;
-
-  [Tooltip("Seconds until the signal deactivates automatically. 0 = never.")]
-  [Min(0f)] public float lifetime = 0f;
+  [Tooltip("Whether the legacy trigger signal is currently active.")]
+  public bool IsActive;
+  [Tooltip("Seconds until a legacy active signal deactivates. Zero means it remains active.")]
+  [Min(0f)] public float lifetime;
+  [Tooltip("Gameplay radius used by EmitOnce. When zero, the attached collider bounds are used.")]
+  [SerializeField, Min(0f)] private float audibleRadius = 5f;
+  [Tooltip("Layers containing guard colliders. Nothing means all layers for backwards compatibility.")]
+  [SerializeField] private LayerMask guardLayers;
+  [SerializeField, Range(8, 256)] private int overlapCapacity = 64;
 
   [Header("Debug")]
-  public bool verboseLogging = false;
+  public bool verboseLogging;
 
-  private float _activeTimer = 0f;
-  private bool _wasActive = false;
+  private readonly HashSet<GuardController> notifiedGuards = new();
+  private Collider[] overlapBuffer;
+  private Collider signalCollider;
+  private float activeTimer;
+  private bool wasActive;
 
-  // ── Public API ────────────────────────────────────────────────────────────
-
-  /// <summary>Turns the signal on. Optionally sets a new lifetime countdown.</summary>
-  public void Activate(float newLifetime = -1f) {
-    if (newLifetime >= 0f) {
-      lifetime = newLifetime;
-    }
-    _activeTimer = 0f;
-    IsActive = true;
-  }
-
-  /// <summary>Turns the signal off immediately.</summary>
-  public void Deactivate() {
-    IsActive = false;
-    _activeTimer = 0f;
-  }
-
-  // ── Unity lifecycle ───────────────────────────────────────────────────────
+  public float AudibleRadius => audibleRadius > 0f ? audibleRadius : GetColliderRadius();
 
   private void Awake() {
-    Collider col = GetComponent<Collider>();
-    if (!col.isTrigger) {
-      Debug.LogWarning($"[SoundSignal] '{name}': Collider is not Is Trigger — fixing automatically.", this);
-      col.isTrigger = true;
-    }
+    signalCollider = GetComponent<Collider>();
+    if (!signalCollider.isTrigger) signalCollider.isTrigger = true;
+    EnsureBuffer();
   }
 
   private void Update() {
-    // Detect the moment IsActive flips on (either from code or Inspector toggle).
-    if (IsActive && !_wasActive) {
-      OnBecameActive();
-    }
-    _wasActive = IsActive;
+    if (IsActive && !wasActive) BeginEmission();
+    wasActive = IsActive;
+    if (!IsActive || lifetime <= 0f) return;
+    activeTimer += Time.deltaTime;
+    if (activeTimer >= lifetime) Deactivate();
+  }
 
-    // Countdown.
-    if (IsActive && lifetime > 0f) {
-      _activeTimer += Time.deltaTime;
-      if (_activeTimer >= lifetime) {
-        Deactivate();
-      }
-    }
+  /// <summary>Immediately emits one sound event, then leaves no persistent trigger active.</summary>
+  public void EmitOnce() {
+    BeginEmission();
+    IsActive = false;
+    wasActive = false;
+  }
+
+  /// <summary>Starts the legacy active trigger and immediately catches guards already inside.</summary>
+  public void Activate(float newLifetime = -1f) {
+    if (newLifetime >= 0f) lifetime = newLifetime;
+    activeTimer = 0f;
+    IsActive = true;
+    BeginEmission();
+    wasActive = true;
+  }
+
+  public void Deactivate() {
+    IsActive = false;
+    wasActive = false;
+    activeTimer = 0f;
+    notifiedGuards.Clear();
   }
 
   private void OnTriggerEnter(Collider other) {
-    if (!IsActive) return;
-    TryNotifyGuard(other);
+    if (IsActive) TryNotifyGuard(other);
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  /// <summary>
-  /// Called the frame IsActive becomes true.
-  /// Does a one-shot OverlapSphere to notify guards already inside the collider,
-  /// because OnTriggerEnter won't fire for them.
-  /// </summary>
-  private void OnBecameActive() {
-    Collider col = GetComponent<Collider>();
-    float radius = GetApproximateRadius(col);
-    Collider[] hits = Physics.OverlapSphere(transform.position, radius);
-    foreach (Collider hit in hits) {
-      TryNotifyGuard(hit);
-    }
-
-    if (verboseLogging) {
-      Debug.Log($"[SoundSignal] '{name}' became active (lifetime={lifetime:F1}s).");
-    }
+  private void BeginEmission() {
+    EnsureBuffer();
+    notifiedGuards.Clear();
+    activeTimer = 0f;
+    int mask = guardLayers.value == 0 ? Physics.AllLayers : guardLayers.value;
+    int hitCount = Physics.OverlapSphereNonAlloc(
+      transform.position,
+      AudibleRadius,
+      overlapBuffer,
+      mask,
+      QueryTriggerInteraction.Collide);
+    for (int i = 0; i < hitCount; i++) TryNotifyGuard(overlapBuffer[i]);
+    if (hitCount == overlapBuffer.Length)
+      Debug.LogWarning($"[SoundSignal] '{name}' filled its overlap buffer; increase Overlap Capacity.", this);
+    if (verboseLogging)
+      Debug.Log($"[SoundSignal] '{name}' notified {notifiedGuards.Count} guard(s) within {AudibleRadius:F2} units.", this);
   }
 
-  private void TryNotifyGuard(Collider col) {
-    GuardController guard = col.GetComponentInParent<GuardController>();
-    if (guard == null) return;
-
+  private void TryNotifyGuard(Collider candidate) {
+    if (candidate == null) return;
+    GuardController guard = candidate.GetComponentInParent<GuardController>();
+    if (guard == null || !notifiedGuards.Add(guard)) return;
     guard.InvestigateSound(transform.position);
-
-    if (verboseLogging) {
-      Debug.Log($"[SoundSignal] '{name}' notified '{guard.name}'.");
-    }
   }
 
-  private static float GetApproximateRadius(Collider col) {
-    if (col is SphereCollider sphere) {
-      return sphere.radius * Mathf.Max(
-        col.transform.lossyScale.x,
-        col.transform.lossyScale.y,
-        col.transform.lossyScale.z);
+  private void EnsureBuffer() {
+    int size = Mathf.Clamp(overlapCapacity, 8, 256);
+    if (overlapBuffer == null || overlapBuffer.Length != size) overlapBuffer = new Collider[size];
+  }
+
+  private float GetColliderRadius() {
+    if (signalCollider == null) signalCollider = GetComponent<Collider>();
+    if (signalCollider is SphereCollider sphere) {
+      Vector3 scale = signalCollider.transform.lossyScale;
+      return sphere.radius * Mathf.Max(scale.x, scale.y, scale.z);
     }
-    Vector3 ext = col.bounds.extents;
-    return Mathf.Max(ext.x, ext.y, ext.z);
+    Vector3 extents = signalCollider.bounds.extents;
+    return Mathf.Max(extents.x, extents.y, extents.z);
   }
 
 #if UNITY_EDITOR
+  private void OnValidate() {
+    audibleRadius = Mathf.Max(0f, audibleRadius);
+    overlapCapacity = Mathf.Clamp(overlapCapacity, 8, 256);
+  }
+
   private void OnDrawGizmosSelected() {
-    Collider col = GetComponent<Collider>();
-    if (col == null) return;
-    Color c = IsActive ? new Color(1f, 0.6f, 0f, 1f) : new Color(0.5f, 0.5f, 0.5f, 0.5f);
-    Gizmos.color = new Color(c.r, c.g, c.b, 0.12f);
-    Gizmos.DrawSphere(transform.position, GetApproximateRadius(col));
-    Gizmos.color = c;
-    Gizmos.DrawWireSphere(transform.position, GetApproximateRadius(col));
+    Gizmos.color = IsActive ? new Color(1f, 0.65f, 0.1f, 0.8f) : new Color(1f, 0.75f, 0.25f, 0.45f);
+    Gizmos.DrawWireSphere(transform.position, AudibleRadius);
+  }
+
+  public void Configure(float radius, LayerMask layers) {
+    audibleRadius = Mathf.Max(0.01f, radius);
+    guardLayers = layers;
+    lifetime = 0f;
+    IsActive = false;
   }
 #endif
 }

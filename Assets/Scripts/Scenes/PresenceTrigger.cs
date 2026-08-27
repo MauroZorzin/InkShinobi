@@ -11,7 +11,7 @@ public class PresenceTrigger : MonoBehaviour {
     [Tooltip("GameObject the component lives on. Leave empty to use the player.")]
     public GameObject target;
 
-    [Tooltip("Component type name (e.g. 'TakedownController').")]
+    [Tooltip("Component type name (e.g. 'PlayerInteractor').")]
     public string componentName;
   }
 
