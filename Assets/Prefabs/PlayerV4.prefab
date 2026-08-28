@@ -714,8 +714,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8448
   markerSurfaceOffset: 0.01
-  originWorldY: 0.3
-  destinationWorldY: 0.4
+  originWorldY: 2.3
+  destinationWorldY: 2.4
   surfacePlaneTolerance: 0.02
   wallEndpointInset: 0.1
   aimingTimeScale: 0.1
