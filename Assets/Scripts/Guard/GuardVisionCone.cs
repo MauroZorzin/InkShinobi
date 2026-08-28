@@ -44,6 +44,9 @@ public class GuardVisionCone : MonoBehaviour {
   [Tooltip("Minimum fixed-light exposure required for a wall-switch trajectory point to count as visible inside the long cone.")]
   [Range(0f, 1f)] public float wallSwitchExposureThreshold = 0.15f;
 
+  [Tooltip("Minimum fixed-light exposure required for a door interaction to be noticed inside the long cone. Near-cone interactions do not require light.")]
+  [Range(0f, 1f)] public float doorInteractionExposureThreshold = 0.15f;
+
   [Header("Debug")]
   [Tooltip("Draws vision cone gizmos in the Scene view.")]
   public bool showGizmos = true;
@@ -78,6 +81,7 @@ public class GuardVisionCone : MonoBehaviour {
   private bool _wasDetectedLastFrame = false;
   private PlayerStealthController _trackedPlayer;
   private PlayerStealthController _visiblePlayer;
+  private readonly RaycastHit[] _doorSightBuffer = new RaycastHit[32];
 
   private Vector3 EyeOrigin => transform.position
                                + Vector3.up * eyeHeight
@@ -225,13 +229,7 @@ public class GuardVisionCone : MonoBehaviour {
         Mathf.Max(0f, detectionTime),
         _detectionProgress + Time.deltaTime * Mathf.Clamp01(visibilityStrength));
 
-      if (_detectionProgress >= detectionTime && !PlayerDetected) {
-        PlayerDetected = true;
-        DetectedPlayer = _trackedPlayer;
-        _wasDetectedLastFrame = true;
-        _trackedPlayer.OnGuardStartsDetecting();
-        Debug.Log($"[VisionCone] '{name}' CONFIRMED detection of '{_trackedPlayer.name}'!");
-      }
+      if (_detectionProgress >= detectionTime && !PlayerDetected) ConfirmDetection(_trackedPlayer);
 
       return;
     }
@@ -283,6 +281,53 @@ public class GuardVisionCone : MonoBehaviour {
   }
 
   /// <summary>
+  /// Treats a player-operated door as a visual stimulus. Near-cone sight is sufficient; far-cone
+  /// sight additionally requires the authored fixed-light field to illuminate the door.
+  /// </summary>
+  public bool TryConfirmDoorInteraction(PlayerStealthController player, PassagewayDoor door) {
+    if (!isActiveAndEnabled || player == null || door == null) return false;
+
+    Vector3 eye = EyeOrigin;
+    Vector3 target = door.GetVisionTargetPoint(eye);
+    Vector3 toTarget = target - eye;
+    float distance = toTarget.magnitude;
+    if (distance <= 0.0001f) return false;
+
+    Vector3 flatDirection = new(toTarget.x, 0f, toTarget.z);
+    Vector3 flatForward = new(transform.forward.x, 0f, transform.forward.z);
+    if (flatDirection.sqrMagnitude <= 0.0001f || flatForward.sqrMagnitude <= 0.0001f) return false;
+
+    float angle = Vector3.Angle(flatForward.normalized, flatDirection.normalized);
+    bool insideNear = distance <= shortRange && angle <= shortAngle * 0.5f;
+    float fixedLightExposure = FixedLightSource.EvaluateCombinedExposure(target);
+    bool insideFar = distance <= longRange
+                     && angle <= longAngle * 0.5f
+                     && fixedLightExposure >= doorInteractionExposureThreshold;
+    bool hasLineOfSight = HasLineOfSightToDoor(eye, target, door);
+    if (verboseLogging)
+      Debug.Log(
+        $"[VisionCone] Door interaction '{door.name}': distance={distance:F2}, angle={angle:F1}, " +
+        $"near={insideNear}, farLit={insideFar}, fixedExposure={fixedLightExposure:F2}, LOS={hasLineOfSight}.", this);
+    if ((!insideNear && !insideFar) || !hasLineOfSight) return false;
+
+    ConfirmDetection(player);
+    if (verboseLogging)
+      Debug.Log(
+        $"[VisionCone] '{name}' confirmed '{player.name}' from door interaction at '{door.name}' " +
+        $"(near={insideNear}, farLit={insideFar}).", this);
+    return true;
+  }
+
+  /// <summary>Immediately confirms a player when another authoritative sense already identified them.</summary>
+  public bool ForceConfirmPlayer(PlayerStealthController player) {
+    // A player physically preventing this guard from opening a door is authoritative evidence.
+    // Do not route it through ordinary visibility suppression: the obstruction itself reveals them.
+    if (!isActiveAndEnabled || player == null) return false;
+    ConfirmDetection(player);
+    return true;
+  }
+
+  /// <summary>
   /// Tests a thick wall-switch segment against the short cone and the light-conditional long cone.
   /// This is a pure query and therefore does not advance detection state.
   /// </summary>
@@ -330,6 +375,56 @@ public class GuardVisionCone : MonoBehaviour {
     if (forward.sqrMagnitude <= 0.0001f) return false;
     float radiusAngle = Mathf.Asin(Mathf.Clamp01(radius / distance)) * Mathf.Rad2Deg;
     return Vector3.Angle(forward.normalized, toPoint / distance) <= angle * 0.5f + radiusAngle;
+  }
+
+  private bool HasLineOfSightToDoor(Vector3 eye, Vector3 target, PassagewayDoor door) {
+    if (obstacleMask.value == 0) return true;
+    Vector3 delta = target - eye;
+    float distance = delta.magnitude;
+    if (distance <= 0.0001f) return true;
+
+    Vector3 direction = delta / distance;
+    Vector3 origin = eye + direction * LineOfSightOriginOffset;
+    int hitCount = Physics.RaycastNonAlloc(
+      origin,
+      direction,
+      _doorSightBuffer,
+      Mathf.Max(0f, distance - LineOfSightOriginOffset + 0.05f),
+      obstacleMask,
+      QueryTriggerInteraction.Ignore);
+
+    RaycastHit nearest = default;
+    float nearestDistance = float.PositiveInfinity;
+    for (int i = 0; i < hitCount; i++) {
+      RaycastHit hit = _doorSightBuffer[i];
+      if (hit.collider == null || hit.collider.transform.IsChildOf(transform.root)) continue;
+      if (hit.distance >= nearestDistance) continue;
+      nearest = hit;
+      nearestDistance = hit.distance;
+    }
+
+    bool visible = nearest.collider == null || door.OwnsCollider(nearest.collider);
+    if (!visible && verboseLogging)
+      Debug.Log($"[VisionCone] Door LOS blocked by '{nearest.collider.name}' at {nearest.distance:F2}m.", this);
+    return visible;
+  }
+
+  private void ConfirmDetection(PlayerStealthController player) {
+    if (player == null) return;
+    bool beginsDetection = !PlayerDetected || DetectedPlayer != player;
+    if (PlayerDetected && DetectedPlayer != null && DetectedPlayer != player)
+      DetectedPlayer.OnGuardStopsDetecting();
+
+    _trackedPlayer = player;
+    _detectionProgress = Mathf.Max(0f, detectionTime);
+    PlayerDetected = true;
+    DetectedPlayer = player;
+    _wasDetectedLastFrame = true;
+    CurrentVisibilityStrength = 1f;
+    if (beginsDetection) {
+      player.OnGuardStartsDetecting();
+      Debug.Log($"[VisionCone] '{name}' CONFIRMED detection of '{player.name}'!");
+    }
   }
 
   private void UpdateImmediateVisibility(PlayerStealthController visiblePlayer) {

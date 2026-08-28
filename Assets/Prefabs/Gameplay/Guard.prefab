@@ -697,6 +697,7 @@ MonoBehaviour:
   detectionTime: 1
   detectionReleaseTime: 1
   wallSwitchExposureThreshold: 0.1
+  doorInteractionExposureThreshold: 0.15
   showGizmos: 0
   verboseLogging: 0
   showRuntimeRay: 1
@@ -764,6 +765,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GuardMotor
   destinationSampleRadius: 0.75
   startupSampleRadius: 1
+  doorApproachDetectionDistance: 0.8
+  doorClearanceDistance: 0.4
   turnSpeed: 180
   facingVelocityThreshold: 0.02
   verboseNavigation: 0

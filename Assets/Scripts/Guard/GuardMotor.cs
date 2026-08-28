@@ -15,6 +15,12 @@ public sealed class GuardMotor : MonoBehaviour {
   [Tooltip("Maximum distance used once at startup to place the guard on the baked NavMesh.")]
   [SerializeField, Min(0.05f)] private float startupSampleRadius = 1f;
 
+  [Header("Door Traversal")]
+  [Tooltip("How far ahead along the current NavMesh route a guard detects a passageway door.")]
+  [SerializeField, Min(0.05f)] private float doorApproachDetectionDistance = 0.8f;
+  [Tooltip("Distance beyond the opposite side of a door at which this guard releases its passage reservation.")]
+  [SerializeField, Min(0.01f)] private float doorClearanceDistance = 0.4f;
+
   [Header("Facing")]
   [Tooltip("Default turn speed used outside patrol-specific corner settings.")]
   [SerializeField, Min(0f)] private float turnSpeed = 360f;
@@ -42,6 +48,14 @@ public sealed class GuardMotor : MonoBehaviour {
   private Vector3 lastLoggedDestination;
   private bool hasLoggedDestination;
   private NavMeshPath pathBuffer;
+  private readonly Vector3[] routeCornerBuffer = new Vector3[64];
+  private GuardKeyCarrier keyCarrier;
+  private PassagewayDoor activeDoor;
+  private float activeDoorEntrySide;
+  private bool doorPassageGranted;
+  private bool stoppedForDoor;
+  private bool waitingForPlayerDoorPath;
+  private bool movementRequested;
 
   public NavMeshAgent Agent => agent;
   public bool IsReady => agent != null && agent.enabled && agent.isOnNavMesh;
@@ -57,9 +71,33 @@ public sealed class GuardMotor : MonoBehaviour {
                                 && !agent.pathPending
                                 && (!agent.hasPath || agent.pathStatus != NavMeshPathStatus.PathComplete)
                                 && HorizontalDistance(transform.position, sampledDestination) > agent.stoppingDistance + 0.05f;
+  public bool IsWaitingForPlayerDoorPath => activeDoor != null && waitingForPlayerDoorPath;
+  public bool IsPursuitBlockedByPlayerHeldDoor {
+    get {
+      if (IsWaitingForPlayerDoorPath) return true;
+      if (!IsReady || !hasNavigationRequest || pathBuffer == null) return false;
+
+      int cornerCount = pathBuffer.GetCornersNonAlloc(routeCornerBuffer);
+      if (cornerCount < 2) return false;
+      foreach (PassagewayDoor door in PassagewayDoor.ActiveDoors) {
+        if (door == null || !door.isActiveAndEnabled || !door.IsHeldClosedByPlayer) continue;
+        for (int i = 0; i < cornerCount - 1; i++) {
+          Vector3 segment = routeCornerBuffer[i + 1] - routeCornerBuffer[i];
+          segment.y = 0f;
+          float length = segment.magnitude;
+          if (length <= 0.0001f) continue;
+          if (door.TryGetApproachDistance(
+                routeCornerBuffer[i], segment / length, length + agent.radius,
+                agent.radius, out _)) return true;
+        }
+      }
+      return false;
+    }
+  }
 
   private void Awake() {
     agent = GetComponent<NavMeshAgent>();
+    keyCarrier = GetComponent<GuardKeyCarrier>();
     agent.updateRotation = false;
     pathBuffer = new NavMeshPath();
     runtimeTurnSpeed = turnSpeed;
@@ -70,6 +108,7 @@ public sealed class GuardMotor : MonoBehaviour {
   }
 
   private void LateUpdate() {
+    UpdateDoorTraversal();
     UpdateNavigationDiagnostics();
     if (!IsReady) return;
 
@@ -87,6 +126,8 @@ public sealed class GuardMotor : MonoBehaviour {
     Quaternion target = Quaternion.LookRotation(velocity.normalized, Vector3.up);
     transform.rotation = Quaternion.RotateTowards(transform.rotation, target, runtimeTurnSpeed * Time.deltaTime);
   }
+
+  private void OnDisable() => ReleaseActiveDoor(false);
 
   public bool EnsureOnNavMesh() {
     if (agent == null) agent = GetComponent<NavMeshAgent>();
@@ -121,10 +162,8 @@ public sealed class GuardMotor : MonoBehaviour {
       return false;
     }
 
-    manualFacing = false;
     agent.speed = Mathf.Max(0f, speed);
     agent.stoppingDistance = Mathf.Max(0f, stoppingDistance);
-    agent.isStopped = false;
     bool accepted = agent.SetPath(pathBuffer);
     if (!accepted) {
       LogNavigationWarning(
@@ -132,6 +171,10 @@ public sealed class GuardMotor : MonoBehaviour {
         $"requested={Format(worldPosition)}, sampled={Format(hit.position)}");
       return false;
     }
+
+    manualFacing = false;
+    movementRequested = true;
+    agent.isStopped = false;
 
     bool materiallyDifferent = !hasNavigationRequest
                                || (hit.position - sampledDestination).sqrMagnitude > 0.25f;
@@ -155,6 +198,8 @@ public sealed class GuardMotor : MonoBehaviour {
   }
 
   public void Stop(bool clearPath = false) {
+    movementRequested = false;
+    ReleaseActiveDoor(false);
     if (!IsReady) return;
     agent.isStopped = true;
     if (clearPath) {
@@ -166,6 +211,7 @@ public sealed class GuardMotor : MonoBehaviour {
 
   public void Resume() {
     manualFacing = false;
+    movementRequested = true;
     if (IsReady) agent.isStopped = false;
   }
 
@@ -192,8 +238,128 @@ public sealed class GuardMotor : MonoBehaviour {
     if (agent != null && agent.enabled) agent.enabled = false;
   }
 
+  private void UpdateDoorTraversal() {
+    if (!IsReady || !movementRequested || !hasNavigationRequest) {
+      ReleaseActiveDoor(false);
+      stoppedForDoor = false;
+      return;
+    }
+
+    if (!TryGetRouteDirection(out Vector3 routeDirection)) {
+      if (!agent.pathPending) ReleaseActiveDoor(true);
+      return;
+    }
+
+    if (activeDoor != null) {
+      if (!activeDoor.isActiveAndEnabled) {
+        ReleaseActiveDoor(true);
+        return;
+      }
+
+      if (doorPassageGranted && activeDoor.CurrentState == PassagewayDoor.PassageState.Open) {
+        if (activeDoor.HasGuardCleared(activeDoorEntrySide, transform.position, doorClearanceDistance)) {
+          activeDoor.NotifyGuardCleared(this);
+          activeDoor = null;
+          doorPassageGranted = false;
+          stoppedForDoor = false;
+          agent.isStopped = false;
+          return;
+        }
+
+        bool stillApproaching = activeDoor.TryGetApproachDistance(
+          transform.position,
+          routeDirection,
+          doorApproachDetectionDistance + doorClearanceDistance,
+          agent.radius,
+          out _);
+        bool withinDoorway = activeDoor.DistanceFromPassagePlane(transform.position)
+                             <= doorClearanceDistance + agent.radius;
+        if (!stillApproaching && !withinDoorway) {
+          ReleaseActiveDoor(true);
+          return;
+        }
+
+        stoppedForDoor = false;
+        agent.isStopped = false;
+        return;
+      }
+
+      bool doorStillAhead = activeDoor.TryGetApproachDistance(
+        transform.position,
+        routeDirection,
+        doorApproachDetectionDistance + agent.radius,
+        agent.radius,
+        out _);
+      if (!doorStillAhead) {
+        ReleaseActiveDoor(true);
+        return;
+      }
+
+      ApplyDoorRequest(activeDoor.RequestGuardPassage(this, keyCarrier));
+      return;
+    }
+
+    PassagewayDoor nearestDoor = FindDoorAhead(routeDirection);
+    if (nearestDoor == null) {
+      if (stoppedForDoor) agent.isStopped = false;
+      stoppedForDoor = false;
+      return;
+    }
+
+    activeDoor = nearestDoor;
+    activeDoorEntrySide = activeDoor.GetPassageSide(transform.position);
+    ApplyDoorRequest(activeDoor.RequestGuardPassage(this, keyCarrier));
+  }
+
+  private PassagewayDoor FindDoorAhead(Vector3 routeDirection) {
+    PassagewayDoor nearest = null;
+    float nearestDistance = float.PositiveInfinity;
+    foreach (PassagewayDoor door in PassagewayDoor.ActiveDoors) {
+      if (door == null || !door.isActiveAndEnabled) continue;
+      if (!door.TryGetApproachDistance(
+            transform.position,
+            routeDirection,
+            doorApproachDetectionDistance,
+            agent.radius,
+            out float distance) || distance >= nearestDistance) continue;
+      nearest = door;
+      nearestDistance = distance;
+    }
+    return nearest;
+  }
+
+  private void ApplyDoorRequest(PassagewayDoor.GuardPassageResult result) {
+    waitingForPlayerDoorPath = result == PassagewayDoor.GuardPassageResult.WaitingForPlayerPath;
+    doorPassageGranted = result == PassagewayDoor.GuardPassageResult.Granted;
+    bool mayMove = doorPassageGranted && activeDoor != null &&
+                   activeDoor.CurrentState == PassagewayDoor.PassageState.Open;
+    stoppedForDoor = !mayMove;
+    agent.isStopped = !mayMove;
+  }
+
+  private bool TryGetRouteDirection(out Vector3 direction) {
+    direction = agent.steeringTarget - transform.position;
+    direction.y = 0f;
+    if (direction.sqrMagnitude <= 0.0001f) {
+      direction = agent.desiredVelocity;
+      direction.y = 0f;
+    }
+    if (direction.sqrMagnitude <= 0.0001f) return false;
+    direction.Normalize();
+    return true;
+  }
+
+  private void ReleaseActiveDoor(bool resumeMovement) {
+    if (activeDoor != null) activeDoor.CancelGuardPassage(this);
+    activeDoor = null;
+    doorPassageGranted = false;
+    waitingForPlayerDoorPath = false;
+    stoppedForDoor = false;
+    if (resumeMovement && IsReady && movementRequested) agent.isStopped = false;
+  }
+
   private void UpdateNavigationDiagnostics() {
-    if (!verboseNavigation || !hasNavigationRequest || agent == null || !agent.enabled) return;
+    if (!verboseNavigation || stoppedForDoor || !hasNavigationRequest || agent == null || !agent.enabled) return;
     if (!agent.isOnNavMesh) {
       WarnThrottled("left the NavMesh while a destination was active");
       return;

@@ -161,6 +161,29 @@ public class GuardController : MonoBehaviour {
     EnterState(GuardState.Searching, CurrentState == GuardState.Searching);
   }
 
+  public void ObservePlayerDoorInteraction(PlayerStealthController player, PassagewayDoor door) {
+    if (CurrentState == GuardState.TakenDown || player == null || door == null || visionCone == null) return;
+    if (!visionCone.TryConfirmDoorInteraction(player, door)) return;
+
+    ApplyConfirmedDoorDetection(player, "Door interaction", true);
+  }
+
+  public void ObservePlayerHoldingDoor(PlayerStealthController player, PassagewayDoor door) {
+    if (CurrentState == GuardState.TakenDown || player == null || door == null || visionCone == null) return;
+    if (!visionCone.ForceConfirmPlayer(player)) return;
+
+    ApplyConfirmedDoorDetection(player, "Player-held door", false);
+  }
+
+  private void ApplyConfirmedDoorDetection(PlayerStealthController player, string context, bool repathIfChasing) {
+    lastKnownPosition = player.transform.position;
+    lostSightElapsed = 0f;
+    nextRepathTime = 0f;
+    if (CurrentState != GuardState.Chasing) EnterState(GuardState.Chasing);
+    else if (repathIfChasing)
+      motor?.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance, context);
+  }
+
   public void PerformTakedown() {
     if (CurrentState == GuardState.TakenDown) return;
     spriteFacing?.SetAttacking(false);
@@ -240,6 +263,13 @@ public class GuardController : MonoBehaviour {
         nextRepathTime = Time.time + chaseRepathInterval;
       }
       TryCatchPlayer(visible);
+      return;
+    }
+    // The player may deliberately hold a closed door on one of its authored LinePaths. The guard
+    // can no longer see through the closed panels, but it knows why traversal is blocked and keeps
+    // pursuing instead of decaying into Searching/Returning until that path becomes available.
+    if (motor.IsPursuitBlockedByPlayerHeldDoor) {
+      lostSightElapsed = 0f;
       return;
     }
     lostSightElapsed += Time.deltaTime;
@@ -332,6 +362,7 @@ public class GuardController : MonoBehaviour {
     Vector3 delta = player.transform.position - transform.position;
     delta.y = 0f;
     if (delta.sqrMagnitude > catchDistance * catchDistance) return;
+    if (PassagewayDoor.AnyNonOpenDoorBlocksSegment(transform.position, player.transform.position)) return;
     if (visionCone != null && !visionCone.HasLineOfSightTo(player)) return;
     catchIssued = true;
     motor.Stop(true);

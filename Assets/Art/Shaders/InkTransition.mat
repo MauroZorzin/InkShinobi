@@ -37,16 +37,16 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Coarse_Distortion: 0.14675932
+    - _Coarse_Distortion: 0.14955261
     - _Coarse_Noise_Scale: 5
     - _Distortion: 0.2
     - _Edge_Softness: 0.02
-    - _Fine_Distortion: 0.032446086
-    - _Fine_Noise_Scale: 25
+    - _Fine_Distortion: 0.03023074
+    - _Fine_Noise_Scale: 22
     - _Ink_Amount: 0
     - _Noise_Scale: 5
     m_Colors:
     - _Ink_Color: {r: 0, g: 0, b: 0, a: 1}
-    - _Noise_Offset: {r: -87.3996, g: -97.640656, b: 0, a: 0}
+    - _Noise_Offset: {r: -77.23711, g: 38.87419, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

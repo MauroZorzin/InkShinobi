@@ -40,10 +40,15 @@ public sealed class DoorLinePathState : MonoBehaviour {
   }
 
   private void ApplyState(PassagewayDoor.PassageState state) {
-    // The blocker remains present while opening and is restored as soon as closing begins.
-    bool actsAsWall = state != PassagewayDoor.PassageState.Open;
-    SetPathsActive(longSidePaths, actsAsWall);
-    SetPathsActive(shortSidePaths, !actsAsWall);
+    // Opening is deliberately a neutral interval: the blocking collider still exists, but neither
+    // path pair is offered as a destination. This prevents a player at an adjacent corner from
+    // entering a closed-side path immediately before it is disabled on the final animation frame.
+    // Closing activates the long sides immediately because they remain valid once closure ends.
+    bool longSidesActive = state == PassagewayDoor.PassageState.Closed
+                           || state == PassagewayDoor.PassageState.Closing;
+    bool shortSidesActive = state == PassagewayDoor.PassageState.Open;
+    SetPathsActive(longSidePaths, longSidesActive);
+    SetPathsActive(shortSidePaths, shortSidesActive);
   }
 
   private static void SetPathsActive(LinePath[] paths, bool active) {

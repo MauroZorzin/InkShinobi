@@ -24,6 +24,10 @@ public sealed class GuardKeyCarrier : MonoBehaviour {
   public bool CarriesKey => carriesKey;
   public string KeyId => keyId;
 
+  public bool HasKey(string requestedKeyId) =>
+    carriesKey && !dropped && !string.IsNullOrWhiteSpace(requestedKeyId) &&
+    string.Equals(keyId?.Trim(), requestedKeyId.Trim(), System.StringComparison.OrdinalIgnoreCase);
+
   public bool DropKey() {
     if (dropped || !carriesKey || string.IsNullOrWhiteSpace(keyId) || keyWorldPrefab == null) {
       return false;

@@ -4,6 +4,11 @@ using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 public class LineFollowController : MonoBehaviour {
+  public static LineFollowController ActivePlayer { get; private set; }
+
+  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+  private static void ResetActivePlayer() => ActivePlayer = null;
+
   [Header("Line")]
   [Tooltip("The line and strand the player currently follows.")]
   public LinePath currentLine;
@@ -32,7 +37,7 @@ public class LineFollowController : MonoBehaviour {
   }
 
   [Header("Corner Assist")]
-  [Tooltip("How far ahead the controller looks for a corner before committing to it.")]
+  [Tooltip("How far ahead the controller looks for an outer corner before committing to it. Inner corners never trigger assist.")]
   [Min(0f)] public float cornerEntryDistance = 0.25f;
 
   [Tooltip("How far onto the new segment the player is carried before normal deceleration resumes.")]
@@ -99,6 +104,10 @@ public class LineFollowController : MonoBehaviour {
     if (movementCamera == null) movementCamera = GetComponentInChildren<Camera>(true);
   }
 
+  private void OnEnable() {
+    ActivePlayer = this;
+  }
+
   private void Start() {
     if (currentLine == null) return;
 
@@ -112,6 +121,7 @@ public class LineFollowController : MonoBehaviour {
   }
 
   private void OnDisable() {
+    if (ActivePlayer == this) ActivePlayer = null;
     _input = 0f;
     _speed = 0f;
     _actualSignedSpeed = 0f;
@@ -167,14 +177,34 @@ public class LineFollowController : MonoBehaviour {
     float pathRelativeInput = GetPathRelativeInput();
     if (_cornerAssistActive) {
       if (pathRelativeInput * _cornerDirectionSign < -0.001f) CancelCornerAssist();
+      else if (!_cornerWasPassed && !HasOuterCornerAhead(_cornerDirectionSign)) CancelCornerAssist();
       return;
     }
 
     if (Mathf.Abs(pathRelativeInput) < 0.001f || cornerEntryDistance <= 0f) return;
 
     float directionSign = Mathf.Sign(pathRelativeInput);
+    if (!TryGetCornerAhead(directionSign, out Vector3 currentTangent, out _)) return;
+
+    _cornerAssistActive = true;
+    _cornerWasPassed = false;
+    _cornerDirectionSign = directionSign;
+    _cornerEntryTangent = currentTangent;
+  }
+
+  private bool HasOuterCornerAhead(float directionSign) =>
+    TryGetCornerAhead(directionSign, out _, out _);
+
+  private bool TryGetCornerAhead(
+    float directionSign,
+    out Vector3 currentTangent,
+    out Vector3 futureTangent) {
+    currentTangent = Vector3.zero;
+    futureTangent = Vector3.zero;
+    if (currentLine == null || currentLine.StrandCount == 0 || cornerEntryDistance <= 0f)
+      return false;
+
     float lookAheadDistance = _distanceAlongLine + directionSign * cornerEntryDistance;
-    Vector3 futureTangent;
 
     if (!currentLine.IsStrandClosedLoop(currentStrand)) {
       float length = currentLine.GetStrandLength(currentStrand);
@@ -189,7 +219,7 @@ public class LineFollowController : MonoBehaviour {
               endpoint,
               GetPreferredConnectionDirection(),
               endpointConnectionTolerance,
-              out LinePath.EndpointTransition transition)) return;
+              out LinePath.EndpointTransition transition)) return false;
 
         futureTangent = transition.Path.GetDirectionAtDistance(
           transition.Strand,
@@ -202,14 +232,10 @@ public class LineFollowController : MonoBehaviour {
       futureTangent = GetHorizontalTangent(lookAheadDistance) * directionSign;
     }
 
-    Vector3 currentTangent = GetHorizontalTangent(_distanceAlongLine) * directionSign;
-    if (currentTangent == Vector3.zero || futureTangent == Vector3.zero) return;
-    if (Vector3.Angle(currentTangent, futureTangent) < minimumCornerAngle) return;
-
-    _cornerAssistActive = true;
-    _cornerWasPassed = false;
-    _cornerDirectionSign = directionSign;
-    _cornerEntryTangent = currentTangent;
+    currentTangent = GetHorizontalTangent(_distanceAlongLine) * directionSign;
+    if (currentTangent == Vector3.zero || futureTangent == Vector3.zero) return false;
+    if (Vector3.Angle(currentTangent, futureTangent) < minimumCornerAngle) return false;
+    return IsOuterCorner(futureTangent);
   }
 
   private void UpdateCornerAssistProgress() {
@@ -300,6 +326,7 @@ public class LineFollowController : MonoBehaviour {
           currentStrand = transition.Strand;
           transferredDirection = transition.InwardDirection;
           Vector3 outgoingTravelDirection = GetHorizontalTangent(transition.EndpointDistance) * transferredDirection;
+          bool isOuterCorner = IsOuterCorner(outgoingTravelDirection);
           SetConnectionFacingNormal(incomingTravelDirection, outgoingTravelDirection);
           wantedDistance = transition.EndpointDistance + overflow * transferredDirection;
           float targetLength = currentLine.GetStrandLength(currentStrand);
@@ -308,7 +335,8 @@ public class LineFollowController : MonoBehaviour {
           _hasFacingSide = false;
           _facingTurnActive = true;
           CancelCornerAssist();
-          BeginConnectionAssist(transferredDirection, transition.EndpointDistance);
+          if (isOuterCorner) BeginConnectionAssist(transferredDirection, transition.EndpointDistance);
+          else CancelConnectionAssist();
           transferredPath = true;
         } else {
           CancelConnectionAssist();
@@ -353,6 +381,22 @@ public class LineFollowController : MonoBehaviour {
     }
 
     return GetHorizontalTangent(_distanceAlongLine) * Mathf.Sign(_speed);
+  }
+
+  private bool IsOuterCorner(Vector3 outgoingTravelDirection) {
+    outgoingTravelDirection.y = 0f;
+    if (outgoingTravelDirection.sqrMagnitude <= 0.0001f) return false;
+
+    Vector3 directionTowardSupportingWall = transform.forward;
+    directionTowardSupportingWall.y = 0f;
+    if (directionTowardSupportingWall.sqrMagnitude <= 0.0001f) return false;
+
+    // The player root faces toward the wall supporting the current path. At a convex corner the
+    // outgoing segment travels toward that wall's plane; at a concave corner it travels away from
+    // it. This test is independent of which direction the junction is traversed.
+    return Vector3.Dot(
+      outgoingTravelDirection.normalized,
+      directionTowardSupportingWall.normalized) > 0.001f;
   }
 
   private void SetConnectionFacingNormal(Vector3 incomingTravelDirection, Vector3 outgoingTravelDirection) {
