@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Wall-switch state machine. Space enters or cancels aiming; primary mouse confirms
@@ -51,10 +52,17 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private LayerMask interactionLayers;
   [Tooltip("Solid palace walls that block the center of a switch trajectory. Keep props off these layers.")]
   [SerializeField] private LayerMask wallObstructionLayers = 1 << 8;
-  [Tooltip("Visible surfaces that may receive the destination stain. This is presentation-only: " +
+  [Tooltip("Solid surfaces that may receive the destination stain. Triggers are ignored so broad interaction volumes do not hide the actual visual surface. This is presentation-only: " +
            "the selectable wall and final LinePath destination are still resolved independently.")]
   [SerializeField] private LayerMask markerProjectionLayers = (1 << 8) | (1 << 13);
   [SerializeField, Min(0f)] private float markerSurfaceOffset = 0.01f;
+  [Tooltip("Fixed world-space Y where the wall-switch trajectory leaves the player.")]
+  [SerializeField] private float originWorldY = 0.33f;
+  [FormerlySerializedAs("markerWorldY")]
+  [Tooltip("Fixed world-space Y used by the trajectory endpoint and destination stain, but only after the unmodified cursor has selected a valid destination surface.")]
+  [SerializeField] private float destinationWorldY = 0.33f;
+  [Tooltip("How far a WallSwitchSurface may extend in front of the destination LinePath before it is treated as an obstruction rather than a valid stain surface.")]
+  [SerializeField, Min(0f)] private float surfacePlaneTolerance = 0.02f;
   [Tooltip("Distance ignored at both ends of the wall ray so the source and destination supporting surfaces do not block themselves.")]
   [SerializeField, Min(0f)] private float wallEndpointInset = 0.1f;
 
@@ -135,6 +143,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     trajectoryRadius = Mathf.Max(0.01f, trajectoryRadius);
     wallEndpointInset = Mathf.Max(0f, wallEndpointInset);
     markerSurfaceOffset = Mathf.Max(0f, markerSurfaceOffset);
+    surfacePlaneTolerance = Mathf.Max(0f, surfacePlaneTolerance);
   }
 
   private void OnDisable() {
@@ -304,7 +313,12 @@ public sealed class WallSwitchController : MonoBehaviour {
     Vector3 destinationRoot = followController.GetRootPositionForFeetAt(candidate.Point);
     Vector3 originOffset = GetTrajectoryOrigin() - transform.position;
     Vector3 trajectoryStart = GetTrajectoryOrigin();
+    trajectoryStart.y = originWorldY;
     Vector3 trajectoryEnd = destinationRoot + originOffset;
+    trajectoryEnd.y = destinationWorldY;
+    // The raw cursor projection is authoritative for selecting a valid surface. Once a valid
+    // destination exists, presentation uses the authored destination height.
+    cursorWorld.y = destinationWorldY;
     float distance = Vector3.Distance(followController.FeetPosition, candidate.Point);
     WallSwitchFailureReason failure = WallSwitchFailureReason.None;
     if (distance < minimumSwitchDistance) failure = WallSwitchFailureReason.DestinationTooClose;
@@ -314,6 +328,14 @@ public sealed class WallSwitchController : MonoBehaviour {
     List<GuardWallSwitchTarget> blockingGuards = new();
     Object blockingObject = null;
     Vector3 blockingPoint = Vector3.zero;
+    EvaluateAuthoredSurfaces(
+      trajectoryStart,
+      trajectoryEnd,
+      candidate.Point,
+      candidate.Direction,
+      ref cursorWorld,
+      ref blockingObject,
+      ref blockingPoint);
     EvaluateWallObstruction(
       trajectoryStart,
       trajectoryEnd,
@@ -362,6 +384,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     Vector3 end,
     ref Object blockingObject,
     ref Vector3 blockingPoint) {
+    if (blockingObject != null) return;
     if (wallObstructionLayers.value == 0) return;
 
     Vector3 delta = end - start;
@@ -587,11 +610,84 @@ public sealed class WallSwitchController : MonoBehaviour {
           out RaycastHit surfaceHit,
           aimCamera.farClipPlane,
           markerProjectionLayers,
-          QueryTriggerInteraction.Collide)) {
+          QueryTriggerInteraction.Ignore)) {
       return surfaceHit.point + surfaceHit.normal * markerSurfaceOffset;
     }
     float depth = Mathf.Max(invalidMarkerCameraDistance, aimCamera.nearClipPlane + 0.05f);
     return aimCamera.ScreenToWorldPoint(new Vector3(cursor.x, cursor.y, depth));
+  }
+
+  private void EvaluateAuthoredSurfaces(
+    Vector3 trajectoryStart,
+    Vector3 trajectoryEnd,
+    Vector3 destinationPoint,
+    Vector3 destinationDirection,
+    ref Vector3 previewPoint,
+    ref Object blockingObject,
+    ref Vector3 blockingPoint) {
+    Vector3 pathDirection = destinationDirection;
+    pathDirection.y = 0f;
+    if (pathDirection.sqrMagnitude < 0.0001f) return;
+    pathDirection.Normalize();
+
+    Vector3 frontNormal = Vector3.Cross(Vector3.up, pathDirection).normalized;
+    if (Vector3.Dot(trajectoryStart - destinationPoint, frontNormal) < 0f)
+      frontNormal = -frontNormal;
+
+    Vector3 previewDelta = previewPoint - trajectoryStart;
+    float previewLength = previewDelta.magnitude;
+    Ray previewRay = previewLength > 0.0001f
+      ? new Ray(trajectoryStart, previewDelta / previewLength)
+      : default;
+
+    Vector3 switchDelta = trajectoryEnd - trajectoryStart;
+    float switchLength = switchDelta.magnitude;
+    Ray switchRay = switchLength > 0.0001f
+      ? new Ray(trajectoryStart, switchDelta / switchLength)
+      : default;
+
+    float nearestProjectionDistance = float.PositiveInfinity;
+    float nearestBlockingDistance = float.PositiveInfinity;
+    RaycastHit projectionHit = default;
+    WallSwitchSurface blockingSurface = null;
+
+    foreach (WallSwitchSurface surface in WallSwitchSurface.ActiveSurfaces) {
+      if (surface == null) continue;
+      Collider surfaceCollider = surface.SurfaceCollider;
+      if (surfaceCollider == null || !surfaceCollider.enabled || surfaceCollider.isTrigger) continue;
+
+      float frontmostDistance = GetFrontmostPlaneDistance(surfaceCollider.bounds, destinationPoint, frontNormal);
+      bool extendsInFrontOfPath = frontmostDistance > surfacePlaneTolerance;
+
+      if (!extendsInFrontOfPath && previewLength > 0.0001f &&
+          surfaceCollider.Raycast(previewRay, out RaycastHit surfaceHit, previewLength) &&
+          surfaceHit.distance < nearestProjectionDistance) {
+        nearestProjectionDistance = surfaceHit.distance;
+        projectionHit = surfaceHit;
+      }
+
+      if (!extendsInFrontOfPath || switchLength <= 0.0001f ||
+          !surfaceCollider.Raycast(switchRay, out RaycastHit obstructionHit, switchLength) ||
+          obstructionHit.distance >= nearestBlockingDistance) continue;
+      nearestBlockingDistance = obstructionHit.distance;
+      blockingSurface = surface;
+      blockingPoint = obstructionHit.point;
+    }
+
+    if (nearestProjectionDistance < float.PositiveInfinity)
+      previewPoint = projectionHit.point + projectionHit.normal * markerSurfaceOffset;
+
+    if (blockingSurface != null) blockingObject = blockingSurface;
+  }
+
+  private static float GetFrontmostPlaneDistance(
+    Bounds bounds,
+    Vector3 destinationPoint,
+    Vector3 frontNormal) {
+    float projectedExtent = Mathf.Abs(frontNormal.x) * bounds.extents.x +
+                            Mathf.Abs(frontNormal.y) * bounds.extents.y +
+                            Mathf.Abs(frontNormal.z) * bounds.extents.z;
+    return Vector3.Dot(bounds.center - destinationPoint, frontNormal) + projectedExtent;
   }
 
   private Vector3 GetTrajectoryOrigin() {

@@ -2361,6 +2361,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8448
   markerSurfaceOffset: 0.01
+  originWorldY: 0.33
+  destinationWorldY: 0.33
   wallEndpointInset: 0.1
   aimingTimeScale: 0.06
   aimingCameraLocalPosition: {x: 0, y: 0.5, z: -3.75}

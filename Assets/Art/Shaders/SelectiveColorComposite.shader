@@ -227,7 +227,10 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
         // Aim colors are gameplay semantics. Restore their unprocessed material output after
         // monochrome, fake-light tinting, and Volume post effects have all been evaluated.
         half4 aimPreview = SAMPLE_TEXTURE2D_X(_AimPreviewColor, sampler_LinearClamp, uv);
-        finalColor = lerp(finalColor, aimPreview.rgb, saturate(aimPreview.a));
+        // Expand translucent antialiasing and soft-edge coverage so colored light cannot survive
+        // inside a nominally black trajectory and create a misleading yellow/colored fringe.
+        half aimCoverage = smoothstep(0.0h, 0.15h, aimPreview.a);
+        finalColor = lerp(finalColor, aimPreview.rgb, aimCoverage);
 
         return half4(finalColor, source.a);
       }

@@ -13,6 +13,12 @@ public static class AimPreviewRendering {
   public const uint RenderingLayerMask = 1u << RenderingLayerIndex;
 }
 
+/// <summary>Reserved rendering layer for wall-switch previews that intentionally render through scene depth.</summary>
+public static class WallSwitchPreviewRendering {
+  public const int RenderingLayerIndex = 28;
+  public const uint RenderingLayerMask = 1u << RenderingLayerIndex;
+}
+
 /// <summary>
 /// Desaturates the world while restoring the original camera color wherever a renderer carries
 /// the SelectiveColor Rendering Layer bit. The mask is produced by drawing the marked renderers
@@ -171,7 +177,8 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     }
 
     private sealed class AimPreviewPassData {
-      public RendererListHandle transparentRenderers;
+      public RendererListHandle depthTestedRenderers;
+      public RendererListHandle overlayRenderers;
     }
 
     public override void RecordRenderGraph(RenderGraph renderGraph, ContextContainer frameData) {
@@ -266,7 +273,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       // cannot turn a valid trajectory into a misleading warning color.
       using (var builder = renderGraph.AddRasterRenderPass<AimPreviewPassData>(
                "Aim Preview Color", out AimPreviewPassData passData, profilingSampler)) {
-        passData.transparentRenderers = CreateRendererList(
+        passData.depthTestedRenderers = CreateRendererList(
           renderGraph,
           renderingData,
           cameraData,
@@ -275,15 +282,26 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           SortingCriteria.CommonTransparent,
           CreateAimPreviewState(),
           AimPreviewRendering.RenderingLayerMask);
+        passData.overlayRenderers = CreateRendererList(
+          renderGraph,
+          renderingData,
+          cameraData,
+          lightData,
+          RenderQueueRange.transparent,
+          SortingCriteria.CommonTransparent,
+          CreateWallSwitchPreviewState(),
+          WallSwitchPreviewRendering.RenderingLayerMask);
 
-        builder.UseRendererList(passData.transparentRenderers);
+        builder.UseRendererList(passData.depthTestedRenderers);
+        builder.UseRendererList(passData.overlayRenderers);
         builder.SetRenderAttachment(aimPreviewColor, 0, AccessFlags.Write);
         if (resourceData.activeDepthTexture.IsValid())
           builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Read);
         builder.AllowPassCulling(false);
         builder.SetRenderFunc(static (AimPreviewPassData data, RasterGraphContext context) => {
           context.cmd.ClearRenderTarget(RTClearFlags.Color, Color.clear, 1f, 0);
-          context.cmd.DrawRendererList(data.transparentRenderers);
+          context.cmd.DrawRendererList(data.depthTestedRenderers);
+          context.cmd.DrawRendererList(data.overlayRenderers);
         });
       }
 
@@ -433,6 +451,20 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       return new RenderStateBlock(RenderStateMask.Blend | RenderStateMask.Depth) {
         blendState = new BlendState { blendState0 = targetBlend },
         depthState = new DepthState(false, CompareFunction.LessEqual)
+      };
+    }
+
+    private static RenderStateBlock CreateWallSwitchPreviewState() {
+      RenderTargetBlendState targetBlend = new(
+        writeMask: ColorWriteMask.All,
+        sourceColorBlendMode: BlendMode.One,
+        destinationColorBlendMode: BlendMode.Zero,
+        sourceAlphaBlendMode: BlendMode.One,
+        destinationAlphaBlendMode: BlendMode.Zero);
+
+      return new RenderStateBlock(RenderStateMask.Blend | RenderStateMask.Depth) {
+        blendState = new BlendState { blendState0 = targetBlend },
+        depthState = new DepthState(false, CompareFunction.Always)
       };
     }
 

@@ -9,6 +9,9 @@ using UnityEngine.InputSystem;
 /// active Dialogue message takes priority over it.
 /// </summary>
 public class PlayerInteractor : MonoBehaviour {
+  private const int InitialHitBufferSize = 16;
+  private const int MaximumHitBufferSize = 256;
+
   [System.Serializable]
   private class LayerPrompt {
     public LayerMask layer;
@@ -37,7 +40,7 @@ public class PlayerInteractor : MonoBehaviour {
 
   public bool interactionSuppressed;
 
-  private readonly Collider[] _hitBuffer = new Collider[16];
+  private Collider[] _hitBuffer = new Collider[InitialHitBufferSize];
   private IInteractable _currentTarget;
   private IInteractionFocus _currentFocus;
 
@@ -62,6 +65,10 @@ public class PlayerInteractor : MonoBehaviour {
 
   public void OnInteract(InputValue value) {
     if (!value.isPressed || interactionSuppressed) return;
+
+    // Input callbacks may run before Update, and nearby items may have spawned or moved since the
+    // cached search. The input-time query is authoritative for what can be interacted with now.
+    FindNearest(out _currentTarget);
     if (!IsUnityInterfaceAlive(_currentTarget)) {
       _currentTarget = null;
       if (!SceneTransitionManager.IsGamePaused && !SceneTransitionManager.IsDeathSequenceActive)
@@ -80,7 +87,7 @@ public class PlayerInteractor : MonoBehaviour {
     }
 
     float searchRadius = Mathf.Max(interactionRadius, extendedInteractionSearchRadius);
-    int hitCount = Physics.OverlapSphereNonAlloc(interactionPoint.position, searchRadius, _hitBuffer, InteractableMask(), QueryTriggerInteraction.Collide);
+    int hitCount = CollectInteractionHits(searchRadius);
 
     Collider closestCollider = null;
     var closestDistance = float.MaxValue;
@@ -112,6 +119,25 @@ public class PlayerInteractor : MonoBehaviour {
     }
 
     return closestCollider;
+  }
+
+  private int CollectInteractionHits(float searchRadius) {
+    int hitCount;
+    do {
+      hitCount = Physics.OverlapSphereNonAlloc(
+        interactionPoint.position,
+        searchRadius,
+        _hitBuffer,
+        InteractableMask(),
+        QueryTriggerInteraction.Collide);
+
+      if (hitCount < _hitBuffer.Length || _hitBuffer.Length >= MaximumHitBufferSize) {
+        return hitCount;
+      }
+
+      int expandedSize = Mathf.Min(_hitBuffer.Length * 2, MaximumHitBufferSize);
+      System.Array.Resize(ref _hitBuffer, expandedSize);
+    } while (true);
   }
 
   private LayerMask InteractableMask() {
