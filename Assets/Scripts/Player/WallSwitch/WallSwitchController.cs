@@ -20,7 +20,6 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private PlayerInput playerInput;
   [SerializeField] private Camera aimCamera;
   [SerializeField] private Transform cameraTransform;
-  [SerializeField] private Transform switchOrigin;
   [SerializeField] private SpriteRenderer playerRenderer;
   [SerializeField] private WallSwitchPreview preview;
   [SerializeField] private DistractionController distractionController;
@@ -42,7 +41,7 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField, Min(0f)] private float minimumDestinationPlaneSeparation = 0.5f;
   [Tooltip("World-space margin around every authored LinePath point that cannot be selected as a destination. This prevents arrivals directly on corners.")]
   [SerializeField, Min(0f)] private float destinationPointMargin = 0.2f;
-  [Tooltip("Local offset used when no explicit Switch Origin transform is assigned.")]
+  [Tooltip("Player-local offset used for the wall-switch trajectory origin before Origin World Y is applied.")]
   [SerializeField] private Vector3 switchOriginLocalOffset = new(0f, 0.05f, 0f);
 
   [Header("Trajectory interactions")]
@@ -691,7 +690,7 @@ public sealed class WallSwitchController : MonoBehaviour {
   }
 
   private Vector3 GetTrajectoryOrigin() {
-    return switchOrigin != null ? switchOrigin.position : transform.TransformPoint(switchOriginLocalOffset);
+    return transform.TransformPoint(switchOriginLocalOffset);
   }
 
   private void ResolveLocalReferences() {
