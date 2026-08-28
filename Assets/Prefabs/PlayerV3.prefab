@@ -2335,7 +2335,6 @@ MonoBehaviour:
   playerInput: {fileID: 1805275345434962238}
   aimCamera: {fileID: 4857575901157675262}
   cameraTransform: {fileID: 7082278986317236725}
-  switchOrigin: {fileID: 0}
   playerRenderer: {fileID: 1444588734795641923}
   preview: {fileID: 930000000000000020}
   distractionController: {fileID: 0}
