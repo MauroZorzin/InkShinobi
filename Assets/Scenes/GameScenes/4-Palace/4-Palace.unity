@@ -22183,6 +22183,10 @@ PrefabInstance:
       propertyPath: currentLine
       value: 
       objectReference: {fileID: 420000002}
+    - target: {fileID: 963953445956567795, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1166221941834595135, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
       propertyPath: network
       value: 
