@@ -54,6 +54,7 @@ public class DialogueHUD : MonoBehaviour {
   [SerializeField] private AudioClip dialogueShowSound;
   [SerializeField] private AudioClip dialogueHideSound;
   [SerializeField] private AudioMixerGroup uiMixerGroup;
+  [SerializeField, Range(0f, 1f)] private float soundVolume = 0.5f;
 
   public static DialogueHUD Instance { get; private set; }
 
@@ -109,6 +110,13 @@ public class DialogueHUD : MonoBehaviour {
   public void ClearInformation() {
     StopTimer(ref _informationTimer);
     SetSlot(Source.Information, null);
+  }
+
+  /// <summary>Clears the information slot only if it still contains the expected message.</summary>
+  public void ClearInformationIfMatches(string expectedText) {
+    int i = (int)Source.Information;
+    if (!_active[i] || _text[i] != expectedText) return;
+    ClearInformation();
   }
 
   /// <summary>Driven every frame by PlayerInteractor — no duration, it just tracks proximity.</summary>
@@ -188,10 +196,10 @@ public class DialogueHUD : MonoBehaviour {
   private void PlayShowFeedback(Source source) {
     switch (source) {
       case Source.Information:
-        SceneTransitionManager.PlayUiSound(informationShowSound, uiMixerGroup);
+        SceneTransitionManager.PlayUiSound(informationShowSound, uiMixerGroup, volume: soundVolume);
         break;
       case Source.Dialogue:
-        SceneTransitionManager.PlayUiSound(dialogueShowSound, uiMixerGroup);
+        SceneTransitionManager.PlayUiSound(dialogueShowSound, uiMixerGroup, volume: soundVolume);
         PlayPortraitSlideIn();
         break;
     }
@@ -200,10 +208,10 @@ public class DialogueHUD : MonoBehaviour {
   private void PlayHideFeedback(Source source) {
     switch (source) {
       case Source.Information:
-        SceneTransitionManager.PlayUiSound(informationHideSound, uiMixerGroup);
+        SceneTransitionManager.PlayUiSound(informationHideSound, uiMixerGroup, volume: soundVolume);
         break;
       case Source.Dialogue:
-        SceneTransitionManager.PlayUiSound(dialogueHideSound, uiMixerGroup);
+        SceneTransitionManager.PlayUiSound(dialogueHideSound, uiMixerGroup, volume: soundVolume);
         PlayPortraitSlideOut();
         break;
     }

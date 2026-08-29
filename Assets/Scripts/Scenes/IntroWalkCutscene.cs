@@ -44,6 +44,12 @@ public class IntroWalkCutscene : MonoBehaviour {
   [Tooltip("Matches LineFollowController's default so the player falls/settles the same way during the walk.")]
   [SerializeField] private float gravity = -20f;
 
+  [Header("Completion Tutorial")]
+  [Tooltip("Information shown through the shared dialogue HUD as soon as the intro walk returns control to the player.")]
+  [SerializeField, TextArea] private string completionInformation;
+  [Tooltip("Consecutive rightward distance the player must travel after gaining control before the tutorial clears. Stopping or moving left resets progress. Zero keeps it visible until another system clears it.")]
+  [SerializeField, Min(0f)] private float completionInformationDismissDistance = 1f;
+
   [Header("Debug")]
   [SerializeField] private bool debugLogging = true;
 
@@ -100,8 +106,45 @@ public class IntroWalkCutscene : MonoBehaviour {
     SetAnimator(false);
     ReattachLineFollowController();
     RestoreGameplayInput();
+    ShowCompletionInformation();
 
     if (debugLogging) Debug.Log($"[IntroWalkCutscene] '{name}': walk complete, control returned.", this);
+  }
+
+  private void ShowCompletionInformation() {
+    if (string.IsNullOrWhiteSpace(completionInformation)) return;
+
+    if (DialogueHUD.Instance == null) {
+      Debug.LogWarning($"[IntroWalkCutscene] '{name}': no DialogueHUD found for the completion tutorial.", this);
+      return;
+    }
+
+    DialogueHUD.Instance.ShowInformation(completionInformation);
+
+    if (completionInformationDismissDistance > 0f) {
+      StartCoroutine(ClearCompletionInformationAfterMovement());
+    }
+  }
+
+  private IEnumerator ClearCompletionInformationAfterMovement() {
+    const float MovementEpsilon = 0.0001f;
+    Vector3 previousPosition = player.transform.position;
+    float consecutiveRightwardDistance = 0f;
+
+    while (player != null) {
+      yield return null;
+
+      if (player == null) break;
+      Vector3 currentPosition = player.transform.position;
+      float rightwardStep = Vector3.Dot(currentPosition - previousPosition, _direction);
+      if (rightwardStep > MovementEpsilon) consecutiveRightwardDistance += rightwardStep;
+      else consecutiveRightwardDistance = 0f;
+      previousPosition = currentPosition;
+
+      if (consecutiveRightwardDistance >= completionInformationDismissDistance) break;
+    }
+
+    DialogueHUD.Instance?.ClearInformationIfMatches(completionInformation);
   }
 
   private void ReattachLineFollowController() {

@@ -166,7 +166,10 @@ public sealed class WallSwitchController : MonoBehaviour {
 
 #pragma warning disable IDE0051
   private void OnSwitch(InputValue value) {
-    if (!value.isPressed) return;
+    // PlayerInput's Send Messages notification can still reach a disabled behaviour. Respect
+    // scene-specific ability loadouts instead of turning a disabled wall switch into rejected
+    // input feedback.
+    if (!isActiveAndEnabled || !value.isPressed) return;
 
     if (state == SwitchState.Idle) BeginAim();
     else if (state == SwitchState.Aiming && !SceneTransitionManager.IsGamePaused) ExitAimWithoutSwitch();

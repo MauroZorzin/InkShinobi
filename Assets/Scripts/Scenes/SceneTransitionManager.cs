@@ -222,7 +222,12 @@ public class SceneTransitionManager : MonoBehaviour {
     }
   }
 
-  public static void PlayUiSound(AudioClip clip, AudioMixerGroup mixerGroup, float startOffset = 0f) {
+  public static void PlayUiSound(
+    AudioClip clip,
+    AudioMixerGroup mixerGroup,
+    float startOffset = 0f,
+    float volume = 1f
+  ) {
     if (clip == null) return;
 
     EnsureInstance();
@@ -235,6 +240,7 @@ public class SceneTransitionManager : MonoBehaviour {
     }
 
     Instance._uiAudioSource.outputAudioMixerGroup = mixerGroup;
+    Instance._uiAudioSource.volume = Mathf.Clamp01(volume);
     Instance._uiAudioSource.clip = clip;
     Instance._uiAudioSource.time = Mathf.Clamp(startOffset, 0f, Mathf.Max(0f, clip.length - 0.001f));
     Instance._uiAudioSource.Play();

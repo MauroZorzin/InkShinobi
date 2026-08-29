@@ -517,6 +517,7 @@ GameObject:
   - component: {fileID: 8635383042210647631}
   - component: {fileID: 860956424764076904}
   - component: {fileID: 5073127548736829333}
+  - component: {fileID: 5152103179605560846}
   m_Layer: 3
   m_Name: PlayerV4
   m_TagString: Player
@@ -524,6 +525,30 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &5152103179605560846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7704827832271038240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 510545817a43af64497344fea0a2050e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: GameScripts::FootstepPlayer
+  library: {fileID: 11400000, guid: 92e6e1265c8fed64f9899a9f0162082d, type: 2}
+  raycastHeight: 0.5
+  raycastDistance: 2
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  stepDistance: 1.2
+  minSpeedToStep: 0.05
+  volume: 1
+  pitchVariance: 0.08
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
+  verboseLogging: 0
 --- !u!4 &8143050556635903949
 Transform:
   m_ObjectHideFlags: 0
