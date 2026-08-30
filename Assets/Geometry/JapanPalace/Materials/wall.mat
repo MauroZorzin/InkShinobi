@@ -10,13 +10,13 @@ Material:
   m_Name: wall
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: 83d8d24f0921ae34cbc057e7a3bbe8e8, type: 2}
-  m_ModifiedSerializedProperties: 26
+  m_ModifiedSerializedProperties: 30
   m_ValidKeywords:
   - _ALPHATEST_ON
   - _EMISSION
   m_InvalidKeywords: []
   m_LightmapFlags: 1
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
   m_CustomRenderQueue: 2450
   stringTagMap:
@@ -43,7 +43,7 @@ Material:
     - _Smoothness: 0
     - _WorkflowMode: 1
     m_Colors:
-    - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _EmissionColor: {r: 0.14358729, g: 0.14358729, b: 0.14358729, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &1815922486573746071
