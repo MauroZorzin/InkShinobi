@@ -50,6 +50,55 @@ MonoBehaviour:
   rotationAmplitude: 0.25
   frequency: 22
   retriggerInterval: 0.18
+--- !u!1 &920000000000000200
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 920000000000000201}
+  - component: {fileID: 2889130448582972494}
+  m_Layer: 3
+  m_Name: Vignette
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &920000000000000201
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000000000000200}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8143050556635903949}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2889130448582972494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920000000000000200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
+  m_IsGlobal: 1
+  priority: 30
+  blendDistance: 0
+  weight: 0
+  sharedProfile: {fileID: 0}
 --- !u!1 &1685918869072870553
 GameObject:
   m_ObjectHideFlags: 0
@@ -525,30 +574,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &5152103179605560846
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7704827832271038240}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 510545817a43af64497344fea0a2050e, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: GameScripts::FootstepPlayer
-  library: {fileID: 11400000, guid: 92e6e1265c8fed64f9899a9f0162082d, type: 2}
-  raycastHeight: 0.5
-  raycastDistance: 2
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 2048
-  stepDistance: 1.2
-  minSpeedToStep: 0.05
-  volume: 1
-  pitchVariance: 0.08
-  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
-  verboseLogging: 0
 --- !u!4 &8143050556635903949
 Transform:
   m_ObjectHideFlags: 0
@@ -739,8 +764,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8448
   markerSurfaceOffset: 0.01
-  originWorldY: 2.3
-  destinationWorldY: 2.4
+  originWorldY: 0.3
+  destinationWorldY: 0.4
   surfacePlaneTolerance: 0.02
   wallEndpointInset: 0.1
   aimingTimeScale: 0.1
@@ -936,55 +961,6 @@ MonoBehaviour:
   cameraPositionImpulse: 0.035
   cameraRotationImpulse: 0.9
   cameraImpulseFrequency: 25
---- !u!1 &920000000000000200
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 920000000000000201}
-  - component: {fileID: 2889130448582972494}
-  m_Layer: 3
-  m_Name: Vignette
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &920000000000000201
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 920000000000000200}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8143050556635903949}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2889130448582972494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 920000000000000200}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
-  m_IsGlobal: 1
-  priority: 30
-  blendDistance: 0
-  weight: 0
-  sharedProfile: {fileID: 0}
 --- !u!114 &4991261980710137478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1118,6 +1094,30 @@ MonoBehaviour:
   edgeAlpha: 0.08
   breakup: 0.06
   sortingOrderOffset: 1
+--- !u!114 &5152103179605560846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7704827832271038240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 510545817a43af64497344fea0a2050e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GameScripts::FootstepPlayer
+  library: {fileID: 11400000, guid: 92e6e1265c8fed64f9899a9f0162082d, type: 2}
+  raycastHeight: 0.5
+  raycastDistance: 2
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  stepDistance: 0.75
+  minSpeedToStep: 0.05
+  volume: 1
+  pitchVariance: 0.2
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
+  verboseLogging: 0
 --- !u!1 &8676976931152537567
 GameObject:
   m_ObjectHideFlags: 0

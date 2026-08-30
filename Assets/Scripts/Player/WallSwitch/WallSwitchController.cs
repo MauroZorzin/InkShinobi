@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using Action = System.Action;
 
 /// <summary>
 /// Wall-switch state machine. Space enters or cancels aiming; primary mouse confirms
@@ -126,6 +127,12 @@ public sealed class WallSwitchController : MonoBehaviour {
   public WallSwitchEvaluation CurrentEvaluation => currentEvaluation;
   public AimEntryBlockReason LastAimEntryBlockReason { get; private set; }
 
+  /// <summary>Lifecycle hooks for scene tutorials and other presentation-only observers.</summary>
+  public event Action AimStarted;
+  public event Action AimCancelled;
+  public event Action SwitchStarted;
+  public event Action SwitchCompleted;
+
   private void Awake() {
     ResolveLocalReferences();
     CaptureAuthoredCameraPose();
@@ -208,6 +215,7 @@ public sealed class WallSwitchController : MonoBehaviour {
 
     currentEvaluation = EvaluateAtCursor();
     preview?.Show(currentEvaluation);
+    AimStarted?.Invoke();
     if (verboseLogging) Debug.Log("[WallSwitch] Aim mode entered.", this);
     return true;
   }
@@ -226,6 +234,7 @@ public sealed class WallSwitchController : MonoBehaviour {
 
     WallSwitchEvaluation acceptedEvaluation = currentEvaluation;
     state = SwitchState.Executing;
+    SwitchStarted?.Invoke();
     RestoreCursorState();
     Time.timeScale = 0f;
     preview?.LockForExecution(acceptedEvaluation);
@@ -557,6 +566,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     RestoreTimeScale();
     currentEvaluation = WallSwitchEvaluation.Empty;
     state = SwitchState.Idle;
+    SwitchCompleted?.Invoke();
     if (verboseLogging) Debug.Log("[WallSwitch] Switch completed.", this);
   }
 
@@ -582,6 +592,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     StartCameraBlend(normalCameraLocalPosition, normalCameraLocalRotation, cameraReturnDuration);
     currentEvaluation = WallSwitchEvaluation.Empty;
     state = SwitchState.Idle;
+    AimCancelled?.Invoke();
   }
 
   private WallSwitchEvaluation BuildInvalid(WallSwitchFailureReason reason, Vector3 cursorWorld) {
