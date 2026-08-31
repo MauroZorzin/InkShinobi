@@ -21,15 +21,16 @@ public sealed class WallSwitchPathNetwork : MonoBehaviour {
     float pointMargin,
     LayerMask selectableWallLayers,
     float pathSearchRadius,
+    float wallSideTolerance,
     out DestinationCandidate candidate,
     out float closestNonParallelSurfaceDistance) {
     candidate = default;
     closestNonParallelSurfaceDistance = float.PositiveInfinity;
     if (camera == null || sourcePath == null || switchablePaths == null) return false;
 
-    // The first wall face under the cursor is authoritative. Candidate paths must belong to
-    // that exact face, so neither paths behind it nor another side of the same solid block can
-    // participate.
+    // The first wall under the cursor is authoritative. Candidate paths must be supported by
+    // that wall and lie on its player-facing side. The camera may see the opposite face, so it
+    // cannot determine which of two paths sandwiching the wall is the valid destination.
     Ray cursorRay = camera.ScreenPointToRay(cursorScreenPosition);
     if (!Physics.Raycast(
           cursorRay,
@@ -48,6 +49,14 @@ public sealed class WallSwitchPathNetwork : MonoBehaviour {
 
     float bestSurfaceDistance = float.PositiveInfinity;
     Vector2 surfacePoint = new(wallHit.point.x, wallHit.point.z);
+    Vector3 playerFacingNormal = wallHit.normal;
+    playerFacingNormal.y = 0f;
+    bool hasHorizontalWallNormal = playerFacingNormal.sqrMagnitude > 0.0001f;
+    if (hasHorizontalWallNormal) {
+      playerFacingNormal.Normalize();
+      if (Vector3.Dot(sourcePoint - wallHit.point, playerFacingNormal) < 0f)
+        playerFacingNormal = -playerFacingNormal;
+    }
     for (int pathIndex = 0; pathIndex < switchablePaths.Length; pathIndex++) {
       LinePath path = switchablePaths[pathIndex];
       if (path == null || !path.isActiveAndEnabled) continue;
@@ -84,6 +93,11 @@ public sealed class WallSwitchPathNetwork : MonoBehaviour {
             new Vector2(point.x, point.z),
             new Vector2(closestWallPoint.x, closestWallPoint.z));
           if (pathToWallDistance > pathSearchRadius) continue;
+
+          // ClosestPoint alone cannot distinguish two LinePaths placed on opposite sides of one
+          // collider. Orient the hit face toward the player and keep only that side's path.
+          if (hasHorizontalWallNormal &&
+              Vector3.Dot(point - wallHit.point, playerFacingNormal) < -wallSideTolerance) continue;
 
           float surfaceDistance = Vector2.Distance(surfacePoint, new Vector2(point.x, point.z));
 

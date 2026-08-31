@@ -32,6 +32,8 @@ public sealed class WallSwitchController : MonoBehaviour {
   [Header("Selection")]
   [Tooltip("Maximum horizontal distance allowed between an authored LinePath and the visible wall collider under the cursor. Cursor height and the exact hit position on that wall do not affect eligibility.")]
   [SerializeField, Min(0.01f)] private float wallPathSearchRadius = 0.4f;
+  [Tooltip("Small tolerance when deciding whether a LinePath lies on the player-facing side of the selected wall. Paths on its away-facing side are ignored.")]
+  [SerializeField, Min(0f)] private float wallSideTolerance = 0.02f;
   [Tooltip("Camera-space depth used by the invalid cursor marker. This keeps it attached to the mouse even when the camera looks almost horizontally across the floor.")]
   [SerializeField, Min(0.01f)] private float invalidMarkerCameraDistance = 8f;
   [SerializeField, Min(0f)] private float minimumSwitchDistance = 0.75f;
@@ -97,6 +99,7 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private bool verboseLogging;
 
   private readonly Collider[] interactionHits = new Collider[64];
+  private readonly RaycastHit[] authoredSurfaceHits = new RaycastHit[128];
   private readonly HashSet<GuardWallSwitchTarget> uniqueTargets = new();
   private readonly HashSet<WallSwitchBlocker> uniqueBlockers = new();
   private readonly List<InputAction> lockedInputActions = new();
@@ -141,6 +144,7 @@ public sealed class WallSwitchController : MonoBehaviour {
 
   private void OnValidate() {
     wallPathSearchRadius = Mathf.Max(0.01f, wallPathSearchRadius);
+    wallSideTolerance = Mathf.Max(0f, wallSideTolerance);
     invalidMarkerCameraDistance = Mathf.Max(0.01f, invalidMarkerCameraDistance);
     minimumSwitchDistance = Mathf.Max(0f, minimumSwitchDistance);
     maximumSwitchDistance = Mathf.Max(minimumSwitchDistance, maximumSwitchDistance);
@@ -311,6 +315,7 @@ public sealed class WallSwitchController : MonoBehaviour {
       destinationPointMargin,
       wallObstructionLayers,
       wallPathSearchRadius,
+      wallSideTolerance,
       out WallSwitchPathNetwork.DestinationCandidate candidate,
       out float nonParallelSurfaceDistance);
 
@@ -660,35 +665,54 @@ public sealed class WallSwitchController : MonoBehaviour {
       : default;
 
     float nearestProjectionDistance = float.PositiveInfinity;
-    float nearestBlockingDistance = float.PositiveInfinity;
     RaycastHit projectionHit = default;
-    WallSwitchSurface blockingSurface = null;
-
-    foreach (WallSwitchSurface surface in WallSwitchSurface.ActiveSurfaces) {
-      if (surface == null) continue;
-      Collider surfaceCollider = surface.SurfaceCollider;
-      if (surfaceCollider == null || !surfaceCollider.enabled || surfaceCollider.isTrigger) continue;
-
-      float frontmostDistance = GetFrontmostPlaneDistance(surfaceCollider.bounds, destinationPoint, frontNormal);
-      bool extendsInFrontOfPath = frontmostDistance > surfacePlaneTolerance;
-
-      if (!extendsInFrontOfPath && previewLength > 0.0001f &&
-          surfaceCollider.Raycast(previewRay, out RaycastHit surfaceHit, previewLength) &&
-          surfaceHit.distance < nearestProjectionDistance) {
+    if (previewLength > 0.0001f) {
+      int hitCount = Physics.RaycastNonAlloc(
+        previewRay,
+        authoredSurfaceHits,
+        previewLength,
+        wallObstructionLayers,
+        QueryTriggerInteraction.Ignore);
+      for (int i = 0; i < hitCount; i++) {
+        RaycastHit surfaceHit = authoredSurfaceHits[i];
+        if (!WallSwitchSurface.TryFind(surfaceHit.collider, out _)) continue;
+        float frontmostDistance = GetFrontmostPlaneDistance(
+          surfaceHit.collider.bounds,
+          destinationPoint,
+          frontNormal);
+        if (frontmostDistance > surfacePlaneTolerance ||
+            surfaceHit.distance >= nearestProjectionDistance) continue;
         nearestProjectionDistance = surfaceHit.distance;
         projectionHit = surfaceHit;
       }
-
-      if (!extendsInFrontOfPath || switchLength <= 0.0001f ||
-          !surfaceCollider.Raycast(switchRay, out RaycastHit obstructionHit, switchLength) ||
-          obstructionHit.distance >= nearestBlockingDistance) continue;
-      nearestBlockingDistance = obstructionHit.distance;
-      blockingSurface = surface;
-      blockingPoint = obstructionHit.point;
     }
 
     if (nearestProjectionDistance < float.PositiveInfinity)
       previewPoint = projectionHit.point + projectionHit.normal * markerSurfaceOffset;
+
+    float nearestBlockingDistance = float.PositiveInfinity;
+    Collider blockingSurface = null;
+    if (switchLength > 0.0001f) {
+      int hitCount = Physics.RaycastNonAlloc(
+        switchRay,
+        authoredSurfaceHits,
+        switchLength,
+        wallObstructionLayers,
+        QueryTriggerInteraction.Ignore);
+      for (int i = 0; i < hitCount; i++) {
+        RaycastHit obstructionHit = authoredSurfaceHits[i];
+        if (!WallSwitchSurface.TryFind(obstructionHit.collider, out _)) continue;
+        float frontmostDistance = GetFrontmostPlaneDistance(
+          obstructionHit.collider.bounds,
+          destinationPoint,
+          frontNormal);
+        if (frontmostDistance <= surfacePlaneTolerance ||
+            obstructionHit.distance >= nearestBlockingDistance) continue;
+        nearestBlockingDistance = obstructionHit.distance;
+        blockingSurface = obstructionHit.collider;
+        blockingPoint = obstructionHit.point;
+      }
+    }
 
     if (blockingSurface != null) blockingObject = blockingSurface;
   }
