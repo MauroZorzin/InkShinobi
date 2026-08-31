@@ -3,9 +3,10 @@ using UnityEngine.Audio;
 using UnityEngine.Serialization;
 
 /// <summary>
-/// IInteractable that toggles a GameObject active/inactive and optionally disables a component on the player while the target is active.
+/// IInteractable that toggles a GameObject active/inactive, supplies a state-aware prompt to the
+/// shared dialogue HUD, and optionally disables a component on the player while the target is active.
 /// </summary>
-public class ArrowInteractable : MonoBehaviour, IInteractable {
+public class ArrowInteractable : MonoBehaviour, IInteractable, IInteractionPrompt {
   [Header("Target")]
   [Tooltip("GameObject shown/hidden (SetActive) each time this is interacted with.")]
   [SerializeField] private GameObject targetObject;
@@ -22,6 +23,10 @@ public class ArrowInteractable : MonoBehaviour, IInteractable {
   [SerializeField] private GameObject textToHideOnInteraction;
   [Tooltip("Text shown on the first interaction and hidden on the next interaction.")]
   [SerializeField] private GameObject textToToggleOnInteraction;
+
+  [Header("Interaction Prompt")]
+  [SerializeField] private string showPrompt = "[X] Interact";
+  [SerializeField] private string hidePrompt = "[X] Close";
 
   [Header("Player Lock")]
   [Tooltip("Component disabled on the player while targetObject is shown, re-enabled when it's hidden again. Leave empty to skip locking anything. Don't point this at whatever drives the Interact input itself, or the player won't be able to press Interact again to close it.")]
@@ -53,6 +58,10 @@ public class ArrowInteractable : MonoBehaviour, IInteractable {
       );
     }
     SetShowing(!_isShowing);
+  }
+
+  public string GetPromptText(PlayerInventory inventory) {
+    return _isShowing ? hidePrompt : showPrompt;
   }
 
   private void SetShowing(bool showing) {

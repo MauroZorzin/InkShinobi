@@ -83,6 +83,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cb78b49f86c4f35a1d37866f9d541a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WallSwitchSurface
+  includedLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &1225619329838201271
 GameObject:
   m_ObjectHideFlags: 0
