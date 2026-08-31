@@ -1,13 +1,5 @@
 fileFormatVersion: 2
 guid: 7be1716eba4acf240990ebae7a73ea2f
-ScriptedImporter:
-  internalIDToNameTable: []
-  externalObjects: {}
-  serializedVersion: 2
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
-  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
 AssetOrigin:
   serializedVersion: 1
   productId: 357594
@@ -17,3 +9,19 @@ AssetOrigin:
   assetPath: Assets/Dynamic Occlusion Cutout System (DOCS) - SAMPLE/Shaders/DOCS
     - Shader.shadergraph
   uploadId: 852196
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+  useAsTemplate: 0
+  exposeTemplateAsShader: 0
+  template:
+    name: 
+    category: 
+    description: 
+    icon: {instanceID: 0}
+    thumbnail: {instanceID: 0}

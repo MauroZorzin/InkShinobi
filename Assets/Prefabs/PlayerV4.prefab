@@ -131,7 +131,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.25, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1707577869086618160}
   m_Father: {fileID: 920000000000000101}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &5948567116382397242
@@ -503,12 +504,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7213337537386989143}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0.4}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.32200003, z: 1.7360001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8143050556635903949}
+  m_Father: {fileID: 8507084339620739715}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7670269627397797233
 GameObject:
@@ -589,7 +590,6 @@ Transform:
   m_Children:
   - {fileID: 5827677309423672436}
   - {fileID: 920000000000000101}
-  - {fileID: 1707577869086618160}
   - {fileID: 6627677826625895651}
   - {fileID: 8941715411320078927}
   - {fileID: 920000000000000201}
@@ -746,6 +746,7 @@ MonoBehaviour:
   rejectionFeedback: {fileID: 920000000000000102}
   permissionSource: {fileID: 2222925367310345421}
   wallPathSearchRadius: 0.4
+  wallSideTolerance: 0.02
   invalidMarkerCameraDistance: 8
   minimumSwitchDistance: 1
   maximumSwitchDistance: 10

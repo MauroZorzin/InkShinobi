@@ -1,7 +1,10 @@
 using UnityEngine;
 
 /// <summary>An item lying in the world, ready to be picked up by PlayerInventory via PlayerInteractor.</summary>
-public class WorldItem : MonoBehaviour, IInteractable, IInteractionRange {
+public class WorldItem : MonoBehaviour, IInteractable, IInteractionRange, IInteractionPriority {
+  // Pickups win over larger interaction volumes (e.g. doors) that happen to be geometrically closer.
+  private const int PickupPriority = 1;
+
   public ItemDefinition item;
 
   [Tooltip("When disabled, this object remains as a reusable pickup source after a successful pickup.")]
@@ -18,6 +21,7 @@ public class WorldItem : MonoBehaviour, IInteractable, IInteractionRange {
       ? item != null ? item.itemId : string.Empty
       : runtimeItemId;
   public float InteractionRange => pickupInteractionRange;
+  public int Priority => PickupPriority;
 
   public void ConfigureRuntimeIdentity(string itemId, bool useColorOverride, Color displayColor) {
     runtimeItemId = itemId;

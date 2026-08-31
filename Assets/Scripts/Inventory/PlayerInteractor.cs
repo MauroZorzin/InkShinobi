@@ -91,6 +91,7 @@ public class PlayerInteractor : MonoBehaviour {
 
     Collider closestCollider = null;
     var closestDistance = float.MaxValue;
+    var closestPriority = int.MinValue;
 
     for (int i = 0; i < hitCount; i++) {
       Collider hit = _hitBuffer[i];
@@ -111,11 +112,18 @@ public class PlayerInteractor : MonoBehaviour {
         continue;
       }
 
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        closestCollider = hit;
-        interactable = candidate;
+      // Higher priority always wins; distance only breaks ties within the same priority. This lets
+      // a small pickup (e.g. a key) win over a much larger interaction volume (e.g. a door) even
+      // when the door's nearest surface point happens to be geometrically closer.
+      int priority = candidate is IInteractionPriority customPriority ? customPriority.Priority : 0;
+      if (priority < closestPriority || (priority == closestPriority && distance >= closestDistance)) {
+        continue;
       }
+
+      closestDistance = distance;
+      closestPriority = priority;
+      closestCollider = hit;
+      interactable = candidate;
     }
 
     return closestCollider;

@@ -25,3 +25,12 @@ public interface IInteractionFocus {
 public interface IInteractionRange {
   float InteractionRange { get; }
 }
+
+/// <summary>
+/// Optional interaction priority. When multiple interactables are in range, the highest priority
+/// wins regardless of distance; distance only breaks ties within the same priority. Interactables
+/// without this interface implicitly use priority 0.
+/// </summary>
+public interface IInteractionPriority {
+  int Priority { get; }
+}
