@@ -5,8 +5,7 @@ using UnityEngine.AI;
 
 /// <summary>
 /// Guard-side contract for wall-switch preview, eligibility, immediate gameplay shutdown, and
-/// the airborne ink dissolve. Milestone 6 can replace the prototype eligibility rule without
-/// changing the wall-switch evaluator.
+/// the airborne ink dissolve. Eligibility remains independent from the wall-switch evaluator.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class GuardWallSwitchTarget : MonoBehaviour {

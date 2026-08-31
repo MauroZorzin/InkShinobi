@@ -16,7 +16,7 @@ EditorBuildSettings:
     guid: ac2bc0b415d0afe4b8ecaace854f60a2
   - enabled: 1
     path: Assets/Scenes/GameScenes/2-Entrance/2-Entrance.unity
-    guid: 35e5e0b7904065b4ca76efcc47509218
+    guid: cd3b0288ff5bc804c90365f6b2b8c39c
   - enabled: 1
     path: Assets/Scenes/GameScenes/3-Garden/3-Garden.unity
     guid: 7c4fdbd8ef5637a4db847d3e72fabdaa

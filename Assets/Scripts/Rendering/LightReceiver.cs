@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 
 /// <summary>
 /// Explicitly marks geometry that may receive guard-light projections. The dedicated
@@ -36,17 +37,17 @@ public sealed class LightReceiver : MonoBehaviour {
   [ContextMenu("Refresh Renderers")]
   public void RefreshRenderers() {
     SetLayerBit(false);
-    renderers = includeChildren
+    Renderer[] candidates = includeChildren
       ? GetComponentsInChildren<Renderer>(true)
       : GetComponents<Renderer>();
+    renderers = candidates.Where(renderer => renderer != null &&
+      renderer.GetComponentInParent<LightReceiverExclusion>() == null).ToArray();
     SetLayerBit(isActiveAndEnabled);
   }
 
   private void EnsureRendererCache() {
     if (renderers == null)
-      renderers = includeChildren
-        ? GetComponentsInChildren<Renderer>(true)
-        : GetComponents<Renderer>();
+      RefreshRenderers();
   }
 
   private void SetLayerBit(bool enabled) {

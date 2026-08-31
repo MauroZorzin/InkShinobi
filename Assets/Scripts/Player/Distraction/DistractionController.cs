@@ -165,7 +165,10 @@ public sealed class DistractionController : MonoBehaviour {
 
 #pragma warning disable IDE0051
   private void OnDistractionAim(InputValue value) {
-    if (!value.isPressed) return;
+    // PlayerInput's Send Messages notification can still reach a disabled behaviour. Respect
+    // scene-specific ability loadouts instead of turning a disabled distraction into rejected
+    // input feedback.
+    if (!isActiveAndEnabled || !value.isPressed) return;
     if (state == AimState.Idle) BeginAim();
     else if (state == AimState.Aiming) ExitAim(false);
   }
