@@ -14,13 +14,13 @@ GameObject:
   - component: {fileID: 1092781644799032882}
   - component: {fileID: 1541075231223826183}
   - component: {fileID: 4046680222633033897}
-  m_Layer: 0
+  m_Layer: 1
   m_Name: circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 0
 --- !u!4 &2780090442070915050
 Transform:
   m_ObjectHideFlags: 0
