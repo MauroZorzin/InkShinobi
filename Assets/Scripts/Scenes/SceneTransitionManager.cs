@@ -33,8 +33,9 @@ public class SceneTransitionManager : MonoBehaviour {
   public static bool IsGamePaused => Instance != null
     && (Instance._pauseDialog != null || Instance._deathDialog != null);
   public static bool IsDeathSequenceActive => Instance != null && Instance._deathSequenceActive;
-
   private bool _isTransitioning;
+  private bool _acceptSceneRevealHolds;
+  private int _sceneRevealHoldCount;
   private ConfirmationModalView _pauseDialog;
   private ConfirmationModalView _deathDialog;
   private bool _deathSequenceActive;
@@ -246,6 +247,21 @@ public class SceneTransitionManager : MonoBehaviour {
     Instance._uiAudioSource.Play();
   }
 
+  /// <summary>
+  /// Lets a newly activated scene delay the ink reveal until its first visible frame is ready.
+  /// Returns false when there is no covered scene transition to hold.
+  /// </summary>
+  public static bool TryHoldSceneReveal() {
+    if (Instance == null || !Instance._acceptSceneRevealHolds) return false;
+    Instance._sceneRevealHoldCount++;
+    return true;
+  }
+
+  public static void ReleaseSceneReveal() {
+    if (Instance == null || Instance._sceneRevealHoldCount <= 0) return;
+    Instance._sceneRevealHoldCount--;
+  }
+
   private static void Begin(
     string destinationSceneName,
     Func<AsyncOperation> beginLoad,
@@ -297,6 +313,8 @@ public class SceneTransitionManager : MonoBehaviour {
     bool showSaving
   ) {
     _isTransitioning = true;
+    _acceptSceneRevealHolds = false;
+    _sceneRevealHoldCount = 0;
 
     if (!useFade) {
       yield return beginLoad();
@@ -354,6 +372,9 @@ public class SceneTransitionManager : MonoBehaviour {
       yield return null;
     }
 
+    // Awakened components in the destination may hold the reveal while they prepare visual content
+    // such as a VideoPlayer's first decoded frame.
+    _acceptSceneRevealHolds = true;
     op.allowSceneActivation = true;
 
     // Keep the screen fully black until activation and the new scene's initialization finish.
@@ -372,6 +393,17 @@ public class SceneTransitionManager : MonoBehaviour {
 
     // Keep the expensive activation/initialization frames behind the fully covered transition.
     for (int frame = 0; frame < postActivationSettleFrames; frame++) yield return null;
+
+    float revealHoldElapsed = 0f;
+    while (_sceneRevealHoldCount > 0 && revealHoldElapsed < 20f) {
+      revealHoldElapsed += Time.unscaledDeltaTime;
+      yield return null;
+    }
+    if (_sceneRevealHoldCount > 0) {
+      Debug.LogWarning("[SceneTransitionManager] Timed out waiting for the destination scene to release the ink reveal.");
+      _sceneRevealHoldCount = 0;
+    }
+    _acceptSceneRevealHolds = false;
 
     FadePlayingAudio(
       newSceneContent.AudioSources,
