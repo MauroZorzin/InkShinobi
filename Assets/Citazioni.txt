@@ -17,3 +17,10 @@
 17)Outline full render pass 2: https://www.youtube.com/watch?v=LMqio9NsqmM
 18)Rain Particles by Game Seed Assets : https://assetstore.unity.com/packages/vfx/particles/rain-particles-351846
 19)Japanese Machiya Set Kit by xervolt :  https://sketchfab.com/3d-models/japanese-machiya-set-kit-d0bb3d915bf9448a9ef46bcb6a6fa6db
+20)Idyllic Fantasy Nature by Edenity : https://assetstore.unity.com/packages/3d/environments/fantasy/idyllic-fantasy-nature-260042
+21)Suono morte shogun: https://pixabay.com/sound-effects/horror-male-death-sound-128357/Cutsceen Sound:
+22)Cutsceen Blood: https://assetstore.unity.com/packages/vfx/free-blood-vfx-urp-375130
+23)Suono del battito di cuore: https://pixabay.com/sound-effects/film-special-effects-heartbeat-tense-377250/
+24)Keep Characters Always Visible - Camera Occlusion Cut Out for (DOCS) - SAMPLE: https://assetstore.unity.com/packages/tools/game-toolkits/keep-characters-always-visible-camera-occlusion-cut-out-for-docs-357594
+25)2D Sprite Outline: https://assetstore.unity.com/packages/vfx/shaders/2d-sprite-outline-109669
+26)Main Menu image: https://www.rawpixel.com/image/3064491/free-illustration-image-japanese-japan-art
