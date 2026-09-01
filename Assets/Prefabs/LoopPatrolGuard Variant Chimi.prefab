@@ -123,5 +123,5 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0

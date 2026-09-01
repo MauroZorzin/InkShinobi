@@ -5252,3 +5252,7 @@ MonoBehaviour:
   enterSound: {fileID: 8300000, guid: 867bd21a8f297d248b1b12c24f1a37d1, type: 3}
   exitSound: {fileID: 8300000, guid: 867bd21a8f297d248b1b12c24f1a37d1, type: 3}
   soundVolume: 1
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
+  notHiddenPromptText: Nascondi
+  hiddenPromptText: Esci
+  cannotHidePromptText: Non puoi nasconderti ora

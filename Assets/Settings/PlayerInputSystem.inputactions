@@ -43,15 +43,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Takedown",
-                    "type": "Button",
-                    "id": "a9afe9eb-c5bc-4dc4-9312-6049e8f743ae",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "Switch",
                     "type": "Button",
                     "id": "b8d6c32c-dfda-4db8-bff7-614cd3a8e323",
@@ -64,24 +55,6 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "efebf921-04db-4489-9de7-bfb74344e200",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Vision",
-                    "type": "PassThrough",
-                    "id": "8afb16bc-602e-433b-bbaa-85e22efda65c",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Confirm",
-                    "type": "Button",
-                    "id": "607644ec-450c-40e6-8bfa-ce545dc71e8f",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -150,39 +123,6 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "1D Axis",
-                    "id": "399f4eb7-0fcd-430b-936b-536a2a7b0982",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "f97c167c-682d-4ef7-98e5-fa5032a211a6",
-                    "path": "<Keyboard>/leftArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "29d2c23d-7bc4-4b36-8b65-328086984852",
-                    "path": "<Keyboard>/rightArrow",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
                     "name": "",
                     "id": "ddad2fcc-5ff5-45fc-a850-506e2fb57fb0",
                     "path": "<Keyboard>/q",
@@ -206,17 +146,6 @@
                 },
                 {
                     "name": "",
-                    "id": "2f569585-687d-4bcf-b011-aa8349f7e265",
-                    "path": "<Keyboard>/z",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Takedown",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "cb2f9f42-56ae-4c98-9bb7-5b452dd50bcc",
                     "path": "<Keyboard>/space",
                     "interactions": "",
@@ -234,28 +163,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "468d5277-d594-4d92-b932-7051cbe566a0",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Vision",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7404b483-4efa-429b-a1f1-2999b985a587",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Confirm",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

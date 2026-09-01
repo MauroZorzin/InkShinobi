@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 
 public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
@@ -17,6 +18,8 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
   [Tooltip("Sound played when the player leaves the hiding spot.")]
   public AudioClip exitSound;
   [Range(0f, 1f)] public float soundVolume = 1f;
+  [Tooltip("Mixer group used by the hide and reveal sounds.")]
+  public AudioMixerGroup mixerGroup;
 
   [Tooltip("Shown while nobody is hiding here.")]
   public string notHiddenPromptText = "Nascondi";
@@ -115,7 +118,7 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
     }
 
     if (enterSound != null) {
-      OneShotAudio.PlayClipAtPoint(enterSound, transform.position, soundVolume);
+      OneShotAudio.PlayClipAtPoint(enterSound, transform.position, soundVolume, mixerGroup);
     }
 
     if (_playerStealthController != null) {
@@ -159,7 +162,7 @@ public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
     }
 
     if (exitSound != null) {
-      OneShotAudio.PlayClipAtPoint(exitSound, transform.position, soundVolume);
+      OneShotAudio.PlayClipAtPoint(exitSound, transform.position, soundVolume, mixerGroup);
     }
 
     StartCoroutine(Transition(_storedPosition, _storedRotation, OnRevealTransitionComplete));

@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionManager
   _inkTransition: {fileID: 11400001}
+  settingsMixer: {fileID: 24100000, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   backdropColor: {r: 0, g: 0, b: 0, a: 1}
   loaderAnimationPrefab: {fileID: 0}
   savingFont: {fileID: 11400000, guid: b80b3a7d5c6a5f2489a2b318cafb74cc, type: 2}

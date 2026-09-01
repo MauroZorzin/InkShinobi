@@ -50,6 +50,8 @@ public class SceneTransitionManager : MonoBehaviour {
   private AudioSource _uiAudioSource;
   [SerializeField, Tooltip("Ink effect used to cover and reveal scenes.")]
   private InkTransition _inkTransition;
+  [SerializeField, Tooltip("Mixer that receives the persisted Music and SFX volume settings.")]
+  private AudioMixer settingsMixer;
   private GameObject _transitionOverlay;
   private Image _transitionBackdrop;
   private TextMeshProUGUI _transitionLabel;
@@ -138,6 +140,8 @@ public class SceneTransitionManager : MonoBehaviour {
 
     Instance = this;
     DontDestroyOnLoad(gameObject);
+    GameSettings.ApplyAudio(settingsMixer);
+    GameSettings.ApplySavedResolution();
     PrepareTransitionOverlay();
   }
 
@@ -898,8 +902,7 @@ public static class GameProgress {
   }
 
   private static bool IsMenuScene(string sceneName) =>
-    string.Equals(sceneName, "MainMenu", StringComparison.OrdinalIgnoreCase) ||
-    string.Equals(sceneName, "SettingsMenu", StringComparison.OrdinalIgnoreCase);
+    string.Equals(sceneName, "MainMenu", StringComparison.OrdinalIgnoreCase);
 
   private static void SaveReachedScene(string sceneName) {
     if (!IsGameScene(sceneName) || sceneName == FirstSceneName) return;

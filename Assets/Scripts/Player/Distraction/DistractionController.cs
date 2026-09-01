@@ -76,8 +76,7 @@ public sealed class DistractionController : MonoBehaviour {
   [SerializeField] private bool verboseLogging;
 
   private static readonly string[] LockedActions = {
-    "Move", "RotateRight", "RotateLeft", "Takedown",
-    "Interact", "Vision", "Confirm", "Look", "Drop"
+    "Move", "RotateRight", "RotateLeft", "Interact", "Look", "Drop"
   };
 
   private readonly List<InputAction> lockedActions = new();

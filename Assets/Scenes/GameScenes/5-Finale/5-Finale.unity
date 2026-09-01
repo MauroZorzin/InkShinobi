@@ -632,7 +632,7 @@ AudioSource:
   m_GameObject: {fileID: 974681842}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
@@ -773,6 +773,8 @@ MonoBehaviour:
   finaleSoundtrack: {fileID: 8300000, guid: b6d3d41a66504b86953153dfbc61a8c2, type: 3}
   takedownSound: {fileID: 8300000, guid: 07641d5d6b5ba4241aa5545917231aaa, type: 3}
   shogunDeathSound: {fileID: 8300000, guid: 3747abdf9a1a5b5448d97b94e91af67e, type: 3}
+  musicMixerGroup: {fileID: 243752053592687308, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
+  sfxMixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   videoGroup: {fileID: 905671465}
   bloodGushRoot: {fileID: 1500000001}
   titleGroup: {fileID: 396197436}

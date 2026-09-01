@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using UnityEngine.Video;
 
@@ -14,6 +15,8 @@ public sealed class FinaleSequence : MonoBehaviour {
   [SerializeField] private AudioClip finaleSoundtrack;
   [SerializeField] private AudioClip takedownSound;
   [SerializeField] private AudioClip shogunDeathSound;
+  [SerializeField] private AudioMixerGroup musicMixerGroup;
+  [SerializeField] private AudioMixerGroup sfxMixerGroup;
 
   [Header("Authored Presentation")]
   [SerializeField] private CanvasGroup videoGroup;
@@ -110,6 +113,7 @@ public sealed class FinaleSequence : MonoBehaviour {
 
     if (finaleVideo != null) {
       if (videoPrepared) {
+        audioSource.outputAudioMixerGroup = musicMixerGroup;
         audioSource.clip = finaleSoundtrack;
         audioSource.Play();
         videoPlayer.Play();
@@ -140,6 +144,7 @@ public sealed class FinaleSequence : MonoBehaviour {
 
     audioSource.Stop();
     audioSource.clip = null;
+    audioSource.outputAudioMixerGroup = sfxMixerGroup;
     yield return Fade(videoGroup, videoGroup.alpha, 0f, 0.16f);
     if (takedownSound != null) audioSource.PlayOneShot(takedownSound);
     if (strikeDelay > 0f) yield return new WaitForSecondsRealtime(strikeDelay);

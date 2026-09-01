@@ -18,7 +18,7 @@ using UnityEngine.InputSystem;
 /// from wherever the player actually ended up instead of clamping at the line's start/end like it
 /// hit a wall. All player gameplay input is blocked for the duration by switching the
 /// PlayerInput component to its "UI" action map (same idiom SceneTransitionManager uses for the
-/// pause dialog) — not just movement, so Interact/Switch/Takedown/RotateLeft/RotateRight are blocked
+/// pause dialog) — not just movement, so Interact/Switch/RotateLeft/RotateRight are blocked
 /// too, and restored to whatever map was active before once the walk finishes. The walk always plays
 /// out in full; there is no skip input.
 ///

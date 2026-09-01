@@ -11,12 +11,14 @@ public class MenuManager : MonoBehaviour {
   [Tooltip("Scene loaded when the player starts a new game.")]
   [SerializeField] private string firstSceneName = GameProgress.FirstSceneName;
 
-  [Tooltip("Scene loaded when the player opens settings.")]
-  [SerializeField] private string settingsSceneName = "SettingsMenu";
-
   [Header("Buttons")]
   [SerializeField] private Button continueButton;
   [SerializeField] private TMP_Text continueLabel;
+
+  [Header("Settings Overlay")]
+  [SerializeField] private GameObject mainMenuPanel;
+  [SerializeField] private GameObject settingsPanel;
+  [SerializeField] private SettingsManager settingsManager;
 
   [Header("Transition")]
   [SerializeField] private TMP_FontAsset savingFont;
@@ -29,6 +31,7 @@ public class MenuManager : MonoBehaviour {
   private ConfirmationModalView _quitDialog;
   private bool _restartRainAfterDialog;
   private int _rainPlaybackSample;
+  private bool _settingsOpen;
 
   private void Awake() {
     // Menus must not inherit a paused gameplay clock; particle effects such as rain use it.
@@ -56,6 +59,11 @@ public class MenuManager : MonoBehaviour {
     if (_newGameDialog != null || _quitDialog != null) return;
     if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
 
+    if (_settingsOpen) {
+      CloseSettings();
+      return;
+    }
+
     ShowQuitConfirmation();
   }
 
@@ -69,7 +77,28 @@ public class MenuManager : MonoBehaviour {
   }
 
   public void OpenSettings() {
-    SceneTransitionManager.LoadScene(settingsSceneName, useFade: false);
+    if (settingsPanel == null) {
+      Debug.LogError("[MenuManager] SettingsPanel is not assigned.", this);
+      return;
+    }
+
+    _settingsOpen = true;
+    // This panel contains only the title and menu buttons. The camera-owned rain and ambient
+    // audio remain active behind the settings overlay.
+    if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
+    settingsPanel.SetActive(true);
+    settingsManager?.RefreshUi();
+    DeselectMenuHighlights();
+  }
+
+  public void CloseSettings() {
+    if (!_settingsOpen && settingsPanel == null) return;
+
+    GameSettings.Save();
+    _settingsOpen = false;
+    if (settingsPanel != null) settingsPanel.SetActive(false);
+    if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+    DeselectMenuHighlights();
   }
 
   public void ContinueGame() {

@@ -109765,7 +109765,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!1001 &688952851
 PrefabInstance:
@@ -113312,7 +113312,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!1001 &710464930
 PrefabInstance:
@@ -134021,7 +134021,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!1001 &857816011
 PrefabInstance:
@@ -145338,7 +145338,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!1001 &909683030
 PrefabInstance:
@@ -163938,7 +163938,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!1 &1027942155
 GameObject:
@@ -173572,7 +173572,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!4 &1090248277 stripped
 Transform:
@@ -235868,7 +235868,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!1001 &1508918142
 PrefabInstance:
@@ -332170,7 +332170,7 @@ MonoBehaviour:
   minSpeedToStep: 0.05
   volume: 0.3
   pitchVariance: 0.08
-  mixerGroup: {fileID: 0}
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   verboseLogging: 0
 --- !u!1001 &2109396768
 PrefabInstance:

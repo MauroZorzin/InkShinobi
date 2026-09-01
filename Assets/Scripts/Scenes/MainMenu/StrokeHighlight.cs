@@ -143,6 +143,14 @@ public class StrokeHighlight : MonoBehaviour, IPointerEnterHandler, IPointerExit
   /// </summary>
   /// <param name="routine">The animation routine to start.</param>
   private void StartAnimation(IEnumerator routine) {
+    // Menu panels are deactivated before their highlights are deselected. Coroutines cannot be
+    // started on inactive GameObjects, so finish the visual reset synchronously in that case.
+    if (!isActiveAndEnabled || !gameObject.activeInHierarchy) {
+      animationRoutine = null;
+      HideInstant();
+      return;
+    }
+
     if (animationRoutine != null) {
       StopCoroutine(animationRoutine);
     }
