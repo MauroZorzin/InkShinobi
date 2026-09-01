@@ -85,6 +85,7 @@ public class GuardController : MonoBehaviour {
   public Vector3 LastKnownPlayerPosition => lastKnownPosition;
 
   private int patrolIndex;
+  private int arrivedPatrolIndex = -1;
   private float stateElapsed;
   private float waypointWaitRemaining;
   private float lostSightElapsed;
@@ -219,7 +220,9 @@ public class GuardController : MonoBehaviour {
     }
     if (waypointWaitRemaining > 0f) {
       waypointWaitRemaining -= Time.deltaTime;
-      motor.Stop();
+      Transform arrivedPoint = GetPatrolPoint(arrivedPatrolIndex);
+      if (arrivedPoint != null) motor.FaceDirection(arrivedPoint.forward, GetWaypointTurnSpeed());
+      else motor.Stop();
       if (waypointWaitRemaining <= 0f) MoveToPatrolPoint(patrolIndex);
       return;
     }
@@ -232,6 +235,7 @@ public class GuardController : MonoBehaviour {
       return;
     }
     if (!motor.HasArrived) return;
+    arrivedPatrolIndex = patrolIndex;
     waypointWaitRemaining = GetWaypointPause(patrolIndex);
     patrolIndex = NextPatrolIndex(patrolIndex);
     motor.Stop();
@@ -421,6 +425,7 @@ public class GuardController : MonoBehaviour {
   private float GetWaypointPause(int reachedPointIndex) => patrolRoute != null
     ? (patrolRoute.IsCorner(reachedPointIndex) ? patrolRoute.CornerPause : 0f)
     : waypointWaitTime;
+  private float GetWaypointTurnSpeed() => patrolRoute != null ? patrolRoute.TurnSpeed : noticingTurnSpeed;
 
   private int FindNearestPatrolPoint() {
     if (patrolRoute != null && patrolRoute.Count > 0)
