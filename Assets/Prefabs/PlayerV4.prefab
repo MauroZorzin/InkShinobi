@@ -852,6 +852,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GameScripts::PlayerInventory
   dropPoint: {fileID: 8143050556635903949}
+  rejectionFeedback: {fileID: 920000000000000102}
 --- !u!114 &5315803391879672371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -866,9 +867,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::PlayerInteractor
   inventory: {fileID: 2539817075629536952}
   rejectionFeedback: {fileID: 920000000000000102}
-  interactionPoint: {fileID: 8143050556635903949}
-  interactionRadius: 0.5
-  extendedInteractionSearchRadius: 1
+  interactionCamera: {fileID: 5948567116382397242}
+  defaultReach:
+    left: 0.5
+    right: 0.5
+    forward: 0.5
+    backward: 0.5
+    height: 1
+  categoryOverrides:
+  - category: 1
+    layers:
+      serializedVersion: 2
+      m_Bits: 16384
+    reach:
+      left: 0.5
+      right: 0.5
+      forward: 1
+      backward: 0.2
+      height: 1
+  - category: 2
+    layers:
+      serializedVersion: 2
+      m_Bits: 576
+    reach:
+      left: 0.5
+      right: 0.5
+      forward: 0.5
+      backward: 0.5
+      height: 1
+  - category: 3
+    layers:
+      serializedVersion: 2
+      m_Bits: 8192
+    reach:
+      left: 0.5
+      right: 0.5
+      forward: 0.5
+      backward: 0.2
+      height: 1
+  interactionObstructionLayers:
+    serializedVersion: 2
+    m_Bits: 256
   layerPrompts:
   - layer:
       serializedVersion: 2
@@ -956,6 +995,9 @@ MonoBehaviour:
   impactColor: {r: 0.01, g: 0.005, b: 0.005, a: 1}
   dissolveEdgeColor: {r: 0.01, g: 0.005, b: 0.005, a: 1}
   dissolveEdgeWidth: 0.14
+  deathSound: {fileID: 8300000, guid: c7e1e79ee1d55014bae288e3279f11d0, type: 3}
+  deathSoundVolume: 0.55
+  deathSoundMixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   guardAlertFadeDuration: 0.2
   gameCamera: {fileID: 5948567116382397242}
   cameraImpulseDuration: 0.22
@@ -1050,7 +1092,7 @@ MonoBehaviour:
   minimumSurfaceNormalY: 0.45
   obstructionSamples: 22
   maximumObstructionSegmentLength: 0.08
-  cooldown: 2
+  cooldown: 3
   cameraTransform: {fileID: 8507084339620739715}
   aimingCameraLocalPosition: {x: 0, y: 0.5, z: -3.75}
   aimingTimeScale: 0.06

@@ -75,7 +75,7 @@ PrefabInstance:
     - target: {fileID: 5734512930278582093, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: keyWorldPrefab
       value: 
-      objectReference: {fileID: 4060355676401909770, guid: b780c3163c144c44bb05bde6b09446a2, type: 3}
+      objectReference: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
     - target: {fileID: 6509336419227644842, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 1

@@ -33,6 +33,9 @@ public class PlayerInventory : MonoBehaviour {
   [Tooltip("Point items are dropped from. Leave empty to use this transform.")]
   public Transform dropPoint;
 
+  [Tooltip("Camera feedback used when Drop is pressed while the inventory is empty.")]
+  [SerializeField] private RejectedAimCameraFeedback rejectionFeedback;
+
   public event Action<InventoryItemInstance> ItemInstanceChanged;
 
   public InventoryItemInstance CurrentItemInstance { get; private set; }
@@ -51,7 +54,10 @@ public class PlayerInventory : MonoBehaviour {
 
 #pragma warning disable IDE0051
   private void OnDrop(InputValue value) {
-    if (value.isPressed) TryDrop();
+    if (!value.isPressed) return;
+    if (TryDrop()) return;
+    if (!SceneTransitionManager.IsGamePaused && !SceneTransitionManager.IsDeathSequenceActive)
+      ResolveRejectionFeedback()?.PlayRejectedAction();
   }
 #pragma warning restore IDE0051
 
@@ -111,5 +117,11 @@ public class PlayerInventory : MonoBehaviour {
 
   private void NotifyItemInstanceChanged() {
     ItemInstanceChanged?.Invoke(CurrentItemInstance);
+  }
+
+  private RejectedAimCameraFeedback ResolveRejectionFeedback() {
+    if (rejectionFeedback == null)
+      rejectionFeedback = GetComponentInChildren<RejectedAimCameraFeedback>(true);
+    return rejectionFeedback;
   }
 }

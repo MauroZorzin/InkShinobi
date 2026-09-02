@@ -101,6 +101,7 @@ public class GuardController : MonoBehaviour {
   private AudioSource chaseAudioSource;
   private AudioSource alertOneShotSource;
   private Coroutine alertAudioFadeRoutine;
+  private Vector3 authoredPatrolFacing;
 
   /// <summary>Fades only guard alert/chase audio, leaving music and unrelated SFX untouched.</summary>
   public static void FadeOutAllAlertAudio(float duration) {
@@ -109,6 +110,7 @@ public class GuardController : MonoBehaviour {
   }
 
   private void Awake() {
+    authoredPatrolFacing = transform.forward;
     ResolveReferences();
     CreateChaseAudioSource();
     if (takedownSound != null) takedownSound.LoadAudioData();
@@ -216,6 +218,11 @@ public class GuardController : MonoBehaviour {
     UpdateIdleSound();
     if (ShouldNoticePlayer()) {
       EnterState(GuardState.Noticing);
+      return;
+    }
+    if (IsStationaryPatrol) {
+      motor.Stop(true);
+      motor.FaceDirection(authoredPatrolFacing, GetWaypointTurnSpeed());
       return;
     }
     if (waypointWaitRemaining > 0f) {
@@ -326,7 +333,12 @@ public class GuardController : MonoBehaviour {
       case GuardState.Patrol:
         waypointWaitRemaining = 0f;
         patrolDestinationPending = false;
-        MoveToPatrolPoint(patrolIndex);
+        if (IsStationaryPatrol) {
+          motor?.Stop(true);
+          motor?.FaceDirection(authoredPatrolFacing, GetWaypointTurnSpeed());
+        } else {
+          MoveToPatrolPoint(patrolIndex);
+        }
         break;
       case GuardState.Noticing:
         motor?.Stop();
@@ -421,6 +433,7 @@ public class GuardController : MonoBehaviour {
   private int PatrolPointCount => patrolRoute != null && patrolRoute.Count > 0
     ? patrolRoute.Count
     : patrolWaypoints?.Length ?? 0;
+  private bool IsStationaryPatrol => PatrolPointCount == 1;
   private int NextPatrolIndex(int current) => PatrolPointCount > 0 ? (current + 1) % PatrolPointCount : 0;
   private float GetWaypointPause(int reachedPointIndex) => patrolRoute != null
     ? (patrolRoute.IsCorner(reachedPointIndex) ? patrolRoute.CornerPause : 0f)

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 
 /// <summary>Coordinates the player's terminal ink dissolve and hands recovery to the shared modal.</summary>
 [DisallowMultipleComponent]
@@ -29,6 +30,10 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
   [SerializeField, Range(0.01f, 0.3f)] private float dissolveEdgeWidth = 0.14f;
 
   [Header("Audio")]
+  [SerializeField] private AudioClip deathSound;
+  [SerializeField, Range(0f, 1f)] private float deathSoundVolume = 0.55f;
+  [Tooltip("Route for the death sound. Assign the global SFX mixer group so Settings can control it.")]
+  [SerializeField] private AudioMixerGroup deathSoundMixerGroup;
   [Tooltip("Real-time seconds used to silence active guard alert and chase sounds when death begins.")]
   [SerializeField, Min(0f)] private float guardAlertFadeDuration = 0.2f;
 
@@ -44,6 +49,7 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
   private bool deathPending;
   private bool caughtLocked;
   private Coroutine delayedStartRoutine;
+  private AudioSource deathAudioSource;
 
   public bool IsDead => dead;
   public bool IsDying => deathPending || dead;
@@ -81,6 +87,7 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
     if (!SceneTransitionManager.BeginPlayerDeath()) return;
     dead = true;
     GuardController.FadeOutAllAlertAudio(guardAlertFadeDuration);
+    PlayDeathSound();
     LockGameplay();
     StartCoroutine(DeathRoutine(source));
   }
@@ -218,6 +225,17 @@ public sealed class PlayerDeathSequence : MonoBehaviour {
     if (spriteRenderers == null || spriteRenderers.Length == 0)
       spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
     if (gameCamera == null) gameCamera = Camera.main;
+  }
+
+  private void PlayDeathSound() {
+    if (deathSound == null) return;
+    if (deathAudioSource == null) {
+      deathAudioSource = gameObject.AddComponent<AudioSource>();
+      deathAudioSource.playOnAwake = false;
+      deathAudioSource.spatialBlend = 0f;
+    }
+    deathAudioSource.outputAudioMixerGroup = deathSoundMixerGroup;
+    deathAudioSource.PlayOneShot(deathSound, deathSoundVolume);
   }
 
   private static Vector4 GetSpriteUvRect(SpriteRenderer renderer) {

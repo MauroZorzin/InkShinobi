@@ -20,13 +20,6 @@ public interface IInteractionFocus {
 }
 
 /// <summary>
-/// Optional per-object interaction distance. Values at or below zero use the player's default.
-/// </summary>
-public interface IInteractionRange {
-  float InteractionRange { get; }
-}
-
-/// <summary>
 /// Optional interaction priority. When multiple interactables are in range, the highest priority
 /// wins regardless of distance; distance only breaks ties within the same priority. Interactables
 /// without this interface implicitly use priority 0.

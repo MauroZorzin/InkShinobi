@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -42,7 +43,7 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
   public bool IsConcealed { get; private set; }
   public bool IsTransitioning { get; private set; }
-  public WardrobeHidingSpot CurrentSpot { get; private set; }
+  public HidingSpot CurrentSpot { get; private set; }
 
   private MaterialPropertyBlock propertyBlock;
   private VolumeProfile runtimeVignetteProfile;
@@ -50,14 +51,60 @@ public sealed class PlayerHidingController : MonoBehaviour {
   private string actionMapBeforeHiding = "Player";
   private Vector3 hidePosition;
   private Quaternion hideRotation;
+  private LinePath hidePathLine;
   private int hidePathStrand;
   private float hidePathDistance;
+  private Vector3 hideEffectFrontReference;
+  private readonly List<HidePathLeg> hidePathRoute = new();
+  private float hidePathRouteLength;
   private bool hasPathHidePoint;
   private Vector3 normalCameraPosition;
   private Quaternion normalCameraRotation;
   private bool movementWasEnabled;
   private bool interactorWasEnabled;
+  private bool interactionWasSuppressed;
   private bool characterWasEnabled;
+
+  private readonly struct HidePathLeg {
+    public LinePath Path { get; }
+    public int Strand { get; }
+    public float From { get; }
+    public float To { get; }
+    public float RouteStart { get; }
+    public float Direction { get; }
+    public float Length => Mathf.Abs(To - From);
+
+    public HidePathLeg(
+      LinePath path,
+      int strand,
+      float from,
+      float to,
+      float routeStart,
+      float endpointDirection) {
+      Path = path;
+      Strand = strand;
+      From = from;
+      To = to;
+      RouteStart = routeStart;
+      Direction = Mathf.Abs(to - from) > 0.0001f
+        ? Mathf.Sign(to - from)
+        : Mathf.Sign(endpointDirection);
+    }
+  }
+
+  private readonly struct PathEndpoint {
+    public LinePath Path { get; }
+    public int Strand { get; }
+    public bool AtEnd { get; }
+    public float Distance => AtEnd ? Path.GetStrandLength(Strand) : 0f;
+    public Vector3 Point => Path.GetPointAtDistance(Strand, Distance);
+
+    public PathEndpoint(LinePath path, int strand, bool atEnd) {
+      Path = path;
+      Strand = strand;
+      AtEnd = atEnd;
+    }
+  }
 
   private void Awake() {
     ResolveReferences();
@@ -65,12 +112,11 @@ public sealed class PlayerHidingController : MonoBehaviour {
     ApplyDissolve(0f);
   }
 
-  public bool TryEnter(WardrobeHidingSpot spot) {
+  public bool TryEnter(HidingSpot spot) {
     ResolveReferences();
-    if (spot == null || CurrentSpot != null || IsTransitioning || IsConcealed) return false;
-    if (SceneTransitionManager.IsGamePaused || SceneTransitionManager.IsDeathSequenceActive) return false;
-    if (stealth != null && stealth.IsCurrentlyVisible) {
-      spot.ShowRejectedFeedback();
+    if (!CanEnter(spot)) {
+      if (spot != null && stealth != null && stealth.IsCurrentlyVisible)
+        spot.ShowRejectedFeedback();
       return false;
     }
     if (!spot.TryOccupy(this)) return false;
@@ -79,13 +125,19 @@ public sealed class PlayerHidingController : MonoBehaviour {
     IsConcealed = true;
     IsTransitioning = true;
     ConfigureHidePoint(spot);
-    // Hiding anchors define positions only. Rotating the player here would also rotate its child
-    // camera in world space, while the hiding presentation is meant to be a pure camera zoom.
     hideRotation = transform.rotation;
     CaptureAndLockGameplay();
     stealth?.RefreshConcealmentState();
     StartCoroutine(EnterRoutine());
     return true;
+  }
+
+  public bool CanEnter(HidingSpot spot) {
+    ResolveReferences();
+    if (spot == null || CurrentSpot != null || IsTransitioning || IsConcealed) return false;
+    if (SceneTransitionManager.IsGamePaused || SceneTransitionManager.IsDeathSequenceActive) return false;
+    if (stealth != null && stealth.IsCurrentlyVisible) return false;
+    return spot.CanOccupy(this);
   }
 
 #pragma warning disable IDE0051
@@ -96,25 +148,22 @@ public sealed class PlayerHidingController : MonoBehaviour {
 #pragma warning restore IDE0051
 
   private IEnumerator EnterRoutine() {
-    WardrobeHidingSpot spot = CurrentSpot;
-    spot?.PlayInkEffect();
-    StartCoroutine(BlendCamera(normalCameraPosition + hiddenCameraLocalOffset, normalCameraRotation));
-    StartCoroutine(BlendVignette(1f, cameraBlendDuration));
+    HidingSpot spot = CurrentSpot;
+    if (spot != null) spot.PlayEnterFeedback(hideEffectFrontReference);
+    Vector3 hiddenCameraPosition = normalCameraPosition + hiddenCameraLocalOffset;
+    StartCoroutine(BlendCamera(hiddenCameraPosition, normalCameraRotation));
+    StartCoroutine(BlendVignette(spot != null ? spot.HiddenVignetteWeight : 1f, cameraBlendDuration));
 
     Vector3 startPosition = transform.position;
-    float startPathDistance = movement != null ? movement.DistanceAlongLine : 0f;
-    float pathTravel = hasPathHidePoint ? GetShortestPathTravel(startPathDistance, hidePathDistance) : 0f;
-    float scriptedSpeed = transitionDuration > 0f ? pathTravel / transitionDuration : 0f;
+    float scriptedSpeed = transitionDuration > 0f ? hidePathRouteLength / transitionDuration : 0f;
+    int activeLeg = -1;
 
     float elapsed = 0f;
     while (elapsed < transitionDuration) {
       elapsed += PauseAwareDelta();
       float t = Mathf.Clamp01(elapsed / transitionDuration);
       if (hasPathHidePoint)
-        movement.SetScriptedPathPosition(
-          hidePathStrand,
-          startPathDistance + pathTravel * Smooth(t),
-          scriptedSpeed);
+        SetHideRoutePosition(hidePathRouteLength * Smooth(t), scriptedSpeed, ref activeLeg);
       else
         transform.position = startPosition;
       ApplyDissolve(t);
@@ -122,7 +171,8 @@ public sealed class PlayerHidingController : MonoBehaviour {
     }
 
     if (hasPathHidePoint) {
-      movement.SetScriptedPathPosition(hidePathStrand, hidePathDistance, scriptedSpeed);
+      SetHideRoutePosition(hidePathRouteLength, scriptedSpeed, ref activeLeg);
+      movement.SetLine(hidePathLine, hidePathStrand, hidePathDistance);
       movement.FinishScriptedPathMovement();
       hidePosition = transform.position;
       hideRotation = transform.rotation;
@@ -133,10 +183,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
   private IEnumerator ExitRoutine() {
     IsTransitioning = true;
-    WardrobeHidingSpot spot = CurrentSpot;
-    spot?.PlayInkEffect();
+    HidingSpot spot = CurrentSpot;
+    if (spot != null) spot.PlayExitFeedback(hideEffectFrontReference);
     transform.SetPositionAndRotation(hidePosition, hideRotation);
-    if (hasPathHidePoint) movement?.SetLine(movement.currentLine, hidePathStrand, hidePathDistance);
+    if (hasPathHidePoint) movement?.SetLine(hidePathLine, hidePathStrand, hidePathDistance);
     SetRenderersEnabled(true);
     ApplyDissolve(1f);
     StartCoroutine(BlendCamera(normalCameraPosition, normalCameraRotation));
@@ -158,7 +208,9 @@ public sealed class PlayerHidingController : MonoBehaviour {
     spot?.Release(this);
   }
 
-  private void ConfigureHidePoint(WardrobeHidingSpot spot) {
+  private void ConfigureHidePoint(HidingSpot spot) {
+    hidePathRoute.Clear();
+    hidePathRouteLength = 0f;
     hasPathHidePoint = movement != null && movement.currentLine != null &&
                   movement.currentLine.StrandCount > 0;
     Vector3 authoredHidePoint = spot != null && spot.HidePoint != null
@@ -167,29 +219,277 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
     if (!hasPathHidePoint) {
       hidePosition = authoredHidePoint;
+      hideEffectFrontReference = transform.position;
+      hidePathLine = null;
       hidePathStrand = 0;
       hidePathDistance = 0f;
       return;
     }
 
-    hidePathStrand = Mathf.Clamp(movement.currentStrand, 0, movement.currentLine.StrandCount - 1);
-    hidePathDistance = movement.currentLine.FindClosestDistanceOnStrand(
-      hidePathStrand,
+    FindClosestPathProjection(
       authoredHidePoint,
-      out Vector3 pathPoint,
-      out _);
+      out hidePathLine,
+      out hidePathStrand,
+      out hidePathDistance,
+      out Vector3 pathPoint);
+    hideEffectFrontReference = pathPoint;
+    hasPathHidePoint = hidePathLine != null && BuildHidePathRoute(
+      movement.currentLine,
+      Mathf.Clamp(movement.currentStrand, 0, movement.currentLine.StrandCount - 1),
+      movement.DistanceAlongLine,
+      hidePathLine,
+      hidePathStrand,
+      hidePathDistance);
+    if (!hasPathHidePoint) {
+      // A disconnected authored path cannot be reached through normal line movement. Preserve
+      // the previous safe behavior on the player's current strand instead of hiding in place.
+      hidePathLine = movement.currentLine;
+      hidePathStrand = Mathf.Clamp(movement.currentStrand, 0, hidePathLine.StrandCount - 1);
+      hidePathDistance = hidePathLine.FindClosestDistanceOnStrand(
+        hidePathStrand,
+        authoredHidePoint,
+        out pathPoint,
+        out _);
+      hideEffectFrontReference = pathPoint;
+      hasPathHidePoint = BuildHidePathRoute(
+        hidePathLine,
+        hidePathStrand,
+        movement.DistanceAlongLine,
+        hidePathLine,
+        hidePathStrand,
+        hidePathDistance);
+    }
     hidePosition = movement.GetRootPositionForFeetAt(pathPoint);
   }
 
-  private float GetShortestPathTravel(float fromDistance, float toDistance) {
-    float travel = toDistance - fromDistance;
-    if (movement == null || movement.currentLine == null ||
-        !movement.currentLine.IsStrandClosedLoop(hidePathStrand)) return travel;
+  private static void FindClosestPathProjection(
+    Vector3 worldPoint,
+    out LinePath destinationPath,
+    out int destinationStrand,
+    out float destinationDistance,
+    out Vector3 destinationPoint) {
+    destinationPath = null;
+    destinationStrand = -1;
+    destinationDistance = 0f;
+    destinationPoint = worldPoint;
+    float closestDistance = float.PositiveInfinity;
 
-    float length = movement.currentLine.GetStrandLength(hidePathStrand);
-    if (length > 0f && Mathf.Abs(travel) > length * 0.5f)
-      travel -= Mathf.Sign(travel) * length;
-    return travel;
+    IReadOnlyList<LinePath> paths = LinePath.All;
+    for (int i = 0; i < paths.Count; i++) {
+      LinePath candidate = paths[i];
+      if (candidate == null || !candidate.isActiveAndEnabled || candidate.StrandCount == 0) continue;
+      float distanceAlong = candidate.FindClosestDistance(
+        worldPoint,
+        out Vector3 point,
+        out float distanceToPath,
+        out int strand);
+      if (strand < 0 || distanceToPath >= closestDistance) continue;
+      closestDistance = distanceToPath;
+      destinationPath = candidate;
+      destinationStrand = strand;
+      destinationDistance = distanceAlong;
+      destinationPoint = point;
+    }
+  }
+
+  private bool BuildHidePathRoute(
+    LinePath sourcePath,
+    int sourceStrand,
+    float sourceDistance,
+    LinePath destinationPath,
+    int destinationStrand,
+    float destinationDistance) {
+    hidePathRoute.Clear();
+    hidePathRouteLength = 0f;
+
+    float bestCost = float.PositiveInfinity;
+    float directTravel = 0f;
+    bool useDirectRoute = false;
+    if (sourcePath == destinationPath && sourceStrand == destinationStrand) {
+      directTravel = destinationDistance - sourceDistance;
+      if (sourcePath.IsStrandClosedLoop(sourceStrand)) {
+        float length = sourcePath.GetStrandLength(sourceStrand);
+        if (length > 0f && Mathf.Abs(directTravel) > length * 0.5f)
+          directTravel -= Mathf.Sign(directTravel) * length;
+      }
+      bestCost = Mathf.Abs(directTravel);
+      useDirectRoute = true;
+    }
+
+    var endpoints = new List<PathEndpoint>();
+    IReadOnlyList<LinePath> paths = LinePath.All;
+    for (int pathIndex = 0; pathIndex < paths.Count; pathIndex++) {
+      LinePath path = paths[pathIndex];
+      if (path == null || !path.isActiveAndEnabled) continue;
+      for (int strand = 0; strand < path.StrandCount; strand++) {
+        if (path.IsStrandClosedLoop(strand) || path.GetStrandLength(strand) <= 0.0001f) continue;
+        endpoints.Add(new PathEndpoint(path, strand, false));
+        endpoints.Add(new PathEndpoint(path, strand, true));
+      }
+    }
+
+    int count = endpoints.Count;
+    var distances = new float[count];
+    var previous = new int[count];
+    var visited = new bool[count];
+    for (int i = 0; i < count; i++) {
+      distances[i] = float.PositiveInfinity;
+      previous[i] = -1;
+      PathEndpoint endpoint = endpoints[i];
+      if (endpoint.Path == sourcePath && endpoint.Strand == sourceStrand)
+        distances[i] = Mathf.Abs(endpoint.Distance - sourceDistance);
+    }
+
+    float connectionTolerance = movement != null
+      ? Mathf.Max(0.001f, movement.endpointConnectionTolerance)
+      : 0.03f;
+    float connectionToleranceSquared = connectionTolerance * connectionTolerance;
+    int bestDestinationEndpoint = -1;
+
+    for (int iteration = 0; iteration < count; iteration++) {
+      int current = -1;
+      float currentDistance = float.PositiveInfinity;
+      for (int i = 0; i < count; i++) {
+        if (!visited[i] && distances[i] < currentDistance) {
+          current = i;
+          currentDistance = distances[i];
+        }
+      }
+      if (current < 0 || currentDistance >= bestCost) break;
+      visited[current] = true;
+      PathEndpoint endpoint = endpoints[current];
+
+      if (endpoint.Path == destinationPath && endpoint.Strand == destinationStrand) {
+        float candidateCost = currentDistance + Mathf.Abs(destinationDistance - endpoint.Distance);
+        if (candidateCost < bestCost) {
+          bestCost = candidateCost;
+          bestDestinationEndpoint = current;
+          useDirectRoute = false;
+        }
+      }
+
+      int opposite = current ^ 1;
+      Relax(opposite, endpoint.Path.GetStrandLength(endpoint.Strand));
+
+      Vector3 point = endpoint.Point;
+      for (int candidate = 0; candidate < count; candidate++) {
+        if (candidate == current || visited[candidate]) continue;
+        PathEndpoint connected = endpoints[candidate];
+        if (connected.Path == endpoint.Path && connected.Strand == endpoint.Strand) continue;
+        if ((connected.Point - point).sqrMagnitude <= connectionToleranceSquared)
+          Relax(candidate, 0f);
+      }
+
+      void Relax(int candidate, float edgeCost) {
+        float candidateDistance = currentDistance + edgeCost;
+        if (candidate < 0 || candidate >= count || candidateDistance >= distances[candidate]) return;
+        distances[candidate] = candidateDistance;
+        previous[candidate] = current;
+      }
+    }
+
+    if (useDirectRoute) {
+      AddHidePathLeg(
+        sourcePath,
+        sourceStrand,
+        sourceDistance,
+        sourceDistance + directTravel);
+      return true;
+    }
+    if (bestDestinationEndpoint < 0) return false;
+
+    var endpointChain = new List<int>();
+    for (int current = bestDestinationEndpoint; current >= 0; current = previous[current])
+      endpointChain.Add(current);
+    endpointChain.Reverse();
+
+    PathEndpoint first = endpoints[endpointChain[0]];
+    AddHidePathLeg(
+      sourcePath,
+      sourceStrand,
+      sourceDistance,
+      first.Distance,
+      first.AtEnd ? 1f : -1f);
+    for (int i = 1; i < endpointChain.Count; i++) {
+      PathEndpoint from = endpoints[endpointChain[i - 1]];
+      PathEndpoint to = endpoints[endpointChain[i]];
+      if (from.Path == to.Path && from.Strand == to.Strand)
+        AddHidePathLeg(from.Path, from.Strand, from.Distance, to.Distance);
+    }
+    PathEndpoint last = endpoints[endpointChain[endpointChain.Count - 1]];
+    AddHidePathLeg(
+      destinationPath,
+      destinationStrand,
+      last.Distance,
+      destinationDistance,
+      last.AtEnd ? -1f : 1f);
+    return true;
+  }
+
+  private void AddHidePathLeg(
+    LinePath path,
+    int strand,
+    float from,
+    float to,
+    float endpointDirection = 1f) {
+    if (path == null) return;
+    hidePathRoute.Add(new HidePathLeg(
+      path,
+      strand,
+      from,
+      to,
+      hidePathRouteLength,
+      endpointDirection));
+    hidePathRouteLength += Mathf.Abs(to - from);
+  }
+
+  private void SetHideRoutePosition(float routeDistance, float speed, ref int activeLeg) {
+    if (movement == null || hidePathRoute.Count == 0) return;
+    routeDistance = Mathf.Clamp(routeDistance, 0f, hidePathRouteLength);
+
+    int targetLeg = hidePathRoute.Count - 1;
+    for (int i = 0; i < hidePathRoute.Count; i++) {
+      HidePathLeg candidate = hidePathRoute[i];
+      bool isLast = i == hidePathRoute.Count - 1;
+      if (routeDistance < candidate.RouteStart + candidate.Length - 0.0001f || isLast) {
+        targetLeg = i;
+        break;
+      }
+    }
+
+    while (activeLeg < targetLeg) {
+      activeLeg++;
+      ActivateHidePathLeg(activeLeg);
+    }
+
+    HidePathLeg leg = hidePathRoute[targetLeg];
+    float localDistance = Mathf.Clamp(routeDistance - leg.RouteStart, 0f, leg.Length);
+    movement.SetScriptedPathPosition(
+      leg.Strand,
+      leg.From + localDistance * leg.Direction,
+      speed * leg.Direction);
+  }
+
+  private void ActivateHidePathLeg(int legIndex) {
+    HidePathLeg leg = hidePathRoute[legIndex];
+    if (movement.currentLine == leg.Path && movement.currentStrand == leg.Strand) return;
+
+    if (legIndex <= 0) {
+      movement.SetLine(leg.Path, leg.Strand, leg.From);
+      return;
+    }
+
+    HidePathLeg previous = hidePathRoute[legIndex - 1];
+    Vector3 incoming = previous.Path.GetDirectionAtDistance(previous.Strand, previous.To) *
+                       previous.Direction;
+    Vector3 outgoing = leg.Path.GetDirectionAtDistance(leg.Strand, leg.From) *
+                       leg.Direction;
+    movement.SetScriptedConnectedLine(
+      leg.Path,
+      leg.Strand,
+      leg.From,
+      incoming,
+      outgoing);
   }
 
   private void CaptureAndLockGameplay() {
@@ -203,9 +503,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
     movementWasEnabled = movement != null && movement.enabled;
     interactorWasEnabled = interactor != null && interactor.enabled;
+    interactionWasSuppressed = interactor != null && interactor.interactionSuppressed;
     characterWasEnabled = characterController != null && characterController.enabled;
     if (movement != null) movement.enabled = false;
-    if (interactor != null) interactor.enabled = false;
+    if (interactor != null) interactor.interactionSuppressed = true;
     if (characterController != null) characterController.enabled = false;
 
     if (cameraTransform != null) {
@@ -217,7 +518,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
   private void RestoreGameplay() {
     if (characterController != null) characterController.enabled = characterWasEnabled;
     if (movement != null) movement.enabled = movementWasEnabled;
-    if (interactor != null) interactor.enabled = interactorWasEnabled;
+    if (interactor != null) {
+      interactor.interactionSuppressed = interactionWasSuppressed;
+      interactor.enabled = interactorWasEnabled;
+    }
     string map = string.IsNullOrEmpty(actionMapBeforeHiding) ? "Player" : actionMapBeforeHiding;
     if (playerInput?.actions?.FindActionMap(map, false) != null)
       playerInput.SwitchCurrentActionMap(map);

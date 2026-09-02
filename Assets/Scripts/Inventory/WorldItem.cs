@@ -1,27 +1,36 @@
 using UnityEngine;
 
 /// <summary>An item lying in the world, ready to be picked up by PlayerInventory via PlayerInteractor.</summary>
-public class WorldItem : MonoBehaviour, IInteractable, IInteractionRange, IInteractionPriority {
+public class WorldItem : MonoBehaviour, IInteractable, IInteractionPriority, IInteractionPrompt {
   // Pickups win over larger interaction volumes (e.g. doors) that happen to be geometrically closer.
   private const int PickupPriority = 1;
 
   public ItemDefinition item;
 
+  [SerializeField] private string pickupPromptText = "[X] to pickup";
+
   [Tooltip("When disabled, this object remains as a reusable pickup source after a successful pickup.")]
   public bool destroyOnPickup = true;
 
-  [Tooltip("Maximum pickup distance for this item. Set to 0 to use the PlayerInteractor default range.")]
-  [SerializeField, Min(0f)] private float pickupInteractionRange;
-
-  private string runtimeItemId;
-  private bool hasColorOverride;
-  private Color runtimeColor = Color.white;
+  [Header("Runtime identity")]
+  [Tooltip("Optional authored runtime id. Guard drops set this automatically; use it for keys placed directly in a scene.")]
+  [SerializeField] private string runtimeItemId;
+  [Tooltip("Tint this shared world prefab with Runtime Color.")]
+  [SerializeField] private bool hasColorOverride;
+  [SerializeField] private Color runtimeColor = Color.white;
 
   public string EffectiveItemId => string.IsNullOrWhiteSpace(runtimeItemId)
       ? item != null ? item.itemId : string.Empty
       : runtimeItemId;
-  public float InteractionRange => pickupInteractionRange;
   public int Priority => PickupPriority;
+
+  private void Awake() => ApplyRuntimePresentation();
+
+#if UNITY_EDITOR
+  private void OnValidate() => ApplyRuntimePresentation();
+#endif
+
+  public string GetPromptText(PlayerInventory inventory) => pickupPromptText;
 
   public void ConfigureRuntimeIdentity(string itemId, bool useColorOverride, Color displayColor) {
     runtimeItemId = itemId;
