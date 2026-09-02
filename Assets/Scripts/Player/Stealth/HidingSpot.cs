@@ -1,204 +1,119 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.InputSystem;
 
-public class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
-  [Tooltip("Where the player stands while hidden. Leave empty to use this object's own position.")]
-  public Transform hidePoint;
+/// <summary>An authored hiding endpoint; the player owns all hiding state and transitions.</summary>
+[DisallowMultipleComponent]
+public sealed class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
+  [Header("Anchors")]
+  [SerializeField] private Transform hidePoint;
+  [SerializeField] private Transform effectPoint;
 
-  [Tooltip("Seconds the player takes to glide to/from the hide point.")]
-  public float transitionDuration = 0.4f;
+  [Header("Ink")]
+  [SerializeField] private GameObject inkCloudPrefab;
+  [SerializeField, Min(0.1f)] private float inkCloudScale = 1.8f;
+  [Tooltip("Moves the cloud from its effect anchor toward HidePoint, keeping it in front of the hiding geometry.")]
+  [SerializeField, Range(0f, 1f)] private float inkCloudHidePointBias = 0.65f;
+  [Tooltip("Additional world-space height that keeps the cloud visible above the hiding spot's base.")]
+  [SerializeField] private float inkCloudVerticalOffset = 0.12f;
 
-  [Tooltip("Particle effect played on both hide and reveal, at this hiding spot's own position.")]
-  public ParticleSystem vanishEffect;
+  [Header("Audio")]
+  [SerializeField] private AudioClip enterSound;
+  [SerializeField] private AudioClip exitSound;
+  [SerializeField, Range(0f, 1f)] private float soundVolume = 1f;
+  [SerializeField] private AudioMixerGroup mixerGroup;
 
-  [Tooltip("Sound played when the player hides.")]
-  public AudioClip enterSound;
-  [Tooltip("Sound played when the player leaves the hiding spot.")]
-  public AudioClip exitSound;
-  [Range(0f, 1f)] public float soundVolume = 1f;
-  [Tooltip("Mixer group used by the hide and reveal sounds.")]
-  public AudioMixerGroup mixerGroup;
+  [Header("Prompts")]
+  [SerializeField] private string canHidePromptText = "[X] to hide";
+  [SerializeField] private string cannotHidePromptText = "Can't hide now";
+  [SerializeField] private string hiddenPromptText = "[X] to exit";
 
-  [Tooltip("Shown while nobody is hiding here.")]
-  public string notHiddenPromptText = "Nascondi";
+  [Header("Presentation")]
+  [Tooltip("Weight applied to the player's hidden vignette while occupying this spot.")]
+  [SerializeField, Range(0f, 1f)] private float hiddenVignetteWeight = 1f;
 
-  [Tooltip("Shown while the player is hiding here.")]
-  public string hiddenPromptText = "Esci";
+  private PlayerHidingController occupant;
 
-  [Tooltip("Shown while nobody is hiding here but the player is currently detected by a guard.")]
-  public string cannotHidePromptText = "Non puoi nasconderti ora";
-
-  private bool _occupied;
-  private bool _armedForExit;
-
-  private Transform _player;
-  private LineFollowController _lineFollowController;
-  private SpriteRenderer _spriteRenderer;
-  private BoxCollider _playerCollider;
-  private PlayerInteractor _playerInteractor;
-  private PlayerStealthController _playerStealthController;
-  private InputAction _interactAction;
-
-  private bool _wasLineFollowEnabled;
-  private bool _wasSpriteEnabled;
-  private bool _wasColliderEnabled;
-  private Vector3 _storedPosition;
-  private Quaternion _storedRotation;
+  public Transform HidePoint => hidePoint;
+  public Transform EffectPoint => effectPoint != null ? effectPoint : hidePoint;
+  public float HiddenVignetteWeight => hiddenVignetteWeight;
 
   public void Interact(PlayerInventory inventory) {
-    if (_occupied) {
-      return;
-    }
-
-    PlayerStealthController stealth = inventory.GetComponent<PlayerStealthController>();
-    if (stealth != null && stealth.DetectingGuardCount > 0) {
-      return;
-    }
-
-    StartHiding(inventory.transform);
+    if (occupant != null || inventory == null) return;
+    PlayerHidingController player = inventory.GetComponent<PlayerHidingController>();
+    if (player != null) player.TryEnter(this);
   }
 
   public string GetPromptText(PlayerInventory inventory) {
-    if (_occupied) {
+    PlayerHidingController player = inventory != null
+      ? inventory.GetComponent<PlayerHidingController>()
+      : null;
+    if (player != null && player.CurrentSpot == this && player.IsConcealed)
       return hiddenPromptText;
-    }
-
-    PlayerStealthController stealth = inventory.GetComponent<PlayerStealthController>();
-    if (stealth != null && stealth.DetectingGuardCount > 0) {
-      return cannotHidePromptText;
-    }
-
-    return notHiddenPromptText;
+    return player != null && player.CanEnter(this)
+      ? canHidePromptText
+      : cannotHidePromptText;
   }
 
-  private void StartHiding(Transform player) {
-    _player = player;
-    _lineFollowController = player.GetComponent<LineFollowController>();
-    _spriteRenderer = player.GetComponent<SpriteRenderer>();
-    _playerCollider = player.GetComponent<BoxCollider>();
-    _playerInteractor = player.GetComponent<PlayerInteractor>();
-    _playerStealthController = player.GetComponent<PlayerStealthController>();
+  public bool CanOccupy(PlayerHidingController player) => player != null && occupant == null;
 
-    PlayerInput playerInput = player.GetComponent<PlayerInput>();
-    _interactAction = playerInput != null ? playerInput.actions["Interact"] : null;
-
-    if (_lineFollowController != null) {
-      _wasLineFollowEnabled = _lineFollowController.enabled;
-      _lineFollowController.enabled = false;
-    }
-
-    if (_playerCollider != null) {
-      _wasColliderEnabled = _playerCollider.enabled;
-      _playerCollider.enabled = false;
-    }
-
-    if (_playerInteractor != null) {
-      _playerInteractor.interactionSuppressed = true;
-    }
-
-    _storedPosition = player.position;
-    _storedRotation = player.rotation;
-
-    Vector3 target = hidePoint != null ? hidePoint.position : transform.position;
-    Quaternion targetRotation = hidePoint != null ? hidePoint.rotation : player.rotation;
-
-    StartCoroutine(Transition(target, targetRotation, OnHideTransitionComplete));
+  public bool TryOccupy(PlayerHidingController player) {
+    if (!CanOccupy(player)) return false;
+    occupant = player;
+    return true;
   }
 
-  private void OnHideTransitionComplete() {
-    if (_spriteRenderer != null) {
-      _wasSpriteEnabled = _spriteRenderer.enabled;
-      _spriteRenderer.enabled = false;
-    }
-
-    if (vanishEffect != null) {
-      OneShotVfx.PlayAtPoint(vanishEffect, transform.position);
-    }
-
-    if (enterSound != null) {
-      OneShotAudio.PlayClipAtPoint(enterSound, transform.position, soundVolume, mixerGroup);
-    }
-
-    if (_playerStealthController != null) {
-      _playerStealthController.IsUndetectable = true;
-    }
-
-    _occupied = true;
-    _armedForExit = false;
+  public void Release(PlayerHidingController player) {
+    if (occupant != player) return;
+    occupant = null;
   }
 
-  private void Update() {
-    if (!_occupied || _interactAction == null) {
-      return;
+  public void PlayInkEffect() {
+    if (inkCloudPrefab == null) return;
+    Transform anchor = EffectPoint != null ? EffectPoint : transform;
+    Vector3 spawnPosition = hidePoint != null
+      ? Vector3.Lerp(anchor.position, hidePoint.position, inkCloudHidePointBias)
+      : anchor.position;
+    spawnPosition += Vector3.up * inkCloudVerticalOffset;
+    GameObject instance = Instantiate(inkCloudPrefab, spawnPosition, anchor.rotation);
+    instance.transform.localScale *= inkCloudScale;
+    PauseAwareUnscaledParticles.Configure(instance);
+    ParticleSystem[] particles = instance.GetComponentsInChildren<ParticleSystem>(true);
+    float lifetime = 1.5f;
+    for (int i = 0; i < particles.Length; i++) {
+      ParticleSystem.MainModule main = particles[i].main;
+      main.useUnscaledTime = true;
+      lifetime = Mathf.Max(lifetime, main.duration + main.startDelay.constantMax + main.startLifetime.constantMax);
+      particles[i].Play(true);
     }
-
-    if (!_armedForExit) {
-      if (!_interactAction.IsPressed()) {
-        _armedForExit = true;
-      }
-      return;
-    }
-
-    if (_interactAction.triggered) {
-      StartRevealing();
-    }
+    Destroy(instance, lifetime + 0.25f);
   }
 
-  private void StartRevealing() {
-    _occupied = false;
-
-    if (_spriteRenderer != null) {
-      _spriteRenderer.enabled = _wasSpriteEnabled;
-    }
-
-    if (_playerStealthController != null) {
-      _playerStealthController.IsUndetectable = false;
-    }
-
-    if (vanishEffect != null) {
-      OneShotVfx.PlayAtPoint(vanishEffect, transform.position);
-    }
-
-    if (exitSound != null) {
-      OneShotAudio.PlayClipAtPoint(exitSound, transform.position, soundVolume, mixerGroup);
-    }
-
-    StartCoroutine(Transition(_storedPosition, _storedRotation, OnRevealTransitionComplete));
+  public void PlayEnterFeedback() {
+    PlayInkEffect();
+    PlaySound(enterSound);
   }
 
-  private void OnRevealTransitionComplete() {
-    if (_lineFollowController != null) {
-      _lineFollowController.enabled = _wasLineFollowEnabled;
-    }
-
-    if (_playerCollider != null) {
-      _playerCollider.enabled = _wasColliderEnabled;
-    }
-
-    if (_playerInteractor != null) {
-      _playerInteractor.interactionSuppressed = false;
-    }
-
-    _interactAction = null;
-    _player = null;
-    _playerStealthController = null;
+  public void PlayExitFeedback() {
+    PlayInkEffect();
+    PlaySound(exitSound);
   }
 
-  private IEnumerator Transition(Vector3 targetPosition, Quaternion targetRotation, System.Action onComplete) {
-    Vector3 startPosition = _player.position;
-    Quaternion startRotation = _player.rotation;
-    float elapsed = 0f;
-
-    while (elapsed < transitionDuration) {
-      elapsed += Time.deltaTime;
-      float t = Mathf.Clamp01(elapsed / transitionDuration);
-      _player.SetPositionAndRotation(Vector3.Lerp(startPosition, targetPosition, t), Quaternion.Slerp(startRotation, targetRotation, t));
-      yield return null;
-    }
-
-    _player.SetPositionAndRotation(targetPosition, targetRotation);
-    onComplete?.Invoke();
+  private void PlaySound(AudioClip clip) {
+    if (clip != null)
+      OneShotAudio.PlayClipAtPoint(clip, transform.position, soundVolume, mixerGroup);
   }
+
+  // The state-aware prompt communicates rejection without requiring a duplicate outline mesh.
+  public void ShowRejectedFeedback() { }
+
+#if UNITY_EDITOR
+  public void Configure(
+    Transform authoredHidePoint,
+    Transform authoredEffectPoint,
+    GameObject authoredInkCloud) {
+    hidePoint = authoredHidePoint;
+    effectPoint = authoredEffectPoint;
+    inkCloudPrefab = authoredInkCloud;
+  }
+#endif
 }

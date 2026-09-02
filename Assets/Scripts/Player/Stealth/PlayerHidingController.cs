@@ -42,7 +42,7 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
   public bool IsConcealed { get; private set; }
   public bool IsTransitioning { get; private set; }
-  public WardrobeHidingSpot CurrentSpot { get; private set; }
+  public HidingSpot CurrentSpot { get; private set; }
 
   private MaterialPropertyBlock propertyBlock;
   private VolumeProfile runtimeVignetteProfile;
@@ -57,6 +57,7 @@ public sealed class PlayerHidingController : MonoBehaviour {
   private Quaternion normalCameraRotation;
   private bool movementWasEnabled;
   private bool interactorWasEnabled;
+  private bool interactionWasSuppressed;
   private bool characterWasEnabled;
 
   private void Awake() {
@@ -65,12 +66,11 @@ public sealed class PlayerHidingController : MonoBehaviour {
     ApplyDissolve(0f);
   }
 
-  public bool TryEnter(WardrobeHidingSpot spot) {
+  public bool TryEnter(HidingSpot spot) {
     ResolveReferences();
-    if (spot == null || CurrentSpot != null || IsTransitioning || IsConcealed) return false;
-    if (SceneTransitionManager.IsGamePaused || SceneTransitionManager.IsDeathSequenceActive) return false;
-    if (stealth != null && stealth.IsCurrentlyVisible) {
-      spot.ShowRejectedFeedback();
+    if (!CanEnter(spot)) {
+      if (spot != null && stealth != null && stealth.IsCurrentlyVisible)
+        spot.ShowRejectedFeedback();
       return false;
     }
     if (!spot.TryOccupy(this)) return false;
@@ -88,6 +88,14 @@ public sealed class PlayerHidingController : MonoBehaviour {
     return true;
   }
 
+  public bool CanEnter(HidingSpot spot) {
+    ResolveReferences();
+    if (spot == null || CurrentSpot != null || IsTransitioning || IsConcealed) return false;
+    if (SceneTransitionManager.IsGamePaused || SceneTransitionManager.IsDeathSequenceActive) return false;
+    if (stealth != null && stealth.IsCurrentlyVisible) return false;
+    return spot.CanOccupy(this);
+  }
+
 #pragma warning disable IDE0051
   private void OnExitHide(InputValue value) {
     if (value.isPressed && IsConcealed && !IsTransitioning && CurrentSpot != null)
@@ -96,10 +104,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
 #pragma warning restore IDE0051
 
   private IEnumerator EnterRoutine() {
-    WardrobeHidingSpot spot = CurrentSpot;
-    spot?.PlayInkEffect();
+    HidingSpot spot = CurrentSpot;
+    spot?.PlayEnterFeedback();
     StartCoroutine(BlendCamera(normalCameraPosition + hiddenCameraLocalOffset, normalCameraRotation));
-    StartCoroutine(BlendVignette(1f, cameraBlendDuration));
+    StartCoroutine(BlendVignette(spot != null ? spot.HiddenVignetteWeight : 1f, cameraBlendDuration));
 
     Vector3 startPosition = transform.position;
     float startPathDistance = movement != null ? movement.DistanceAlongLine : 0f;
@@ -133,8 +141,8 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
   private IEnumerator ExitRoutine() {
     IsTransitioning = true;
-    WardrobeHidingSpot spot = CurrentSpot;
-    spot?.PlayInkEffect();
+    HidingSpot spot = CurrentSpot;
+    spot?.PlayExitFeedback();
     transform.SetPositionAndRotation(hidePosition, hideRotation);
     if (hasPathHidePoint) movement?.SetLine(movement.currentLine, hidePathStrand, hidePathDistance);
     SetRenderersEnabled(true);
@@ -158,7 +166,7 @@ public sealed class PlayerHidingController : MonoBehaviour {
     spot?.Release(this);
   }
 
-  private void ConfigureHidePoint(WardrobeHidingSpot spot) {
+  private void ConfigureHidePoint(HidingSpot spot) {
     hasPathHidePoint = movement != null && movement.currentLine != null &&
                   movement.currentLine.StrandCount > 0;
     Vector3 authoredHidePoint = spot != null && spot.HidePoint != null
@@ -203,9 +211,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
     movementWasEnabled = movement != null && movement.enabled;
     interactorWasEnabled = interactor != null && interactor.enabled;
+    interactionWasSuppressed = interactor != null && interactor.interactionSuppressed;
     characterWasEnabled = characterController != null && characterController.enabled;
     if (movement != null) movement.enabled = false;
-    if (interactor != null) interactor.enabled = false;
+    if (interactor != null) interactor.interactionSuppressed = true;
     if (characterController != null) characterController.enabled = false;
 
     if (cameraTransform != null) {
@@ -217,7 +226,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
   private void RestoreGameplay() {
     if (characterController != null) characterController.enabled = characterWasEnabled;
     if (movement != null) movement.enabled = movementWasEnabled;
-    if (interactor != null) interactor.enabled = interactorWasEnabled;
+    if (interactor != null) {
+      interactor.interactionSuppressed = interactionWasSuppressed;
+      interactor.enabled = interactorWasEnabled;
+    }
     string map = string.IsNullOrEmpty(actionMapBeforeHiding) ? "Player" : actionMapBeforeHiding;
     if (playerInput?.actions?.FindActionMap(map, false) != null)
       playerInput.SwitchCurrentActionMap(map);

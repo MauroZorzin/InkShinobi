@@ -186,13 +186,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bcf26523d12f4abc9016758df8f48f0c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WardrobeHidingSpot
+  m_EditorClassIdentifier: Assembly-CSharp::HidingSpot
   hidePoint: {fileID: 3530101988973669795}
   effectPoint: {fileID: 3786029610356809496}
   inkCloudPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
   inkCloudScale: 2
   inkCloudHidePointBias: 0.5
   inkCloudVerticalOffset: 0.1
+  enterSound: {fileID: 8300000, guid: 867bd21a8f297d248b1b12c24f1a37d1, type: 3}
+  exitSound: {fileID: 8300000, guid: 867bd21a8f297d248b1b12c24f1a37d1, type: 3}
+  soundVolume: 1
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
+  canHidePromptText: '[X] to hide'
+  cannotHidePromptText: Can't hide now
+  hiddenPromptText: '[X] to exit'
+  hiddenVignetteWeight: 1
 --- !u!1 &2360071967661151330
 GameObject:
   m_ObjectHideFlags: 0
