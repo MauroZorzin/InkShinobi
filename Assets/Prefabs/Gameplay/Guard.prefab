@@ -596,7 +596,7 @@ NavMeshAgent:
   m_Acceleration: 4
   avoidancePriority: 50
   m_AngularSpeed: 720
-  m_StoppingDistance: 0.4
+  m_StoppingDistance: 0.05
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -644,8 +644,8 @@ MonoBehaviour:
   alertMoveSpeed: 3.6
   chaseRepathInterval: 0.12
   lostSightGrace: 0.5
-  catchDistance: 1
-  chaseStoppingDistance: 1
+  catchDistance: 1.18
+  chaseStoppingDistance: 1.18
   investigateDuration: 15
   searchLookDuration: 3
   lookAroundAngle: 90

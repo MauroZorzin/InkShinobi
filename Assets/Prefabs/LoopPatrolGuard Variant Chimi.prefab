@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1236725626829085620, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: m_StoppingDistance
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 1745892784557871611, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: gameCamera
       value: 

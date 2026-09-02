@@ -115,14 +115,8 @@ MonoBehaviour:
   ringColor: {r: 1, g: 1, b: 1, a: 0.88}
   ringStart: 0.92
   softness: 0.035
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 0
-  lightSourceHeight: 1.6
-  bakeResolution: 32
   material: {fileID: 2100000, guid: 5092920ed0baf524885da0da9f3381b7, type: 2}
   showGizmos: 1
-  gizmoSampleCount: 10
 --- !u!114 &8686393655673497536
 MonoBehaviour:
   m_ObjectHideFlags: 0

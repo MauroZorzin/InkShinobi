@@ -22,30 +22,17 @@ public class FloorCircleIndicator : MonoBehaviour {
   [Range(0f, 1f)] public float ringStart = 0.85f;
   [Range(0.001f, 0.3f)] public float softness = 0.05f;
 
-  [Header("Wall Occlusion (baked into a texture)")]
-  [Tooltip("Layers that block the light. Leave empty to ignore walls entirely.")]
-  public LayerMask obstacleMask;
-  [Tooltip("Height above this indicator the light originates from (e.g. the guard's torch/eyes).")]
-  public float lightSourceHeight = 1.6f;
-  [Tooltip("Resolution of the baked occlusion mask, per side.")]
-  [Range(8, 128)] public int bakeResolution = 32;
-
   [Header("Material")]
   [Tooltip("Leave empty to use a built-in circle material.")]
   public Material material;
 
   [Header("Debug")]
   public bool showGizmos = true;
-  [Range(2, 24)] public int gizmoSampleCount = 10;
 
   private Mesh _mesh;
   private MeshFilter _meshFilter;
   private MeshRenderer _meshRenderer;
   private Material _generatedMaterial;
-
-  private Texture2D _occlusionTexture;
-  private Color32[] _occlusionPixels;
-  private int _bakedResolution = -1;
 
   private void OnEnable() {
     _meshFilter = GetComponent<MeshFilter>();
@@ -60,35 +47,12 @@ public class FloorCircleIndicator : MonoBehaviour {
     _meshRenderer.receiveShadows = false;
 
     SnapToFloor();
-    BakeOcclusion();
     ApplyMaterial();
   }
 
   private void Update() {
     SnapToFloor();
     ApplyMaterial();
-  }
-
-  [ContextMenu("Bake")]
-  public void Bake() {
-    SnapToFloor();
-    int blocked = BakeOcclusion();
-    ApplyMaterial();
-    Debug.Log($"[FloorCircleIndicator] '{name}': baked {bakeResolution * bakeResolution} samples, {blocked} block by obstacleMask (layers: {LayerMaskNames(obstacleMask)}).", this);
-  }
-
-  private static string LayerMaskNames(LayerMask mask) {
-    if (mask.value == 0) {
-      return "NONE";
-    }
-
-    var names = new System.Collections.Generic.List<string>();
-    for (int i = 0; i < 32; i++) {
-      if ((mask.value & (1 << i)) != 0) {
-        names.Add(LayerMask.LayerToName(i));
-      }
-    }
-    return string.Join(", ", names);
   }
 
   private void OnDrawGizmosSelected() {
@@ -104,31 +68,6 @@ public class FloorCircleIndicator : MonoBehaviour {
     Gizmos.DrawWireSphere(castOrigin, 0.1f);
     if (floorHit) {
       Gizmos.DrawWireSphere(floorHitInfo.point, 0.15f);
-    }
-
-    Vector3 lightOrigin = transform.position + transform.up * lightSourceHeight;
-    Gizmos.color = Color.yellow;
-    Gizmos.DrawWireSphere(lightOrigin, 0.15f);
-
-    int samples = Mathf.Max(2, gizmoSampleCount);
-    for (int y = 0; y < samples; y++) {
-      float v = (y + 0.5f) / samples;
-      float offsetZ = (v - 0.5f) * radius * 2f;
-
-      for (int x = 0; x < samples; x++) {
-        float u = (x + 0.5f) / samples;
-        float offsetX = (u - 0.5f) * radius * 2f;
-
-        if (Mathf.Sqrt((u - 0.5f) * (u - 0.5f) + (v - 0.5f) * (v - 0.5f)) * 2f > 1f) {
-          continue;
-        }
-
-        Vector3 samplePoint = transform.position + transform.right * offsetX + transform.forward * offsetZ;
-        bool blocked = obstacleMask.value != 0 && Physics.Linecast(lightOrigin, samplePoint, obstacleMask);
-
-        Gizmos.color = blocked ? Color.red : Color.green;
-        Gizmos.DrawSphere(samplePoint, radius * 0.02f);
-      }
     }
 
     Gizmos.color = Color.cyan;
@@ -185,46 +124,6 @@ public class FloorCircleIndicator : MonoBehaviour {
     return Mathf.Approximately(divisor, 0f) ? value : value / divisor;
   }
 
-  private int BakeOcclusion() {
-    int res = Mathf.Max(4, bakeResolution);
-
-    if (_occlusionTexture == null || _bakedResolution != res) {
-      _occlusionTexture = new Texture2D(res, res, TextureFormat.R8, false) {
-        name = "FloorCircleOcclusion",
-        wrapMode = TextureWrapMode.Clamp,
-        filterMode = FilterMode.Bilinear
-      };
-      _occlusionPixels = new Color32[res * res];
-      _bakedResolution = res;
-    }
-
-    Vector3 lightOrigin = transform.position + transform.up * lightSourceHeight;
-    int blockedCount = 0;
-
-    for (int y = 0; y < res; y++) {
-      float v = (y + 0.5f) / res;
-      float offsetZ = (v - 0.5f) * radius * 2f;
-
-      for (int x = 0; x < res; x++) {
-        float u = (x + 0.5f) / res;
-        float offsetX = (u - 0.5f) * radius * 2f;
-
-        Vector3 samplePoint = transform.position + transform.right * offsetX + transform.forward * offsetZ;
-        bool blocked = obstacleMask.value != 0 && Physics.Linecast(lightOrigin, samplePoint, obstacleMask);
-        if (blocked) {
-          blockedCount++;
-        }
-
-        byte value = blocked ? (byte)0 : (byte)255;
-        _occlusionPixels[y * res + x] = new Color32(value, value, value, value);
-      }
-    }
-
-    _occlusionTexture.SetPixels32(_occlusionPixels);
-    _occlusionTexture.Apply();
-    return blockedCount;
-  }
-
   private void ApplyMaterial() {
     if (material != null) {
       _meshRenderer.sharedMaterial = material;
@@ -240,9 +139,6 @@ public class FloorCircleIndicator : MonoBehaviour {
     _generatedMaterial.SetColor("_RingColor", ringColor);
     _generatedMaterial.SetFloat("_RingStart", ringStart);
     _generatedMaterial.SetFloat("_Softness", softness);
-    if (_occlusionTexture != null) {
-      _generatedMaterial.SetTexture("_OcclusionMask", _occlusionTexture);
-    }
     _meshRenderer.sharedMaterial = _generatedMaterial;
   }
 }
