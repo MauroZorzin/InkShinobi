@@ -54,7 +54,9 @@ public sealed class DistractionController : MonoBehaviour {
 
   [Header("Aim presentation")]
   [SerializeField] private Transform cameraTransform;
-  [SerializeField] private Vector3 aimingCameraLocalPosition = new(0f, 0.5f, -3.75f);
+  [FormerlySerializedAs("aimingCameraLocalPosition")]
+  [Tooltip("Player-relative aiming endpoint: X is lateral, Y is height, and Z is distance from the player on the camera's current side.")]
+  [SerializeField] private Vector3 aimingCameraRelativePosition = new(0f, 0.5f, 3.75f);
   [SerializeField, Range(0.01f, 1f)] private float aimingTimeScale = 0.06f;
   [SerializeField, Min(0f)] private float cameraAimDuration = 0.35f;
   [SerializeField, Min(0f)] private float cameraReturnDuration = 0.3f;
@@ -154,6 +156,7 @@ public sealed class DistractionController : MonoBehaviour {
     centeredAnchorPreference = Mathf.Max(0f, centeredAnchorPreference);
     anchorContinuityPreference = Mathf.Max(0f, anchorContinuityPreference);
     aimFacingDeadZone = Mathf.Max(0f, aimFacingDeadZone);
+    PlayerRelativeCamera.ClampDistance(ref aimingCameraRelativePosition);
     if (throwAnchor != null && !Application.isPlaying) {
       Vector3 anchorPosition = throwAnchor.localPosition;
       anchorPosition.y = throwAnchorHeight;
@@ -650,12 +653,10 @@ public sealed class DistractionController : MonoBehaviour {
   }
 
   private Vector3 GetSideAwareAimPosition() {
-    Vector3 currentHorizontal = new(normalCameraLocalPosition.x, 0f, normalCameraLocalPosition.z);
-    Vector3 authoredHorizontal = new(aimingCameraLocalPosition.x, 0f, aimingCameraLocalPosition.z);
-    if (currentHorizontal.sqrMagnitude < 0.0001f || authoredHorizontal.sqrMagnitude < 0.0001f)
-      return aimingCameraLocalPosition;
-    Vector3 horizontal = currentHorizontal.normalized * authoredHorizontal.magnitude;
-    return new Vector3(horizontal.x, aimingCameraLocalPosition.y, horizontal.z);
+    return PlayerRelativeCamera.ResolveLocalEndpoint(
+      transform,
+      cameraTransform,
+      aimingCameraRelativePosition);
   }
 
   private void EnsureActionsLocked() {

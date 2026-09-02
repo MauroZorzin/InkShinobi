@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
 
 /// <summary>Authoritative player-side lifecycle for entering, occupying, and exiting hiding spots.</summary>
 [DisallowMultipleComponent]
@@ -23,8 +24,9 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
   [Header("Camera")]
   [SerializeField] private Transform cameraTransform;
-  [Tooltip("Offset added to the current camera-local pose while hidden. Positive Z moves the camera closer to the player.")]
-  [SerializeField] private Vector3 hiddenCameraLocalOffset = new(0f, -0.04f, 0.45f);
+  [FormerlySerializedAs("hiddenCameraLocalOffset")]
+  [Tooltip("Player-relative hidden endpoint: X is lateral, Y is height, and Z is distance from the player on the camera's current side.")]
+  [SerializeField] private Vector3 hiddenCameraRelativePosition = new(0f, 0.21f, 1.55f);
   [SerializeField, Min(0.05f)] private float cameraBlendDuration = 0.4f;
 
   [Header("Hidden Vignette")]
@@ -150,7 +152,10 @@ public sealed class PlayerHidingController : MonoBehaviour {
   private IEnumerator EnterRoutine() {
     HidingSpot spot = CurrentSpot;
     if (spot != null) spot.PlayEnterFeedback(hideEffectFrontReference);
-    Vector3 hiddenCameraPosition = normalCameraPosition + hiddenCameraLocalOffset;
+    Vector3 hiddenCameraPosition = PlayerRelativeCamera.ResolveLocalEndpoint(
+      transform,
+      cameraTransform,
+      hiddenCameraRelativePosition);
     StartCoroutine(BlendCamera(hiddenCameraPosition, normalCameraRotation));
     StartCoroutine(BlendVignette(spot != null ? spot.HiddenVignetteWeight : 1f, cameraBlendDuration));
 
@@ -602,6 +607,12 @@ public sealed class PlayerHidingController : MonoBehaviour {
     if (spriteRenderers == null || spriteRenderers.Length == 0)
       spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
   }
+
+#if UNITY_EDITOR
+  private void OnValidate() {
+    PlayerRelativeCamera.ClampDistance(ref hiddenCameraRelativePosition);
+  }
+#endif
 
   private static float PauseAwareDelta() => SceneTransitionManager.IsGamePaused ? 0f : Time.unscaledDeltaTime;
   private static float Smooth(float t) => t * t * (3f - 2f * t);

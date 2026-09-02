@@ -71,8 +71,9 @@ public sealed class WallSwitchController : MonoBehaviour {
 
   [Header("Aim time and camera")]
   [SerializeField, Range(0.01f, 1f)] private float aimingTimeScale = 0.06f;
-  [Tooltip("Camera local position while aiming. The normal position is captured on entry and never overwritten.")]
-  [SerializeField] private Vector3 aimingCameraLocalPosition = new(0f, 0.5f, -3.75f);
+  [FormerlySerializedAs("aimingCameraLocalPosition")]
+  [Tooltip("Player-relative aiming endpoint: X is lateral, Y is height, and Z is distance from the player on the camera's current side.")]
+  [SerializeField] private Vector3 aimingCameraRelativePosition = new(0f, 0.5f, 3.75f);
   [SerializeField, Min(0f)] private float cameraAimDuration = 0.35f;
   [Tooltip("Duration of each 90-degree camera orbit: once before ink travel and once before reappearance.")]
   [SerializeField, Min(0f)] private float cameraSideSwitchDuration = 0.3f;
@@ -162,6 +163,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     wallEndpointInset = Mathf.Max(0f, wallEndpointInset);
     markerSurfaceOffset = Mathf.Max(0f, markerSurfaceOffset);
     surfacePlaneTolerance = Mathf.Max(0f, surfacePlaneTolerance);
+    PlayerRelativeCamera.ClampDistance(ref aimingCameraRelativePosition);
   }
 
   private void OnDisable() {
@@ -864,14 +866,10 @@ public sealed class WallSwitchController : MonoBehaviour {
   }
 
   private Vector3 GetAimPositionForCurrentSide() {
-    Vector3 currentHorizontal = new(normalCameraLocalPosition.x, 0f, normalCameraLocalPosition.z);
-    Vector3 authoredHorizontal = new(aimingCameraLocalPosition.x, 0f, aimingCameraLocalPosition.z);
-    if (currentHorizontal.sqrMagnitude < 0.0001f || authoredHorizontal.sqrMagnitude < 0.0001f)
-      return aimingCameraLocalPosition;
-
-    return Vector3.Dot(currentHorizontal, authoredHorizontal) >= 0f
-      ? aimingCameraLocalPosition
-      : Quaternion.AngleAxis(180f, Vector3.up) * aimingCameraLocalPosition;
+    return PlayerRelativeCamera.ResolveLocalEndpoint(
+      transform,
+      cameraTransform,
+      aimingCameraRelativePosition);
   }
 
   private void RestoreTimeScale() {
