@@ -7650,12 +7650,12 @@ ReflectionProbe:
   m_NearClip: 0.3
   m_FarClip: 220
   m_ShadowDistance: 100
-  m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.09, g: 0.09, b: 0.09, a: 0}
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.13, g: 0.13, b: 0.13, a: 0}
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 133136
-  m_IntensityMultiplier: 4
+  m_IntensityMultiplier: 1
   m_BlendDistance: 1.25
   m_HDR: 1
   m_BoxProjection: 1
@@ -22099,6 +22099,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!4 &2098875281
 Transform:
