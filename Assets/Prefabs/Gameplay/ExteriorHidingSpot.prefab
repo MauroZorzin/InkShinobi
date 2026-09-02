@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 5795814562849257011}
   - component: {fileID: 8726246203679084689}
   - component: {fileID: 7951603118200536318}
+  - component: {fileID: 920000000000000030}
   m_Layer: 13
   m_Name: ExteriorHidingSpot
   m_TagString: Untagged
@@ -86,8 +87,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0.005, z: -0.075}
+  m_Size: {x: 0.651605, y: 0.49025, z: 0.693941}
+  m_Center: {x: -0.008097, y: 0.162382, z: -0.004216}
 --- !u!114 &7951603118200536318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,14 +107,29 @@ MonoBehaviour:
   inkCloudScale: 2
   inkCloudHidePointBias: 0.5
   inkCloudVerticalOffset: 0.1
-  enterSound: {fileID: 8300000, guid: 867bd21a8f297d248b1b12c24f1a37d1, type: 3}
-  exitSound: {fileID: 8300000, guid: 867bd21a8f297d248b1b12c24f1a37d1, type: 3}
+  enterSound: {fileID: 8300000, guid: 8af0acf93c65fdc4086dc72b1767171f, type: 3}
+  exitSound: {fileID: 8300000, guid: 8af0acf93c65fdc4086dc72b1767171f, type: 3}
   soundVolume: 1
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   canHidePromptText: '[X] to hide'
   cannotHidePromptText: Can't hide now
   hiddenPromptText: '[X] to exit'
   hiddenVignetteWeight: 0.5
+  suppressVegetationBend: 1
+--- !u!114 &920000000000000030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362392899031187739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1e4ad1c65d54f64b8221adc3bd44110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelectiveColor
+  includeChildren: 1
+  preserveColor: 1
 --- !u!1 &4800797422507050036
 GameObject:
   m_ObjectHideFlags: 0

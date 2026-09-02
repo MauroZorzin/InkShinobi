@@ -46,8 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enableBendFeature: 1
   _player: {fileID: 0}
-  _startBendRange: 0.508
-  _bendStrength: 0.245
+  _startBendRange: 0.35
+  _bendStrength: 0.937
   _material:
   - {fileID: 2100000, guid: 547d20f3a4675194983b5d880d1fb348, type: 2}
   - {fileID: 2100000, guid: 16db3acac4b71444b95fd5cca207bf73, type: 2}

@@ -50,6 +50,8 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
   [SerializeField] private string requiredKeyId = "door_key";
   [Tooltip("Authored lock/key colour. Door-panel colouring can use this in the later visual pass.")]
   [SerializeField] private Color requiredKeyColor = new(0.25f, 0.7f, 1f, 1f);
+  [Tooltip("Name shown in the locked interaction prompt, for example Blue or Purple.")]
+  [SerializeField] private string requiredKeyColorName = "Blue";
   [FormerlySerializedAs("requiresItemToClose")]
   [SerializeField, HideInInspector] private bool obsoleteRequiresItemToClose;
 
@@ -62,14 +64,14 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
   [SerializeField, Range(0f, 1f)] private float audioVolume = 1f;
 
   [Header("Interaction Prompt")]
-  [Tooltip("Shown while the door is closed and doesn't require an item to open.")]
-  [SerializeField] private string closedPromptText = "Apri";
+  [Tooltip("Shown while an unlocked door is closed.")]
+  [SerializeField] private string openActionPromptText = "[X] to open";
 
-  [Tooltip("Shown while the door is open.")]
-  [SerializeField] private string openPromptText = "Chiudi";
+  [Tooltip("Shown while an unlocked door is open.")]
+  [SerializeField] private string closeActionPromptText = "[X] to close";
 
-  [Tooltip("Shown while the door is closed and requires an item to open (Requires Item To Open).")]
-  [SerializeField] private string lockedPromptText = "Serve una chiave";
+  [Tooltip("Shown while door movement is temporarily prevented.")]
+  [SerializeField] private string unavailablePromptText = "Can't open now";
 
   public bool IsOpen { get; private set; }
   public PassageState CurrentState { get; private set; } = PassageState.Closed;
@@ -79,6 +81,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
   public bool StartsLocked => startsLocked;
   public string RequiredKeyId => requiredKeyId;
   public Color RequiredKeyColor => requiredKeyColor;
+  public string RequiredKeyColorName => requiredKeyColorName;
   public Transform LeftDoorPanel => leftDoorPanel;
   public Transform RightDoorPanel => rightDoorPanel;
   public bool IsHeldClosedByPlayer => CurrentState == PassageState.Closed && PlayerOccupiesDoorPath(null);
@@ -104,12 +107,22 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
   public void Interact(PlayerInventory inventory) => TryToggle(inventory);
 
   public string GetPromptText(PlayerInventory inventory) {
-    if (animationCoroutine != null) return null;
-    if (temporaryLockedGuardPassage || HasActiveGuardTraffic()) return null;
-    if (PlayerOccupiesDoorPath(inventory)) return null;
-    if (IsOpen) return openPromptText;
-    if (!IsLocked) return closedPromptText;
-    return PlayerHasRequiredKey(inventory) ? openPromptText : lockedPromptText;
+    if (animationCoroutine != null) return unavailablePromptText;
+    if (temporaryLockedGuardPassage || HasActiveGuardTraffic()) return unavailablePromptText;
+    if (PlayerOccupiesDoorPath(inventory)) return unavailablePromptText;
+    if (IsOpen) return closeActionPromptText;
+    if (!IsLocked) return openActionPromptText;
+    return PlayerHasRequiredKey(inventory)
+      ? openActionPromptText
+      : GetLockedPromptText();
+  }
+
+  private string GetLockedPromptText() {
+    string colorName = string.IsNullOrWhiteSpace(requiredKeyColorName)
+      ? "Unknown"
+      : requiredKeyColorName.Trim();
+    string colorHex = ColorUtility.ToHtmlStringRGB(requiredKeyColor);
+    return $"Requires <color=#{colorHex}>{colorName}</color> key";
   }
 
   private void Awake() {

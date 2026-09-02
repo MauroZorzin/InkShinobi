@@ -521,6 +521,22 @@ public class LineFollowController : MonoBehaviour {
     CancelConnectionAssist();
   }
 
+  /// <summary>
+  /// Starts a scripted leg on a connected path while preserving the side of the supporting
+  /// wall through the corner. The regular facing update then turns the player and its camera.
+  /// </summary>
+  public void SetScriptedConnectedLine(
+    LinePath line,
+    int strand,
+    float distanceAlongLine,
+    Vector3 incomingTravelDirection,
+    Vector3 outgoingTravelDirection) {
+    SetLine(line, strand, distanceAlongLine);
+    SetConnectionFacingNormal(incomingTravelDirection, outgoingTravelDirection);
+    _facingTurnActive = true;
+    UpdateFacing();
+  }
+
   public Vector3 GetRootPositionForFeetAt(Vector3 feetPosition) {
     return transform.position + feetPosition - FeetPosition;
   }

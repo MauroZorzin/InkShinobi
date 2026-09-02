@@ -9962,10 +9962,6 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5315803391879672371, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
-      propertyPath: interactionRadius
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7704827832271038240, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
       propertyPath: m_Name
       value: PlayerV4

@@ -87,8 +87,8 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3889046910303973218, guid: 9a6002a5b903ce54696f8657888ed4f8, type: 3}
   m_PrefabInstance: {fileID: 8861235534617930591}
   m_PrefabAsset: {fileID: 0}
---- !u!135 &6636989254014507421
-SphereCollider:
+--- !u!65 &6636989254014507421
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -106,8 +106,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 1.35
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 2.449569, y: 1.438502, z: 1.799806}
+  m_Center: {x: 0.017134, y: 0.014956, z: 0.046279}
 --- !u!114 &5697775839686513894
 MonoBehaviour:
   m_ObjectHideFlags: 0

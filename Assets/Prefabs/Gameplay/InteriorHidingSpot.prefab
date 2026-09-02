@@ -173,8 +173,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0.005, z: -0.075}
+  m_Size: {x: 0.824871, y: 0.824888, z: 0.211173}
+  m_Center: {x: 0.002436, y: -0.102444, z: 0.229856}
 --- !u!114 &7951603118200536318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,6 +201,7 @@ MonoBehaviour:
   cannotHidePromptText: Can't hide now
   hiddenPromptText: '[X] to exit'
   hiddenVignetteWeight: 1
+  suppressVegetationBend: 0
 --- !u!1 &2360071967661151330
 GameObject:
   m_ObjectHideFlags: 0

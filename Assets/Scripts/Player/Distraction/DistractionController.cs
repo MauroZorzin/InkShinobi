@@ -50,7 +50,7 @@ public sealed class DistractionController : MonoBehaviour {
   [SerializeField, Min(0.02f)] private float maximumObstructionSegmentLength = 0.08f;
 
   [Header("Cooldown")]
-  [SerializeField, Min(0f)] private float cooldown = 2f;
+  [SerializeField, Min(0f)] private float cooldown = 3f;
 
   [Header("Aim presentation")]
   [SerializeField] private Transform cameraTransform;
