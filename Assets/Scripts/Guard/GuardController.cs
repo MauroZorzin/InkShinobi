@@ -76,10 +76,6 @@ public class GuardController : MonoBehaviour {
   [SerializeField] private GuardSquarePatrol patrolRoute;
   [SerializeField] private GuardSpriteFacing spriteFacing;
 
-  [Header("Debug")]
-  public bool showStateLabel = true;
-  [SerializeField] private bool verboseLogging;
-
   public GuardState CurrentState { get; private set; } = GuardState.Patrol;
   public float DetectionProgress => visionCone != null ? visionCone.DetectionProgress : 0f;
   public Vector3 LastKnownPlayerPosition => lastKnownPosition;
@@ -168,23 +164,23 @@ public class GuardController : MonoBehaviour {
     if (CurrentState == GuardState.TakenDown || player == null || door == null || visionCone == null) return;
     if (!visionCone.TryConfirmDoorInteraction(player, door)) return;
 
-    ApplyConfirmedDoorDetection(player, "Door interaction", true);
+    ApplyConfirmedDoorDetection(player, true);
   }
 
   public void ObservePlayerHoldingDoor(PlayerStealthController player, PassagewayDoor door) {
     if (CurrentState == GuardState.TakenDown || player == null || door == null || visionCone == null) return;
     if (!visionCone.ForceConfirmPlayer(player)) return;
 
-    ApplyConfirmedDoorDetection(player, "Player-held door", false);
+    ApplyConfirmedDoorDetection(player, false);
   }
 
-  private void ApplyConfirmedDoorDetection(PlayerStealthController player, string context, bool repathIfChasing) {
+  private void ApplyConfirmedDoorDetection(PlayerStealthController player, bool repathIfChasing) {
     lastKnownPosition = player.transform.position;
     lostSightElapsed = 0f;
     nextRepathTime = 0f;
     if (CurrentState != GuardState.Chasing) EnterState(GuardState.Chasing);
     else if (repathIfChasing)
-      motor?.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance, context);
+      motor?.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance);
   }
 
   public void PerformTakedown() {
@@ -270,7 +266,7 @@ public class GuardController : MonoBehaviour {
       lostSightElapsed = 0f;
       lastKnownPosition = visible.transform.position;
       if (Time.time >= nextRepathTime) {
-        motor.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance, "Chasing");
+        motor.MoveTo(lastKnownPosition, alertMoveSpeed, chaseStoppingDistance);
         nextRepathTime = Time.time + chaseRepathInterval;
       }
       TryCatchPlayer(visible);
@@ -350,7 +346,7 @@ public class GuardController : MonoBehaviour {
         break;
       case GuardState.Searching:
         searchHasArrived = false;
-        motor?.MoveTo(lastKnownPosition, patrolMoveSpeed * 1.3f, searchStoppingDistance, "Searching");
+        motor?.MoveTo(lastKnownPosition, patrolMoveSpeed * 1.3f, searchStoppingDistance);
         if (previous == GuardState.Chasing && loseSightSound != null)
           alertOneShotSource = OneShotAudio.PlayClipAtPoint(
             loseSightSound, transform.position, 1f, mixerGroup);
@@ -363,7 +359,6 @@ public class GuardController : MonoBehaviour {
         motor?.Stop(true);
         break;
     }
-    if (verboseLogging) Debug.Log($"[Guard] '{name}': {previous} -> {next}.", this);
   }
 
   private bool ShouldNoticePlayer() => visionCone != null && visionCone.PlayerCurrentlyVisible;
@@ -398,13 +393,9 @@ public class GuardController : MonoBehaviour {
     float speed = patrolRoute != null ? patrolRoute.Speed : patrolMoveSpeed;
     float stop = patrolRoute != null ? patrolRoute.ArrivalDistance : patrolStoppingDistance;
     if (patrolRoute != null) motor.SetRuntimeTurnSpeed(patrolRoute.TurnSpeed);
-    bool accepted = motor.MoveTo(point.position, speed, stop, $"Patrol[{index}] {point.name}");
+    bool accepted = motor.MoveTo(point.position, speed, stop);
     patrolDestinationPending = !accepted;
     if (!accepted) nextPatrolPathRetryTime = Time.time + patrolPathRetryInterval;
-    if (verboseLogging)
-      Debug.Log(
-        $"[Guard] '{name}' patrol request index={index}, point='{point.name}', " +
-        $"position={point.position}, accepted={accepted}.", this);
     return accepted;
   }
 
@@ -417,10 +408,6 @@ public class GuardController : MonoBehaviour {
     motor.Stop(true);
     patrolDestinationPending = true;
     nextPatrolPathRetryTime = Time.time + patrolPathRetryInterval;
-    if (verboseLogging)
-      Debug.LogWarning(
-        $"[Guard] '{name}' lost its active path to patrol index {patrolIndex}; " +
-        $"retrying that same point in {patrolPathRetryInterval:F2}s.", this);
   }
 
   private Transform GetPatrolPoint(int index) {

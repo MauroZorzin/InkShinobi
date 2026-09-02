@@ -99,17 +99,11 @@ public class LinePathVisualizer : MonoBehaviour {
   [Tooltip("Extra distance beyond Glow Fade Radius over which the glow fades back in smoothly.")]
   public float glowFadeSoftness = 2f;
 
-  [Header("Debug")]
-  [Tooltip("Logs shader/material setup, strand counts and how many sampled points actually hit ground on every Rebuild().")]
-  public bool debugLogging = true;
-
+  [Header("Editor Preview")]
   [Tooltip("Draws the raycasts, hit/fallback points and the resulting ribbon edges as scene gizmos — lets you see WHY nothing's showing (no ground hit vs. a shader/material problem) without needing the mesh to actually render.")]
   public bool drawDebugGizmos = true;
 
   public float gizmoPointSize = 0.05f;
-
-  [Tooltip("Forces vertex alpha to 1 everywhere, ignoring whether a point actually hit ground. Flip this on to check whether \"0 grounded points\" is the reason nothing renders, independent of any shader/material issue.")]
-  public bool debugForceFullAlpha = false;
 
   private LinePath _linePath;
   private Material _material;
@@ -157,7 +151,7 @@ public class LinePathVisualizer : MonoBehaviour {
       if (glowShader != null) {
         _glowMaterial = glowMaterial != null ? new Material(glowMaterial) : new Material(glowShader);
         _glowMaterial.hideFlags = HideFlags.DontSave;
-      } else if (debugLogging) {
+      } else {
         Debug.LogError("[LinePathVisualizer] Shader 'Custom/InkGlow' not found — it either hasn't been imported yet or failed to compile. No glow strips will be built until this is fixed.", this);
       }
     }
@@ -165,7 +159,7 @@ public class LinePathVisualizer : MonoBehaviour {
     var shader = Shader.Find("Custom/InkTrail");
     if (shader != null) {
       _material = new Material(shader) { hideFlags = HideFlags.DontSave };
-    } else if (debugLogging) {
+    } else {
       // The single most common reason "nothing appears at all": Shader.Find returns null when the
       // shader doesn't exist, isn't imported yet, or (most likely) failed to compile — check the
       // Console for compiler errors on InkTrail.shader. Rebuild() below bails out completely with
@@ -221,31 +215,28 @@ public class LinePathVisualizer : MonoBehaviour {
     _debugStrands.Clear();
 
     if (_linePath == null) {
-      if (debugLogging) Debug.LogWarning("[LinePathVisualizer] Rebuild aborted: no LinePath found on this GameObject.", this);
+      Debug.LogWarning("[LinePathVisualizer] Rebuild aborted: no LinePath found on this GameObject.", this);
       return;
     }
     if (_material == null) {
-      if (debugLogging) Debug.LogWarning("[LinePathVisualizer] Rebuild aborted: material is null (shader missing/failed to compile — see the error logged in Awake). No strands will be drawn.", this);
+      Debug.LogWarning("[LinePathVisualizer] Rebuild aborted: material is null (shader missing/failed to compile — see the error logged in Awake). No strands will be drawn.", this);
       return;
     }
     if (_linePath.StrandCount == 0) {
-      if (debugLogging) Debug.LogWarning($"[LinePathVisualizer] '{name}': LinePath reports 0 strands — nothing to draw. Check the LinePath has waypoint children (or the points array set) and is enabled.", this);
+      Debug.LogWarning($"[LinePathVisualizer] '{name}': LinePath reports 0 strands — nothing to draw. Check the LinePath has waypoint children (or the points array set) and is enabled.", this);
       return;
     }
 
-    int builtCount = 0;
     for (int strand = 0; strand < _linePath.StrandCount; strand++) {
       var go = BuildStrandObject(strand);
-      if (go != null) { _strandObjects.Add(go); builtCount++; }
+      if (go != null) _strandObjects.Add(go);
     }
-
-    if (debugLogging) Debug.Log($"[LinePathVisualizer] '{name}': Rebuild built {builtCount}/{_linePath.StrandCount} strand(s).", this);
   }
 
   private GameObject BuildStrandObject(int strandIndex) {
     float length = _linePath.GetStrandLength(strandIndex);
     if (length <= 0f) {
-      if (debugLogging) Debug.LogWarning($"[LinePathVisualizer] '{name}': strand {strandIndex} has zero length (single point or degenerate) — skipped.", this);
+      Debug.LogWarning($"[LinePathVisualizer] '{name}': strand {strandIndex} has zero length (single point or degenerate) — skipped.", this);
       return null;
     }
 
@@ -291,15 +282,8 @@ public class LinePathVisualizer : MonoBehaviour {
       }
     }
 
-    if (debugLogging) {
-      if (groundedCount == 0) {
-        Debug.LogWarning($"[LinePathVisualizer] '{name}': strand {strandIndex} — 0/{pointCount} sampled points hit anything on groundLayers={groundLayers.value}. " +
-                          "The ribbon exists but is fully transparent (vertex alpha 0 everywhere) — nothing will appear. " +
-                          "Check: colliders actually exist under the path, they're on a layer included in Ground Layers, and Projection Direction/Max Projection Distance reach them.", this);
-      } else if (groundedCount < pointCount) {
-        Debug.Log($"[LinePathVisualizer] '{name}': strand {strandIndex} — {groundedCount}/{pointCount} points grounded.", this);
-      }
-    }
+    if (groundedCount == 0)
+      Debug.LogWarning($"[LinePathVisualizer] '{name}': no sampled points hit Ground Layers; the ribbon will be transparent.", this);
 
     var go = new GameObject($"InkTrail_Strand{strandIndex}");
     go.transform.SetParent(transform, false);
@@ -426,7 +410,7 @@ public class LinePathVisualizer : MonoBehaviour {
       uvs[i0] = new Vector2(distances[i], 0f);
       uvs[i1] = new Vector2(distances[i], 1f);
 
-      float alpha = (grounded[i] || debugForceFullAlpha) ? 1f : 0f;
+      float alpha = grounded[i] ? 1f : 0f;
       colors[i0] = new Color(1f, 1f, 1f, alpha);
       colors[i1] = new Color(1f, 1f, 1f, alpha);
     }

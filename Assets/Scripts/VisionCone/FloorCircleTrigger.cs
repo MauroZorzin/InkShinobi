@@ -17,7 +17,6 @@ public class FloorCircleTrigger : MonoBehaviour {
   public FloorCircleTriggerEvent onExitedLight;
 
   [Header("Debug")]
-  public bool logEvents = false;
   public bool showGizmos = true;
 
   private SphereCollider _collider;
@@ -46,10 +45,6 @@ public class FloorCircleTrigger : MonoBehaviour {
   }
 
   private void OnTriggerEnter(Collider other) {
-    if (logEvents) {
-      Debug.Log($"[FloorCircleTrigger] '{name}': OnTriggerEnter '{other.name}' (layer {LayerMask.LayerToName(other.gameObject.layer)}), targetMask matches: {((1 << other.gameObject.layer) & targetMask.value) != 0}", this);
-    }
-
     if (((1 << other.gameObject.layer) & targetMask.value) == 0) {
       return;
     }
@@ -58,14 +53,9 @@ public class FloorCircleTrigger : MonoBehaviour {
   }
 
   private void OnTriggerExit(Collider other) {
-    if (logEvents) {
-      Debug.Log($"[FloorCircleTrigger] '{name}': OnTriggerExit '{other.name}'", this);
-    }
-
     _candidates.Remove(other);
 
     if (_litColliders.Remove(other)) {
-      if (logEvents) Debug.Log($"[FloorCircleTrigger] '{name}': onExitedLight -> '{other.name}'", this);
       onExitedLight?.Invoke(other.transform);
     }
   }
@@ -89,11 +79,9 @@ public class FloorCircleTrigger : MonoBehaviour {
 
       if (isLit && !wasLit) {
         _litColliders.Add(candidate);
-        if (logEvents) Debug.Log($"[FloorCircleTrigger] '{name}': onEnteredLight -> '{candidate.name}' (blocked={blocked})", this);
         onEnteredLight?.Invoke(candidate.transform);
       } else if (!isLit && wasLit) {
         _litColliders.Remove(candidate);
-        if (logEvents) Debug.Log($"[FloorCircleTrigger] '{name}': onExitedLight (occluded) -> '{candidate.name}'", this);
         onExitedLight?.Invoke(candidate.transform);
       }
     }

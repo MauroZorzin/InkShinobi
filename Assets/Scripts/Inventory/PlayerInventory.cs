@@ -96,7 +96,6 @@ public class PlayerInventory : MonoBehaviour {
           itemInstance.HasColorOverride,
           itemInstance.DisplayColor);
       }
-      Debug.Log($"[PlayerInventory] Dropped '{definition.displayName}' -> spawned '{spawned.name}' at {position:F2}.");
     } else {
       Debug.LogWarning($"[PlayerInventory] '{definition.displayName}' has no World Prefab assigned - dropping it only clears the slot.");
     }

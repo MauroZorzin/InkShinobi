@@ -61,7 +61,6 @@ MonoBehaviour:
   fadeOutDuration: 0.5
   audioFadeOutDuration: 0.75
   audioFadeInDuration: 0.75
-  logTransitions: 1
 --- !u!114 &11400001
 MonoBehaviour:
   m_ObjectHideFlags: 0

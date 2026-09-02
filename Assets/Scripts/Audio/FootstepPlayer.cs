@@ -38,10 +38,6 @@ public class FootstepPlayer : MonoBehaviour {
   [Tooltip("Mixer group footsteps are routed through (e.g. your \"FX\" group). Leave empty to go straight to Master.")]
   public AudioMixerGroup mixerGroup;
 
-  [Header("Debug")]
-  [Tooltip("Logs every step attempt (surface detected, clip found or not) to the Console.")]
-  public bool verboseLogging = false;
-
   private AudioSource _source;
   private Vector3 _lastPosition;
   private float _distanceSinceLastStep;
@@ -74,10 +70,6 @@ public class FootstepPlayer : MonoBehaviour {
     }
 
     _distanceSinceLastStep += distanceThisFrame;
-    if (verboseLogging) {
-      Debug.Log($"[FootstepPlayer] '{name}': speed={speed:F2} u/s, distanceSinceLastStep={_distanceSinceLastStep:F2}/{stepDistance:F2}");
-    }
-
     if (_distanceSinceLastStep < stepDistance) return;
 
     _distanceSinceLastStep = 0f;
@@ -96,16 +88,7 @@ public class FootstepPlayer : MonoBehaviour {
     SurfaceType surface = SurfaceDetection.DetectBelow(transform.position, raycastHeight, raycastDistance, groundMask);
     AudioClip clip = library.GetRandomClip(surface);
 
-    if (clip == null) {
-      if (verboseLogging) {
-        Debug.LogWarning($"[FootstepPlayer] '{name}': surface={surface} but no clip found (no matching entry and no fallbackClips in the library).", this);
-      }
-      return;
-    }
-
-    if (verboseLogging) {
-      Debug.Log($"[FootstepPlayer] '{name}': playing '{clip.name}' for surface={surface}.", this);
-    }
+    if (clip == null) return;
 
     _source.pitch = 1f + Random.Range(-pitchVariance, pitchVariance);
     _source.PlayOneShot(clip, volume);

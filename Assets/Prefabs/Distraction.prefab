@@ -127,4 +127,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: GameScripts::GuardSoundSignal
   IsActive: 0
   lifetime: 3
-  verboseLogging: 1

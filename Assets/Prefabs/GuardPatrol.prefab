@@ -728,8 +728,6 @@ MonoBehaviour:
   motor: {fileID: 0}
   patrolRoute: {fileID: 0}
   spriteFacing: {fileID: 8265316895135642748}
-  showStateLabel: 0
-  verboseLogging: 0
 --- !u!114 &1534752613705479263
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -759,8 +757,6 @@ MonoBehaviour:
   detectionReleaseTime: 0.35
   wallSwitchExposureThreshold: 0.15
   showGizmos: 1
-  verboseLogging: 0
-  showRuntimeRay: 1
 --- !u!136 &2640815573950704169
 CapsuleCollider:
   m_ObjectHideFlags: 0

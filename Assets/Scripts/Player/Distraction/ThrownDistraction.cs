@@ -105,18 +105,4 @@ public sealed class ThrownDistraction : MonoBehaviour {
     if (destroyAfterLanding) Destroy(gameObject, destroyDelay);
   }
 
-#if UNITY_EDITOR
-  public void Configure(
-    LayerMask authoredLandingLayers,
-    float authoredRadius,
-    GuardSoundSignal authoredSignal,
-    DistractionEchoPulse authoredPulse,
-    bool authoredDestroyAfterLanding) {
-    landingLayers = authoredLandingLayers;
-    collisionRadius = Mathf.Max(0.01f, authoredRadius);
-    soundSignal = authoredSignal;
-    echoPulsePrefab = authoredPulse;
-    destroyAfterLanding = authoredDestroyAfterLanding;
-  }
-#endif
 }

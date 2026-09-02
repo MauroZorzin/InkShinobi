@@ -41,7 +41,4 @@ public sealed class DistractionEchoPulse : MonoBehaviour {
   private static Color WithAlpha(Color color, float alpha) =>
     new(color.r, color.g, color.b, alpha);
 
-#if UNITY_EDITOR
-  public void Configure(float authoredDuration) => duration = Mathf.Max(0.05f, authoredDuration);
-#endif
 }

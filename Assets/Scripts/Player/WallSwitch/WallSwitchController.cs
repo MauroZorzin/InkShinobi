@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 using Action = System.Action;
 
 /// <summary>
@@ -13,7 +12,6 @@ using Action = System.Action;
 [RequireComponent(typeof(LineFollowController))]
 public sealed class WallSwitchController : MonoBehaviour {
   private enum SwitchState { Idle, Aiming, Executing }
-  private enum BlockingCategory { None, AuthoredSurface, WallObstruction, GuardOrExplicitBlocker, GuardVisionField }
 
   [Header("Explicit references")]
   [SerializeField] private WallSwitchPathNetwork network;
@@ -29,6 +27,8 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private RejectedAimCameraFeedback rejectionFeedback;
   [Tooltip("Optional component implementing IWallSwitchPermission for future hiding/death/detection rules.")]
   [SerializeField] private MonoBehaviour permissionSource;
+
+  private PlayerInteractionDialogue interactionDialogue;
 
   [Header("Selection")]
   [Tooltip("Maximum horizontal distance allowed between an authored LinePath and the visible wall collider under the cursor. Cursor height and the exact hit position on that wall do not affect eligibility.")]
@@ -61,7 +61,6 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField, Min(0f)] private float markerSurfaceOffset = 0.01f;
   [Tooltip("Fixed world-space Y where the wall-switch trajectory leaves the player.")]
   [SerializeField] private float originWorldY = 0.33f;
-  [FormerlySerializedAs("markerWorldY")]
   [Tooltip("Fixed world-space Y used by the trajectory endpoint and destination stain, but only after the unmodified cursor has selected a valid destination surface.")]
   [SerializeField] private float destinationWorldY = 0.33f;
   [Tooltip("How far a WallSwitchSurface may extend in front of the destination LinePath before it is treated as an obstruction rather than a valid stain surface.")]
@@ -71,7 +70,6 @@ public sealed class WallSwitchController : MonoBehaviour {
 
   [Header("Aim time and camera")]
   [SerializeField, Range(0.01f, 1f)] private float aimingTimeScale = 0.06f;
-  [FormerlySerializedAs("aimingCameraLocalPosition")]
   [Tooltip("Player-relative aiming endpoint: X is lateral, Y is height, and Z is distance from the player on the camera's current side.")]
   [SerializeField] private Vector3 aimingCameraRelativePosition = new(0f, 0.5f, 3.75f);
   [SerializeField, Min(0f)] private float cameraAimDuration = 0.35f;
@@ -95,12 +93,6 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private GameObject departureInkPrefab;
   [SerializeField] private GameObject arrivalInkPrefab;
   [SerializeField] private GameObject travelingInkPrefab;
-
-  [Header("Debug")]
-#if UNITY_EDITOR
-  [SerializeField] private bool drawDebugGizmos = true;
-#endif
-  [SerializeField] private bool verboseLogging;
 
   private readonly Collider[] interactionHits = new Collider[64];
   private readonly RaycastHit[] authoredSurfaceHits = new RaycastHit[128];
@@ -127,11 +119,6 @@ public sealed class WallSwitchController : MonoBehaviour {
   private bool cursorVisibleBeforeAim;
   private bool ownsCursorState;
   private bool loggedInvalidConfiguration;
-  private WallSwitchPathNetwork.SelectionDiagnostics lastSelectionDiagnostics;
-  private BlockingCategory lastBlockingCategory;
-  private WallSwitchFailureReason lastLoggedFailureReason = (WallSwitchFailureReason)(-1);
-  private LinePath lastLoggedDestinationPath;
-  private int lastLoggedDestinationStrand = -1;
 
   public bool IsAiming => state == SwitchState.Aiming;
   public bool IsExecuting => state == SwitchState.Executing;
@@ -182,6 +169,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     RestoreCursorState();
     RestoreTimeScale();
     state = SwitchState.Idle;
+    interactionDialogue?.SetSuppressed(this, false);
     currentEvaluation = WallSwitchEvaluation.Empty;
   }
 
@@ -201,68 +189,9 @@ public sealed class WallSwitchController : MonoBehaviour {
     if (state != SwitchState.Idle && !SceneTransitionManager.IsGamePaused) EnsurePlayerActionsLocked();
     if (state != SwitchState.Aiming || SceneTransitionManager.IsGamePaused) return;
     currentEvaluation = EvaluateAtCursor();
-    LogEvaluationChange(currentEvaluation);
     preview?.Show(currentEvaluation);
     if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
       TryConfirmCurrent();
-  }
-
-  /// <summary>
-  /// Logs the current evaluation only when it actually changes (failure reason or selected
-  /// destination), so aiming every frame does not spam the console. Reports exactly which check
-  /// is preventing a switch: the per-filter segment-selection breakdown for "no destination
-  /// found", the specific min/max distance for range failures, or which of the four trajectory
-  /// checks (authored surface, wall obstruction, guard/blocker, guard vision) set the block.
-  /// </summary>
-  private void LogEvaluationChange(WallSwitchEvaluation evaluation) {
-    if (!verboseLogging) return;
-    bool changed = evaluation.FailureReason != lastLoggedFailureReason
-      || evaluation.DestinationPath != lastLoggedDestinationPath
-      || evaluation.DestinationStrand != lastLoggedDestinationStrand;
-    if (!changed) return;
-
-    lastLoggedFailureReason = evaluation.FailureReason;
-    lastLoggedDestinationPath = evaluation.DestinationPath;
-    lastLoggedDestinationStrand = evaluation.DestinationStrand;
-
-    switch (evaluation.FailureReason) {
-      case WallSwitchFailureReason.None: {
-        float distance = Vector3.Distance(followController.FeetPosition, evaluation.DestinationFeet);
-        Debug.Log(
-          $"[WallSwitch] OK -- destination '{evaluation.DestinationPath?.name}' strand {evaluation.DestinationStrand} " +
-          $"at {evaluation.DestinationFeet:F2}, distance {distance:F2}.", this);
-        break;
-      }
-      case WallSwitchFailureReason.PlayerUnavailable: {
-        AimEntryBlockReason permissionReason = permission != null ? permission.WallSwitchBlockReason : AimEntryBlockReason.None;
-        Debug.Log($"[WallSwitch] BLOCKED -- permission source reports {permissionReason}.", this);
-        break;
-      }
-      case WallSwitchFailureReason.NoAuthoredPath:
-      case WallSwitchFailureReason.PathsNotParallel:
-        Debug.Log($"[WallSwitch] BLOCKED -- no destination selected: {lastSelectionDiagnostics}", this);
-        break;
-      case WallSwitchFailureReason.DestinationTooClose: {
-        float distance = Vector3.Distance(followController.FeetPosition, evaluation.DestinationFeet);
-        Debug.Log($"[WallSwitch] BLOCKED -- destination is {distance:F2} away, below minimumSwitchDistance ({minimumSwitchDistance:F2}).", this);
-        break;
-      }
-      case WallSwitchFailureReason.DestinationTooFar: {
-        float distance = Vector3.Distance(followController.FeetPosition, evaluation.DestinationFeet);
-        Debug.Log($"[WallSwitch] BLOCKED -- destination is {distance:F2} away, above maximumSwitchDistance ({maximumSwitchDistance:F2}).", this);
-        break;
-      }
-      case WallSwitchFailureReason.Blocked: {
-        string blockerName = evaluation.BlockingObject != null ? evaluation.BlockingObject.name : "unknown object";
-        Debug.Log(
-          $"[WallSwitch] BLOCKED -- trajectory obstructed by '{blockerName}' " +
-          $"[{lastBlockingCategory}] at {evaluation.BlockingPoint:F2}.", this);
-        break;
-      }
-      default:
-        Debug.Log($"[WallSwitch] BLOCKED -- {evaluation.FailureReason}.", this);
-        break;
-    }
   }
 
   public bool BeginAim() {
@@ -274,6 +203,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     }
 
     state = SwitchState.Aiming;
+    interactionDialogue?.SetSuppressed(this, true);
     followWasEnabled = followController.enabled;
     followController.enabled = false;
     EnsurePlayerActionsLocked();
@@ -286,14 +216,9 @@ public sealed class WallSwitchController : MonoBehaviour {
     activeAimCameraLocalPosition = GetAimPositionForCurrentSide();
     StartCameraBlend(activeAimCameraLocalPosition, normalCameraLocalRotation, cameraAimDuration);
 
-    lastLoggedFailureReason = (WallSwitchFailureReason)(-1);
-    lastLoggedDestinationPath = null;
-    lastLoggedDestinationStrand = -1;
     currentEvaluation = EvaluateAtCursor();
-    LogEvaluationChange(currentEvaluation);
     preview?.Show(currentEvaluation);
     AimStarted?.Invoke();
-    if (verboseLogging) Debug.Log("[WallSwitch] Aim mode entered.", this);
     return true;
   }
 
@@ -304,10 +229,7 @@ public sealed class WallSwitchController : MonoBehaviour {
       preview?.Show(currentEvaluation);
       return false;
     }
-    if (!currentEvaluation.IsValid) {
-      if (verboseLogging) Debug.Log($"[WallSwitch] Confirmation ignored: {currentEvaluation.FailureReason}.", this);
-      return false;
-    }
+    if (!currentEvaluation.IsValid) return false;
 
     WallSwitchEvaluation acceptedEvaluation = currentEvaluation;
     state = SwitchState.Executing;
@@ -337,6 +259,7 @@ public sealed class WallSwitchController : MonoBehaviour {
       StartCameraBlend(normalCameraLocalPosition, normalCameraLocalRotation, cameraReturnDuration);
     }
     state = SwitchState.Idle;
+    interactionDialogue?.SetSuppressed(this, false);
     currentEvaluation = WallSwitchEvaluation.Empty;
   }
 
@@ -362,7 +285,6 @@ public sealed class WallSwitchController : MonoBehaviour {
       Debug.LogError("[WallSwitch] Aim entry failed because a required reference is not configured.", this);
     }
     if (reason.ShouldPlayFeedback()) rejectionFeedback?.PlayRejectedAction();
-    if (verboseLogging) Debug.Log($"[WallSwitch] Aim entry rejected: {reason}.", this);
   }
 
   private WallSwitchEvaluation EvaluateAtCursor() {
@@ -390,9 +312,7 @@ public sealed class WallSwitchController : MonoBehaviour {
       wallPathSearchRadius,
       wallSideTolerance,
       out WallSwitchPathNetwork.DestinationCandidate candidate,
-      out float nonParallelSurfaceDistance,
-      out WallSwitchPathNetwork.SelectionDiagnostics selectionDiagnostics);
-    lastSelectionDiagnostics = selectionDiagnostics;
+      out float nonParallelSurfaceDistance);
 
     if (!found) {
       WallSwitchFailureReason reason = nonParallelSurfaceDistance <= wallPathSearchRadius
@@ -419,7 +339,6 @@ public sealed class WallSwitchController : MonoBehaviour {
     List<GuardWallSwitchTarget> blockingGuards = new();
     Object blockingObject = null;
     Vector3 blockingPoint = Vector3.zero;
-    BlockingCategory blockingCategory = BlockingCategory.None;
     EvaluateAuthoredSurfaces(
       trajectoryStart,
       trajectoryEnd,
@@ -427,30 +346,25 @@ public sealed class WallSwitchController : MonoBehaviour {
       candidate.Direction,
       ref cursorWorld,
       ref blockingObject,
-      ref blockingPoint,
-      ref blockingCategory);
+      ref blockingPoint);
     EvaluateWallObstruction(
       trajectoryStart,
       trajectoryEnd,
       ref blockingObject,
-      ref blockingPoint,
-      ref blockingCategory);
+      ref blockingPoint);
     EvaluateTrajectoryInteractions(
       trajectoryStart,
       trajectoryEnd,
       takedowns,
       blockingGuards,
       ref blockingObject,
-      ref blockingPoint,
-      ref blockingCategory);
+      ref blockingPoint);
     EvaluateBlockingVisionFields(
       trajectoryStart,
       trajectoryEnd,
       blockingGuards,
       ref blockingObject,
-      ref blockingPoint,
-      ref blockingCategory);
-    lastBlockingCategory = blockingCategory;
+      ref blockingPoint);
     if (blockingObject != null) failure = WallSwitchFailureReason.Blocked;
     if (failure != WallSwitchFailureReason.None) takedowns.Clear();
 
@@ -480,8 +394,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     Vector3 start,
     Vector3 end,
     ref Object blockingObject,
-    ref Vector3 blockingPoint,
-    ref BlockingCategory blockingCategory) {
+    ref Vector3 blockingPoint) {
     if (blockingObject != null) return;
     if (wallObstructionLayers.value == 0) return;
 
@@ -505,7 +418,6 @@ public sealed class WallSwitchController : MonoBehaviour {
 
     blockingObject = hit.collider;
     blockingPoint = hit.point;
-    blockingCategory = BlockingCategory.WallObstruction;
   }
 
   private void EvaluateTrajectoryInteractions(
@@ -514,8 +426,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     List<GuardWallSwitchTarget> takedowns,
     List<GuardWallSwitchTarget> blockingGuards,
     ref Object blockingObject,
-    ref Vector3 blockingPoint,
-    ref BlockingCategory blockingCategory) {
+    ref Vector3 blockingPoint) {
     if (interactionLayers.value == 0) return;
 
     uniqueTargets.Clear();
@@ -541,7 +452,6 @@ public sealed class WallSwitchController : MonoBehaviour {
           if (blockingObject == null) {
             blockingObject = guard;
             blockingPoint = ClosestPointOnSegment(guard.transform.position, start, end);
-            blockingCategory = BlockingCategory.GuardOrExplicitBlocker;
           }
         }
       }
@@ -551,7 +461,6 @@ public sealed class WallSwitchController : MonoBehaviour {
       if (blockingObject == null) {
         blockingObject = blocker;
         blockingPoint = ClosestPointOnSegment(blocker.transform.position, start, end);
-        blockingCategory = BlockingCategory.GuardOrExplicitBlocker;
       }
     }
   }
@@ -561,8 +470,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     Vector3 end,
     List<GuardWallSwitchTarget> blockingGuards,
     ref Object blockingObject,
-    ref Vector3 blockingPoint,
-    ref BlockingCategory blockingCategory) {
+    ref Vector3 blockingPoint) {
     foreach (GuardWallSwitchTarget guard in GuardWallSwitchTarget.ActiveTargets) {
       if (guard == null || !guard.IsAlive) continue;
       if (!guard.TryGetBlockingVisionIntersection(start, end, trajectoryRadius, out Vector3 intersection)) continue;
@@ -571,7 +479,6 @@ public sealed class WallSwitchController : MonoBehaviour {
       if (blockingObject != null) continue;
       blockingObject = guard;
       blockingPoint = intersection;
-      blockingCategory = BlockingCategory.GuardVisionField;
     }
   }
 
@@ -659,8 +566,8 @@ public sealed class WallSwitchController : MonoBehaviour {
     RestoreTimeScale();
     currentEvaluation = WallSwitchEvaluation.Empty;
     state = SwitchState.Idle;
+    interactionDialogue?.SetSuppressed(this, false);
     SwitchCompleted?.Invoke();
-    if (verboseLogging) Debug.Log("[WallSwitch] Switch completed.", this);
   }
 
   private void TeleportToEvaluation(WallSwitchEvaluation evaluation) {
@@ -685,6 +592,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     StartCameraBlend(normalCameraLocalPosition, normalCameraLocalRotation, cameraReturnDuration);
     currentEvaluation = WallSwitchEvaluation.Empty;
     state = SwitchState.Idle;
+    interactionDialogue?.SetSuppressed(this, false);
     AimCancelled?.Invoke();
   }
 
@@ -730,8 +638,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     Vector3 destinationDirection,
     ref Vector3 previewPoint,
     ref Object blockingObject,
-    ref Vector3 blockingPoint,
-    ref BlockingCategory blockingCategory) {
+    ref Vector3 blockingPoint) {
     Vector3 pathDirection = destinationDirection;
     pathDirection.y = 0f;
     if (pathDirection.sqrMagnitude < 0.0001f) return;
@@ -805,7 +712,6 @@ public sealed class WallSwitchController : MonoBehaviour {
 
     if (blockingSurface != null) {
       blockingObject = blockingSurface;
-      blockingCategory = BlockingCategory.AuthoredSurface;
     }
   }
 
@@ -833,6 +739,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     if (cameraTransform == null && aimCamera != null) cameraTransform = aimCamera.transform;
     if (distractionController == null) distractionController = GetComponent<DistractionController>();
     if (deathSequence == null) deathSequence = GetComponent<PlayerDeathSequence>();
+    if (interactionDialogue == null) interactionDialogue = GetComponent<PlayerInteractionDialogue>();
     if (rejectionFeedback == null) rejectionFeedback = GetComponentInChildren<RejectedAimCameraFeedback>(true);
     if (permission == null && permissionSource is IWallSwitchPermission assignedPermission)
       permission = assignedPermission;
@@ -1105,14 +1012,4 @@ public sealed class WallSwitchController : MonoBehaviour {
     return start + delta * t;
   }
 
-#if UNITY_EDITOR
-  private void OnDrawGizmosSelected() {
-    if (!drawDebugGizmos || currentEvaluation == null || currentEvaluation.DestinationPath == null) return;
-    Gizmos.color = currentEvaluation.IsValid ? Color.green : Color.red;
-    Gizmos.DrawWireSphere(currentEvaluation.TrajectoryStart, trajectoryRadius);
-    Gizmos.DrawWireSphere(currentEvaluation.TrajectoryEnd, trajectoryRadius);
-    Gizmos.DrawLine(currentEvaluation.TrajectoryStart, currentEvaluation.TrajectoryEnd);
-    if (currentEvaluation.BlockingObject != null) Gizmos.DrawSphere(currentEvaluation.BlockingPoint, trajectoryRadius * 1.25f);
-  }
-#endif
 }

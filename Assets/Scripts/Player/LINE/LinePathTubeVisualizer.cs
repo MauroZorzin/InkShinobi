@@ -96,10 +96,7 @@ public class LinePathTubeVisualizer : MonoBehaviour {
 
   [Range(0f, 1f)] public float alphaMultiplier = 1f;
 
-  [Header("Debug")]
-  [Tooltip("Logs shader/material setup and strand counts on every Rebuild().")]
-  public bool debugLogging = true;
-
+  [Header("Editor Preview")]
   [Tooltip("Draws each strand's centerline as a scene gizmo.")]
   public bool drawDebugGizmos = true;
 
@@ -142,7 +139,7 @@ public class LinePathTubeVisualizer : MonoBehaviour {
     if (anchorTarget == null && progressSource != null) anchorTarget = progressSource.transform;
 
     _shader = Shader.Find("Custom/InkTube");
-    if (_shader == null && debugLogging) {
+    if (_shader == null) {
       Debug.LogError("[LinePathTubeVisualizer] Shader 'Custom/InkTube' not found — it either hasn't been imported yet or failed to compile. Check the Console for shader compiler errors. No strands will be built until this is fixed.", this);
     }
   }
@@ -213,31 +210,27 @@ public class LinePathTubeVisualizer : MonoBehaviour {
     _debugCenterlines.Clear();
 
     if (_linePath == null) {
-      if (debugLogging) Debug.LogWarning("[LinePathTubeVisualizer] Rebuild aborted: no LinePath found on this GameObject.", this);
+      Debug.LogWarning("[LinePathTubeVisualizer] Rebuild aborted: no LinePath found on this GameObject.", this);
       return;
     }
     if (_shader == null) {
-      if (debugLogging) Debug.LogWarning("[LinePathTubeVisualizer] Rebuild aborted: shader missing/failed to compile (see the error logged in Awake). No strands will be drawn.", this);
+      Debug.LogWarning("[LinePathTubeVisualizer] Rebuild aborted: shader missing/failed to compile (see the error logged in Awake). No strands will be drawn.", this);
       return;
     }
     if (_linePath.StrandCount == 0) {
-      if (debugLogging) Debug.LogWarning($"[LinePathTubeVisualizer] '{name}': LinePath reports 0 strands — nothing to draw.", this);
+      Debug.LogWarning($"[LinePathTubeVisualizer] '{name}': LinePath reports 0 strands — nothing to draw.", this);
       return;
     }
 
-    int builtCount = 0;
     for (int strand = 0; strand < _linePath.StrandCount; strand++) {
-      var go = BuildStrandObject(strand);
-      if (go != null) builtCount++;
+      BuildStrandObject(strand);
     }
-
-    if (debugLogging) Debug.Log($"[LinePathTubeVisualizer] '{name}': Rebuild built {builtCount}/{_linePath.StrandCount} strand(s).", this);
   }
 
   private GameObject BuildStrandObject(int strandIndex) {
     float length = _linePath.GetStrandLength(strandIndex);
     if (length <= 0f) {
-      if (debugLogging) Debug.LogWarning($"[LinePathTubeVisualizer] '{name}': strand {strandIndex} has zero length (single point or degenerate) — skipped.", this);
+      Debug.LogWarning($"[LinePathTubeVisualizer] '{name}': strand {strandIndex} has zero length (single point or degenerate) — skipped.", this);
       _strandObjects.Add(null);
       _strandMaterials.Add(null);
       _strandLengths.Add(0f);

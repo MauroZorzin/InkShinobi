@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 /// Registers one fixed light with the fullscreen monochrome composite. Its spherical
@@ -27,7 +26,6 @@ public sealed class FixedLightSource : MonoBehaviour {
   [Tooltip("Strength of the tint applied after the monochrome pass.")]
   [SerializeField, Range(0f, 1f)] private float colorIntensity = 0.9f;
 
-  [FormerlySerializedAs("brightnessBoost")]
   [Tooltip("Target luminance of the projected color. This controls apparent brightness independently of the physical Point Light intensity.")]
   [SerializeField, Range(0f, 1f)] private float projectedBrightness = 0.15f;
 

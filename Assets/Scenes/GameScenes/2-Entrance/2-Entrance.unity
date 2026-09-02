@@ -3417,7 +3417,6 @@ MonoBehaviour:
   gravity: -10
   completionInformation: 
   completionInformationDismissDistance: 1
-  debugLogging: 1
 --- !u!4 &317273309
 Transform:
   m_ObjectHideFlags: 0

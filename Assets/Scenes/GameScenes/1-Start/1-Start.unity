@@ -4137,7 +4137,6 @@ MonoBehaviour:
   volume: 1
   pitchVariance: 0.176
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
-  verboseLogging: 0
 --- !u!1001 &1001401894
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5148,7 +5147,6 @@ MonoBehaviour:
   gravity: -20
   completionInformation: Use [A] and [D] to Move
   completionInformationDismissDistance: 1
-  debugLogging: 1
 --- !u!4 &1167240330
 Transform:
   m_ObjectHideFlags: 0
@@ -10716,8 +10714,6 @@ MonoBehaviour:
   toHideObject: {fileID: 5086530638691953768}
   textToHideOnInteraction: {fileID: 0}
   textToToggleOnInteraction: {fileID: 0}
-  showPrompt: '[X] Interact'
-  hidePrompt: '[X] Close'
   componentToDisable: {fileID: 710100000000000004}
   interactSound: {fileID: 8300000, guid: df6d6e6970d3ebc40a5ecbe1e1f21c1e, type: 3}
   interactSoundVolume: 1

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 /// <summary>
 /// Registers a world-space cone with the fullscreen selective-color composite. Unlike a transparent
@@ -27,7 +26,6 @@ public sealed class ConeLightSource : MonoBehaviour {
 
   [SerializeField, Range(0f, 1f)] private float colorIntensity = 0.9f;
 
-  [FormerlySerializedAs("brightnessBoost")]
   [Tooltip("Target luminance of the projected color. This controls apparent brightness independently of the physical Light intensity.")]
   [SerializeField, Range(0f, 1f)] private float projectedBrightness = 0.35f;
 

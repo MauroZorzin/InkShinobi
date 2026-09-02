@@ -667,8 +667,6 @@ MonoBehaviour:
   motor: {fileID: 0}
   patrolRoute: {fileID: 0}
   spriteFacing: {fileID: 1942931681213939113}
-  showStateLabel: 0
-  verboseLogging: 0
 --- !u!114 &368030414106477065
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -699,8 +697,6 @@ MonoBehaviour:
   wallSwitchExposureThreshold: 0.1
   doorInteractionExposureThreshold: 0.15
   showGizmos: 0
-  verboseLogging: 0
-  showRuntimeRay: 1
 --- !u!136 &3097521607343838825
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -769,10 +765,6 @@ MonoBehaviour:
   doorClearanceDistance: 0.4
   turnSpeed: 180
   facingVelocityThreshold: 0.02
-  verboseNavigation: 0
-  stallWarningDelay: 0.75
-  repeatedWarningInterval: 1.5
-  stallVelocityThreshold: 0.02
 --- !u!114 &5734512930278582093
 MonoBehaviour:
   m_ObjectHideFlags: 0

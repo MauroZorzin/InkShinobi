@@ -285,9 +285,6 @@ MonoBehaviour:
   openEndClip: {fileID: 0}
   closeEndClip: {fileID: 0}
   audioVolume: 1
-  openActionPromptText: '[X] to open'
-  closeActionPromptText: '[X] to close'
-  unavailablePromptText: Can't open now
 --- !u!114 &920000000000000020
 MonoBehaviour:
   m_ObjectHideFlags: 0

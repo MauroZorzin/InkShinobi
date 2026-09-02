@@ -402,9 +402,5 @@ MonoBehaviour:
   openEndClip: {fileID: 0}
   closeEndClip: {fileID: 0}
   audioVolume: 1
-  requiresItemToOpen: 1
-  requiresItemToClose: 0
-  requiredItemId: door_key_blue
-  closedPromptText: '[X] to Open'
-  openPromptText: '[X] to Close'
-  lockedPromptText: The Door is lock, maby a guard have a key
+  startsLocked: 1
+  requiredKeyId: door_key_blue

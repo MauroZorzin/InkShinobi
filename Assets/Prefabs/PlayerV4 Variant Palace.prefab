@@ -16,22 +16,6 @@ PrefabInstance:
       propertyPath: destinationWorldY
       value: 2.4
       objectReference: {fileID: 0}
-    - target: {fileID: 5315803391879672371, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
-      propertyPath: layerPrompts.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 5315803391879672371, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
-      propertyPath: layerPrompts.Array.data[3].text
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 5315803391879672371, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
-      propertyPath: layerPrompts.Array.data[2].layer.m_Bits
-      value: 512
-      objectReference: {fileID: 0}
-    - target: {fileID: 5315803391879672371, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
-      propertyPath: layerPrompts.Array.data[3].layer.m_Bits
-      value: 64
-      objectReference: {fileID: 0}
     - target: {fileID: 7704827832271038240, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
       propertyPath: m_Name
       value: PlayerV4 Variant

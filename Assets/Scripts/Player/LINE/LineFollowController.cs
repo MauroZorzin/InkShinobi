@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController))]
 public class LineFollowController : MonoBehaviour {
@@ -23,7 +22,6 @@ public class LineFollowController : MonoBehaviour {
   [Min(0f)] public float acceleration = 10f;
   [Min(0f)] public float deceleration = 25f;
 
-  [FormerlySerializedAs("movementEnabled")]
   [SerializeField, Tooltip("Controls manual player movement without disabling scripted path positioning.")]
   private bool manualMovementEnabled = true;
 
@@ -567,6 +565,20 @@ public class LineFollowController : MonoBehaviour {
     _speed = 0f;
     _actualSignedSpeed = 0f;
     UpdateAnimator();
+  }
+
+  /// <summary>
+  /// Continues the regular path-facing rotation while scripted movement is stationary.
+  /// This remains callable while the component is disabled by a gameplay transition.
+  /// </summary>
+  public bool ContinueScriptedFacing() {
+    if (currentLine == null || currentLine.StrandCount == 0) {
+      _facingTurnActive = false;
+      return false;
+    }
+
+    UpdateFacing();
+    return facingRotationSpeed > 0f && _facingTurnActive;
   }
 
 #if UNITY_EDITOR

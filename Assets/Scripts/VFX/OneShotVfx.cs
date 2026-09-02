@@ -1,16 +1,9 @@
 using UnityEngine;
 
 public static class OneShotVfx {
-  public static bool logSpawns = true;
-
-  [RuntimeInitializeOnLoadMethod]
-  private static void ResetStatics() {
-    logSpawns = true;
-  }
-
   public static void PlayAtPoint(ParticleSystem prefab, Vector3 position) {
     if (prefab == null) {
-      if (logSpawns) Debug.LogWarning("[OneShotVfx] PlayAtPoint called with a null prefab — nothing to spawn.");
+      Debug.LogWarning("[OneShotVfx] PlayAtPoint called with a null prefab — nothing to spawn.");
       return;
     }
 
@@ -22,10 +15,6 @@ public static class OneShotVfx {
     ParticleSystem.MainModule main = instance.main;
     float lifetime = Mathf.Max(GetMaxLifetime(main.startLifetime), 0.1f);
     float destroyDelay = main.duration + lifetime + 0.5f;
-
-    if (logSpawns) {
-      Debug.Log($"[OneShotVfx] Spawned '{prefab.name}' at {position:F2}. isPlaying={instance.isPlaying}, particleCount={instance.particleCount}, duration={main.duration:F2}, lifetime={lifetime:F2}, destroyIn={destroyDelay:F2}s.", instance);
-    }
 
     Object.Destroy(instance.gameObject, destroyDelay);
   }

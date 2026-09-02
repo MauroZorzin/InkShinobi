@@ -59,9 +59,6 @@ public class IntroWalkCutscene : MonoBehaviour {
   [Tooltip("Consecutive rightward distance the player must travel after gaining control before the tutorial clears. Stopping or moving left resets progress. Zero keeps it visible until another system clears it.")]
   [SerializeField, Min(0f)] private float completionInformationDismissDistance = 1f;
 
-  [Header("Debug")]
-  [SerializeField] private bool debugLogging = true;
-
   private static readonly int IsRunningHash = Animator.StringToHash("isRunning");
   private static readonly int VelocityHash = Animator.StringToHash("Velocity");
 
@@ -78,13 +75,13 @@ public class IntroWalkCutscene : MonoBehaviour {
   private void Start() {
     if (player == null) player = GameObject.FindWithTag("Player");
     if (player == null) {
-      if (debugLogging) Debug.LogWarning($"[IntroWalkCutscene] '{name}': Player not found. Assign in inspector or tag as 'Player'.", this);
+      Debug.LogWarning($"[IntroWalkCutscene] '{name}': Player not found. Assign in inspector or tag as 'Player'.", this);
       return;
     }
 
     _cc = player.GetComponent<CharacterController>();
     if (_cc == null) {
-      if (debugLogging) Debug.LogWarning($"[IntroWalkCutscene] '{name}': player has no CharacterController — nothing to walk.", this);
+      Debug.LogWarning($"[IntroWalkCutscene] '{name}': player has no CharacterController — nothing to walk.", this);
       return;
     }
 
@@ -138,7 +135,6 @@ public class IntroWalkCutscene : MonoBehaviour {
     RestoreGameplayInput();
     ShowCompletionInformation();
 
-    if (debugLogging) Debug.Log($"[IntroWalkCutscene] '{name}': walk complete, control returned.", this);
   }
 
   private void ShowCompletionInformation() {
@@ -219,7 +215,7 @@ public class IntroWalkCutscene : MonoBehaviour {
 
     InputActionMap uiMap = _playerInput.actions != null ? _playerInput.actions.FindActionMap("UI", false) : null;
     if (uiMap == null) {
-      if (debugLogging) Debug.LogWarning($"[IntroWalkCutscene] '{name}': PlayerInput has no 'UI' action map — input not blocked during the walk.", this);
+      Debug.LogWarning($"[IntroWalkCutscene] '{name}': PlayerInput has no 'UI' action map — input not blocked during the walk.", this);
       return;
     }
 

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 public enum DistractionSupplyMode { Infinite, InventoryItem }
 
@@ -16,7 +15,6 @@ public sealed class DistractionController : MonoBehaviour {
   [Tooltip("Infinite throws the configured projectile and uses cooldown. Inventory Item throws and consumes the carried Throwable item and ignores cooldown.")]
   [SerializeField] private DistractionSupplyMode supplyMode = DistractionSupplyMode.Infinite;
   [SerializeField] private PlayerInventory inventory;
-  [FormerlySerializedAs("projectilePrefab")]
   [SerializeField] private ThrownDistraction infiniteProjectilePrefab;
 
   [Header("Targeting")]
@@ -54,7 +52,6 @@ public sealed class DistractionController : MonoBehaviour {
 
   [Header("Aim presentation")]
   [SerializeField] private Transform cameraTransform;
-  [FormerlySerializedAs("aimingCameraLocalPosition")]
   [Tooltip("Player-relative aiming endpoint: X is lateral, Y is height, and Z is distance from the player on the camera's current side.")]
   [SerializeField] private Vector3 aimingCameraRelativePosition = new(0f, 0.5f, 3.75f);
   [SerializeField, Range(0.01f, 1f)] private float aimingTimeScale = 0.06f;
@@ -75,8 +72,6 @@ public sealed class DistractionController : MonoBehaviour {
   [SerializeField] private SpriteRenderer playerRenderer;
   [Tooltip("Horizontal camera-space distance from the player's symmetry axis inside which the anchor is considered centered and the aim point decides facing instead.")]
   [SerializeField, Min(0f)] private float aimFacingDeadZone = 0.01f;
-  [SerializeField] private bool verboseLogging;
-
   private static readonly string[] LockedActions = {
     "Move", "RotateRight", "RotateLeft", "Interact", "Look", "Drop"
   };
@@ -110,6 +105,7 @@ public sealed class DistractionController : MonoBehaviour {
   private bool hasAimFacingSnapshot;
   private Collider[] throwerColliders = System.Array.Empty<Collider>();
   private bool loggedInvalidConfiguration;
+  private PlayerInteractionDialogue interactionDialogue;
 
   public bool IsAiming => state == AimState.Aiming;
   public bool IsCameraTransitioning => cameraRoutine != null;
@@ -137,6 +133,7 @@ public sealed class DistractionController : MonoBehaviour {
     }
     preview?.Hide();
     inkArm?.Hide();
+    interactionDialogue?.SetSuppressed(this, false);
   }
 
 #if UNITY_EDITOR
@@ -198,6 +195,7 @@ public sealed class DistractionController : MonoBehaviour {
     }
 
     state = AimState.Aiming;
+    interactionDialogue?.SetSuppressed(this, true);
     CaptureAimFacing();
     movementWasEnabled = movement.enabled;
     movement.enabled = false;
@@ -223,7 +221,6 @@ public sealed class DistractionController : MonoBehaviour {
     UpdateMovingAnchorAndTrajectory();
     preview?.Show(evaluation);
     inkArm?.Show();
-    if (verboseLogging) Debug.Log("[Distraction] Aim started.", this);
     return true;
   }
 
@@ -266,7 +263,6 @@ public sealed class DistractionController : MonoBehaviour {
       Debug.LogError("[Distraction] Aim entry failed because a required reference or throwable projectile is not configured.", this);
     }
     if (reason.ShouldPlayFeedback()) rejectionFeedback?.PlayRejectedAction();
-    if (verboseLogging) Debug.Log($"[Distraction] Aim entry rejected: {reason}.", this);
   }
 
   private bool TryResolveSupply(
@@ -304,6 +300,7 @@ public sealed class DistractionController : MonoBehaviour {
 
   private void CompleteAim(bool launched, bool restoreCameraImmediately) {
     state = AimState.Idle;
+    interactionDialogue?.SetSuppressed(this, false);
     hasEvaluatedCursorPosition = false;
     hasCursorTarget = false;
     evaluation = DistractionThrowEvaluation.Empty;
@@ -329,8 +326,6 @@ public sealed class DistractionController : MonoBehaviour {
     }
 
     if (launched && supplyMode == DistractionSupplyMode.Infinite) cooldownRemaining = cooldown;
-    if (verboseLogging)
-      Debug.Log(launched ? "[Distraction] Projectile thrown." : "[Distraction] Aim cancelled.", this);
   }
 
   private bool TryLaunch(DistractionThrowEvaluation accepted) {
@@ -713,6 +708,7 @@ public sealed class DistractionController : MonoBehaviour {
     if (stealth == null) stealth = GetComponent<PlayerStealthController>();
     if (deathSequence == null) deathSequence = GetComponent<PlayerDeathSequence>();
     if (wallSwitch == null) wallSwitch = GetComponent<WallSwitchController>();
+    if (interactionDialogue == null) interactionDialogue = GetComponent<PlayerInteractionDialogue>();
     if (rejectionFeedback == null) rejectionFeedback = GetComponentInChildren<RejectedAimCameraFeedback>(true);
     if (playerRenderer == null) playerRenderer = GetComponent<SpriteRenderer>();
     if (aimCamera == null) aimCamera = GetComponentInChildren<Camera>(true);
@@ -724,20 +720,4 @@ public sealed class DistractionController : MonoBehaviour {
       throwerColliders = GetComponentsInChildren<Collider>(true);
   }
 
-#if UNITY_EDITOR
-  public void Configure(
-    ThrownDistraction projectile,
-    DistractionTrajectoryPreview authoredPreview,
-    Transform authoredThrowAnchor) {
-    infiniteProjectilePrefab = projectile;
-    preview = authoredPreview;
-    throwAnchor = authoredThrowAnchor;
-    ResolveReferences();
-    CaptureAnchorRestPosition();
-  }
-
-  public void IncludeTrajectoryObstructionLayer(int layer) {
-    if (layer >= 0 && layer < 32) trajectoryObstructionLayers |= 1 << layer;
-  }
-#endif
 }

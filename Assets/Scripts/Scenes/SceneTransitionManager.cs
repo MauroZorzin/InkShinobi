@@ -129,9 +129,6 @@ public class SceneTransitionManager : MonoBehaviour {
   [Tooltip("Seconds to fade every playing AudioSource in the NEW scene in after it loads.")]
   public float audioFadeInDuration = 0.6f;
 
-  [Header("Debug")]
-  public bool logTransitions = true;
-
   private void Awake() {
     if (Instance != null && Instance != this) {
       Destroy(gameObject);
@@ -428,7 +425,6 @@ public class SceneTransitionManager : MonoBehaviour {
     if (oldCanvasStates != null) RestoreCanvasRenderStates(oldCanvasStates);
     if (newCanvasStates != null) RestoreCanvasRenderStates(newCanvasStates);
 
-    if (logTransitions) Debug.Log("[SceneTransitionManager] Transition complete.");
     CompleteDeathTransitionFreeze();
     _isTransitioning = false;
   }

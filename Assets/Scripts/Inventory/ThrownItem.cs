@@ -61,18 +61,14 @@ public class ThrownItem : MonoBehaviour {
     _wasThrown = true;
     _armTimer = ArmDelay;
 
-    Debug.Log($"[ThrownItem] '{name}' Launch: target={targetPoint:F2}, speed={speed:F2}, velocity={_rigidbody.linearVelocity:F2}");
   }
 
   private void OnCollisionEnter(Collision collision) {
-    Debug.Log($"[ThrownItem] '{name}' OnCollisionEnter with '{collision.collider.name}'. wasThrown={_wasThrown}, hasLanded={_hasLanded}, armTimer={_armTimer:F2}");
-
     if (!_wasThrown || _hasLanded) {
       return;
     }
     if (echoPrefab != null) {
       if ((echoLayer.value & (1 << collision.collider.gameObject.layer)) == 0) {
-        Debug.Log($"[ThrownItem] '{name}' collided not with echo layer, ignoring echo pulse. collisionLayerName={LayerMask.LayerToName(collision.collider.gameObject.layer)}");
         return;
       }
     }
@@ -81,12 +77,10 @@ public class ThrownItem : MonoBehaviour {
 
     if (distractionSignal != null) {
       distractionSignal.Activate(distractionLifetime);
-      Debug.Log($"[ThrownItem] '{name}' activated distraction signal.");
     }
 
     if (echoPrefab != null) {
       echoPrefab.gameObject.SetActive(true);
-      Debug.Log($"[ThrownItem] '{name}' spawned echo pulse.");
     }
   }
 }

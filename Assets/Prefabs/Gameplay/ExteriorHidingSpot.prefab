@@ -111,9 +111,6 @@ MonoBehaviour:
   exitSound: {fileID: 8300000, guid: 8af0acf93c65fdc4086dc72b1767171f, type: 3}
   soundVolume: 1
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
-  canHidePromptText: '[X] to hide'
-  cannotHidePromptText: Can't hide now
-  hiddenPromptText: '[X] to exit'
   hiddenVignetteWeight: 0.5
   suppressVegetationBend: 1
 --- !u!114 &920000000000000030

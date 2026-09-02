@@ -19,9 +19,6 @@ public sealed class GuardSoundSignal : MonoBehaviour {
   [SerializeField] private LayerMask guardLayers;
   [SerializeField, Range(8, 256)] private int overlapCapacity = 64;
 
-  [Header("Debug")]
-  public bool verboseLogging;
-
   private readonly HashSet<GuardController> notifiedGuards = new();
   private Collider[] overlapBuffer;
   private Collider signalCollider;
@@ -85,8 +82,6 @@ public sealed class GuardSoundSignal : MonoBehaviour {
     for (int i = 0; i < hitCount; i++) TryNotifyGuard(overlapBuffer[i]);
     if (hitCount == overlapBuffer.Length)
       Debug.LogWarning($"[SoundSignal] '{name}' filled its overlap buffer; increase Overlap Capacity.", this);
-    if (verboseLogging)
-      Debug.Log($"[SoundSignal] '{name}' notified {notifiedGuards.Count} guard(s) within {AudibleRadius:F2} units.", this);
   }
 
   private void TryNotifyGuard(Collider candidate) {
@@ -122,11 +117,5 @@ public sealed class GuardSoundSignal : MonoBehaviour {
     Gizmos.DrawWireSphere(transform.position, AudibleRadius);
   }
 
-  public void Configure(float radius, LayerMask layers) {
-    audibleRadius = Mathf.Max(0.01f, radius);
-    guardLayers = layers;
-    lifetime = 0f;
-    IsActive = false;
-  }
 #endif
 }

@@ -115,7 +115,4 @@ public sealed class DistractionTrajectoryPreview : MonoBehaviour {
     renderer.SetPropertyBlock(properties);
   }
 
-#if UNITY_EDITOR
-  public void Configure(Material authoredInkMaterial) => inkMaterial = authoredInkMaterial;
-#endif
 }

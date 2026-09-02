@@ -51,12 +51,6 @@ public class GuardVisionCone : MonoBehaviour {
   [Tooltip("Draws vision cone gizmos in the Scene view.")]
   public bool showGizmos = true;
 
-  [Tooltip("Prints scan details to the console.")]
-  public bool verboseLogging = false;
-
-  [Tooltip("Draws runtime rays for scan direction and line-of-sight checks.")]
-  public bool showRuntimeRay = true;
-
   /// <summary>Whether this guard has fully confirmed a player detection.</summary>
   public bool PlayerDetected { get; private set; } = false;
 
@@ -100,15 +94,7 @@ public class GuardVisionCone : MonoBehaviour {
   private void ScanForPlayer() {
     Vector3 eye = EyeOrigin;
 
-    if (showRuntimeRay) {
-      Debug.DrawRay(eye, transform.forward * shortRange, new Color(1f, 0.55f, 0f));
-    }
-
     Collider[] hits = Physics.OverlapSphere(eye, longRange, playerLayerMask);
-
-    if (verboseLogging) {
-      Debug.Log($"[VisionCone] '{name}' | eye={eye:F2} | OverlapSphere(r={longRange}, mask={playerLayerMask.value}) -> {hits.Length} hit(s)");
-    }
 
     float strongestVisibility = 0f;
     PlayerStealthController candidate = null;
@@ -116,17 +102,11 @@ public class GuardVisionCone : MonoBehaviour {
     foreach (Collider col in hits) {
       PlayerStealthController playerStealth = col.GetComponentInParent<PlayerStealthController>();
       if (playerStealth == null) {
-        if (verboseLogging) {
-          Debug.Log($"[VisionCone] '{col.name}' skipped; no PlayerStealthController found in parents.");
-        }
         continue;
       }
       if (playerStealth.IsConcealed) continue;
 
       if (playerStealth.IsUndetectable) {
-        if (verboseLogging) {
-          Debug.Log($"[VisionCone] '{playerStealth.name}' skipped; IsUndetectable.");
-        }
         continue;
       }
 
@@ -156,21 +136,6 @@ public class GuardVisionCone : MonoBehaviour {
       float visibilityStrength = hasLineOfSight
         ? Mathf.Max(inShortCone ? 1f : 0f, insideLongGeometry && playerStealth.IsInLight ? playerExposure : 0f)
         : 0f;
-      bool inLongCone = insideLongGeometry && playerStealth.IsInLight;
-      bool inCone = visibilityStrength > 0f;
-
-      if (verboseLogging) {
-        Debug.Log(
-          $"[VisionCone] '{playerStealth.name}' | dist={distance:F2}m angle={horizontalAngle:F1} deg " +
-          $"| inShort={inShortCone} | inLong={inLongCone} | exposure={playerExposure:F2} " +
-          $"| LOS={hasLineOfSight} -> strength={visibilityStrength:F2}"
-        );
-      }
-
-      if (showRuntimeRay) {
-        Debug.DrawLine(eye, aimPosition, inCone ? Color.green : Color.red);
-      }
-
       if (visibilityStrength > strongestVisibility) {
         strongestVisibility = visibilityStrength;
         candidate = playerStealth;
@@ -197,17 +162,13 @@ public class GuardVisionCone : MonoBehaviour {
     // Interaction volumes (for example a wardrobe's HideSpot trigger) describe where the
     // player may interact; they are not physical surfaces and must not occlude guard sight.
     // Real walls and other solid colliders in obstacleMask continue to block this ray.
-    var blocked = Physics.Raycast(
+    bool blocked = Physics.Raycast(
       origin,
       direction,
-      out RaycastHit hit,
+      out _,
       rayDistance,
       obstacleMask,
       QueryTriggerInteraction.Ignore);
-
-    if (blocked && verboseLogging) {
-      Debug.Log($"[VisionCone] LOS blocked by '{hit.collider?.name}' at {hit.distance:F2}m.");
-    }
 
     return !blocked;
   }
@@ -247,7 +208,6 @@ public class GuardVisionCone : MonoBehaviour {
       PlayerDetected = false;
       DetectedPlayer = null;
       _wasDetectedLastFrame = false;
-      Debug.Log($"[VisionCone] '{name}' lost the player.");
     }
   }
 
@@ -304,17 +264,9 @@ public class GuardVisionCone : MonoBehaviour {
                      && angle <= longAngle * 0.5f
                      && fixedLightExposure >= doorInteractionExposureThreshold;
     bool hasLineOfSight = HasLineOfSightToDoor(eye, target, door);
-    if (verboseLogging)
-      Debug.Log(
-        $"[VisionCone] Door interaction '{door.name}': distance={distance:F2}, angle={angle:F1}, " +
-        $"near={insideNear}, farLit={insideFar}, fixedExposure={fixedLightExposure:F2}, LOS={hasLineOfSight}.", this);
     if ((!insideNear && !insideFar) || !hasLineOfSight) return false;
 
     ConfirmDetection(player);
-    if (verboseLogging)
-      Debug.Log(
-        $"[VisionCone] '{name}' confirmed '{player.name}' from door interaction at '{door.name}' " +
-        $"(near={insideNear}, farLit={insideFar}).", this);
     return true;
   }
 
@@ -404,8 +356,6 @@ public class GuardVisionCone : MonoBehaviour {
     }
 
     bool visible = nearest.collider == null || door.OwnsCollider(nearest.collider);
-    if (!visible && verboseLogging)
-      Debug.Log($"[VisionCone] Door LOS blocked by '{nearest.collider.name}' at {nearest.distance:F2}m.", this);
     return visible;
   }
 
@@ -423,7 +373,6 @@ public class GuardVisionCone : MonoBehaviour {
     CurrentVisibilityStrength = 1f;
     if (beginsDetection) {
       player.OnGuardStartsDetecting();
-      Debug.Log($"[VisionCone] '{name}' CONFIRMED detection of '{player.name}'!");
     }
   }
 

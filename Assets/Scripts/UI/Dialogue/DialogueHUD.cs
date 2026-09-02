@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Single shared HUD text element driven by three independent content sources, in priority order:
-/// Dialogue (highest) > Interaction prompt (PlayerInteractor) > Information/tutorial hints
+/// Dialogue (highest) > Interaction prompt (PlayerInteractionDialogue) > Information/tutorial hints
 /// (InformationTrigger). Whichever active source has the highest priority owns the shared label;
 /// when it clears, display falls back to the next highest-priority still-active source.
 ///
@@ -119,7 +119,7 @@ public class DialogueHUD : MonoBehaviour {
     ClearInformation();
   }
 
-  /// <summary>Driven every frame by PlayerInteractor — no duration, it just tracks proximity.</summary>
+  /// <summary>Driven every frame by the player's interaction dialogue policy — no duration.</summary>
   public void ShowInteractionPrompt(string text) => SetSlot(Source.Interaction, text);
 
   public void ClearInteractionPrompt() => SetSlot(Source.Interaction, null);

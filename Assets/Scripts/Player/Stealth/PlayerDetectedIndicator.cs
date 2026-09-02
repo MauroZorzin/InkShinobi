@@ -76,7 +76,6 @@ public class PlayerDetectedIndicator : MonoBehaviour {
 
     if (detected != _wasDetected) {
       _wasDetected = detected;
-      Debug.Log($"[PlayerDetectedIndicator] '{name}': player='{player.name}' ({player.GetInstanceID()}), detected={detected}, guards={player.DetectingGuardCount}, volume.weight={_volume.weight:F2}", this);
       AudioClip cue = detected ? detectedStartSound : detectedEndSound;
       if (cue != null) {
         OneShotAudio.PlayClipAtPoint(cue, player.transform.position, soundVolume, mixerGroup);

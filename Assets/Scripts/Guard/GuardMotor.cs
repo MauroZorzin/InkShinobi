@@ -27,26 +27,13 @@ public sealed class GuardMotor : MonoBehaviour {
   [Tooltip("Velocity below this value does not change the guard's facing.")]
   [SerializeField, Min(0f)] private float facingVelocityThreshold = 0.02f;
 
-  [Header("Navigation Diagnostics")]
-  [Tooltip("Logs accepted destinations, incomplete paths, and stalls. Intended for temporary play-test diagnosis.")]
-  [SerializeField] private bool verboseNavigation;
-  [SerializeField, Min(0.05f)] private float stallWarningDelay = 0.75f;
-  [SerializeField, Min(0.1f)] private float repeatedWarningInterval = 1.5f;
-  [SerializeField, Min(0f)] private float stallVelocityThreshold = 0.02f;
-
   private NavMeshAgent agent;
   private bool manualFacing;
   private Quaternion requestedFacing;
   private float requestedTurnSpeed;
   private float runtimeTurnSpeed;
   private bool hasNavigationRequest;
-  private Vector3 requestedDestination;
   private Vector3 sampledDestination;
-  private string requestContext;
-  private float stalledDuration;
-  private float nextWarningTime;
-  private Vector3 lastLoggedDestination;
-  private bool hasLoggedDestination;
   private NavMeshPath pathBuffer;
   private readonly Vector3[] routeCornerBuffer = new Vector3[64];
   private GuardKeyCarrier keyCarrier;
@@ -109,7 +96,6 @@ public sealed class GuardMotor : MonoBehaviour {
 
   private void LateUpdate() {
     UpdateDoorTraversal();
-    UpdateNavigationDiagnostics();
     if (!IsReady) return;
 
     if (manualFacing) {
@@ -140,59 +126,29 @@ public sealed class GuardMotor : MonoBehaviour {
     return agent.Warp(hit.position);
   }
 
-  public bool MoveTo(Vector3 worldPosition, float speed, float stoppingDistance, string context = null) {
-    if (!EnsureOnNavMesh()) {
-      LogNavigationWarning($"rejected '{context ?? "Unspecified"}' destination because the agent is not on a usable NavMesh. requested={Format(worldPosition)}");
-      return false;
-    }
+  public bool MoveTo(Vector3 worldPosition, float speed, float stoppingDistance) {
+    if (!EnsureOnNavMesh()) return false;
     if (!NavMesh.SamplePosition(worldPosition, out NavMeshHit hit, destinationSampleRadius, agent.areaMask)) {
-      LogNavigationWarning(
-        $"could not sample '{context ?? "Unspecified"}' destination within {destinationSampleRadius:F2}m. " +
-        $"requested={Format(worldPosition)}, agentPosition={Format(transform.position)}, areaMask={agent.areaMask}");
       return false;
     }
 
     if (pathBuffer == null) pathBuffer = new NavMeshPath();
     bool pathCalculated = agent.CalculatePath(hit.position, pathBuffer);
     if (!pathCalculated || pathBuffer.status != NavMeshPathStatus.PathComplete) {
-      LogNavigationWarning(
-        $"rejected '{context ?? "Unspecified"}' because its path is " +
-        $"{(pathCalculated ? pathBuffer.status.ToString() : "not calculable")}. " +
-        $"requested={Format(worldPosition)}, sampled={Format(hit.position)}, agentPosition={Format(transform.position)}");
       return false;
     }
 
     agent.speed = Mathf.Max(0f, speed);
     agent.stoppingDistance = Mathf.Max(0f, stoppingDistance);
     bool accepted = agent.SetPath(pathBuffer);
-    if (!accepted) {
-      LogNavigationWarning(
-        $"NavMeshAgent rejected '{context ?? "Unspecified"}' destination. " +
-        $"requested={Format(worldPosition)}, sampled={Format(hit.position)}");
-      return false;
-    }
+    if (!accepted) return false;
 
     manualFacing = false;
     movementRequested = true;
     agent.isStopped = false;
 
-    bool materiallyDifferent = !hasNavigationRequest
-                               || (hit.position - sampledDestination).sqrMagnitude > 0.25f;
-    requestedDestination = worldPosition;
     sampledDestination = hit.position;
-    requestContext = string.IsNullOrWhiteSpace(context) ? "Unspecified" : context;
     hasNavigationRequest = true;
-    if (materiallyDifferent) stalledDuration = 0f;
-
-    if (verboseNavigation && (!hasLoggedDestination ||
-        (hit.position - lastLoggedDestination).sqrMagnitude > 0.25f)) {
-      hasLoggedDestination = true;
-      lastLoggedDestination = hit.position;
-      Debug.Log(
-        $"[GuardMotor] '{name}' accepted {requestContext} destination: " +
-        $"requested={Format(requestedDestination)}, sampled={Format(sampledDestination)}, " +
-        $"speed={agent.speed:F2}, stop={agent.stoppingDistance:F2}.", this);
-    }
 
     return true;
   }
@@ -205,7 +161,6 @@ public sealed class GuardMotor : MonoBehaviour {
     if (clearPath) {
       if (agent.hasPath) agent.ResetPath();
       hasNavigationRequest = false;
-      stalledDuration = 0f;
     }
   }
 
@@ -358,64 +313,10 @@ public sealed class GuardMotor : MonoBehaviour {
     if (resumeMovement && IsReady && movementRequested) agent.isStopped = false;
   }
 
-  private void UpdateNavigationDiagnostics() {
-    if (!verboseNavigation || stoppedForDoor || !hasNavigationRequest || agent == null || !agent.enabled) return;
-    if (!agent.isOnNavMesh) {
-      WarnThrottled("left the NavMesh while a destination was active");
-      return;
-    }
-    if (agent.pathPending) {
-      return;
-    }
-
-    float directDistance = HorizontalDistance(transform.position, sampledDestination);
-    float arrivalThreshold = agent.stoppingDistance + 0.05f;
-    if (directDistance <= arrivalThreshold) {
-      stalledDuration = 0f;
-      return;
-    }
-
-    if (agent.hasPath && agent.pathStatus != NavMeshPathStatus.PathComplete)
-      WarnThrottled($"has an incomplete path ({agent.pathStatus})");
-
-    bool effectivelyStill = agent.velocity.sqrMagnitude <= stallVelocityThreshold * stallVelocityThreshold;
-    bool cannotAdvance = agent.isStopped || !agent.hasPath || effectivelyStill;
-    if (!cannotAdvance) {
-      stalledDuration = 0f;
-      return;
-    }
-
-    stalledDuration += Time.deltaTime;
-    if (stalledDuration >= stallWarningDelay)
-      WarnThrottled(agent.isStopped ? "is still marked stopped" : !agent.hasPath ? "has no path" : "has near-zero velocity");
-  }
-
-  private void WarnThrottled(string reason) {
-    if (Time.unscaledTime < nextWarningTime) return;
-    nextWarningTime = Time.unscaledTime + repeatedWarningInterval;
-    Debug.LogWarning(
-      $"[GuardMotor] NAVIGATION ISSUE on '{name}' ({requestContext}): {reason}. " +
-      $"position={Format(transform.position)}, requested={Format(requestedDestination)}, " +
-      $"sampled={Format(sampledDestination)}, isOnNavMesh={agent != null && agent.isOnNavMesh}, " +
-      $"isStopped={agent != null && agent.isStopped}, hasPath={agent != null && agent.hasPath}, " +
-      $"pathPending={agent != null && agent.pathPending}, pathStatus={(agent != null && agent.hasPath ? agent.pathStatus.ToString() : "NoPath")}, " +
-      $"remaining={(agent != null && agent.isOnNavMesh ? agent.remainingDistance : float.PositiveInfinity):F3}, " +
-      $"directDistance={HorizontalDistance(transform.position, sampledDestination):F3}, " +
-      $"velocity={(agent != null ? agent.velocity.magnitude : 0f):F3}, " +
-      $"desiredVelocity={(agent != null ? agent.desiredVelocity.magnitude : 0f):F3}.", this);
-  }
-
-  private void LogNavigationWarning(string message) {
-    if (verboseNavigation) Debug.LogWarning($"[GuardMotor] '{name}' {message}", this);
-  }
-
   private static float HorizontalDistance(Vector3 a, Vector3 b) {
     Vector3 delta = a - b;
     delta.y = 0f;
     return delta.magnitude;
   }
-
-  private static string Format(Vector3 value) =>
-    $"({value.x:F3}, {value.y:F3}, {value.z:F3})";
 
 }

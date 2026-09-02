@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.Serialization;
 
 /// <summary>Authoritative player-side lifecycle for entering, occupying, and exiting hiding spots.</summary>
 [DisallowMultipleComponent]
@@ -24,7 +23,6 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
   [Header("Camera")]
   [SerializeField] private Transform cameraTransform;
-  [FormerlySerializedAs("hiddenCameraLocalOffset")]
   [Tooltip("Player-relative hidden endpoint: X is lateral, Y is height, and Z is distance from the player on the camera's current side.")]
   [SerializeField] private Vector3 hiddenCameraRelativePosition = new(0f, 0.21f, 1.55f);
   [SerializeField, Min(0.05f)] private float cameraBlendDuration = 0.4f;
@@ -116,11 +114,7 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
   public bool TryEnter(HidingSpot spot) {
     ResolveReferences();
-    if (!CanEnter(spot)) {
-      if (spot != null && stealth != null && stealth.IsCurrentlyVisible)
-        spot.ShowRejectedFeedback();
-      return false;
-    }
+    if (!CanEnter(spot)) return false;
     if (!spot.TryOccupy(this)) return false;
 
     CurrentSpot = spot;
@@ -177,8 +171,14 @@ public sealed class PlayerHidingController : MonoBehaviour {
 
     if (hasPathHidePoint) {
       SetHideRoutePosition(hidePathRouteLength, scriptedSpeed, ref activeLeg);
-      movement.SetLine(hidePathLine, hidePathStrand, hidePathDistance);
       movement.FinishScriptedPathMovement();
+
+      // Scripted path travel can reach a corner too late for the normal rate-limited facing
+      // rotation to finish during the positional blend. Keep the player at the hide point while
+      // that same rotation settles so its child camera cannot freeze at an intermediate angle.
+      while (movement.ContinueScriptedFacing()) yield return null;
+
+      movement.SetLine(hidePathLine, hidePathStrand, hidePathDistance);
       hidePosition = transform.position;
       hideRotation = transform.rotation;
     }

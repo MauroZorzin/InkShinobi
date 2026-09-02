@@ -17,9 +17,6 @@ public class PlayerFlipController : MonoBehaviour {
   [Tooltip("If true, a flip already in progress ignores new Q/E presses until it finishes instead of restarting mid-turn.")]
   public bool blockInputDuringFlip = true;
 
-  [Header("Debug")]
-  public bool logFlips = true;
-
   private Coroutine _flipRoutine;
   private bool _isFlipping;
 
@@ -50,7 +47,6 @@ public class PlayerFlipController : MonoBehaviour {
 
   private IEnumerator FlipRoutine(float degrees) {
     _isFlipping = true;
-    if (logFlips) Debug.Log($"[PlayerFlipController] Flip started: {degrees}°.");
 
     Quaternion startRot = transform.rotation;
     Vector3 worldAxis = transform.TransformDirection(rotationAxis.sqrMagnitude > 0.0001f ? rotationAxis.normalized : Vector3.up);
@@ -72,6 +68,5 @@ public class PlayerFlipController : MonoBehaviour {
 
     _isFlipping = false;
     _flipRoutine = null;
-    if (logFlips) Debug.Log("[PlayerFlipController] Flip complete.");
   }
 }

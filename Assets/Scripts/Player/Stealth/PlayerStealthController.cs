@@ -61,10 +61,6 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   [Tooltip("Optional component implementing ILightExposureProvider. If empty, a provider on this GameObject is used.")]
   [SerializeField] private MonoBehaviour lightExposureProvider;
 
-  [Header("Debug")]
-  [Tooltip("Draws the current stealth state above the player in the Game view.")]
-  public bool debug = true;
-
   // -------------------------------------------------------------------------
   // Private state
   // -------------------------------------------------------------------------
@@ -105,7 +101,6 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   /// </summary>
   private void RefreshState() {
     StealthState next = ComputeState();
-    if (debug) Debug.Log($"[PlayerStealthController] '{name}': RefreshState() => {next} (HiddenTimer={_hiddenTimer:F2}, DetectingGuardCount={DetectingGuardCount}, IsInLight={IsInLight}), LightSourceCount={_lightSourceCount}", this);
     if (next == CurrentState) return;
 
     CurrentState = next;
@@ -151,13 +146,11 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   // -------------------------------------------------------------------------
 
   public void EnterLight() {
-    Debug.Log($"[PlayerStealthController] '{name}': EnterLight");
     _lightSourceCount++;
     RefreshState();
   }
 
   public void ExitLight() {
-    Debug.Log($"[PlayerStealthController] '{name}': ExitLight");
     _lightSourceCount = Mathf.Max(0, _lightSourceCount - 1);
     RefreshState();
   }

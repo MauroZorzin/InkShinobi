@@ -8,11 +8,10 @@ using UnityEngine.InputSystem;
 /// that begin at the player's feet. DialogueHUD decides whether the prompt is actually visible; an
 /// active dialogue message takes priority over it.
 /// </summary>
+[RequireComponent(typeof(PlayerInteractionDialogue))]
 public class PlayerInteractor : MonoBehaviour {
   private const int InitialHitBufferSize = 16;
   private const int MaximumHitBufferSize = 256;
-
-  private enum InteractionCategory { Default, Pickup, Door, HidingSpot }
 
   [System.Serializable]
   private sealed class InteractionReach {
@@ -33,16 +32,15 @@ public class PlayerInteractor : MonoBehaviour {
 
   [System.Serializable]
   private sealed class CategoryReachOverride {
-    public InteractionCategory category;
+    public InteractionCategory category = InteractionCategory.Default;
     [Tooltip("Interactable layers belonging to this category.")]
     public LayerMask layers;
     public InteractionReach reach = new();
   }
 
   [System.Serializable]
-  private sealed class LayerPrompt {
+  private sealed class InteractableLayer {
     public LayerMask layer;
-    public string text = "Interagisci";
   }
 
   private readonly struct CandidateHit {
@@ -65,6 +63,9 @@ public class PlayerInteractor : MonoBehaviour {
   [Tooltip("Camera whose player-facing horizontal axis defines forward reach. Leave empty to use the player's child camera or Camera.main.")]
   [SerializeField] private Camera interactionCamera;
 
+  [Tooltip("Player-owned interaction dialogue policy.")]
+  [SerializeField] private PlayerInteractionDialogue interactionDialogue;
+
   [Header("Interaction Reach")]
   [Tooltip("Fallback reach for interactable layers not assigned to a category override.")]
   [SerializeField] private InteractionReach defaultReach = new();
@@ -75,9 +76,9 @@ public class PlayerInteractor : MonoBehaviour {
   [Tooltip("Only these solid layers can obstruct an otherwise valid interaction. Wall is enabled by default.")]
   [SerializeField] private LayerMask interactionObstructionLayers = 1 << 8;
 
-  [Header("Prompts")]
-  [Tooltip("Which layers count as interactable, and what fallback prompt text to show for each.")]
-  [SerializeField] private LayerPrompt[] layerPrompts = System.Array.Empty<LayerPrompt>();
+  [Header("Interactable Layers")]
+  [Tooltip("Layers queried for IInteractable components. Dialogue text is configured by Player Interaction Dialogue.")]
+  [SerializeField] private InteractableLayer[] interactableLayers = System.Array.Empty<InteractableLayer>();
 
   public bool interactionSuppressed;
 
@@ -95,6 +96,7 @@ public class PlayerInteractor : MonoBehaviour {
   private void Awake() {
     EnsureValidSettings();
     _movement = GetComponent<LineFollowController>();
+    if (interactionDialogue == null) interactionDialogue = GetComponent<PlayerInteractionDialogue>();
     if (rejectionFeedback == null)
       rejectionFeedback = GetComponentInChildren<RejectedAimCameraFeedback>(true);
     ResolveInteractionCamera();
@@ -245,7 +247,7 @@ public class PlayerInteractor : MonoBehaviour {
 
   private int InteractableMask() {
     int mask = 0;
-    foreach (LayerPrompt entry in layerPrompts) {
+    foreach (InteractableLayer entry in interactableLayers) {
       if (entry != null) mask |= entry.layer.value;
     }
     return mask;
@@ -256,17 +258,12 @@ public class PlayerInteractor : MonoBehaviour {
   }
 
   private void UpdatePrompt(Collider target, IInteractable interactable) {
-    if (DialogueHUD.Instance == null) return;
-
-    string text = null;
-    if (interactable != null) {
-      text = (interactable as IInteractionPrompt)?.GetPromptText(inventory);
-      if (string.IsNullOrEmpty(text) && target != null)
-        text = TextForLayer(target.gameObject.layer);
+    if (interactionDialogue == null) interactionDialogue = GetComponent<PlayerInteractionDialogue>();
+    if (target == null || !IsUnityInterfaceAlive(interactable)) {
+      interactionDialogue?.Clear();
+      return;
     }
-
-    if (string.IsNullOrEmpty(text)) DialogueHUD.Instance.ClearInteractionPrompt();
-    else DialogueHUD.Instance.ShowInteractionPrompt(text);
+    interactionDialogue?.Show(target, interactable, inventory, CategoryForLayer(target.gameObject.layer));
   }
 
   private void OnDisable() {
@@ -274,7 +271,7 @@ public class PlayerInteractor : MonoBehaviour {
     _currentFocus = null;
     _currentTarget = null;
     _candidateHits.Clear();
-    DialogueHUD.Instance?.ClearInteractionPrompt();
+    interactionDialogue?.Clear();
   }
 
   private void SetFocusStateIfAlive(IInteractionFocus focus, bool focused) {
@@ -286,12 +283,14 @@ public class PlayerInteractor : MonoBehaviour {
     return value is not Object unityObject || unityObject != null;
   }
 
-  private string TextForLayer(int layer) {
-    foreach (LayerPrompt entry in layerPrompts) {
-      if (entry != null && (entry.layer.value & (1 << layer)) != 0)
-        return entry.text;
+  private InteractionCategory CategoryForLayer(int layer) {
+    int layerBit = 1 << layer;
+    for (int i = 0; i < categoryOverrides.Length; i++) {
+      CategoryReachOverride category = categoryOverrides[i];
+      if (category != null && (category.layers.value & layerBit) != 0)
+        return category.category;
     }
-    return null;
+    return InteractionCategory.Default;
   }
 
   private void OnValidate() {
@@ -302,7 +301,7 @@ public class PlayerInteractor : MonoBehaviour {
     defaultReach ??= new InteractionReach();
     defaultReach.Clamp();
     categoryOverrides ??= System.Array.Empty<CategoryReachOverride>();
-    layerPrompts ??= System.Array.Empty<LayerPrompt>();
+    interactableLayers ??= System.Array.Empty<InteractableLayer>();
     for (int i = 0; i < categoryOverrides.Length; i++) {
       CategoryReachOverride category = categoryOverrides[i];
       if (category?.reach != null) category.reach.Clamp();
@@ -315,38 +314,4 @@ public class PlayerInteractor : MonoBehaviour {
     if (interactionCamera == null) interactionCamera = Camera.main;
   }
 
-  private void OnDrawGizmosSelected() {
-    EnsureValidSettings();
-    LineFollowController previousMovement = _movement;
-    if (_movement == null) _movement = GetComponent<LineFollowController>();
-
-    DrawReachGizmo(ReachOrDefault(defaultReach), new Color(1f, 1f, 1f, 0.9f));
-    for (int i = 0; i < categoryOverrides.Length; i++) {
-      CategoryReachOverride category = categoryOverrides[i];
-      if (category == null) continue;
-      DrawReachGizmo(ReachOrDefault(category.reach), CategoryColor(category.category));
-    }
-
-    _movement = previousMovement;
-  }
-
-  private void DrawReachGizmo(InteractionReach reach, Color color) {
-    GetBox(reach, out Vector3 center, out Vector3 halfExtents, out Quaternion orientation);
-    Matrix4x4 previousMatrix = Gizmos.matrix;
-    Color previousColor = Gizmos.color;
-    Gizmos.matrix = Matrix4x4.TRS(center, orientation, Vector3.one);
-    Gizmos.color = color;
-    Gizmos.DrawWireCube(Vector3.zero, halfExtents * 2f);
-    Gizmos.matrix = previousMatrix;
-    Gizmos.color = previousColor;
-  }
-
-  private static Color CategoryColor(InteractionCategory category) {
-    return category switch {
-      InteractionCategory.Pickup => new Color(0.2f, 0.85f, 1f, 0.9f),
-      InteractionCategory.Door => new Color(1f, 0.75f, 0.15f, 0.9f),
-      InteractionCategory.HidingSpot => new Color(0.35f, 1f, 0.35f, 0.9f),
-      _ => new Color(1f, 1f, 1f, 0.9f)
-    };
-  }
 }

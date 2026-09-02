@@ -72,23 +72,8 @@ public class FloorCircleIndicator : MonoBehaviour {
   [ContextMenu("Bake")]
   public void Bake() {
     SnapToFloor();
-    int blocked = BakeOcclusion();
+    BakeOcclusion();
     ApplyMaterial();
-    Debug.Log($"[FloorCircleIndicator] '{name}': baked {bakeResolution * bakeResolution} samples, {blocked} block by obstacleMask (layers: {LayerMaskNames(obstacleMask)}).", this);
-  }
-
-  private static string LayerMaskNames(LayerMask mask) {
-    if (mask.value == 0) {
-      return "NONE";
-    }
-
-    var names = new System.Collections.Generic.List<string>();
-    for (int i = 0; i < 32; i++) {
-      if ((mask.value & (1 << i)) != 0) {
-        names.Add(LayerMask.LayerToName(i));
-      }
-    }
-    return string.Join(", ", names);
   }
 
   private void OnDrawGizmosSelected() {
@@ -185,7 +170,7 @@ public class FloorCircleIndicator : MonoBehaviour {
     return Mathf.Approximately(divisor, 0f) ? value : value / divisor;
   }
 
-  private int BakeOcclusion() {
+  private void BakeOcclusion() {
     int res = Mathf.Max(4, bakeResolution);
 
     if (_occlusionTexture == null || _bakedResolution != res) {
@@ -199,8 +184,6 @@ public class FloorCircleIndicator : MonoBehaviour {
     }
 
     Vector3 lightOrigin = transform.position + transform.up * lightSourceHeight;
-    int blockedCount = 0;
-
     for (int y = 0; y < res; y++) {
       float v = (y + 0.5f) / res;
       float offsetZ = (v - 0.5f) * radius * 2f;
@@ -211,10 +194,6 @@ public class FloorCircleIndicator : MonoBehaviour {
 
         Vector3 samplePoint = transform.position + transform.right * offsetX + transform.forward * offsetZ;
         bool blocked = obstacleMask.value != 0 && Physics.Linecast(lightOrigin, samplePoint, obstacleMask);
-        if (blocked) {
-          blockedCount++;
-        }
-
         byte value = blocked ? (byte)0 : (byte)255;
         _occlusionPixels[y * res + x] = new Color32(value, value, value, value);
       }
@@ -222,7 +201,6 @@ public class FloorCircleIndicator : MonoBehaviour {
 
     _occlusionTexture.SetPixels32(_occlusionPixels);
     _occlusionTexture.Apply();
-    return blockedCount;
   }
 
   private void ApplyMaterial() {

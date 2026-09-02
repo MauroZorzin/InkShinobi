@@ -129,7 +129,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GuardSoundSignal
   IsActive: 0
   lifetime: 0
-  verboseLogging: 0
 --- !u!114 &2242622173021596187
 MonoBehaviour:
   m_ObjectHideFlags: 0

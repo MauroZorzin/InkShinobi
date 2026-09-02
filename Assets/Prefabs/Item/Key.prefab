@@ -108,7 +108,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   item: {fileID: 11400000, guid: dd56920a17dddb949bf7557b3592ac16, type: 2}
-  pickupPromptText: '[X] to pickup'
   destroyOnPickup: 1
   runtimeItemId: 
   hasColorOverride: 0

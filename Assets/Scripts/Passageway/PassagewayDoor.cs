@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 
 /// <summary>
 /// Sliding passageway door. A door may start locked; the matching runtime key is consumed once,
 /// after which the door stays unlocked and can always be opened and closed.
 /// </summary>
-public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, IInteractionFocus {
+public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, IInteractionCategoryProvider {
   public enum PassageState { Closed, Opening, Open, Closing }
   public enum GuardPassageResult { Granted, Waiting, WaitingForPlayerPath, Denied }
+  public enum InteractionState { Open, Close, Locked, Unavailable }
   private enum SlideAxis { LocalX, LocalZ }
   private enum MotionEasing { Linear, SmoothStep, EaseInOutSine, EaseOutCubic, EaseInOutCubic, CustomCurve }
 
@@ -42,19 +42,14 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
   [SerializeField] private LayerMask passageOccupantLayers = (1 << 3) | (1 << 7);
 
   [Header("Lock")]
-  [FormerlySerializedAs("requiresItemToOpen")]
   [Tooltip("When enabled, this door begins locked and needs the matching key once.")]
   [SerializeField] private bool startsLocked;
-  [FormerlySerializedAs("requiredItemId")]
   [Tooltip("Stable id that must match the runtime id of the carried key.")]
   [SerializeField] private string requiredKeyId = "door_key";
   [Tooltip("Authored lock/key colour. Door-panel colouring can use this in the later visual pass.")]
   [SerializeField] private Color requiredKeyColor = new(0.25f, 0.7f, 1f, 1f);
   [Tooltip("Name shown in the locked interaction prompt, for example Blue or Purple.")]
   [SerializeField] private string requiredKeyColorName = "Blue";
-  [FormerlySerializedAs("requiresItemToClose")]
-  [SerializeField, HideInInspector] private bool obsoleteRequiresItemToClose;
-
   [Header("Audio")]
   [SerializeField] private AudioSource audioSource;
   [SerializeField] private AudioClip openStartClip;
@@ -62,16 +57,6 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
   [SerializeField] private AudioClip openEndClip;
   [SerializeField] private AudioClip closeEndClip;
   [SerializeField, Range(0f, 1f)] private float audioVolume = 1f;
-
-  [Header("Interaction Prompt")]
-  [Tooltip("Shown while an unlocked door is closed.")]
-  [SerializeField] private string openActionPromptText = "[X] to open";
-
-  [Tooltip("Shown while an unlocked door is open.")]
-  [SerializeField] private string closeActionPromptText = "[X] to close";
-
-  [Tooltip("Shown while door movement is temporarily prevented.")]
-  [SerializeField] private string unavailablePromptText = "Can't open now";
 
   public bool IsOpen { get; private set; }
   public PassageState CurrentState { get; private set; } = PassageState.Closed;
@@ -84,6 +69,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
   public string RequiredKeyColorName => requiredKeyColorName;
   public Transform LeftDoorPanel => leftDoorPanel;
   public Transform RightDoorPanel => rightDoorPanel;
+  public InteractionCategory InteractionCategory => InteractionCategory.Door;
   public bool IsHeldClosedByPlayer => CurrentState == PassageState.Closed && PlayerOccupiesDoorPath(null);
   public static IReadOnlyCollection<PassagewayDoor> ActiveDoors => ActiveDoorSet;
 
@@ -106,23 +92,12 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
 
   public void Interact(PlayerInventory inventory) => TryToggle(inventory);
 
-  public string GetPromptText(PlayerInventory inventory) {
-    if (animationCoroutine != null) return unavailablePromptText;
-    if (temporaryLockedGuardPassage || HasActiveGuardTraffic()) return unavailablePromptText;
-    if (PlayerOccupiesDoorPath(inventory)) return unavailablePromptText;
-    if (IsOpen) return closeActionPromptText;
-    if (!IsLocked) return openActionPromptText;
-    return PlayerHasRequiredKey(inventory)
-      ? openActionPromptText
-      : GetLockedPromptText();
-  }
-
-  private string GetLockedPromptText() {
-    string colorName = string.IsNullOrWhiteSpace(requiredKeyColorName)
-      ? "Unknown"
-      : requiredKeyColorName.Trim();
-    string colorHex = ColorUtility.ToHtmlStringRGB(requiredKeyColor);
-    return $"Requires <color=#{colorHex}>{colorName}</color> key";
+  public InteractionState GetInteractionState(PlayerInventory inventory) {
+    if (animationCoroutine != null || temporaryLockedGuardPassage || HasActiveGuardTraffic()
+        || PlayerOccupiesDoorPath(inventory)) return InteractionState.Unavailable;
+    if (IsOpen) return InteractionState.Close;
+    if (!IsLocked || PlayerHasRequiredKey(inventory)) return InteractionState.Open;
+    return InteractionState.Locked;
   }
 
   private void Awake() {
@@ -571,8 +546,6 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionPrompt, 
 
 #if UNITY_EDITOR
   private void OnValidate() {
-    if (startsLocked && string.IsNullOrWhiteSpace(requiredKeyId))
-      Debug.LogWarning($"[PassagewayDoor] '{name}' starts locked but Required Key Id is empty.", this);
     if (startsLocked && startsOpen)
       Debug.LogWarning($"[PassagewayDoor] '{name}' starts open, so its initial lock will be ignored.", this);
 

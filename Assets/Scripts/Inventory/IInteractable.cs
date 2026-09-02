@@ -9,11 +9,6 @@ public interface IInteractable {
   void Interact(PlayerInventory inventory);
 }
 
-/// <summary>Optional dynamic prompt supplied by an interactable instead of its layer fallback.</summary>
-public interface IInteractionPrompt {
-  string GetPromptText(PlayerInventory inventory);
-}
-
 /// <summary>Optional focus feedback driven while an interactable is the player's current target.</summary>
 public interface IInteractionFocus {
   void SetInteractionFocused(bool focused, PlayerInventory inventory);

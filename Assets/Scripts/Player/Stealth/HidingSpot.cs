@@ -3,7 +3,8 @@ using UnityEngine.Audio;
 
 /// <summary>An authored hiding endpoint; the player owns all hiding state and transitions.</summary>
 [DisallowMultipleComponent]
-public sealed class HidingSpot : MonoBehaviour, IInteractable, IInteractionPrompt {
+public sealed class HidingSpot : MonoBehaviour, IInteractable, IInteractionCategoryProvider {
+  public enum InteractionState { Enter, Exit, Unavailable }
   private static readonly int BendStrengthId = Shader.PropertyToID("_Bend_Strength");
 
   [Header("Anchors")]
@@ -24,11 +25,6 @@ public sealed class HidingSpot : MonoBehaviour, IInteractable, IInteractionPromp
   [SerializeField, Range(0f, 1f)] private float soundVolume = 1f;
   [SerializeField] private AudioMixerGroup mixerGroup;
 
-  [Header("Prompts")]
-  [SerializeField] private string canHidePromptText = "[X] to hide";
-  [SerializeField] private string cannotHidePromptText = "Can't hide now";
-  [SerializeField] private string hiddenPromptText = "[X] to exit";
-
   [Header("Presentation")]
   [Tooltip("Weight applied to the player's hidden vignette while occupying this spot.")]
   [SerializeField, Range(0f, 1f)] private float hiddenVignetteWeight = 1f;
@@ -40,6 +36,7 @@ public sealed class HidingSpot : MonoBehaviour, IInteractable, IInteractionPromp
   public Transform HidePoint => hidePoint;
   public Transform EffectPoint => effectPoint != null ? effectPoint : hidePoint;
   public float HiddenVignetteWeight => hiddenVignetteWeight;
+  public InteractionCategory InteractionCategory => InteractionCategory.HidingSpot;
 
   private void Awake() {
     if (suppressVegetationBend) ApplyVegetationBendOverride();
@@ -51,15 +48,15 @@ public sealed class HidingSpot : MonoBehaviour, IInteractable, IInteractionPromp
     if (player != null) player.TryEnter(this);
   }
 
-  public string GetPromptText(PlayerInventory inventory) {
+  public InteractionState GetInteractionState(PlayerInventory inventory) {
     PlayerHidingController player = inventory != null
       ? inventory.GetComponent<PlayerHidingController>()
       : null;
     if (player != null && player.CurrentSpot == this && player.IsConcealed)
-      return hiddenPromptText;
+      return InteractionState.Exit;
     return player != null && player.CanEnter(this)
-      ? canHidePromptText
-      : cannotHidePromptText;
+      ? InteractionState.Enter
+      : InteractionState.Unavailable;
   }
 
   public bool CanOccupy(PlayerHidingController player) => player != null && occupant == null;
@@ -140,17 +137,4 @@ public sealed class HidingSpot : MonoBehaviour, IInteractable, IInteractionPromp
     }
   }
 
-  // The state-aware prompt communicates rejection without requiring a duplicate outline mesh.
-  public void ShowRejectedFeedback() { }
-
-#if UNITY_EDITOR
-  public void Configure(
-    Transform authoredHidePoint,
-    Transform authoredEffectPoint,
-    GameObject authoredInkCloud) {
-    hidePoint = authoredHidePoint;
-    effectPoint = authoredEffectPoint;
-    inkCloudPrefab = authoredInkCloud;
-  }
-#endif
 }

@@ -88,12 +88,10 @@ public class TutorialTrigger : MonoBehaviour {
       switch (textAction.action) {
         case ActionType.Enable:
           textAction.textObject.SetActive(true);
-          Debug.Log($"[TutorialTrigger] Text enabled: {textAction.textObject.name}");
           break;
 
         case ActionType.Disable:
           textAction.textObject.SetActive(false);
-          Debug.Log($"[TutorialTrigger] Text disabled: {textAction.textObject.name}");
           break;
 
         case ActionType.None:
@@ -108,8 +106,6 @@ public class TutorialTrigger : MonoBehaviour {
 
       SetComponentState(compAction.componentName, compAction.action);
     }
-
-    Debug.Log("[TutorialTrigger] Trigger executed");
 
     if (destroyAfterUse) {
       Destroy(gameObject);
@@ -128,14 +124,12 @@ public class TutorialTrigger : MonoBehaviour {
     // MonoBehaviour
     if (component is MonoBehaviour monoBehaviour) {
       monoBehaviour.enabled = shouldEnable;
-      Debug.Log($"[TutorialTrigger] Component '{componentName}' set to {(shouldEnable ? "ENABLED" : "DISABLED")}");
       return;
     }
 
     // Collider
     if (component is Collider collider) {
       collider.enabled = shouldEnable;
-      Debug.Log($"[TutorialTrigger] Component '{componentName}' set to {(shouldEnable ? "ENABLED" : "DISABLED")}");
       return;
     }
 
@@ -148,7 +142,6 @@ public class TutorialTrigger : MonoBehaviour {
         rb.isKinematic = true;
         rb.constraints = RigidbodyConstraints.FreezeAll;
       }
-      Debug.Log($"[TutorialTrigger] Component '{componentName}' set to {(shouldEnable ? "ENABLED" : "DISABLED")}");
       return;
     }
 
