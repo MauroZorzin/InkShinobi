@@ -140,9 +140,15 @@ public class SceneTransitionManager : MonoBehaviour {
 
     Instance = this;
     DontDestroyOnLoad(gameObject);
-    GameSettings.ApplyAudio(settingsMixer);
     GameSettings.ApplySavedResolution();
     PrepareTransitionOverlay();
+  }
+
+  private void Start() {
+    // AudioMixer values set during Awake can be discarded while Unity is still initializing
+    // the audio graph. Applying persisted levels on the first Start guarantees that play-on-awake
+    // music and ambience use the saved volume without waiting for a slider callback.
+    GameSettings.ApplyAudio(settingsMixer);
   }
 
   private void Update() {
