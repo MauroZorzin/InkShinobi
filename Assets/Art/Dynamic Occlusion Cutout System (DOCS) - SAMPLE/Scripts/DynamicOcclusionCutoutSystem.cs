@@ -23,6 +23,10 @@ namespace PxP.DOCS {
     [Tooltip("The radius of the occlusion mask")]
     [SerializeField] float m_maskRadius = 4f;
 
+    [Min(0.0f)]
+    [Tooltip("Pulls the mask's reference point toward the camera by this many units, so its round radius doesn't bulge past the target.")]
+    [SerializeField] float m_targetOffset = 0.5f;
+
 
     // --- Debug Settings ---
 #if UNITY_EDITOR
@@ -127,10 +131,16 @@ namespace PxP.DOCS {
       // Restrict detection to the segment between the target and camera. Extending the cast past
       // the camera can select geometry that does not actually occlude the target, especially when
       // the camera is placed close to it.
-      if (Physics.SphereCast(targetPos, 0.1f, (m_camera.transform.position - targetPos).normalized, out RaycastHit hitInfo, maxDistance))
-        ApplyHit(hitInfo.point);
+      Vector3 towardCamera = (m_camera.transform.position - targetPos).normalized;
+      // The mask is round, so centering it exactly on the target lets it bulge Radius units past
+      // the target on the far side. Pulling the reference point toward the camera first keeps that
+      // bulge from reaching past the target.
+      Vector3 offsetTargetPos = targetPos + towardCamera * Mathf.Min(m_targetOffset, maxDistance);
+
+      if (Physics.SphereCast(targetPos, 0.1f, towardCamera, out RaycastHit hitInfo, maxDistance))
+        ApplyHit(offsetTargetPos);
       else
-        ApplyNoHit(targetPos);
+        ApplyNoHit(offsetTargetPos);
 
       UpdateSphereAndMaterial();
     }
