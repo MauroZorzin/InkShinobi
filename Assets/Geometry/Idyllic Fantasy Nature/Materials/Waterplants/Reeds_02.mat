@@ -127,7 +127,7 @@ Material:
     - _BOOLEAN_1: 0
     - _Bend: 0
     - _Bend_Range: 1
-    - _Bend_Strength: 0.245
+    - _Bend_Strength: 0.937
     - _BillboardKwToggle: 0
     - _BillboardShadowFade: 0.5
     - _Blend: 0
@@ -183,7 +183,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _Start_Bend_Range: 0.508
+    - _Start_Bend_Range: 0.35
     - _Start_To_Bend_Range: 1
     - _Start_to_bend_range: 1
     - _SubsurfaceIndirect: 0.25
@@ -216,7 +216,7 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HueVariation: {r: 1, g: 0.5, b: 0, a: 0.1}
     - _HueVariationColor: {r: 0.764151, g: 0.45278004, b: 0.05406728, a: 0.1}
-    - _Player_Position: {r: 151.8, g: 0.5, b: 143.9, a: 0}
+    - _Player_Position: {r: 296.64703, g: 15.33, b: 314.34763, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _SubsurfaceColor: {r: 1, g: 1, b: 1, a: 1}
     - _Target_Position: {r: 0, g: 0, b: 0, a: 0}
