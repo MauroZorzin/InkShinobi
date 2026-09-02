@@ -26747,10 +26747,61 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2801961389ecd1d43bd0cb603e1d0dc7, type: 3}
+--- !u!1001 &8200300000000000001
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 9002000000000000001, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_Name
+      value: Music
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+--- !u!4 &8200300000000000002 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9002000000000000002, guid: 3f1d1b8e1c0d4e12a1d7359f14564e88, type: 3}
+  m_PrefabInstance: {fileID: 8200300000000000001}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 8200300000000000002}
   - {fileID: 1792536326}
   - {fileID: 1409004062}
   - {fileID: 36598758}
