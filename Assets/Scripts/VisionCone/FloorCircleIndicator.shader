@@ -6,7 +6,6 @@ Shader "Hidden/FloorCircleIndicator"
         _RingColor ("Ring Color", Color) = (1, 0.85, 0.3, 1)
         _RingStart ("Ring Start", Range(0, 1)) = 0.85
         _Softness ("Softness", Range(0.001, 0.3)) = 0.05
-        _OcclusionMask ("Occlusion Mask", 2D) = "white" {}
     }
 
     SubShader
@@ -37,8 +36,6 @@ Shader "Hidden/FloorCircleIndicator"
                 float2 uv : TEXCOORD0;
             };
 
-            TEXTURE2D(_OcclusionMask); SAMPLER(sampler_OcclusionMask);
-
             CBUFFER_START(UnityPerMaterial)
                 half4 _FillColor;
                 half4 _RingColor;
@@ -66,9 +63,6 @@ Shader "Hidden/FloorCircleIndicator"
 
                 float edgeFade = 1 - smoothstep(1 - _Softness, 1, dist);
                 alpha *= edgeFade;
-
-                half occlusion = SAMPLE_TEXTURE2D(_OcclusionMask, sampler_OcclusionMask, IN.uv).r;
-                alpha *= occlusion;
 
                 return half4(color, alpha);
             }

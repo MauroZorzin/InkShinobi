@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1236725626829085620, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: m_StoppingDistance
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 1745892784557871611, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: gameCamera
       value: 
@@ -121,6 +125,6 @@ MonoBehaviour:
     m_Bits: 4294967295
   stepDistance: 1.2
   minSpeedToStep: 0.05
-  volume: 0.3
+  volume: 1
   pitchVariance: 0.08
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}

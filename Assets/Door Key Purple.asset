@@ -18,3 +18,6 @@ MonoBehaviour:
   icon: {fileID: 2800000, guid: bfc52735ef3b3364e94f9fd234b7e5ab, type: 3}
   worldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
   distractionProjectilePrefab: {fileID: 0}
+  pickupSound: {fileID: 8300000, guid: 811792afaf6bc3f48b43b8f803fba20b, type: 3}
+  pickupSoundVolume: 1
+  pickupSoundMixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}

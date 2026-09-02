@@ -15,6 +15,7 @@ namespace PxP.DOCS {
     SerializedProperty m_target;
 
     SerializedProperty m_maskRadius;
+    SerializedProperty m_targetOffset;
 
     SerializedProperty m_enableGizmos;
 
@@ -24,6 +25,7 @@ namespace PxP.DOCS {
       m_target = serializedObject.FindProperty("m_target");
 
       m_maskRadius = serializedObject.FindProperty("m_maskRadius");
+      m_targetOffset = serializedObject.FindProperty("m_targetOffset");
 
       m_enableGizmos = serializedObject.FindProperty("m_enableGizmos");
     }
@@ -109,6 +111,7 @@ namespace PxP.DOCS {
       EditorGUI.indentLevel++;
       // Detection Type
       EditorGUILayout.PropertyField(m_maskRadius);
+      EditorGUILayout.PropertyField(m_targetOffset);
       m_enableGizmos.boolValue = GUILayout.Toggle(m_enableGizmos.boolValue, "Enable Gizmos");
       EditorGUI.indentLevel--;
       EditorGUILayout.Space();

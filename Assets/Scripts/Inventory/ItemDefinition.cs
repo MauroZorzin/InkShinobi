@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 
 public enum InventoryItemCategory {
   Throwable,
@@ -28,4 +29,11 @@ public class ItemDefinition : ScriptableObject {
 
   [Tooltip("Projectile launched when this item is used by finite distraction mode. Required for Throwable items and ignored for Keys.")]
   public ThrownDistraction distractionProjectilePrefab;
+
+  [Header("Audio")]
+  [Tooltip("Played at the pickup's position when this item is picked up.")]
+  public AudioClip pickupSound;
+  [Range(0f, 1f)] public float pickupSoundVolume = 1f;
+  [Tooltip("Mixer group pickupSound is routed through. Leave empty to go straight to Master.")]
+  public AudioMixerGroup pickupSoundMixerGroup;
 }

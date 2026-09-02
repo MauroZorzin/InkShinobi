@@ -1,26 +1,31 @@
-1) Font Uminari by Denustudios : https://befonts.com/downfile/ec32f86d577a803f3364c36a28b38f42.943837
-2) Font gingsul by tkzgraphic : https://www.1001fonts.com/gingsul-demo-font.html
-3) Suono takedown by Olivia_Parker : https://pixabay.com/sound-effects/film-special-effects-knife-demo-309903/
-4) Suono della transizione di inchiostro: https://pixabay.com/sound-effects/household-sloshing-77211/
-5) Suono per raccogliere la pergamena: https://pixabay.com/sound-effects/film-special-effects-paper-flipping-351981/
-6) Suono per l'apertura della pergamena: https://pixabay.com/sound-effects/household-paper-01-87018/
-7) Suono per il rumore dell'hover sui pulsanti: https://elements.envato.com/cloth-brush-6316-3ZTGP8X
-8) Audio per l'effetto di comparsa del popup: https://pixabay.com/sound-effects/film-special-effects-large-pamphlet-paper-foley-5-195983/
-9) Japanese Wood Bridge by btitkin95 : https://sketchfab.com/3d-models/japanese-wood-bridge-9d483d5e092544b38ee98abccce55249
-10)Low Poly Japan 2 by Marcel van Duijn https://sketchfab.com/3d-models/low-poly-japan-2-a81d57ead93c4b3ca194386f442587d0
-11)Arrow by Boy Best https://sketchfab.com/3d-models/arrow-c46f8feb96044a95967feee111488e03
-12)Simple Stylized Slash Pack 2 by Namu : https://assetstore.unity.com/packages/vfx/particles/simple-stylized-slash-pack-2-248665
-13)Footsteps - Essentials by Nox : https://assetstore.unity.com/packages/audio/sound-fx/foley/footsteps-essentials-189879
-14)Nature - Essentials by Nox https://assetstore.unity.com/packages/audio/ambient/nature/nature-essentials-208227
-15)Voices - Essentials by https://assetstore.unity.com/packages/audio/sound-fx/voices/voices-essentials-214441
-16)Outline full render pass 1 :  https://roystan.net/articles/outline-shader/
-17)Outline full render pass 2: https://www.youtube.com/watch?v=LMqio9NsqmM
-18)Rain Particles by Game Seed Assets : https://assetstore.unity.com/packages/vfx/particles/rain-particles-351846
-19)Japanese Machiya Set Kit by xervolt :  https://sketchfab.com/3d-models/japanese-machiya-set-kit-d0bb3d915bf9448a9ef46bcb6a6fa6db
-20)Idyllic Fantasy Nature by Edenity : https://assetstore.unity.com/packages/3d/environments/fantasy/idyllic-fantasy-nature-260042
-21)Suono morte shogun: https://pixabay.com/sound-effects/horror-male-death-sound-128357/Cutsceen Sound:
-22)Cutsceen Blood: https://assetstore.unity.com/packages/vfx/free-blood-vfx-urp-375130
-23)Suono del battito di cuore: https://pixabay.com/sound-effects/film-special-effects-heartbeat-tense-377250/
-24)Keep Characters Always Visible - Camera Occlusion Cut Out for (DOCS) - SAMPLE: https://assetstore.unity.com/packages/tools/game-toolkits/keep-characters-always-visible-camera-occlusion-cut-out-for-docs-357594
-25)2D Sprite Outline: https://assetstore.unity.com/packages/vfx/shaders/2d-sprite-outline-109669
-26)Main Menu image: https://www.rawpixel.com/image/3064491/free-illustration-image-japanese-japan-art
+-) Font Uminari by Denustudios : https://befonts.com/downfile/ec32f86d577a803f3364c36a28b38f42.943837
+-) Font gingsul by tkzgraphic : https://www.1001fonts.com/gingsul-demo-font.html
+-) Suono takedown by Olivia_Parker : https://pixabay.com/sound-effects/film-special-effects-knife-demo-309903/
+-) Suono della transizione di inchiostro: https://pixabay.com/sound-effects/household-sloshing-77211/
+-) Suono per raccogliere la pergamena: https://pixabay.com/sound-effects/film-special-effects-paper-flipping-351981/
+-) Suono per l'apertura della pergamena: https://pixabay.com/sound-effects/household-paper-01-87018/
+-) Suono per il rumore dell'hover sui pulsanti: https://elements.envato.com/cloth-brush-6316-3ZTGP8X
+-) Audio per l'effetto di comparsa del popup: https://pixabay.com/sound-effects/film-special-effects-large-pamphlet-paper-foley-5-195983/
+-) Japanese Wood Bridge by btitkin95 : https://sketchfab.com/3d-models/japanese-wood-bridge-9d483d5e092544b38ee98abccce55249
+-)Low Poly Japan 2 by Marcel van Duijn https://sketchfab.com/3d-models/low-poly-japan-2-a81d57ead93c4b3ca194386f442587d0
+-)Arrow by Boy Best https://sketchfab.com/3d-models/arrow-c46f8feb96044a95967feee111488e03
+-)Simple Stylized Slash Pack 2 by Namu : https://assetstore.unity.com/packages/vfx/particles/simple-stylized-slash-pack-2-248665
+-)Footsteps - Essentials by Nox : https://assetstore.unity.com/packages/audio/sound-fx/foley/footsteps-essentials-189879
+-)Nature - Essentials by Nox https://assetstore.unity.com/packages/audio/ambient/nature/nature-essentials-208227
+-)Voices - Essentials by https://assetstore.unity.com/packages/audio/sound-fx/voices/voices-essentials-214441
+-)Rain Particles by Game Seed Assets : https://assetstore.unity.com/packages/vfx/particles/rain-particles-351846
+-)Japanese Machiya Set Kit by xervolt :  https://sketchfab.com/3d-models/japanese-machiya-set-kit-d0bb3d915bf9448a9ef46bcb6a6fa6db
+-)Idyllic Fantasy Nature by Edenity : https://assetstore.unity.com/packages/3d/environments/fantasy/idyllic-fantasy-nature-260042
+-)Suono morte shogun: https://pixabay.com/sound-effects/horror-male-death-sound-128357/Cutsceen Sound:
+-)Cutsceen Blood: https://assetstore.unity.com/packages/vfx/free-blood-vfx-urp-375130
+-)Suono del battito di cuore: https://pixabay.com/sound-effects/film-special-effects-heartbeat-tense-377250/
+-)Keep Characters Always Visible - Camera Occlusion Cut Out for (DOCS) - SAMPLE: https://assetstore.unity.com/packages/tools/game-toolkits/keep-characters-always-visible-camera-occlusion-cut-out-for-docs-357594
+-)2D Sprite Outline: https://assetstore.unity.com/packages/vfx/shaders/2d-sprite-outline-109669
+-)Main Menu image: https://www.rawpixel.com/image/3064491/free-illustration-image-japanese-japan-art
+-)Suono cespugli: https://pixabay.com/sound-effects/film-special-effects-bushhitwav-14661/
+-)Font Setting: Nuovo font: https://fontesk.com/super-bugly-font/
+-) Suono Chiavi : https://pixabay.com/sound-effects/film-special-effects-objkey-keys-throw-jaku5-36260/
+-)Varius sound : https://assetstore.unity.com/packages/audio/sound-fx/96-general-library-bundle-298038
+-) SwordSoundPack : https://assetstore.unity.com/packages/audio/sound-fx/weapons/swordsoundpack-177824
+-) Animals FREE - Animated Low Poly 3D Models : assetstore.unity.com/packages/3d/characters/animals/animals-free-animated-low-poly-3d-models-260727
+-) skybox1 DEMO: https://assetstore.unity.com/packages/2d/textures-materials/sky/skybox1-demo-303884

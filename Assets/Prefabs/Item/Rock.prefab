@@ -152,14 +152,8 @@ MonoBehaviour:
   ringColor: {r: 1, g: 1, b: 1, a: 1}
   ringStart: 0.85
   softness: 0.05
-  obstacleMask:
-    serializedVersion: 2
-    m_Bits: 256
-  lightSourceHeight: 1.6
-  bakeResolution: 32
   material: {fileID: 0}
   showGizmos: 1
-  gizmoSampleCount: 10
 --- !u!114 &410555458827966951
 MonoBehaviour:
   m_ObjectHideFlags: 0
