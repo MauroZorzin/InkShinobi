@@ -7654,7 +7654,7 @@ ReflectionProbe:
   m_BackGroundColor: {r: 0.13, g: 0.13, b: 0.13, a: 0}
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 133136
+    m_Bits: 2048
   m_IntensityMultiplier: 1
   m_BlendDistance: 1.25
   m_HDR: 1

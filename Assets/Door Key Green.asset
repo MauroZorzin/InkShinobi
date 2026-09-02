@@ -16,5 +16,5 @@ MonoBehaviour:
   itemId: door_key_green
   displayName: Door Key Green
   icon: {fileID: 2800000, guid: bfc52735ef3b3364e94f9fd234b7e5ab, type: 3}
-  worldPrefab: {fileID: 4060355676401909770, guid: 23fa148b49151cc4bb30336cf899e0bc, type: 3}
+  worldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
   distractionProjectilePrefab: {fileID: 0}

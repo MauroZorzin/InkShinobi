@@ -51,8 +51,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.8, y: 1.8, z: 1.4}
-  m_Center: {x: 0, y: 0.9, z: 0}
+  m_Size: {x: 2.02445, y: 1.02, z: 0.5}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1 &1532428136804842342
 GameObject:
   m_ObjectHideFlags: 0
@@ -277,6 +277,7 @@ MonoBehaviour:
   startsLocked: 1
   requiredKeyId: palace_loop_key
   requiredKeyColor: {r: 0.28, g: 0.72, b: 1, a: 1}
+  requiredKeyColorName: Blue
   obsoleteRequiresItemToClose: 0
   audioSource: {fileID: 9119271578723701326}
   openStartClip: {fileID: 8300000, guid: abd8cf107319aba4fba024ce1dbe2946, type: 3}
@@ -284,9 +285,9 @@ MonoBehaviour:
   openEndClip: {fileID: 0}
   closeEndClip: {fileID: 0}
   audioVolume: 1
-  closedPromptText: Apri
-  openPromptText: Chiudi
-  lockedPromptText: Serve una chiave
+  openActionPromptText: '[X] to open'
+  closeActionPromptText: '[X] to close'
+  unavailablePromptText: Can't open now
 --- !u!114 &920000000000000020
 MonoBehaviour:
   m_ObjectHideFlags: 0

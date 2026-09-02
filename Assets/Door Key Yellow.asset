@@ -16,5 +16,5 @@ MonoBehaviour:
   itemId: door_key_yellow
   displayName: Door Key White
   icon: {fileID: 2800000, guid: bfc52735ef3b3364e94f9fd234b7e5ab, type: 3}
-  worldPrefab: {fileID: 4060355676401909770, guid: b18c57e75e9b43246b633fefd0c9912c, type: 3}
+  worldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
   distractionProjectilePrefab: {fileID: 0}
