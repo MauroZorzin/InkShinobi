@@ -44,6 +44,9 @@ public class WorldItem : MonoBehaviour, IInteractable, IInteractionPriority, IIn
       return;
     }
 
+    if (item.pickupSound != null)
+      OneShotAudio.PlayClipAtPoint(item.pickupSound, transform.position, item.pickupSoundVolume, item.pickupSoundMixerGroup);
+
     if (destroyOnPickup) Destroy(gameObject);
   }
 

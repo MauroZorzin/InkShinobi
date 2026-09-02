@@ -169,6 +169,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5795814562849257011}
     m_Modifications:
+    - target: {fileID: 3430987912046940380, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3430987912046940380, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e51f8318e598b844ebc5c126b71ac039, type: 2}
+    - target: {fileID: 5527258845272419593, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527258845272419593, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e51f8318e598b844ebc5c126b71ac039, type: 2}
     - target: {fileID: 7390566949429054898, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
       propertyPath: m_Name
       value: BushModel
@@ -213,6 +229,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8827638006060073058, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
+      propertyPath: m_RenderingLayerMask
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8827638006060073058, guid: 18665362feb1b494fbeda66c24a91d57, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e51f8318e598b844ebc5c126b71ac039, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

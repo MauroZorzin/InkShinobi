@@ -557,6 +557,7 @@ GameObject:
   - component: {fileID: 5474546769154281744}
   - component: {fileID: 2229043303573283404}
   - component: {fileID: 1941514345663175645}
+  - component: {fileID: 7424550956891795923}
   m_Layer: 7
   m_Name: Guard
   m_TagString: Untagged
@@ -659,9 +660,15 @@ MonoBehaviour:
   spotSound: {fileID: 8300000, guid: 2796991c2d63adf4c9c3d417a318aeaf, type: 3}
   chaseStartSound: {fileID: 8300000, guid: 523fc9761fcbb7a47b2e382687e4538e, type: 3}
   loseSightSound: {fileID: 8300000, guid: 079df0609381f5b4c85e2041ab773adf, type: 3}
-  idleSounds: []
-  idleSoundMinInterval: 8
-  idleSoundMaxInterval: 20
+  idleSounds:
+  - {fileID: 8300000, guid: 37f4a3c8f23ee0f43a88a6394a733ec5, type: 3}
+  - {fileID: 8300000, guid: 98f0bd38817e2004ebd59ae087fa11c8, type: 3}
+  - {fileID: 8300000, guid: 89078727888592442a34b0bb683ca01c, type: 3}
+  - {fileID: 8300000, guid: 1cf6d3b74c2127744abb19a58bd4d409, type: 3}
+  - {fileID: 8300000, guid: a467e5d8e0a6466429e02f44cd51a0ee, type: 3}
+  - {fileID: 8300000, guid: 3fe04919d4f6e1d4b9bf6484c09524db, type: 3}
+  idleSoundMinInterval: 30
+  idleSoundMaxInterval: 100
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   visionCone: {fileID: 0}
   motor: {fileID: 0}
@@ -853,6 +860,30 @@ MonoBehaviour:
   cornerPause: 0.15
   turnSpeed: 180
   startAtNearestPoint: 1
+--- !u!114 &7424550956891795923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7465610280866289694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 510545817a43af64497344fea0a2050e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FootstepPlayer
+  library: {fileID: 11400000, guid: 92e6e1265c8fed64f9899a9f0162082d, type: 2}
+  raycastHeight: 0.5
+  raycastDistance: 2
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  stepDistance: 1.2
+  minSpeedToStep: 0.05
+  volume: 1
+  pitchVariance: 0.08
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
+  verboseLogging: 0
 --- !u!1 &7652254753139925419
 GameObject:
   m_ObjectHideFlags: 0
