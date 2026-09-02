@@ -124,7 +124,7 @@ Material:
     - _Cull: 2
     - _Cutoff: 0.5
     - _Depth: 2.97
-    - _Depth_Distance: 0.337
+    - _Depth_Distance: 0.284
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _Displacement: 0
