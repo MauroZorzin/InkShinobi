@@ -13,7 +13,7 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -120,7 +120,7 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _CoastOpacity: 0.339
-    - _Coast_Opacity: 0.906
+    - _Coast_Opacity: 0.97
     - _Cull: 2
     - _Cutoff: 0.5
     - _Depth: 2.97
@@ -141,7 +141,7 @@ Material:
     - _FoamDistance: 0.2
     - _FoamScale: 100
     - _FoamSpeed: 0.5
-    - _Foam_Amount: 0.076
+    - _Foam_Amount: 0.24
     - _Foam_Density: 1
     - _Foam_Speed: 0.5
     - _GlossMapScale: 0
@@ -162,7 +162,7 @@ Material:
     - _RefractionAmount: 0.05
     - _RefractionSpeed: 2
     - _RefractionStrength: 0.13
-    - _Refraction_Strength: 0.11
+    - _Refraction_Strength: 0.686
     - _RimRize: 1
     - _RimTiling: -0.21
     - _RippleDensity: 1
@@ -173,7 +173,7 @@ Material:
     - _Ripple_Distance: 5.01
     - _Ripple_Fade: 5.2
     - _Ripple_Slimness: 9.7
-    - _Smoothness: 0.82
+    - _Smoothness: 0.804
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

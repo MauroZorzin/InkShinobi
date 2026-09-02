@@ -991,7 +991,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 1
-  m_Color: {r: 0, g: 1, b: 0.32268143, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 0.4
   m_Range: 10
   m_SpotAngle: 30
@@ -2618,6 +2618,30 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1513004065682816103, guid: 71f6d4b3ad9e2bb44a9797c5e621e312, type: 3}
   m_PrefabInstance: {fileID: 1963297433}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &645371469 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1685918869072870553, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
+  m_PrefabInstance: {fileID: 710100000000000001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &645371471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 645371469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3de66d8603e1be4897480c4e620e8cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PxP.DOCS.DynamicOcclusionCutoutSystem
+  m_materials:
+  - {fileID: 2100000, guid: ab61c0621a61a5444b9574069f8d58d9, type: 2}
+  - {fileID: 2100000, guid: 333733ceb992ddb448188a2f476222e8, type: 2}
+  - {fileID: 2100000, guid: 1a2776aad3b57804994baf2fcd717291, type: 2}
+  m_target: {fileID: 710100000000000003}
+  m_maskRadius: 1
+  m_enableGizmos: 0
 --- !u!1001 &654171857
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5179,7 +5203,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4418585035187661893, guid: 216d48b805269d24b82ee98782f87009, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.44
       objectReference: {fileID: 0}
     - target: {fileID: 4418585035187661893, guid: 216d48b805269d24b82ee98782f87009, type: 3}
       propertyPath: m_LocalPosition.z
@@ -9992,7 +10016,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8143050556635903949, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
       insertIndex: -1
       addedObject: {fileID: 710200000000000007}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1685918869072870553, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 645371471}
   m_SourcePrefab: {fileID: 100100000, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
 --- !u!1 &710100000000000002 stripped
 GameObject:
