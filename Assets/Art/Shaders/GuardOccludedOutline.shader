@@ -100,6 +100,16 @@ Shader "Hidden/InkShinobi/GuardOccludedOutline"
                 return alpha;
             }
 
+            half SampleAlphaLod(float2 uv)
+            {
+                half alpha = SAMPLE_TEXTURE2D_LOD(_MainTex, sampler_LinearClamp, uv, 0).a;
+                #if UNITY_TEXTURE_ALPHASPLIT_ALLOWED
+                    if (_AlphaSplitEnabled)
+                        alpha = SAMPLE_TEXTURE2D_LOD(_AlphaTex, sampler_LinearClamp, uv, 0).r;
+                #endif
+                return alpha;
+            }
+
             half4 frag(Varyings input) : SV_Target
             {
                 const int sampleCount = 32;
@@ -118,7 +128,7 @@ Shader "Hidden/InkShinobi/GuardOccludedOutline"
                 {
                     float angle = i * (TWO_PI / sampleCount);
                     float2 offset = thickness * float2(cos(angle), sin(angle));
-                    half alpha = SampleAlpha(input.uv + offset);
+                    half alpha = SampleAlphaLod(input.uv + offset);
                     coverage = max(coverage, smoothstep(alphaThreshold, alphaThreshold + _AAWidth, alpha));
                 }
 

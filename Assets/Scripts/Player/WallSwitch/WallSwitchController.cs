@@ -96,7 +96,9 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private GameObject travelingInkPrefab;
 
   [Header("Debug")]
+#if UNITY_EDITOR
   [SerializeField] private bool drawDebugGizmos = true;
+#endif
   [SerializeField] private bool verboseLogging;
 
   private readonly Collider[] interactionHits = new Collider[64];

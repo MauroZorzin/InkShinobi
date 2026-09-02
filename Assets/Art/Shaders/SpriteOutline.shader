@@ -206,11 +206,11 @@ Shader "SpriteOutline"
             // Filter Mode setting.
             half SampleAlphaAA(float2 uv)
             {
-                half a = SAMPLE_TEXTURE2D(_MainTex, sampler_LinearClamp, uv).a;
+                half a = SAMPLE_TEXTURE2D_LOD(_MainTex, sampler_LinearClamp, uv, 0).a;
 
                 #if UNITY_TEXTURE_ALPHASPLIT_ALLOWED
                     if (_AlphaSplitEnabled)
-                        a = SAMPLE_TEXTURE2D(_AlphaTex, sampler_LinearClamp, uv).r;
+                        a = SAMPLE_TEXTURE2D_LOD(_AlphaTex, sampler_LinearClamp, uv, 0).r;
                 #endif
 
                 return a;

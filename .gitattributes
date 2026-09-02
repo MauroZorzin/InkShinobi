@@ -1,0 +1,2 @@
+# Keep the post-processing shader's working-tree line endings deterministic.
+Assets/Art/Shaders/SelectiveColorComposite.shader text eol=crlf

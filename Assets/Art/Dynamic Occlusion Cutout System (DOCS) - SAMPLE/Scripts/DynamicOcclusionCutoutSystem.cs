@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 
 namespace PxP.DOCS {
 
@@ -23,8 +25,10 @@ namespace PxP.DOCS {
 
 
     // --- Debug Settings ---
+#if UNITY_EDITOR
     [Space(10)]
     [SerializeField] bool m_enableGizmos = false;
+#endif
 
     // --- Private variables ---
 
@@ -174,8 +178,8 @@ namespace PxP.DOCS {
 
     // --- HELPER FUNCTIONS ---
 
-    private void OnDrawGizmosSelected() {
 #if UNITY_EDITOR
+    private void OnDrawGizmosSelected() {
       if (!m_enableGizmos || m_target == null || m_camera == null) return;
 
       Vector3 camPos = m_camera.transform.position;
@@ -199,8 +203,8 @@ namespace PxP.DOCS {
         redStyle.normal.textColor = Color.red;
         Handles.Label(hit.point, hit.collider.name, redStyle);
       }
-#endif
     }
+#endif
 
 
     // --- HELPER FUNCTIONS - DRAW ---
