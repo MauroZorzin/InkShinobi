@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Art/Audio/SFX/freesound_community-swish-sound-94707.mp3.meta
 guid: 8043dd9ea2b5ebf4bac627b79738849c
+========
+guid: f65db2944fac4c56b382071aef94568b
+>>>>>>>> f8d6aa9ab442be1f1c1c012db0e45b5749f6ea92:Assets/Art/Audio/SFX/door_open.mp3.meta
 AudioImporter:
   externalObjects: {}
   serializedVersion: 8
@@ -11,13 +15,13 @@ AudioImporter:
     compressionFormat: 1
     quality: 1
     conversionMode: 0
-    preloadAudioData: 0
+    preloadAudioData: 1
   platformSettingOverrides: {}
-  forceToMono: 0
+  forceToMono: 1
   normalize: 1
   loadInBackground: 0
   ambisonic: 0
   3D: 1
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:
