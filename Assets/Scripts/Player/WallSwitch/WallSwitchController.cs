@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.InputSystem;
 using Action = System.Action;
 
@@ -93,6 +94,12 @@ public sealed class WallSwitchController : MonoBehaviour {
   [SerializeField] private GameObject departureInkPrefab;
   [SerializeField] private GameObject arrivalInkPrefab;
   [SerializeField] private GameObject travelingInkPrefab;
+
+  [Header("Sound")]
+  [SerializeField] private AudioClip departureSound;
+  [Range(0f, 1f)][SerializeField] private float soundVolume = 1f;
+  [Range(0f, 0.5f)][SerializeField] private float pitchVariance = 0.08f;
+  [SerializeField] private AudioMixerGroup mixerGroup;
 
   private readonly Collider[] interactionHits = new Collider[64];
   private readonly RaycastHit[] authoredSurfaceHits = new RaycastHit[128];
@@ -496,6 +503,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     Quaternion oppositeRotation = sideTurn * normalCameraLocalRotation;
     if (playerRenderer != null) playerRenderer.enabled = false;
     SpawnInk(departureInkPrefab, evaluation.TrajectoryStart, direction);
+    OneShotAudio.PlayClipAtPoint(departureSound, evaluation.TrajectoryStart, soundVolume, mixerGroup, pitchVariance);
     StartCameraOrbit(
       sideAimPosition,
       sideRotation,

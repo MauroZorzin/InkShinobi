@@ -104,23 +104,6 @@ MonoBehaviour:
       restoreCamera: 1
       offset: {x: 0, y: 0, z: 0, w: 0}
       cameraFieldOfView: 4
---- !u!114 &6200000000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d306dbfa98cb4e75a21885a84f37c332, type: 3}
-  m_Name: Selective Color
-  m_EditorClassIdentifier: Assembly-CSharp::SelectiveColorRendererFeature
-  m_Active: 1
-  settings:
-    renderPassEvent: 600
-    compositeMaterial: {fileID: 2100000, guid: f52834061e7843cc9369e2752b4c6a54, type: 2}
-    guardOccludedOutlineShader: {fileID: 4800000, guid: 487ef058528e40aba28e5887019f5949, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,6 +163,24 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 0
+--- !u!114 &6200000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d306dbfa98cb4e75a21885a84f37c332, type: 3}
+  m_Name: Selective Color
+  m_EditorClassIdentifier: Assembly-CSharp::SelectiveColorRendererFeature
+  m_Active: 1
+  settings:
+    renderPassEvent: 600
+    compositeMaterial: {fileID: 2100000, guid: f52834061e7843cc9369e2752b4c6a54, type: 2}
+    doorAccentMaskMaterial: {fileID: 2100000, guid: f54ca1833e9b4b45a271f609de83457a, type: 2}
+    guardOccludedOutlineShader: {fileID: 4800000, guid: 487ef058528e40aba28e5887019f5949, type: 3}
 --- !u!114 &8798487543384238792
 MonoBehaviour:
   m_ObjectHideFlags: 0

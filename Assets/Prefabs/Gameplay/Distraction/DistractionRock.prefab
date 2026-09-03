@@ -247,11 +247,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ThrownDistraction
   landingLayers:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 2064
   minimumLandingNormalY: 0.35
   armDelay: 0.08
   collisionRadius: 0.04
   soundSignal: {fileID: 8048246480920520457}
   echoPulsePrefab: {fileID: 8686393655673497536, guid: 95f36393c4b0870478569a71492c7114, type: 3}
+  throwSound: {fileID: 8300000, guid: 8043dd9ea2b5ebf4bac627b79738849c, type: 3}
+  landingSound: {fileID: 8300000, guid: 9e8ae48fb304d314887f3c26081a95a4, type: 3}
+  waterLayers:
+    serializedVersion: 2
+    m_Bits: 16
+  splashSound: {fileID: 8300000, guid: 29174768d21b00c4ca81359dbbf64c34, type: 3}
+  splashParticlePrefab: {fileID: 1836817076944424969, guid: 09313a617b570b8429a3528a7fa58c40, type: 3}
+  splashSpawnOffset: 0
+  soundVolume: 1
+  pitchVariance: 0.08
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
   destroyAfterLanding: 1
   destroyDelay: 1.1

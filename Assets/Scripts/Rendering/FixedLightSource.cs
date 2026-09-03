@@ -15,6 +15,10 @@ public sealed class FixedLightSource : MonoBehaviour {
   private static readonly List<FixedLightSource> ActiveSources = new();
   private static readonly List<FixedLightSource> VisibleSources = new();
   private static readonly RaycastHit[] VisibilityHits = new RaycastHit[32];
+  private static readonly RaycastHit[] TintBoundsHits = new RaycastHit[64];
+  private const float WallProbeHeight = 0.2f;
+  private const float WallSurfaceAllowance = 0.04f;
+  private const float AutomaticBoundsFeather = 0.04f;
 
   [Tooltip("Transform at the physical light origin. Usually the PointLight child inside the fixture.")]
   [SerializeField] private Transform origin;
@@ -40,8 +44,17 @@ public sealed class FixedLightSource : MonoBehaviour {
   [Tooltip("Small offset from the light origin used to avoid immediately hitting its own fixture.")]
   [SerializeField, Min(0f)] private float rayOriginOffset = 0.05f;
 
-  [Tooltip("When disabled, the fixture remains visible and tinted but does not expose the player or activate light-dependent gameplay.")]
+  [Tooltip("When disabled, the fixture remains visible in its authored color but does not expose the player or activate light-dependent gameplay.")]
   [SerializeField] private bool affectsGameplay = true;
+
+  [Header("Tint bounds")]
+  [Tooltip("Intersects the spherical tint with a simple oriented box. Intended for room and corridor containment, not physical occlusion.")]
+  [SerializeField] private bool useTintBounds;
+
+  [SerializeField, HideInInspector] private Vector3 tintBoundsCenterLocal;
+  [SerializeField, HideInInspector] private Quaternion tintBoundsRotationLocal = Quaternion.identity;
+  [SerializeField, HideInInspector] private Vector3 tintBoundsSize = Vector3.one;
+  [SerializeField, HideInInspector, Min(0f)] private float tintBoundsFeather = 0.04f;
 
   [Header("Surface lighting")]
   [Tooltip("The real Point Light used for illumination and shadows. If empty, the light on Origin is used.")]
@@ -93,12 +106,45 @@ public sealed class FixedLightSource : MonoBehaviour {
     ResolveSurfaceLight();
   }
 
+  public float ProjectionRadius => radius;
+  public Transform PhysicalOrigin => origin != null ? origin : transform;
+
+  public void SetObstacleMask(LayerMask mask) {
+    obstacleMask = mask;
+    visibilityCacheValid = false;
+  }
+
+  public void ConfigureTintBounds(
+    Vector3 worldCenter,
+    Quaternion worldRotation,
+    Vector3 worldSize,
+    float feather) {
+    tintBoundsCenterLocal = transform.InverseTransformPoint(worldCenter);
+    tintBoundsRotationLocal = Quaternion.Inverse(transform.rotation) * worldRotation;
+    tintBoundsSize = new Vector3(
+      Mathf.Max(0.01f, worldSize.x),
+      Mathf.Max(0.01f, worldSize.y),
+      Mathf.Max(0.01f, worldSize.z));
+    tintBoundsFeather = Mathf.Max(0f, feather);
+    useTintBounds = true;
+    visibilityCacheValid = false;
+  }
+
+  public void ClearTintBounds() {
+    useTintBounds = false;
+    visibilityCacheValid = false;
+  }
+
   private void OnEnable() {
     if (!ActiveSources.Contains(this)) ActiveSources.Add(this);
     ResolveSurfaceLight();
     CaptureSurfaceIntensity();
     ResolveCoreRenderer();
     ApplyCoreVisual(1f);
+  }
+
+  private void Start() {
+    if (Application.isPlaying) ConfigureAutomaticPresentation();
   }
 
   private void OnValidate() {
@@ -180,6 +226,8 @@ public sealed class FixedLightSource : MonoBehaviour {
     Vector4[] colorsAndIntensities,
     float[] feathers,
     Vector4[] lookParameters,
+    Matrix4x4[] worldToTintBounds,
+    Vector4[] tintBoundsExtents,
     Vector4[] packedVisibilityRanges) {
     CollectVisibleSources(camera);
     int count = 0;
@@ -195,6 +243,15 @@ public sealed class FixedLightSource : MonoBehaviour {
         source.flickerEnabled ? source.flickerAmount : 0f,
         source.flickerSpeed,
         source.flickerIrregularity);
+      if (source.useTintBounds) {
+        worldToTintBounds[count] = source.TintBoundsLocalToWorld.inverse;
+        Vector3 extents = source.tintBoundsSize * 0.5f;
+        tintBoundsExtents[count] = new Vector4(
+          extents.x, extents.y, extents.z, source.tintBoundsFeather);
+      } else {
+        worldToTintBounds[count] = Matrix4x4.identity;
+        tintBoundsExtents[count] = new Vector4(0f, 0f, 0f, -1f);
+      }
       source.FillVisibilityData(packedVisibilityRanges, count * VisibilitySampleCount);
       count++;
     }
@@ -232,6 +289,12 @@ public sealed class FixedLightSource : MonoBehaviour {
   }
 
   private void FillVisibilityData(Vector4[] destination, int destinationOffset) {
+    if (useTintBounds) {
+      for (int sample = 0; sample < VisibilitySampleCount; sample++)
+        WritePackedVisibility(destination, destinationOffset + sample, radius);
+      return;
+    }
+
     Vector3 position = origin != null ? origin.position : transform.position;
     bool moved = !visibilityCacheValid
                  || (position - cachedVisibilityPosition).sqrMagnitude > 0.000001f
@@ -251,12 +314,16 @@ public sealed class FixedLightSource : MonoBehaviour {
     }
 
     for (int sample = 0; sample < VisibilitySampleCount; sample++) {
-      int packedIndex = (destinationOffset + sample) / 4;
-      int componentIndex = (destinationOffset + sample) % 4;
-      Vector4 packed = destination[packedIndex];
-      packed[componentIndex] = cachedVisibilityRanges[sample];
-      destination[packedIndex] = packed;
+      WritePackedVisibility(destination, destinationOffset + sample, cachedVisibilityRanges[sample]);
     }
+  }
+
+  private static void WritePackedVisibility(Vector4[] destination, int scalarIndex, float value) {
+    int packedIndex = scalarIndex / 4;
+    int componentIndex = scalarIndex % 4;
+    Vector4 packed = destination[packedIndex];
+    packed[componentIndex] = value;
+    destination[packedIndex] = packed;
   }
 
   private float CastVisibilityRay(Vector3 position, Vector3 direction, float maximumDistance) {
@@ -334,16 +401,33 @@ public sealed class FixedLightSource : MonoBehaviour {
     Vector3 lightPosition = origin != null ? origin.position : transform.position;
     float distance = Vector3.Distance(worldPosition, lightPosition);
     if (distance >= radius) return 0f;
-    if (IsOccluded(lightPosition, worldPosition, distance)) return 0f;
+    float boundsWeight = useTintBounds ? EvaluateTintBounds(worldPosition) : 1f;
+    if (boundsWeight <= 0f) return 0f;
+    if (!useTintBounds && IsOccluded(lightPosition, worldPosition, distance)) return 0f;
 
     float feather = Mathf.Min(edgeFeather, radius);
-    if (feather <= 0f) return 1f;
+    if (feather <= 0f) return boundsWeight;
 
     float innerRadius = radius - feather;
-    if (distance <= innerRadius) return 1f;
+    if (distance <= innerRadius) return boundsWeight;
 
     float t = Mathf.InverseLerp(innerRadius, radius, distance);
-    return 1f - t * t * (3f - 2f * t);
+    return (1f - t * t * (3f - 2f * t)) * boundsWeight;
+  }
+
+  private Matrix4x4 TintBoundsLocalToWorld => Matrix4x4.TRS(
+    transform.TransformPoint(tintBoundsCenterLocal),
+    transform.rotation * tintBoundsRotationLocal,
+    Vector3.one);
+
+  private float EvaluateTintBounds(Vector3 worldPosition) {
+    Vector3 localPosition = TintBoundsLocalToWorld.inverse.MultiplyPoint3x4(worldPosition);
+    Vector3 edgeDistance = tintBoundsSize * 0.5f - new Vector3(
+      Mathf.Abs(localPosition.x), Mathf.Abs(localPosition.y), Mathf.Abs(localPosition.z));
+    float minimumEdgeDistance = Mathf.Min(edgeDistance.x, Mathf.Min(edgeDistance.y, edgeDistance.z));
+    if (minimumEdgeDistance <= 0f) return 0f;
+    if (tintBoundsFeather <= 0f) return 1f;
+    return Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(minimumEdgeDistance / tintBoundsFeather));
   }
 
   private bool IsOccluded(Vector3 lightPosition, Vector3 worldPosition, float distance) {
@@ -362,5 +446,63 @@ public sealed class FixedLightSource : MonoBehaviour {
       if (blocker != null && !blocker.transform.IsChildOf(transform)) return true;
     }
     return false;
+  }
+
+  private void ConfigureAutomaticPresentation() {
+    LightReceiverExclusion exclusion = GetComponent<LightReceiverExclusion>();
+    if (exclusion == null)
+      exclusion = gameObject.AddComponent<LightReceiverExclusion>();
+    exclusion.RefreshRenderers();
+
+    int wallLayer = LayerMask.NameToLayer("Wall");
+    if (wallLayer < 0) return;
+
+    LayerMask wallMask = 1 << wallLayer;
+    Physics.SyncTransforms();
+    Vector3 lightOrigin = PhysicalOrigin.position;
+    Vector3 probeOrigin = new(lightOrigin.x, transform.position.y + WallProbeHeight, lightOrigin.z);
+    float negativeX = FindTintBoundsExtent(probeOrigin, Vector3.left, radius, wallMask);
+    float positiveX = FindTintBoundsExtent(probeOrigin, Vector3.right, radius, wallMask);
+    float negativeZ = FindTintBoundsExtent(probeOrigin, Vector3.back, radius, wallMask);
+    float positiveZ = FindTintBoundsExtent(probeOrigin, Vector3.forward, radius, wallMask);
+    Vector3 center = lightOrigin + new Vector3(
+      (positiveX - negativeX) * 0.5f,
+      0f,
+      (positiveZ - negativeZ) * 0.5f);
+    Vector3 size = new(negativeX + positiveX, radius * 2f, negativeZ + positiveZ);
+    ConfigureTintBounds(center, Quaternion.identity, size, AutomaticBoundsFeather);
+    SetObstacleMask(0);
+  }
+
+  private float FindTintBoundsExtent(
+    Vector3 originPosition,
+    Vector3 direction,
+    float maximumDistance,
+    LayerMask wallMask) {
+    int hitCount = Physics.RaycastNonAlloc(
+      originPosition,
+      direction,
+      TintBoundsHits,
+      maximumDistance,
+      wallMask,
+      QueryTriggerInteraction.Ignore);
+    float closest = maximumDistance;
+    for (int index = 0; index < hitCount; index++) {
+      RaycastHit hit = TintBoundsHits[index];
+      if (hit.collider == null || hit.collider.transform.IsChildOf(transform)) continue;
+      closest = Mathf.Min(closest, hit.distance + WallSurfaceAllowance);
+    }
+    return closest;
+  }
+
+  private void OnDrawGizmosSelected() {
+    if (!useTintBounds) return;
+    Matrix4x4 previousMatrix = Gizmos.matrix;
+    Color previousColor = Gizmos.color;
+    Gizmos.matrix = TintBoundsLocalToWorld;
+    Gizmos.color = new Color(color.r, color.g, color.b, 0.85f);
+    Gizmos.DrawWireCube(Vector3.zero, tintBoundsSize);
+    Gizmos.matrix = previousMatrix;
+    Gizmos.color = previousColor;
   }
 }

@@ -24,8 +24,15 @@
 -)Main Menu image: https://www.rawpixel.com/image/3064491/free-illustration-image-japanese-japan-art
 -)Suono cespugli: https://pixabay.com/sound-effects/film-special-effects-bushhitwav-14661/
 -)Font Setting: Nuovo font: https://fontesk.com/super-bugly-font/
--) Suono Chiavi : https://pixabay.com/sound-effects/film-special-effects-objkey-keys-throw-jaku5-36260/
--)Varius sound : https://assetstore.unity.com/packages/audio/sound-fx/96-general-library-bundle-298038
--) SwordSoundPack : https://assetstore.unity.com/packages/audio/sound-fx/weapons/swordsoundpack-177824
--) Animals FREE - Animated Low Poly 3D Models : assetstore.unity.com/packages/3d/characters/animals/animals-free-animated-low-poly-3d-models-260727
--) skybox1 DEMO: https://assetstore.unity.com/packages/2d/textures-materials/sky/skybox1-demo-303884
+-)Suono Chiavi : https://pixabay.com/sound-effects/film-special-effects-objkey-keys-throw-jaku5-36260/
+-)Varius sound 96 : https://assetstore.unity.com/packages/audio/sound-fx/96-general-library-bundle-298038
+-)SwordSoundPack : https://assetstore.unity.com/packages/audio/sound-fx/weapons/swordsoundpack-177824
+-)Animals FREE - Animated Low Poly 3D Models : assetstore.unity.com/packages/3d/characters/animals/animals-free-animated-low-poly-3d-models-260727
+-)skybox1 DEMO: https://assetstore.unity.com/packages/2d/textures-materials/sky/skybox1-demo-303884
+-)water splash : https://pixabay.com/sound-effects/film-special-effects-water-splash-46402/
+-)rock land : https://pixabay.com/sound-effects/film-special-effects-land2-43790/
+-)switch wall : https://pixabay.com/sound-effects/film-special-effects-swish-sound-94707/
+-)throw rock : https://pixabay.com/sound-effects/film-special-effects-swish-swoosh-woosh-sfx-27-357164/
+-)Door close : https://pixabay.com/sound-effects/household-door-close-effect-382710/
+-)Door open: https://pixabay.com/sound-effects/household-door-opening-397990/
+-)Skybox :  https://assetstore.unity.com/packages/3d/environments/sci-fi/real-stars-skybox-lite-116333

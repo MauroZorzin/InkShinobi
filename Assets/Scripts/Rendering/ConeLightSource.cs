@@ -14,6 +14,9 @@ public sealed class ConeLightSource : MonoBehaviour {
 
   private static readonly List<ConeLightSource> ActiveSources = new();
   private static readonly List<ConeLightSource> VisibleSources = new();
+  private static readonly RaycastHit[] VisibilityHits = new RaycastHit[32];
+  private const float DefaultPresentationRayHeight = 0.2f;
+  private const float DefaultPresentationForwardOffset = 0.08f;
 
   [SerializeField] private Transform origin;
   [SerializeField] private Color color = new(1f, 0.92f, 0.08f, 1f);
@@ -44,6 +47,17 @@ public sealed class ConeLightSource : MonoBehaviour {
   [Tooltip("Small forward offset that prevents a visibility ray from immediately touching the guard's own collider.")]
   [SerializeField, Min(0f)] private float rayOriginOffset = 0.05f;
 
+  [Tooltip("Use a presentation-only blocker mask instead of the gameplay vision mask.")]
+  [SerializeField] private bool overridePresentationObstacleMask;
+
+  [SerializeField] private LayerMask presentationObstacleMask;
+
+  [Tooltip("Raises horizontal presentation rays above the floor collider.")]
+  [SerializeField, Min(0f)] private float presentationRayHeight;
+
+  [Tooltip("Moves the presentation fan slightly ahead of the guard so it cannot begin inside the guard or a wall edge.")]
+  [SerializeField, Min(0f)] private float presentationForwardOffset;
+
   [Header("Flicker")]
   [Tooltip("Maximum fractional brightness variation. Shape, range, and detection boundaries remain stable.")]
   [SerializeField, Range(0f, 0.25f)] private float flickerAmount = 0.02f;
@@ -62,8 +76,29 @@ public sealed class ConeLightSource : MonoBehaviour {
     obstacleMask = blockers;
   }
 
+  public void ConfigurePresentationVisibility(
+    LayerMask blockers,
+    float rayHeight,
+    float forwardOffset) {
+    overridePresentationObstacleMask = true;
+    presentationObstacleMask = blockers;
+    presentationRayHeight = Mathf.Max(0f, rayHeight);
+    presentationForwardOffset = Mathf.Max(0f, forwardOffset);
+  }
+
   private void OnEnable() {
     if (!ActiveSources.Contains(this)) ActiveSources.Add(this);
+  }
+
+  private void Start() {
+    if (!Application.isPlaying) return;
+    int wallLayer = LayerMask.NameToLayer("Wall");
+    if (wallLayer >= 0) {
+      ConfigurePresentationVisibility(
+        1 << wallLayer,
+        DefaultPresentationRayHeight,
+        DefaultPresentationForwardOffset);
+    }
   }
 
   private void OnValidate() {
@@ -72,6 +107,8 @@ public sealed class ConeLightSource : MonoBehaviour {
     flickerAmount = Mathf.Clamp(flickerAmount, 0f, 0.25f);
     flickerSpeed = Mathf.Max(0.01f, flickerSpeed);
     flickerIrregularity = Mathf.Clamp01(flickerIrregularity);
+    presentationRayHeight = Mathf.Max(0f, presentationRayHeight);
+    presentationForwardOffset = Mathf.Max(0f, presentationForwardOffset);
   }
 
   private void OnDisable() {
@@ -89,6 +126,7 @@ public sealed class ConeLightSource : MonoBehaviour {
     Vector4[] colorsAndIntensities,
     Vector4[] featherParameters,
     Vector4[] lookParameters,
+    Vector4[] visibilityOrigins,
     Vector4[] packedVisibilityRanges,
     Vector4[] endWallPositionsAndRadii,
     Vector4[] endWallNormalsAndValidity) {
@@ -114,8 +152,15 @@ public sealed class ConeLightSource : MonoBehaviour {
         source.visualPriority,
         source.maskLowerPriorityCones ? 1f : 0f);
       lookParameters[count] = new Vector4(source.projectedBrightness, source.flickerAmount, source.flickerSpeed, source.flickerIrregularity);
+      Vector3 flatDirection = Vector3.ProjectOnPlane(direction, Vector3.up).normalized;
+      if (flatDirection.sqrMagnitude < 0.0001f) flatDirection = Vector3.forward;
+      Vector3 visibilityOrigin = position
+                                 + Vector3.up * source.presentationRayHeight
+                                 + flatDirection * source.presentationForwardOffset;
+      visibilityOrigins[count] = new Vector4(
+        visibilityOrigin.x, visibilityOrigin.y, visibilityOrigin.z, 0f);
       source.FillVisibilityData(
-        sourceTransform, direction, count, packedVisibilityRanges,
+        visibilityOrigin, direction, count, packedVisibilityRanges,
         endWallPositionsAndRadii, endWallNormalsAndValidity);
       count++;
     }
@@ -153,13 +198,12 @@ public sealed class ConeLightSource : MonoBehaviour {
   }
 
   private void FillVisibilityData(
-    Transform sourceTransform,
+    Vector3 position,
     Vector3 forward,
     int coneIndex,
     Vector4[] packedVisibilityRanges,
     Vector4[] endWallPositionsAndRadii,
     Vector4[] endWallNormalsAndValidity) {
-    Vector3 position = sourceTransform.position;
     Vector3 flatForward = Vector3.ProjectOnPlane(forward, Vector3.up).normalized;
     if (flatForward.sqrMagnitude < 0.0001f) flatForward = Vector3.forward;
 
@@ -199,9 +243,24 @@ public sealed class ConeLightSource : MonoBehaviour {
     float offset = Mathf.Min(rayOriginOffset, range);
     Vector3 rayOrigin = position + direction * offset;
     float rayLength = Mathf.Max(0f, range - offset);
-    if (obstacleMask.value != 0
-        && Physics.Raycast(rayOrigin, direction, out hit, rayLength, obstacleMask, QueryTriggerInteraction.Ignore))
-      return hit.distance + offset;
+    LayerMask blockers = overridePresentationObstacleMask ? presentationObstacleMask : obstacleMask;
+    if (blockers.value != 0) {
+      int hitCount = Physics.RaycastNonAlloc(
+        rayOrigin, direction, VisibilityHits, rayLength, blockers, QueryTriggerInteraction.Ignore);
+      float closestDistance = rayLength;
+      RaycastHit closestHit = default;
+      for (int index = 0; index < hitCount; index++) {
+        RaycastHit candidate = VisibilityHits[index];
+        if (candidate.collider == null || candidate.collider.transform.IsChildOf(transform)) continue;
+        if (candidate.distance >= closestDistance) continue;
+        closestDistance = candidate.distance;
+        closestHit = candidate;
+      }
+      if (closestHit.collider != null) {
+        hit = closestHit;
+        return closestDistance + offset;
+      }
+    }
 
     hit = default;
     return range;

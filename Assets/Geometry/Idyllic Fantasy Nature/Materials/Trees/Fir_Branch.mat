@@ -36,7 +36,7 @@ Material:
   - _OVERLAY_UV
   - _WIND_OVERLAY_UV
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
   m_CustomRenderQueue: 2450
   stringTagMap:
@@ -176,15 +176,15 @@ Material:
     - _Surface: 0
     - _Value: 0
     - _WIND_OVERLAY: 1
-    - _Wave_Scale: 0.19
+    - _Wave_Scale: 0.44
     - _WindDensity: 1
     - _WindSpeed: 0.5
     - _WindSpeed2: 1
     - _WindStrength: 0.1
     - _Wind_Direction: 0
-    - _Wind_Speed: 0.026
-    - _Wind_Strength: 0.196
-    - _Wind_Variation: 0.14
+    - _Wind_Speed: 0.063
+    - _Wind_Strength: 0.022
+    - _Wind_Variation: 0.132
     - _WorkflowMode: 0
     - _ZTest: 4
     - _ZWrite: 1

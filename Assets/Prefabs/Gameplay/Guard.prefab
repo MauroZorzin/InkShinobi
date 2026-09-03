@@ -239,6 +239,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 67955
   rayOriginOffset: 0.05
+  overridePresentationObstacleMask: 0
+  presentationObstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  presentationRayHeight: 0
+  presentationForwardOffset: 0
   flickerAmount: 0.05
   flickerSpeed: 2
   flickerIrregularity: 0.75
@@ -784,8 +790,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e188064908e144268a21a39f965af6e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardKeyCarrier
-  carriesKey: 1
-  keyId: palace_loop_key
+  carriesKey: 0
+  keyDefinition: {fileID: 0}
+  keyId: 
   keyWorldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
   dropAnchor: {fileID: 0}
   dropOffset: {x: 0, y: 0.14, z: 0}
@@ -816,12 +823,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardPaletteTint
   targetRenderer: {fileID: 6509336419227644842}
-  garmentColor: {r: 0.28, g: 0.72, b: 1, a: 1}
+  garmentColor: {r: 0.9, g: 0.08, b: 0.04, a: 1}
   blueDetectionThreshold: 0.08
   detectionSoftness: 0.04
   sourceGarmentLuminance: 0.62
   useGarmentColorForOutline: 1
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineColor: {r: 0.9, g: 0.08, b: 0.04, a: 1}
 --- !u!114 &1941514345663175645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1000,6 +1007,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 67955
   rayOriginOffset: 0.05
+  overridePresentationObstacleMask: 0
+  presentationObstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  presentationRayHeight: 0
+  presentationForwardOffset: 0
   flickerAmount: 0.05
   flickerSpeed: 2
   flickerIrregularity: 0.75

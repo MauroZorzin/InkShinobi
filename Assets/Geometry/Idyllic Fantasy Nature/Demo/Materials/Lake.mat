@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2999
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -120,11 +120,11 @@ Material:
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _CoastOpacity: 0.339
-    - _Coast_Opacity: 0
+    - _Coast_Opacity: 0.606
     - _Cull: 2
     - _Cutoff: 0.5
     - _Depth: 2.97
-    - _Depth_Distance: 0.028
+    - _Depth_Distance: 0.023
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _Displacement: 0
@@ -157,7 +157,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueControl: 0
-    - _QueueOffset: 0
+    - _QueueOffset: -1
     - _ReceiveShadows: 1
     - _RefractionAmount: 0.05
     - _RefractionSpeed: 2
@@ -200,7 +200,7 @@ Material:
     - _Foam_Color: {r: 1, g: 1, b: 1, a: 1}
     - _Foam_Scale: {r: 200, g: 200, b: 0, a: 0}
     - _RefractionScale: {r: 3, g: 12, b: 0, a: 0}
-    - _Refraction_Scale: {r: 5, g: 2.5, b: 0, a: 0}
+    - _Refraction_Scale: {r: 20, g: 10, b: 0, a: 0}
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _RippleColor: {r: 1, g: 1, b: 1, a: 1}
     - _RippleScale: {r: 50, g: 200, b: 0, a: 0}

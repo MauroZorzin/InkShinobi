@@ -1,16 +1,17 @@
 using UnityEngine;
 
 /// <summary>
-/// Optional key payload owned by a guard. The key uses one shared world prefab; its runtime id and
-/// colour are supplied here, with colour derived from this guard's authored garment palette.
+/// Optional key payload owned by a guard. Door, guard garment, and dropped key all use one shared
+/// DoorKeyDefinition so their identity and color cannot drift apart.
 /// </summary>
 [DisallowMultipleComponent]
 public sealed class GuardKeyCarrier : MonoBehaviour {
   [Header("Key")]
   [Tooltip("When disabled this guard drops no key.")]
   [SerializeField] private bool carriesKey;
-  [Tooltip("Stable id required by the matching locked door. Required when Carries Key is enabled.")]
-  [SerializeField] private string keyId;
+  [Tooltip("Shared identity and color for this guard's key and matching door.")]
+  [SerializeField] private DoorKeyDefinition keyDefinition;
+  [SerializeField, HideInInspector] private string keyId;
   [Tooltip("Shared key prefab containing a WorldItem. Its sprite is tinted at runtime.")]
   [SerializeField] private GameObject keyWorldPrefab;
 
@@ -22,14 +23,17 @@ public sealed class GuardKeyCarrier : MonoBehaviour {
   private bool dropped;
 
   public bool CarriesKey => carriesKey;
-  public string KeyId => keyId;
+  public DoorKeyDefinition KeyDefinition => ResolveKeyDefinition();
+  public string KeyId => KeyDefinition != null ? KeyDefinition.KeyId : keyId;
+
+  private void OnEnable() => ApplyDefinitionToGuard();
 
   public bool HasKey(string requestedKeyId) =>
     carriesKey && !dropped && !string.IsNullOrWhiteSpace(requestedKeyId) &&
-    string.Equals(keyId?.Trim(), requestedKeyId.Trim(), System.StringComparison.OrdinalIgnoreCase);
+    string.Equals(KeyId, requestedKeyId.Trim(), System.StringComparison.OrdinalIgnoreCase);
 
   public bool DropKey() {
-    if (dropped || !carriesKey || string.IsNullOrWhiteSpace(keyId) || keyWorldPrefab == null) {
+    if (dropped || !carriesKey || string.IsNullOrWhiteSpace(KeyId) || keyWorldPrefab == null) {
       return false;
     }
 
@@ -42,9 +46,9 @@ public sealed class GuardKeyCarrier : MonoBehaviour {
       return false;
     }
 
-    GuardPaletteTint palette = GetComponent<GuardPaletteTint>();
-    Color keyColor = palette != null ? palette.GarmentColor : Color.white;
-    worldItem.ConfigureRuntimeIdentity(keyId, true, keyColor);
+    DoorKeyDefinition definition = KeyDefinition;
+    if (definition != null) worldItem.ConfigureRuntimeIdentity(definition);
+    else worldItem.ConfigureRuntimeIdentity(KeyId, true, Color.white);
     dropped = true;
     return true;
   }
@@ -52,10 +56,21 @@ public sealed class GuardKeyCarrier : MonoBehaviour {
 #if UNITY_EDITOR
   private void OnValidate() {
     if (!carriesKey) return;
-    if (string.IsNullOrWhiteSpace(keyId))
-      Debug.LogWarning($"[GuardKeyCarrier] '{name}' carries a key but Key Id is empty.", this);
+    if (keyDefinition == null) keyDefinition = DoorKeyDefinition.FindById(keyId);
+    ApplyDefinitionToGuard();
+    if (string.IsNullOrWhiteSpace(KeyId))
+      Debug.LogWarning($"[GuardKeyCarrier] '{name}' carries a key but Key Definition is missing.", this);
     if (keyWorldPrefab == null)
       Debug.LogWarning($"[GuardKeyCarrier] '{name}' carries a key but Key World Prefab is missing.", this);
   }
 #endif
+
+  private DoorKeyDefinition ResolveKeyDefinition() =>
+    keyDefinition != null ? keyDefinition : DoorKeyDefinition.FindById(keyId);
+
+  private void ApplyDefinitionToGuard() {
+    if (!carriesKey || KeyDefinition == null) return;
+    GuardPaletteTint palette = GetComponent<GuardPaletteTint>();
+    if (palette != null) palette.GarmentColor = KeyDefinition.Color;
+  }
 }

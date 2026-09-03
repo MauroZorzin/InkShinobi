@@ -11,56 +11,36 @@ using UnityEngine.Rendering;
 [DisallowMultipleComponent]
 [RequireComponent(typeof(PassagewayDoor))]
 public sealed class DoorKeyColorVisual : MonoBehaviour {
-  private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
+  // Match DOCS-wall.mat so an untinted door panel is visually identical to adjacent wall paper.
+  private const float PanelEmissionStrength = 0.101531535f;
+  private static readonly Color DefaultHandleColor = Color.white;
+  private static readonly Color AvailableHandleColor = Color.green;
+  private static readonly Color UnavailableHandleColor = Color.red;
   private static readonly int ColorId = Shader.PropertyToID("_Color");
   private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
-  private static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
-  private static readonly int EmissionMapId = Shader.PropertyToID("_EmissionMap");
   private static readonly List<DoorKeyColorVisual> ActiveVisuals = new();
 
   [Header("Accent Material Slots")]
   [Tooltip("Keep ordinary unlocked doors white. Explicitly locked doors use Required Key Color and retain it after being unlocked.")]
   [SerializeField] private bool colorOnlyWhenStartsLocked = true;
 
-  [Tooltip("Brightness of the colored regions. One displays the authored key color without scene-light attenuation.")]
-  [SerializeField, Range(0f, 2f)] private float accentBrightness = 1f;
-
-  [Tooltip("Lighting-independent color added by the existing opaque wall material.")]
-  [SerializeField, Range(0f, 2f)] private float emissionStrength = 0.65f;
-
-  [Tooltip("Textured material used by panels that carry a key color.")]
-  [SerializeField] private Material coloredPanelMaterial;
-
-  [Tooltip("Neutral textured material used by panels that do not carry a key color.")]
-  [SerializeField] private Material uncoloredPanelMaterial;
-
-  [Tooltip("Brightness applied to uncolored panels and the plaster part of the door frame.")]
-  [SerializeField, Range(0f, 1f)] private float neutralArchitectureBrightness = 0.85f;
-
-  [Tooltip("Material slots on SM_doorWall that use the architectural plaster texture.")]
-  [SerializeField] private int[] doorWallSlots = { 1 };
-
-  [Tooltip("Material slots on the left panel that represent its white panel and handle.")]
+  [Tooltip("Material slots on the left panel that represent its paper panel.")]
   [SerializeField] private int[] leftPanelSlots = { 1 };
 
-  [Tooltip("Material slots on the right panel that represent its white panel and handle.")]
+  [Tooltip("Material slots on the right panel that represent its paper panel.")]
   [SerializeField] private int[] rightPanelSlots = { 2 };
 
   [Header("Handle Interaction Feedback")]
   [SerializeField] private int[] leftHandleSlots = { 2 };
   [SerializeField] private int[] rightHandleSlots = { 0 };
-  [SerializeField] private Color defaultHandleColor = Color.white;
-  [SerializeField] private Color availableHandleColor = Color.green;
-  [SerializeField] private Color unavailableHandleColor = Color.red;
 
   private PassagewayDoor door;
   private MaterialPropertyBlock propertyBlock;
-  private Renderer doorWallRenderer;
   private bool handleFocused;
   private bool handleInteractionAllowed;
 
   private bool ShouldPreservePanelColor =>
-    door != null && (!colorOnlyWhenStartsLocked || door.StartsLocked);
+    door != null && door.RequiredKey != null && (!colorOnlyWhenStartsLocked || door.StartsLocked);
 
   private void OnEnable() {
     if (!ActiveVisuals.Contains(this)) ActiveVisuals.Add(this);
@@ -82,35 +62,32 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
 
     Renderer leftRenderer = ResolveRenderer(door.LeftDoorPanel);
     Renderer rightRenderer = ResolveRenderer(door.RightDoorPanel);
-    Material panelMaterial = ShouldPreservePanelColor ? coloredPanelMaterial : uncoloredPanelMaterial;
-    SetMaterialSlots(leftRenderer, leftPanelSlots, panelMaterial);
-    SetMaterialSlots(rightRenderer, rightPanelSlots, panelMaterial);
+
+    // Shared materials are authored on SlidingDoor.prefab. This component only uses property
+    // blocks, so ExecuteAlways preview cannot create per-instance material overrides in scenes.
     if (ShouldPreservePanelColor) {
-      ApplyToPanel(leftRenderer, leftPanelSlots, door.RequiredKeyColor, true);
-      ApplyToPanel(rightRenderer, rightPanelSlots, door.RequiredKeyColor, true);
+      ApplyTint(leftRenderer, leftPanelSlots, door.RequiredKeyColor);
+      ApplyTint(rightRenderer, rightPanelSlots, door.RequiredKeyColor);
     } else {
-      ApplyNeutralArchitecture(leftRenderer, leftPanelSlots);
-      ApplyNeutralArchitecture(rightRenderer, rightPanelSlots);
+      ClearSlots(leftRenderer, leftPanelSlots);
+      ClearSlots(rightRenderer, rightPanelSlots);
     }
 
-    ApplyNeutralArchitecture(ResolveDoorWallRenderer(), doorWallSlots);
-
     Color handleColor = ResolveHandleColor();
-    ApplyToPanel(leftRenderer, leftHandleSlots, handleColor, false);
-    ApplyToPanel(rightRenderer, rightHandleSlots, handleColor, false);
+    ApplyTint(leftRenderer, leftHandleSlots, handleColor);
+    ApplyTint(rightRenderer, rightHandleSlots, handleColor);
   }
 
   private Color ResolveHandleColor() {
     // Animation is authoritative: transitional states never advertise another interaction.
-    if (door.IsAnimating) return defaultHandleColor;
+    if (door.IsAnimating) return DefaultHandleColor;
 
     // A focused door gives explicit validity feedback. This also covers standing on one
     // of the door's own paths and trying to use a locked door without its matching key.
     if (handleFocused)
-      return handleInteractionAllowed ? availableHandleColor : unavailableHandleColor;
+      return handleInteractionAllowed ? AvailableHandleColor : UnavailableHandleColor;
 
-    // Away from the player, only a door that is still locked remains red.
-    return door.IsLocked ? unavailableHandleColor : availableHandleColor;
+    return DefaultHandleColor;
   }
 
   public void SetHandleInteractionState(bool focused, bool interactionAllowed) {
@@ -120,7 +97,7 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
     Apply();
   }
 
-  private void ApplyToPanel(Renderer targetRenderer, int[] materialSlots, Color color, bool textureEmission) {
+  private void ApplyTint(Renderer targetRenderer, int[] materialSlots, Color color) {
     if (targetRenderer == null || materialSlots == null) return;
 
     propertyBlock ??= new MaterialPropertyBlock();
@@ -132,22 +109,17 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
 
       propertyBlock.Clear();
       targetRenderer.GetPropertyBlock(propertyBlock, slot);
-      Color opaqueColor = new(
-        color.r * accentBrightness,
-        color.g * accentBrightness,
-        color.b * accentBrightness,
-        1f);
-      propertyBlock.SetColor(BaseColorId, opaqueColor);
-      propertyBlock.SetColor(ColorId, opaqueColor);
+      Material material = materials[slot];
+      float alpha = material != null && material.HasProperty(ColorId)
+        ? material.GetColor(ColorId).a
+        : 1f;
+      Color materialTint = new(color.r, color.g, color.b, alpha);
+      propertyBlock.SetColor(ColorId, materialTint);
       propertyBlock.SetColor(EmissionColorId, new Color(
-        color.r * emissionStrength,
-        color.g * emissionStrength,
-        color.b * emissionStrength,
+        color.r * PanelEmissionStrength,
+        color.g * PanelEmissionStrength,
+        color.b * PanelEmissionStrength,
         1f));
-      if (textureEmission && materials[slot] != null) {
-        Texture baseTexture = materials[slot].GetTexture(BaseMapId);
-        if (baseTexture != null) propertyBlock.SetTexture(EmissionMapId, baseTexture);
-      }
       targetRenderer.SetPropertyBlock(propertyBlock, slot);
     }
   }
@@ -160,52 +132,6 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
       if (slot < 0 || slot >= materialCount) continue;
       targetRenderer.SetPropertyBlock(null, slot);
     }
-  }
-
-  private void ApplyNeutralArchitecture(Renderer targetRenderer, int[] materialSlots) {
-    if (targetRenderer == null || materialSlots == null) return;
-    propertyBlock ??= new MaterialPropertyBlock();
-    int materialCount = targetRenderer.sharedMaterials.Length;
-    Color neutral = new(
-      neutralArchitectureBrightness,
-      neutralArchitectureBrightness,
-      neutralArchitectureBrightness,
-      1f);
-
-    for (int i = 0; i < materialSlots.Length; i++) {
-      int slot = materialSlots[i];
-      if (slot < 0 || slot >= materialCount) continue;
-      propertyBlock.Clear();
-      targetRenderer.GetPropertyBlock(propertyBlock, slot);
-      propertyBlock.SetColor(BaseColorId, neutral);
-      propertyBlock.SetColor(ColorId, neutral);
-      propertyBlock.SetColor(EmissionColorId, Color.black);
-      targetRenderer.SetPropertyBlock(propertyBlock, slot);
-    }
-  }
-
-  private Renderer ResolveDoorWallRenderer() {
-    if (doorWallRenderer != null) return doorWallRenderer;
-    Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
-    for (int i = 0; i < renderers.Length; i++) {
-      if (renderers[i].name != "SM_doorWall") continue;
-      doorWallRenderer = renderers[i];
-      break;
-    }
-    return doorWallRenderer;
-  }
-
-  private static void SetMaterialSlots(Renderer targetRenderer, int[] materialSlots, Material material) {
-    if (targetRenderer == null || materialSlots == null || material == null) return;
-    Material[] materials = targetRenderer.sharedMaterials;
-    bool changed = false;
-    for (int i = 0; i < materialSlots.Length; i++) {
-      int slot = materialSlots[i];
-      if (slot < 0 || slot >= materials.Length || materials[slot] == material) continue;
-      materials[slot] = material;
-      changed = true;
-    }
-    if (changed) targetRenderer.sharedMaterials = materials;
   }
 
   private static Renderer ResolveRenderer(Transform panel) =>

@@ -11,33 +11,54 @@ public class WorldItem : MonoBehaviour, IInteractable, IInteractionPriority, IIn
   public bool destroyOnPickup = true;
 
   [Header("Runtime identity")]
+  [Tooltip("Shared door-key identity. Guard drops set this automatically.")]
+  [SerializeField] private DoorKeyDefinition doorKeyDefinition;
   [Tooltip("Optional authored runtime id. Guard drops set this automatically; use it for keys placed directly in a scene.")]
   [SerializeField] private string runtimeItemId;
   [Tooltip("Tint this shared world prefab with Runtime Color.")]
   [SerializeField] private bool hasColorOverride;
   [SerializeField] private Color runtimeColor = Color.white;
 
-  public string EffectiveItemId => string.IsNullOrWhiteSpace(runtimeItemId)
-      ? item != null ? item.itemId : string.Empty
-      : runtimeItemId;
+  public DoorKeyDefinition KeyDefinition => ResolveDoorKeyDefinition();
+  public string EffectiveItemId => KeyDefinition != null
+      ? KeyDefinition.KeyId
+      : string.IsNullOrWhiteSpace(runtimeItemId)
+        ? item != null ? item.itemId : string.Empty
+        : runtimeItemId;
   public int Priority => PickupPriority;
   public InteractionCategory InteractionCategory => InteractionCategory.Pickup;
 
   private void Awake() => ApplyRuntimePresentation();
 
 #if UNITY_EDITOR
-  private void OnValidate() => ApplyRuntimePresentation();
+  private void OnValidate() {
+    if (doorKeyDefinition == null)
+      doorKeyDefinition = global::DoorKeyDefinition.FindById(runtimeItemId);
+    ApplyRuntimePresentation();
+  }
 #endif
 
   public void ConfigureRuntimeIdentity(string itemId, bool useColorOverride, Color displayColor) {
+    doorKeyDefinition = global::DoorKeyDefinition.FindById(itemId);
     runtimeItemId = itemId;
     hasColorOverride = useColorOverride;
     runtimeColor = useColorOverride ? displayColor : Color.white;
     ApplyRuntimePresentation();
   }
 
+  public void ConfigureRuntimeIdentity(DoorKeyDefinition definition) {
+    doorKeyDefinition = definition;
+    runtimeItemId = definition != null ? definition.KeyId : string.Empty;
+    hasColorOverride = definition != null;
+    runtimeColor = definition != null ? definition.Color : Color.white;
+    ApplyRuntimePresentation();
+  }
+
   public void Interact(PlayerInventory inventory) {
-    if (item == null || inventory == null || !inventory.TryPickUp(item, EffectiveItemId, hasColorOverride, runtimeColor)) {
+    bool useColorOverride = KeyDefinition != null || hasColorOverride;
+    Color displayColor = KeyDefinition != null ? KeyDefinition.Color : runtimeColor;
+    if (item == null || inventory == null || !inventory.TryPickUp(
+          item, EffectiveItemId, useColorOverride, displayColor)) {
       return;
     }
 
@@ -48,14 +69,17 @@ public class WorldItem : MonoBehaviour, IInteractable, IInteractionPriority, IIn
   }
 
   private void ApplyRuntimePresentation() {
-    if (!hasColorOverride) {
-      return;
-    }
+    DoorKeyDefinition definition = KeyDefinition;
+    if (definition == null && !hasColorOverride) return;
+    Color displayColor = definition != null ? definition.Color : runtimeColor;
 
     SpriteRenderer[] renderers = GetComponentsInChildren<SpriteRenderer>(true);
     for (int i = 0; i < renderers.Length; i++) {
-      renderers[i].color = runtimeColor;
+      renderers[i].color = displayColor;
       renderers[i].renderingLayerMask |= SelectiveColor.RenderingLayerMask;
     }
   }
+
+  private DoorKeyDefinition ResolveDoorKeyDefinition() =>
+    doorKeyDefinition != null ? doorKeyDefinition : global::DoorKeyDefinition.FindById(runtimeItemId);
 }

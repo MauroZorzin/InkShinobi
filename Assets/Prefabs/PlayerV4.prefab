@@ -786,6 +786,10 @@ MonoBehaviour:
   departureInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
   arrivalInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
   travelingInkPrefab: {fileID: 5045851490385637994, guid: a88532dc9dbd30d4e943836b248728cb, type: 3}
+  departureSound: {fileID: 0}
+  soundVolume: 1
+  pitchVariance: 0.08
+  mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
 --- !u!95 &8963431698743395654
 Animator:
   serializedVersion: 7
@@ -930,7 +934,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18ebf572da18493ba5d00ef0c71518e7, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionDialogue
   defaultDialogue: '[X] to interact'
   pickupDialogue: '[X] to pick up'
@@ -1099,7 +1103,7 @@ MonoBehaviour:
   cursorMovementThreshold: 0.5
   minimumThrowDistance: 0.75
   maximumThrowDistance: 10
-  apexHeight: 1
+  apexHeight: 0.6
   maximumThrowSpeed: 16
   minimumSurfaceNormalY: 0.45
   obstructionSamples: 22
