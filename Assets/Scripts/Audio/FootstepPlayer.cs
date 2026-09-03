@@ -8,6 +8,7 @@ using UnityEngine.Audio;
 /// SurfaceAudioLibrary every stepDistance world units traveled. Nothing external needs to feed it
 /// speed or surface, and no other script needs to know it exists.
 /// </summary>
+[DisallowMultipleComponent]
 public class FootstepPlayer : MonoBehaviour {
   [Header("Surface Detection")]
   [Tooltip("Shared surface -> clip mapping.")]
