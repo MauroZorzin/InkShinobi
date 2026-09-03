@@ -58,6 +58,11 @@ MonoBehaviour:
     m_Bits: 67955
   rayOriginOffset: 0.05
   affectsGameplay: 1
+  useTintBounds: 0
+  tintBoundsCenterLocal: {x: 0, y: 0, z: 0}
+  tintBoundsRotationLocal: {x: 0, y: 0, z: 0, w: 1}
+  tintBoundsSize: {x: 1, y: 1, z: 1}
+  tintBoundsFeather: 0.04
   surfaceLight: {fileID: 5693944551313175911}
   driveCoreVisual: 1
   coreRenderer: {fileID: 4469009699687599772}

@@ -18,7 +18,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7704827832271038240, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
       propertyPath: m_Name
-      value: PlayerV4 Variant
+      value: PlayerV4 Variant Palace
       objectReference: {fileID: 0}
     - target: {fileID: 8143050556635903949, guid: 38376ec577a0ee940932766c79fe1331, type: 3}
       propertyPath: m_LocalPosition.x
@@ -95,4 +95,5 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 44c30dd402a3f134196f4bcac9aa6542, type: 2}
   m_target: {fileID: 2726852446830376125}
   m_maskRadius: 2
+  m_targetOffset: 0.5
   m_enableGizmos: 0

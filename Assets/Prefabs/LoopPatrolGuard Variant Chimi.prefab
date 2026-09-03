@@ -20,6 +20,30 @@ PrefabInstance:
       propertyPath: gameCamera
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 2229043303573283404, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: garmentColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2229043303573283404, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: garmentColor.g
+      value: 0.72
+      objectReference: {fileID: 0}
+    - target: {fileID: 2229043303573283404, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: garmentColor.r
+      value: 0.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 2229043303573283404, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: outlineColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2229043303573283404, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: outlineColor.g
+      value: 0.72
+      objectReference: {fileID: 0}
+    - target: {fileID: 2229043303573283404, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: outlineColor.r
+      value: 0.28
+      objectReference: {fileID: 0}
     - target: {fileID: 2373887249175256760, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 15.423666
@@ -71,6 +95,14 @@ PrefabInstance:
     - target: {fileID: 5496017625495439539, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: m_BounceIntensity
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5734512930278582093, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: keyId
+      value: palace_loop_key
+      objectReference: {fileID: 0}
+    - target: {fileID: 5734512930278582093, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: carriesKey
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5734512930278582093, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: keyWorldPrefab
