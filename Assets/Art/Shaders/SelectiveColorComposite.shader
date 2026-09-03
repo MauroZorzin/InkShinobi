@@ -26,20 +26,45 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
       float _SelectiveColorPreserveStrength;
 
       int _FixedLightCount;
-      float4 _FixedLightPositions[8];
-      half4 _FixedLightColors[8];
-      float _FixedLightFeathers[8];
-      float4 _FixedLightLooks[8];
+      float4 _FixedLightPositions[24];
+      half4 _FixedLightColors[24];
+      float _FixedLightFeathers[24];
+      float4 _FixedLightLooks[24];
+      float4 _FixedVisibilityRanges[768];
 
       int _ConeLightCount;
-      float4 _ConeLightPositions[8];
-      float4 _ConeLightDirections[8];
-      half4 _ConeLightColors[8];
-      float4 _ConeLightFeathers[8];
-      float4 _ConeLightLooks[8];
-      float _ConeVisibilityRanges[384];
-      float4 _ConeEndWallPositions[8];
-      float4 _ConeEndWallNormals[8];
+      float4 _ConeLightPositions[24];
+      float4 _ConeLightDirections[24];
+      half4 _ConeLightColors[24];
+      float4 _ConeLightFeathers[24];
+      float4 _ConeLightLooks[24];
+      float4 _ConeVisibilityRanges[288];
+      float4 _ConeEndWallPositions[24];
+      float4 _ConeEndWallNormals[24];
+
+      float ReadPackedFixedVisibility(int scalarIndex) {
+        float4 packed = _FixedVisibilityRanges[scalarIndex / 4];
+        int component = scalarIndex % 4;
+        return component == 0 ? packed.x : component == 1 ? packed.y : component == 2 ? packed.z : packed.w;
+      }
+
+      float ReadPackedConeVisibility(int scalarIndex) {
+        float4 packed = _ConeVisibilityRanges[scalarIndex / 4];
+        int component = scalarIndex % 4;
+        return component == 0 ? packed.x : component == 1 ? packed.y : component == 2 ? packed.z : packed.w;
+      }
+
+      float SampleFixedVisibilityRange(int lightIndex, float2 directionToSurface) {
+        float angle = atan2(directionToSurface.x, directionToSurface.y);
+        float samplePosition = frac(angle / 6.2831853 + 1.0) * 128.0;
+        int lowerSample = min((int)floor(samplePosition), 127);
+        int upperSample = lowerSample == 127 ? 0 : lowerSample + 1;
+        int baseIndex = lightIndex * 128;
+        // Favor slight over-occlusion at ray boundaries over allowing color to leak through a wall.
+        return min(
+          ReadPackedFixedVisibility(baseIndex + lowerSample),
+          ReadPackedFixedVisibility(baseIndex + upperSample));
+      }
 
       float SampleConeVisibilityRange(int coneIndex, float signedAngle, float halfAngle) {
         float normalizedAngle = saturate(signedAngle / max(halfAngle * 2.0, 0.0001) + 0.5);
@@ -48,8 +73,8 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
         float fraction = frac(samplePosition);
         int baseIndex = coneIndex * 48;
         return lerp(
-          _ConeVisibilityRanges[baseIndex + lowerSample],
-          _ConeVisibilityRanges[baseIndex + lowerSample + 1],
+          ReadPackedConeVisibility(baseIndex + lowerSample),
+          ReadPackedConeVisibility(baseIndex + lowerSample + 1),
           fraction);
       }
 
@@ -109,8 +134,14 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
               float feather = min(_FixedLightFeathers[lightIndex], radius);
               float innerRadius = max(0.0, radius - feather);
               float distanceToLight = distance(worldPosition, _FixedLightPositions[lightIndex].xyz);
+              float2 horizontalOffset = worldPosition.xz - _FixedLightPositions[lightIndex].xz;
+              float horizontalDistance = length(horizontalOffset);
+              float2 horizontalDirection = horizontalOffset / max(horizontalDistance, 0.0001);
+              float visibleRange = SampleFixedVisibilityRange(lightIndex, horizontalDirection);
+              half visibilityWeight = 1.0h - smoothstep(
+                visibleRange + 0.005, visibleRange + 0.03, horizontalDistance);
               half weight = (1.0h - smoothstep(innerRadius, max(innerRadius + 0.0001, radius), distanceToLight))
-                            * receiverMask;
+                            * visibilityWeight * receiverMask;
               if (weight > strongestFixedWeight) {
                 strongestFixedWeight = weight;
                 strongestFixedLight = _FixedLightColors[lightIndex];

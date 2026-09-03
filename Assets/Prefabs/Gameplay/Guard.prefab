@@ -875,7 +875,6 @@ MonoBehaviour:
   volume: 1
   pitchVariance: 0.08
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}
-  verboseLogging: 0
 --- !u!1 &7652254753139925419
 GameObject:
   m_ObjectHideFlags: 0

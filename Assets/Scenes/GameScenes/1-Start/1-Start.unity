@@ -1115,7 +1115,7 @@ Transform:
   m_GameObject: {fileID: 253724728}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -15, y: 0, z: 0}
+  m_LocalPosition: {x: -10, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2352,7 +2352,6 @@ GameObject:
   - component: {fileID: 604636920}
   - component: {fileID: 604636924}
   - component: {fileID: 604636923}
-  - component: {fileID: 604636922}
   - component: {fileID: 604636921}
   m_Layer: 0
   m_Name: A&D_Trigger
@@ -2397,27 +2396,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &604636922
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 604636919}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 460ad0c3ccd8ecf4495bd50318adf374, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InformationTrigger
-  message: 'Use [A] and [D] to Move '
-  dismissMode: 0
-  displayDuration: 1
-  componentActions: []
-  player: {fileID: 0}
-  oneShot: 1
-  destroyAfterUse: 0
-  displayOnSecondTrigger: 0
-  delayBeforeDisplay: 2
 --- !u!23 &604636923
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2641,6 +2619,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 1a2776aad3b57804994baf2fcd717291, type: 2}
   m_target: {fileID: 710100000000000003}
   m_maskRadius: 1
+  m_targetOffset: 0.5
   m_enableGizmos: 0
 --- !u!1001 &654171857
 PrefabInstance:
@@ -5145,7 +5124,7 @@ MonoBehaviour:
   walkDistance: 18
   walkSpeed: 1.8
   gravity: -20
-  completionInformation: Use [A] and [D] to Move
+  completionInformation: '[A] / [D] - move along the path.'
   completionInformationDismissDistance: 1
 --- !u!4 &1167240330
 Transform:
@@ -9400,6 +9379,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!4 &2042894572
 Transform:
@@ -10403,22 +10383,6 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 9001000000000000012, guid: 7ec4bcac88ac49199e29aedbbd7215d9, type: 3}
-      propertyPath: soundVolume
-      value: 0.125
-      objectReference: {fileID: 0}
-    - target: {fileID: 9001000000000000021, guid: 7ec4bcac88ac49199e29aedbbd7215d9, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 125
-      objectReference: {fileID: 0}
-    - target: {fileID: 9001000000000000041, guid: 7ec4bcac88ac49199e29aedbbd7215d9, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 9001000000000000051, guid: 7ec4bcac88ac49199e29aedbbd7215d9, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10594,6 +10558,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4821493528596228268, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5610689115204859605}
+    - targetCorrespondingSourceObject: {fileID: 4821493528596228268, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5610689115204859606}
   m_SourcePrefab: {fileID: 100100000, guid: f304b157e5e56ed4ea412ff029101499, type: 3}
 --- !u!1001 &4853749399253842372
 PrefabInstance:
@@ -10739,6 +10706,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5610689115204859606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5086530638691953768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e407c94b84543aaa47a0a283918181b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InteractionDialogueOverride
+  showDialogue: 1
+  dialogue: '[X] to read'
+  activeStateTarget: {fileID: 710200000000000001}
+  activeDialogue: '[X] to close'
 --- !u!1001 &7890478442635715226
 PrefabInstance:
   m_ObjectHideFlags: 0

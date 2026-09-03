@@ -13,7 +13,7 @@ public class ArrowInteractable : MonoBehaviour, IInteractable, IInteractionCateg
   [SerializeField] private GameObject targetText;
 
   [Header("ToHide")]
-  [Tooltip("GameObject hide permanently when interaction is triggered.")]
+  [Tooltip("World object hidden permanently on the first interaction. If this is the interactable root, its renderers are hidden immediately and the root remains active only long enough to receive the close interaction.")]
   [SerializeField] private GameObject toHideObject;
 
   [Header("Interaction Texts")]
@@ -63,6 +63,7 @@ public class ArrowInteractable : MonoBehaviour, IInteractable, IInteractionCateg
     if (componentToDisable != null) componentToDisable.enabled = !showing;
 
     if (showing) {
+      HideWorldObjectOnFirstInteraction();
       if (targetObject != null) targetObject.SetActive(true);
       if (_scrollAnimation != null) _scrollAnimation.PlayOpen(targetText);
       else if (targetText != null) targetText.SetActive(true);
@@ -74,6 +75,20 @@ public class ArrowInteractable : MonoBehaviour, IInteractable, IInteractionCateg
     } else {
       CompleteHide();
     }
+  }
+
+  private void HideWorldObjectOnFirstInteraction() {
+    if (toHideObject == null) return;
+
+    if (toHideObject != gameObject) {
+      toHideObject.SetActive(false);
+      return;
+    }
+
+    // This component must remain enabled while the scroll overlay is open so the same Interact
+    // input can close it. Hide only the world model now; CompleteHide deactivates the root later.
+    Renderer[] renderers = toHideObject.GetComponentsInChildren<Renderer>(true);
+    for (int i = 0; i < renderers.Length; i++) renderers[i].enabled = false;
   }
 
   private void CompleteHide() {

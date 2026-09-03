@@ -10,7 +10,7 @@ public enum DistractionThrowFailure {
   TooFast,
   Obstructed,
   Cooldown,
-  NoInventoryItem,
+  InvalidConfiguration,
   PlayerUnavailable
 }
 

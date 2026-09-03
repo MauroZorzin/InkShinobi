@@ -12,12 +12,12 @@ public sealed class PlayerInteractionDialogue : MonoBehaviour {
   [SerializeField] private string defaultDialogue = "[X] to interact";
 
   [Header("Pickup")]
-  [SerializeField] private string pickupDialogue = "[X] to pickup";
+  [SerializeField] private string pickupDialogue = "[X] to pick up";
 
   [Header("Door")]
   [SerializeField] private string openDoorDialogue = "[X] to open";
   [SerializeField] private string closeDoorDialogue = "[X] to close";
-  [SerializeField] private string unavailableDoorDialogue = "Can't open now";
+  [SerializeField] private string unavailableDoorDialogue = "The way is blocked.";
   [Tooltip("{0} is replaced by the door's colour name, tinted with its authored key colour.")]
   [SerializeField] private string lockedDoorDialogueFormat = "Requires {0} key";
 

@@ -150,8 +150,8 @@ public class MenuManager : MonoBehaviour {
     StopRainForDialog();
     _newGameDialog = ConfirmationModalView.Create(
       "NewGameConfirmation",
-      "Overwrite progress?",
-      "Starting a new game will overwrite all saved progress.",
+      "Begin a new mission?",
+      "This will erase the current path and all saved progress.",
       "Cancel",
       "New Game",
       CancelNewGameConfirmation,
@@ -186,7 +186,7 @@ public class MenuManager : MonoBehaviour {
     StopRainForDialog();
     _quitDialog = ConfirmationModalView.Create(
       "QuitConfirmation",
-      "Quit the game?",
+      "Leave the shadows?",
       "Are you sure you want to quit?",
       "Cancel",
       "Quit Game",

@@ -1,9 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
-public enum DistractionSupplyMode { Infinite, InventoryItem }
 
 /// <summary>Independent toggle-to-aim distraction ability.</summary>
 [DisallowMultipleComponent]
@@ -11,11 +10,8 @@ public enum DistractionSupplyMode { Infinite, InventoryItem }
 public sealed class DistractionController : MonoBehaviour {
   private enum AimState { Idle, Aiming }
 
-  [Header("Supply")]
-  [Tooltip("Infinite throws the configured projectile and uses cooldown. Inventory Item throws and consumes the carried Throwable item and ignores cooldown.")]
-  [SerializeField] private DistractionSupplyMode supplyMode = DistractionSupplyMode.Infinite;
-  [SerializeField] private PlayerInventory inventory;
-  [SerializeField] private ThrownDistraction infiniteProjectilePrefab;
+  [Header("Projectile")]
+  [SerializeField] private ThrownDistraction projectilePrefab;
 
   [Header("Targeting")]
   [SerializeField] private Camera aimCamera;
@@ -73,7 +69,7 @@ public sealed class DistractionController : MonoBehaviour {
   [Tooltip("Horizontal camera-space distance from the player's symmetry axis inside which the anchor is considered centered and the aim point decides facing instead.")]
   [SerializeField, Min(0f)] private float aimFacingDeadZone = 0.01f;
   private static readonly string[] LockedActions = {
-    "Move", "RotateRight", "RotateLeft", "Interact", "Look", "Drop"
+    "Move", "RotateRight", "RotateLeft", "Interact", "Look"
   };
 
   private readonly List<InputAction> lockedActions = new();
@@ -109,12 +105,16 @@ public sealed class DistractionController : MonoBehaviour {
 
   public bool IsAiming => state == AimState.Aiming;
   public bool IsCameraTransitioning => cameraRoutine != null;
-  public float CooldownRemaining => supplyMode == DistractionSupplyMode.Infinite ? cooldownRemaining : 0f;
-  public float CooldownProgress => supplyMode == DistractionSupplyMode.Infinite && cooldown > 0f
+  public float CooldownRemaining => cooldownRemaining;
+  public float CooldownProgress => cooldown > 0f
     ? Mathf.Clamp01(cooldownRemaining / cooldown)
     : 0f;
   public DistractionThrowEvaluation CurrentEvaluation => evaluation;
   public AimEntryBlockReason LastAimEntryBlockReason { get; private set; }
+
+  public event Action AimStarted;
+  public event Action AimCancelled;
+  public event Action DistractionThrown;
 
   private void Awake() {
     ResolveReferences();
@@ -174,7 +174,7 @@ public sealed class DistractionController : MonoBehaviour {
 #pragma warning restore IDE0051
 
   private void Update() {
-    if (supplyMode == DistractionSupplyMode.Infinite && cooldownRemaining > 0f && !SceneTransitionManager.IsGamePaused)
+    if (cooldownRemaining > 0f && !SceneTransitionManager.IsGamePaused)
       cooldownRemaining = Mathf.Max(0f, cooldownRemaining - Time.deltaTime);
     if (state != AimState.Aiming || SceneTransitionManager.IsGamePaused) return;
     EnsureActionsLocked();
@@ -221,6 +221,7 @@ public sealed class DistractionController : MonoBehaviour {
     UpdateMovingAnchorAndTrajectory();
     preview?.Show(evaluation);
     inkArm?.Show();
+    AimStarted?.Invoke();
     return true;
   }
 
@@ -243,43 +244,16 @@ public sealed class DistractionController : MonoBehaviour {
       return AimEntryBlockReason.OtherAimModeActive;
     if (stealth != null && stealth.IsConcealed) return AimEntryBlockReason.Concealed;
 
-    if (supplyMode == DistractionSupplyMode.Infinite) {
-      if (infiniteProjectilePrefab == null) return AimEntryBlockReason.InvalidConfiguration;
-      return cooldownRemaining > 0f ? AimEntryBlockReason.Cooldown : AimEntryBlockReason.None;
-    }
-
-    if (inventory == null) return AimEntryBlockReason.InvalidConfiguration;
-    InventoryItemInstance itemInstance = inventory.CurrentItemInstance;
-    if (itemInstance?.Definition == null || itemInstance.Definition.category != InventoryItemCategory.Throwable)
-      return AimEntryBlockReason.NoThrowableItem;
-    return itemInstance.Definition.distractionProjectilePrefab != null
-      ? AimEntryBlockReason.None
-      : AimEntryBlockReason.InvalidConfiguration;
+    if (projectilePrefab == null) return AimEntryBlockReason.InvalidConfiguration;
+    return cooldownRemaining > 0f ? AimEntryBlockReason.Cooldown : AimEntryBlockReason.None;
   }
 
   private void HandleRejectedEntry(AimEntryBlockReason reason) {
     if (reason == AimEntryBlockReason.InvalidConfiguration && !loggedInvalidConfiguration) {
       loggedInvalidConfiguration = true;
-      Debug.LogError("[Distraction] Aim entry failed because a required reference or throwable projectile is not configured.", this);
+      Debug.LogError("[Distraction] Aim entry failed because a required reference or projectile is not configured.", this);
     }
     if (reason.ShouldPlayFeedback()) rejectionFeedback?.PlayRejectedAction();
-  }
-
-  private bool TryResolveSupply(
-      out ThrownDistraction projectile,
-      out InventoryItemInstance itemInstance) {
-    itemInstance = null;
-    if (supplyMode == DistractionSupplyMode.Infinite) {
-      projectile = infiniteProjectilePrefab;
-      return projectile != null;
-    }
-
-    itemInstance = inventory != null ? inventory.CurrentItemInstance : null;
-    ItemDefinition definition = itemInstance?.Definition;
-    projectile = definition != null ? definition.distractionProjectilePrefab : null;
-    return definition != null
-           && definition.category == InventoryItemCategory.Throwable
-           && projectile != null;
   }
 
   private bool TryConfirmCurrent() {
@@ -325,14 +299,16 @@ public sealed class DistractionController : MonoBehaviour {
       }
     }
 
-    if (launched && supplyMode == DistractionSupplyMode.Infinite) cooldownRemaining = cooldown;
+    if (launched) {
+      cooldownRemaining = cooldown;
+      DistractionThrown?.Invoke();
+    } else {
+      AimCancelled?.Invoke();
+    }
   }
 
   private bool TryLaunch(DistractionThrowEvaluation accepted) {
-    if (!TryResolveSupply(out ThrownDistraction projectilePrefab, out InventoryItemInstance itemInstance))
-      return false;
-    if (supplyMode == DistractionSupplyMode.InventoryItem && inventory.CurrentItemInstance != itemInstance)
-      return false;
+    if (projectilePrefab == null) return false;
 
     ThrownDistraction instance;
     try {
@@ -343,12 +319,10 @@ public sealed class DistractionController : MonoBehaviour {
       return false;
     }
     if (instance == null) return false;
-    if (itemInstance?.HasColorOverride == true) instance.ApplyDisplayColor(itemInstance.DisplayColor);
     if (!instance.Launch(accepted, throwerColliders)) {
       Destroy(instance.gameObject);
       return false;
     }
-    if (supplyMode == DistractionSupplyMode.InventoryItem) inventory.ConsumeItem();
     return true;
   }
 
@@ -356,7 +330,6 @@ public sealed class DistractionController : MonoBehaviour {
     locked = evaluation;
     if (!evaluation.IsValid) return false;
 
-    TryResolveSupply(out ThrownDistraction projectilePrefab, out _);
     float projectileRadius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0f;
     Vector3 ballisticTarget = evaluation.Target + evaluation.TargetNormal * projectileRadius;
     if (!BallisticThrowSolver.TrySolve(
@@ -383,10 +356,10 @@ public sealed class DistractionController : MonoBehaviour {
   }
 
   private DistractionThrowEvaluation EvaluateTargetFromOrigin(Vector3 origin) {
-    if (supplyMode == DistractionSupplyMode.Infinite && cooldownRemaining > 0f)
+    if (cooldownRemaining > 0f)
       return InvalidWithoutTarget(origin, DistractionThrowFailure.Cooldown);
-    if (!TryResolveSupply(out ThrownDistraction projectilePrefab, out _))
-      return InvalidWithoutTarget(origin, DistractionThrowFailure.NoInventoryItem);
+    if (projectilePrefab == null)
+      return InvalidWithoutTarget(origin, DistractionThrowFailure.InvalidConfiguration);
     if (!hasCursorTarget)
       return InvalidWithoutTarget(origin, DistractionThrowFailure.NoSurface);
 
@@ -498,7 +471,6 @@ public sealed class DistractionController : MonoBehaviour {
   }
 
   private bool IsAnchorObstructed(Vector3 origin) {
-    TryResolveSupply(out ThrownDistraction projectilePrefab, out _);
     float radius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0.04f;
     return Physics.CheckSphere(
       origin, Mathf.Max(0.005f, radius * 0.9f), trajectoryObstructionLayers,
@@ -514,7 +486,6 @@ public sealed class DistractionController : MonoBehaviour {
   }
 
   private bool IsTrajectoryObstructed(DistractionThrowEvaluation result) {
-    TryResolveSupply(out ThrownDistraction projectilePrefab, out _);
     float radius = projectilePrefab != null ? projectilePrefab.CollisionRadius : 0.1f;
     float estimatedArcLength = result.InitialVelocity.magnitude * result.FlightTime
                                + 0.5f * Physics.gravity.magnitude
@@ -702,7 +673,6 @@ public sealed class DistractionController : MonoBehaviour {
   }
 
   private void ResolveReferences() {
-    if (inventory == null) inventory = GetComponent<PlayerInventory>();
     if (playerInput == null) playerInput = GetComponent<PlayerInput>();
     if (movement == null) movement = GetComponent<LineFollowController>();
     if (stealth == null) stealth = GetComponent<PlayerStealthController>();

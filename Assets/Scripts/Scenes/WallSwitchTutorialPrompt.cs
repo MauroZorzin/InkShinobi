@@ -13,8 +13,8 @@ public sealed class WallSwitchTutorialPrompt : MonoBehaviour {
   [SerializeField] private bool enableWallSwitchOnEnter = true;
 
   [Header("Messages")]
-  [SerializeField] private string readyMessage = "Press [Space] to switch walls.";
-  [SerializeField] private string aimingMessage = "Aim at the opposite wall and click.";
+  [SerializeField] private string readyMessage = "Switch walls with [Space].";
+  [SerializeField] private string aimingMessage = "[Left Mouse] to confirm.";
 
   [Header("Suggested target")]
   [Tooltip("Optional visual hint. It suggests one valid point but does not constrain selection to it.")]

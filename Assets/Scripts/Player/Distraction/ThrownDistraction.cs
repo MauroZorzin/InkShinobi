@@ -4,9 +4,6 @@ using UnityEngine;
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody), typeof(Collider))]
 public sealed class ThrownDistraction : MonoBehaviour {
-  private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-  private static readonly int ColorId = Shader.PropertyToID("_Color");
-
   [Header("Landing")]
   [Tooltip("Only collisions on these layers count as a landing. Nothing accepts every layer.")]
   [SerializeField] private LayerMask landingLayers;
@@ -46,26 +43,6 @@ public sealed class ThrownDistraction : MonoBehaviour {
     landed = false;
     armedAt = Time.time + armDelay;
     return true;
-  }
-
-  public void ApplyDisplayColor(Color color) {
-    SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>(true);
-    for (int i = 0; i < sprites.Length; i++) {
-      sprites[i].color = color;
-      sprites[i].renderingLayerMask |= SelectiveColor.RenderingLayerMask;
-    }
-
-    MaterialPropertyBlock properties = new();
-    Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
-    for (int i = 0; i < renderers.Length; i++) {
-      if (renderers[i] is SpriteRenderer) continue;
-      renderers[i].GetPropertyBlock(properties);
-      properties.SetColor(BaseColorId, color);
-      properties.SetColor(ColorId, color);
-      renderers[i].SetPropertyBlock(properties);
-      renderers[i].renderingLayerMask |= SelectiveColor.RenderingLayerMask;
-      properties.Clear();
-    }
   }
 
   private void IgnoreThrowerCollisions(Collider[] throwerColliders) {

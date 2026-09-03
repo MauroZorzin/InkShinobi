@@ -8,10 +8,12 @@ using UnityEngine;
 [ExecuteAlways]
 [DisallowMultipleComponent]
 public sealed class ConeLightSource : MonoBehaviour {
-  public const int MaximumVisibleCones = 8;
+  public const int MaximumVisibleCones = 24;
   public const int VisibilitySampleCount = 48;
+  public const int PackedVisibilityVectorCount = MaximumVisibleCones * VisibilitySampleCount / 4;
 
   private static readonly List<ConeLightSource> ActiveSources = new();
+  private static readonly List<ConeLightSource> VisibleSources = new();
 
   [SerializeField] private Transform origin;
   [SerializeField] private Color color = new(1f, 0.92f, 0.08f, 1f);
@@ -81,22 +83,19 @@ public sealed class ConeLightSource : MonoBehaviour {
   }
 
   public static int FillShaderData(
+    Camera camera,
     Vector4[] positionsAndRanges,
     Vector4[] directionsAndOuterCosines,
     Vector4[] colorsAndIntensities,
     Vector4[] featherParameters,
     Vector4[] lookParameters,
-    float[] visibilityRanges,
+    Vector4[] packedVisibilityRanges,
     Vector4[] endWallPositionsAndRadii,
     Vector4[] endWallNormalsAndValidity) {
+    CollectVisibleSources(camera);
     int count = 0;
-    for (int i = ActiveSources.Count - 1; i >= 0 && count < MaximumVisibleCones; i--) {
-      ConeLightSource source = ActiveSources[i];
-      if (source == null) {
-        ActiveSources.RemoveAt(i);
-        continue;
-      }
-      if (!source.isActiveAndEnabled) continue;
+    for (int i = 0; i < VisibleSources.Count && count < MaximumVisibleCones; i++) {
+      ConeLightSource source = VisibleSources[i];
 
       Transform sourceTransform = source.origin != null ? source.origin : source.transform;
       Vector3 position = sourceTransform.position;
@@ -116,18 +115,48 @@ public sealed class ConeLightSource : MonoBehaviour {
         source.maskLowerPriorityCones ? 1f : 0f);
       lookParameters[count] = new Vector4(source.projectedBrightness, source.flickerAmount, source.flickerSpeed, source.flickerIrregularity);
       source.FillVisibilityData(
-        sourceTransform, direction, count, visibilityRanges,
+        sourceTransform, direction, count, packedVisibilityRanges,
         endWallPositionsAndRadii, endWallNormalsAndValidity);
       count++;
     }
     return count;
   }
 
+  private static void CollectVisibleSources(Camera camera) {
+    VisibleSources.Clear();
+    for (int i = ActiveSources.Count - 1; i >= 0; i--) {
+      ConeLightSource source = ActiveSources[i];
+      if (source == null) {
+        ActiveSources.RemoveAt(i);
+        continue;
+      }
+      if (source.isActiveAndEnabled) VisibleSources.Add(source);
+    }
+
+    if (camera == null) return;
+    Plane[] frustumPlanes = GeometryUtility.CalculateFrustumPlanes(camera);
+    for (int i = VisibleSources.Count - 1; i >= 0; i--) {
+      ConeLightSource source = VisibleSources[i];
+      Transform sourceTransform = source.origin != null ? source.origin : source.transform;
+      Bounds bounds = new(sourceTransform.position, Vector3.one * source.range * 2f);
+      if (!GeometryUtility.TestPlanesAABB(frustumPlanes, bounds)) VisibleSources.RemoveAt(i);
+    }
+
+    Vector3 cameraPosition = camera.transform.position;
+    VisibleSources.Sort((left, right) => {
+      Transform leftTransform = left.origin != null ? left.origin : left.transform;
+      Transform rightTransform = right.origin != null ? right.origin : right.transform;
+      float leftDistance = (leftTransform.position - cameraPosition).sqrMagnitude;
+      float rightDistance = (rightTransform.position - cameraPosition).sqrMagnitude;
+      return leftDistance.CompareTo(rightDistance);
+    });
+  }
+
   private void FillVisibilityData(
     Transform sourceTransform,
     Vector3 forward,
     int coneIndex,
-    float[] visibilityRanges,
+    Vector4[] packedVisibilityRanges,
     Vector4[] endWallPositionsAndRadii,
     Vector4[] endWallNormalsAndValidity) {
     Vector3 position = sourceTransform.position;
@@ -139,7 +168,12 @@ public sealed class ConeLightSource : MonoBehaviour {
     for (int sample = 0; sample < VisibilitySampleCount; sample++) {
       float t = sample / (VisibilitySampleCount - 1f);
       Vector3 rayDirection = Quaternion.AngleAxis(Mathf.Lerp(-halfAngle, halfAngle, t), Vector3.up) * flatForward;
-      visibilityRanges[sampleOffset + sample] = CastVisibilityRay(position, rayDirection, out _);
+      int scalarIndex = sampleOffset + sample;
+      int packedIndex = scalarIndex / 4;
+      int componentIndex = scalarIndex % 4;
+      Vector4 packed = packedVisibilityRanges[packedIndex];
+      packed[componentIndex] = CastVisibilityRay(position, rayDirection, out _);
+      packedVisibilityRanges[packedIndex] = packed;
     }
 
     float centerDistance = CastVisibilityRay(position, flatForward, out RaycastHit centerHit);

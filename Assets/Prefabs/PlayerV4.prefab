@@ -850,8 +850,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f096d968edf508d499ca7bd7506887b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: GameScripts::PlayerInventory
-  dropPoint: {fileID: 8143050556635903949}
-  rejectionFeedback: {fileID: 920000000000000102}
 --- !u!114 &5315803391879672371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -935,10 +933,10 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionDialogue
   defaultDialogue: '[X] to interact'
-  pickupDialogue: '[X] to pickup'
+  pickupDialogue: '[X] to pick up'
   openDoorDialogue: '[X] to open'
   closeDoorDialogue: '[X] to close'
-  unavailableDoorDialogue: Can't open now
+  unavailableDoorDialogue: The way is blocked.
   lockedDoorDialogueFormat: Requires {0} key
   enterHidingDialogue: '[X] to hide'
   unavailableHidingDialogue: Can't hide now
@@ -1082,9 +1080,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2f97f709e1644afb51d62c436d90003, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DistractionController
-  supplyMode: 0
-  inventory: {fileID: 2539817075629536952}
-  infiniteProjectilePrefab: {fileID: 8667286146713081974, guid: 49f8a20c08ee4884c84b3a5df3eab3c6, type: 3}
+  projectilePrefab: {fileID: 8667286146713081974, guid: 49f8a20c08ee4884c84b3a5df3eab3c6, type: 3}
   aimCamera: {fileID: 5948567116382397242}
   throwAnchor: {fileID: 8941715411320078927}
   throwAnchorHeight: -0.1

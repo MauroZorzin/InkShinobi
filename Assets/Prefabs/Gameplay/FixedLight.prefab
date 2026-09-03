@@ -53,6 +53,11 @@ MonoBehaviour:
   edgeFeather: 0.05
   colorIntensity: 0.2
   projectedBrightness: 0.15
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 67955
+  rayOriginOffset: 0.05
+  affectsGameplay: 1
   surfaceLight: {fileID: 5693944551313175911}
   driveCoreVisual: 1
   coreRenderer: {fileID: 4469009699687599772}
@@ -61,7 +66,7 @@ MonoBehaviour:
   coreFlickerInfluence: 0.75
   flickerEnabled: 1
   flickerAmount: 0.25
-  flickerSpeed: 2
+  flickerSpeed: 4
   flickerIrregularity: 0.75
 --- !u!1 &1769862791755165239
 GameObject:

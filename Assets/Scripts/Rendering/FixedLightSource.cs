@@ -8,9 +8,13 @@ using UnityEngine;
 [ExecuteAlways]
 [DisallowMultipleComponent]
 public sealed class FixedLightSource : MonoBehaviour {
-  public const int MaximumVisibleLights = 8;
+  public const int MaximumVisibleLights = 24;
+  public const int VisibilitySampleCount = 128;
+  public const int PackedVisibilityVectorCount = MaximumVisibleLights * VisibilitySampleCount / 4;
 
   private static readonly List<FixedLightSource> ActiveSources = new();
+  private static readonly List<FixedLightSource> VisibleSources = new();
+  private static readonly RaycastHit[] VisibilityHits = new RaycastHit[32];
 
   [Tooltip("Transform at the physical light origin. Usually the PointLight child inside the fixture.")]
   [SerializeField] private Transform origin;
@@ -28,6 +32,16 @@ public sealed class FixedLightSource : MonoBehaviour {
 
   [Tooltip("Target luminance of the projected color. This controls apparent brightness independently of the physical Point Light intensity.")]
   [SerializeField, Range(0f, 1f)] private float projectedBrightness = 0.15f;
+
+  [Header("Visibility")]
+  [Tooltip("Layers that prevent this light's tint and gameplay exposure from passing through geometry.")]
+  [SerializeField] private LayerMask obstacleMask = 67955;
+
+  [Tooltip("Small offset from the light origin used to avoid immediately hitting its own fixture.")]
+  [SerializeField, Min(0f)] private float rayOriginOffset = 0.05f;
+
+  [Tooltip("When disabled, the fixture remains visible and tinted but does not expose the player or activate light-dependent gameplay.")]
+  [SerializeField] private bool affectsGameplay = true;
 
   [Header("Surface lighting")]
   [Tooltip("The real Point Light used for illumination and shadows. If empty, the light on Origin is used.")]
@@ -61,6 +75,12 @@ public sealed class FixedLightSource : MonoBehaviour {
   private float authoredSurfaceIntensity;
   private bool surfaceIntensityCaptured;
   private MaterialPropertyBlock corePropertyBlock;
+  private readonly float[] cachedVisibilityRanges = new float[VisibilitySampleCount];
+  private Vector3 cachedVisibilityPosition;
+  private float cachedVisibilityRadius;
+  private int cachedVisibilityMask;
+  private float nextVisibilityRefreshTime;
+  private bool visibilityCacheValid;
   private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
   private static readonly int ColorId = Shader.PropertyToID("_Color");
 
@@ -89,6 +109,8 @@ public sealed class FixedLightSource : MonoBehaviour {
     flickerIrregularity = Mathf.Clamp01(flickerIrregularity);
     coreBrightness = Mathf.Clamp01(coreBrightness);
     coreFlickerInfluence = Mathf.Clamp01(coreFlickerInfluence);
+    rayOriginOffset = Mathf.Max(0f, rayOriginOffset);
+    visibilityCacheValid = false;
     ResolveSurfaceLight();
     ResolveCoreRenderer();
     ApplyCoreVisual(1f);
@@ -153,18 +175,16 @@ public sealed class FixedLightSource : MonoBehaviour {
   }
 
   public static int FillShaderData(
+    Camera camera,
     Vector4[] positionsAndRadii,
     Vector4[] colorsAndIntensities,
     float[] feathers,
-    Vector4[] lookParameters) {
+    Vector4[] lookParameters,
+    Vector4[] packedVisibilityRanges) {
+    CollectVisibleSources(camera);
     int count = 0;
-    for (int i = ActiveSources.Count - 1; i >= 0 && count < MaximumVisibleLights; i--) {
-      FixedLightSource source = ActiveSources[i];
-      if (source == null) {
-        ActiveSources.RemoveAt(i);
-        continue;
-      }
-      if (!source.isActiveAndEnabled) continue;
+    for (int i = 0; i < VisibleSources.Count && count < MaximumVisibleLights; i++) {
+      FixedLightSource source = VisibleSources[i];
 
       Vector3 position = source.origin != null ? source.origin.position : source.transform.position;
       positionsAndRadii[count] = new Vector4(position.x, position.y, position.z, source.radius);
@@ -175,9 +195,84 @@ public sealed class FixedLightSource : MonoBehaviour {
         source.flickerEnabled ? source.flickerAmount : 0f,
         source.flickerSpeed,
         source.flickerIrregularity);
+      source.FillVisibilityData(packedVisibilityRanges, count * VisibilitySampleCount);
       count++;
     }
     return count;
+  }
+
+  private static void CollectVisibleSources(Camera camera) {
+    VisibleSources.Clear();
+    for (int i = ActiveSources.Count - 1; i >= 0; i--) {
+      FixedLightSource source = ActiveSources[i];
+      if (source == null) {
+        ActiveSources.RemoveAt(i);
+        continue;
+      }
+      if (source.isActiveAndEnabled) VisibleSources.Add(source);
+    }
+
+    if (camera == null) return;
+    Plane[] frustumPlanes = GeometryUtility.CalculateFrustumPlanes(camera);
+    for (int i = VisibleSources.Count - 1; i >= 0; i--) {
+      FixedLightSource source = VisibleSources[i];
+      Vector3 position = source.origin != null ? source.origin.position : source.transform.position;
+      Bounds bounds = new(position, Vector3.one * source.radius * 2f);
+      if (!GeometryUtility.TestPlanesAABB(frustumPlanes, bounds)) VisibleSources.RemoveAt(i);
+    }
+
+    Vector3 cameraPosition = camera.transform.position;
+    VisibleSources.Sort((left, right) => {
+      Vector3 leftPosition = left.origin != null ? left.origin.position : left.transform.position;
+      Vector3 rightPosition = right.origin != null ? right.origin.position : right.transform.position;
+      float leftDistance = (leftPosition - cameraPosition).sqrMagnitude;
+      float rightDistance = (rightPosition - cameraPosition).sqrMagnitude;
+      return leftDistance.CompareTo(rightDistance);
+    });
+  }
+
+  private void FillVisibilityData(Vector4[] destination, int destinationOffset) {
+    Vector3 position = origin != null ? origin.position : transform.position;
+    bool moved = !visibilityCacheValid
+                 || (position - cachedVisibilityPosition).sqrMagnitude > 0.000001f
+                 || !Mathf.Approximately(radius, cachedVisibilityRadius)
+                 || obstacleMask.value != cachedVisibilityMask;
+    if (moved || Time.realtimeSinceStartup >= nextVisibilityRefreshTime) {
+      for (int sample = 0; sample < VisibilitySampleCount; sample++) {
+        float angle = sample * (360f / VisibilitySampleCount);
+        Vector3 direction = Quaternion.AngleAxis(angle, Vector3.up) * Vector3.forward;
+        cachedVisibilityRanges[sample] = CastVisibilityRay(position, direction, radius);
+      }
+      cachedVisibilityPosition = position;
+      cachedVisibilityRadius = radius;
+      cachedVisibilityMask = obstacleMask.value;
+      nextVisibilityRefreshTime = Time.realtimeSinceStartup + (Application.isPlaying ? 0.1f : 0.25f);
+      visibilityCacheValid = true;
+    }
+
+    for (int sample = 0; sample < VisibilitySampleCount; sample++) {
+      int packedIndex = (destinationOffset + sample) / 4;
+      int componentIndex = (destinationOffset + sample) % 4;
+      Vector4 packed = destination[packedIndex];
+      packed[componentIndex] = cachedVisibilityRanges[sample];
+      destination[packedIndex] = packed;
+    }
+  }
+
+  private float CastVisibilityRay(Vector3 position, Vector3 direction, float maximumDistance) {
+    if (obstacleMask.value == 0) return maximumDistance;
+    float offset = Mathf.Min(rayOriginOffset, maximumDistance);
+    Vector3 rayOrigin = position + direction * offset;
+    float rayLength = Mathf.Max(0f, maximumDistance - offset);
+    int hitCount = Physics.RaycastNonAlloc(
+      rayOrigin, direction, VisibilityHits, rayLength, obstacleMask, QueryTriggerInteraction.Ignore);
+    float closestDistance = rayLength;
+    for (int i = 0; i < hitCount; i++) {
+      RaycastHit hit = VisibilityHits[i];
+      if (hit.collider == null || hit.collider.transform.IsChildOf(transform)) continue;
+      closestDistance = Mathf.Min(closestDistance, hit.distance);
+    }
+    return closestDistance + offset;
   }
 
   private void CaptureSurfaceIntensity() {
@@ -227,7 +322,7 @@ public sealed class FixedLightSource : MonoBehaviour {
         ActiveSources.RemoveAt(i);
         continue;
       }
-      if (!source.isActiveAndEnabled) continue;
+      if (!source.isActiveAndEnabled || !source.affectsGameplay) continue;
 
       strongest = Mathf.Max(strongest, source.EvaluateExposure(worldPosition));
     }
@@ -239,6 +334,7 @@ public sealed class FixedLightSource : MonoBehaviour {
     Vector3 lightPosition = origin != null ? origin.position : transform.position;
     float distance = Vector3.Distance(worldPosition, lightPosition);
     if (distance >= radius) return 0f;
+    if (IsOccluded(lightPosition, worldPosition, distance)) return 0f;
 
     float feather = Mathf.Min(edgeFeather, radius);
     if (feather <= 0f) return 1f;
@@ -248,5 +344,23 @@ public sealed class FixedLightSource : MonoBehaviour {
 
     float t = Mathf.InverseLerp(innerRadius, radius, distance);
     return 1f - t * t * (3f - 2f * t);
+  }
+
+  private bool IsOccluded(Vector3 lightPosition, Vector3 worldPosition, float distance) {
+    if (obstacleMask.value == 0 || distance <= 0.0001f) return false;
+    Vector3 direction = (worldPosition - lightPosition) / distance;
+    float offset = Mathf.Min(rayOriginOffset, distance);
+    // Stop just short of the sample so a feet-level query does not mistake the floor under the
+    // character for an intervening blocker. The margin stays small enough for thin walls to win.
+    float rayLength = Mathf.Max(0f, distance - offset - 0.01f);
+    if (rayLength <= 0f) return false;
+    Vector3 rayOrigin = lightPosition + direction * offset;
+    int hitCount = Physics.RaycastNonAlloc(
+      rayOrigin, direction, VisibilityHits, rayLength, obstacleMask, QueryTriggerInteraction.Ignore);
+    for (int i = 0; i < hitCount; i++) {
+      Collider blocker = VisibilityHits[i].collider;
+      if (blocker != null && !blocker.transform.IsChildOf(transform)) return true;
+    }
+    return false;
   }
 }

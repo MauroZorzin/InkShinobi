@@ -100,7 +100,7 @@ public sealed class WallSwitchController : MonoBehaviour {
   private readonly HashSet<WallSwitchBlocker> uniqueBlockers = new();
   private readonly List<InputAction> lockedInputActions = new();
   private static readonly string[] ActionsLockedWhileSwitching = {
-    "Move", "RotateRight", "RotateLeft", "Interact", "Look", "Drop"
+    "Move", "RotateRight", "RotateLeft", "Interact", "Look"
   };
   private SwitchState state;
   private WallSwitchEvaluation currentEvaluation = WallSwitchEvaluation.Empty;

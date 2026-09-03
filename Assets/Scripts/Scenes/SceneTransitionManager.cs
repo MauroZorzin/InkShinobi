@@ -620,8 +620,8 @@ public class SceneTransitionManager : MonoBehaviour {
 
     _pauseDialog = ConfirmationModalView.Create(
       "MainMenuConfirmation",
-      "Return to Main Menu?",
-      "Your progress is saved at the start of each stage.",
+      "Abandon this stage?",
+      "Progress is kept only from the start of this stage.",
       "Resume",
       "Main Menu",
       ResumeGame,
@@ -763,7 +763,7 @@ public class SceneTransitionManager : MonoBehaviour {
     label.text = message;
     if (savingFont != null) label.font = savingFont;
     label.fontSize = 50f;
-    label.fontStyle = FontStyles.Normal;
+    label.fontStyle = FontStyles.SmallCaps;
     label.alignment = TextAlignmentOptions.Center;
     label.color = Color.white;
 

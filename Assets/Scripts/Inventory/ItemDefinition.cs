@@ -1,20 +1,12 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-public enum InventoryItemCategory {
-  Throwable,
-  Key
-}
-
 /// <summary>
-/// Data asset identifying an item type: what it's called, its HUD icon, and what it looks like
-/// when dropped in the world.
+/// Data asset identifying an inventory item: its stable identity, display name, icon, and pickup
+/// audio.
 /// </summary>
 [CreateAssetMenu(menuName = "Ink Shinobi/Item")]
 public class ItemDefinition : ScriptableObject {
-  [Tooltip("How gameplay abilities may use this item. Keys cannot be thrown as distractions.")]
-  public InventoryItemCategory category = InventoryItemCategory.Throwable;
-
   [Tooltip("Stable id used by item requirement checks.")]
   public string itemId;
 
@@ -23,12 +15,6 @@ public class ItemDefinition : ScriptableObject {
 
   [Tooltip("Shown in the HUD slot while this item is carried.")]
   public Texture icon;
-
-  [Tooltip("Prefab instantiated in the world when this item is dropped. Needs a WorldItem component on it referencing this same ItemDefinition.")]
-  public GameObject worldPrefab;
-
-  [Tooltip("Projectile launched when this item is used by finite distraction mode. Required for Throwable items and ignored for Keys.")]
-  public ThrownDistraction distractionProjectilePrefab;
 
   [Header("Audio")]
   [Tooltip("Played at the pickup's position when this item is picked up.")]

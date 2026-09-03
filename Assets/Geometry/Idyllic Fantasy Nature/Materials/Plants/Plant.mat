@@ -158,15 +158,15 @@ Material:
     - _Surface: 0
     - _Value: 0.2
     - _WIND_OVERLAY: 0
-    - _Wave_Scale: 0.44
+    - _Wave_Scale: 0.19
     - _WindDensity: 0
     - _WindSpeed: 1
     - _WindSpeed2: 0
     - _WindStrength: 1
     - _Wind_Direction: 0
-    - _Wind_Speed: 0.063
-    - _Wind_Strength: 0.022
-    - _Wind_Variation: 0.132
+    - _Wind_Speed: 0.026
+    - _Wind_Strength: 0.196
+    - _Wind_Variation: 0.14
     - _WorkflowMode: 0
     - _ZTest: 4
     - _ZWrite: 1
@@ -177,7 +177,7 @@ Material:
     - _Bottom_Color: {r: 0.34582132, g: 0.3882353, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Player_Position: {r: 312.09, g: 15.3, b: 307.65768, a: 0}
+    - _Player_Position: {r: 70, g: 0.33, b: -25, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Target_Position: {r: 0, g: 0, b: 0, a: 0}
     - _TopColor: {r: 0.9866245, g: 1, b: 0, a: 0}

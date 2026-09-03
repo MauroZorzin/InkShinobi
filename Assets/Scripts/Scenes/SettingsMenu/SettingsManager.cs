@@ -34,7 +34,6 @@ public class SettingsManager : MonoBehaviour {
     new("Switch Walls", "Player", "Switch"),
     new("Confirm Aim", "Left Mouse Button"),
     new("Aim Distraction", "Right Mouse Button"),
-    new("Drop", "Player", "Drop"),
     new("Pause / Back", "Player", "Exit")
   };
 

@@ -70,15 +70,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Drop",
-                    "type": "Button",
-                    "id": "21514179-bfe4-4366-8a57-bf4fc6a75d78",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "DistractionAim",
                     "type": "PassThrough",
                     "id": "6df52e98-9b31-45c5-a94c-79fd178a9201",
@@ -121,17 +112,6 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "ddad2fcc-5ff5-45fc-a850-506e2fb57fb0",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Drop",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 },
                 {
                     "name": "",

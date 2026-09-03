@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4520c3f1b2c1474dbea30c9b1b8ff13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DialogTrigger
-  message: I can't leave yet
+  message: Not yet. My path lies ahead.
   dismissMode: 0
   displayDuration: 3
   componentActions: []

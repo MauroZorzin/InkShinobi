@@ -10,8 +10,7 @@ public enum AimEntryBlockReason {
   Concealed,
   VisibleOrDetected,
   NoCurrentPath,
-  Cooldown,
-  NoThrowableItem
+  Cooldown
 }
 
 public static class AimEntryBlockReasonExtensions {

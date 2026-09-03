@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 /// <summary>Per-instance data kept separate from the shared ItemDefinition asset.</summary>
 [Serializable]
@@ -25,17 +24,10 @@ public sealed class InventoryItemInstance {
 }
 
 /// <summary>
-/// Single-slot inventory. It owns runtime item identity and presentation data, supports pickup and
-/// consumption, and drops the held item when the Drop input is performed. Aiming belongs to separate abilities.
+/// Single-slot inventory. It owns runtime item identity and presentation data and supports pickup
+/// and consumption.
 /// </summary>
 public class PlayerInventory : MonoBehaviour {
-  [Header("Drop")]
-  [Tooltip("Point items are dropped from. Leave empty to use this transform.")]
-  public Transform dropPoint;
-
-  [Tooltip("Camera feedback used when Drop is pressed while the inventory is empty.")]
-  [SerializeField] private RejectedAimCameraFeedback rejectionFeedback;
-
   public event Action<InventoryItemInstance> ItemInstanceChanged;
 
   public InventoryItemInstance CurrentItemInstance { get; private set; }
@@ -51,15 +43,6 @@ public class PlayerInventory : MonoBehaviour {
     return CurrentItemInstance != null
         && string.Equals(CurrentItemInstance.ItemId, itemId.Trim(), StringComparison.OrdinalIgnoreCase);
   }
-
-#pragma warning disable IDE0051
-  private void OnDrop(InputValue value) {
-    if (!value.isPressed) return;
-    if (TryDrop()) return;
-    if (!SceneTransitionManager.IsGamePaused && !SceneTransitionManager.IsDeathSequenceActive)
-      ResolveRejectionFeedback()?.PlayRejectedAction();
-  }
-#pragma warning restore IDE0051
 
   public bool TryPickUp(ItemDefinition item) {
     return TryPickUp(new InventoryItemInstance(item));
@@ -79,32 +62,6 @@ public class PlayerInventory : MonoBehaviour {
     return true;
   }
 
-  public bool TryDrop() {
-    if (!IsHoldingItem) {
-      return false;
-    }
-
-    InventoryItemInstance itemInstance = CurrentItemInstance;
-    ItemDefinition definition = itemInstance.Definition;
-    if (definition.worldPrefab != null) {
-      Vector3 position = dropPoint != null ? dropPoint.position : transform.position;
-      GameObject spawned = Instantiate(definition.worldPrefab, position, Quaternion.identity);
-      WorldItem worldItem = spawned.GetComponent<WorldItem>();
-      if (worldItem != null) {
-        worldItem.ConfigureRuntimeIdentity(
-          itemInstance.ItemId,
-          itemInstance.HasColorOverride,
-          itemInstance.DisplayColor);
-      }
-    } else {
-      Debug.LogWarning($"[PlayerInventory] '{definition.displayName}' has no World Prefab assigned - dropping it only clears the slot.");
-    }
-
-    CurrentItemInstance = null;
-    NotifyItemInstanceChanged();
-    return true;
-  }
-
   public void ConsumeItem() {
     if (!IsHoldingItem) {
       return;
@@ -116,11 +73,5 @@ public class PlayerInventory : MonoBehaviour {
 
   private void NotifyItemInstanceChanged() {
     ItemInstanceChanged?.Invoke(CurrentItemInstance);
-  }
-
-  private RejectedAimCameraFeedback ResolveRejectionFeedback() {
-    if (rejectionFeedback == null)
-      rejectionFeedback = GetComponentInChildren<RejectedAimCameraFeedback>(true);
-    return rejectionFeedback;
   }
 }

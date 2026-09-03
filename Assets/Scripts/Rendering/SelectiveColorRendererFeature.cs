@@ -96,6 +96,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private static readonly int FixedLightColorsId = Shader.PropertyToID("_FixedLightColors");
     private static readonly int FixedLightFeathersId = Shader.PropertyToID("_FixedLightFeathers");
     private static readonly int FixedLightLooksId = Shader.PropertyToID("_FixedLightLooks");
+    private static readonly int FixedVisibilityRangesId = Shader.PropertyToID("_FixedVisibilityRanges");
     private static readonly int ConeLightCountId = Shader.PropertyToID("_ConeLightCount");
     private static readonly int ConeLightPositionsId = Shader.PropertyToID("_ConeLightPositions");
     private static readonly int ConeLightDirectionsId = Shader.PropertyToID("_ConeLightDirections");
@@ -165,13 +166,14 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       public Vector4[] fixedLightColors;
       public float[] fixedLightFeathers;
       public Vector4[] fixedLightLooks;
+      public Vector4[] fixedVisibilityRanges;
       public int coneLightCount;
       public Vector4[] coneLightPositions;
       public Vector4[] coneLightDirections;
       public Vector4[] coneLightColors;
       public Vector4[] coneLightFeathers;
       public Vector4[] coneLightLooks;
-      public float[] coneVisibilityRanges;
+      public Vector4[] coneVisibilityRanges;
       public Vector4[] coneEndWallPositions;
       public Vector4[] coneEndWallNormals;
     }
@@ -319,21 +321,24 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         passData.fixedLightColors = new Vector4[FixedLightSource.MaximumVisibleLights];
         passData.fixedLightFeathers = new float[FixedLightSource.MaximumVisibleLights];
         passData.fixedLightLooks = new Vector4[FixedLightSource.MaximumVisibleLights];
+        passData.fixedVisibilityRanges = new Vector4[FixedLightSource.PackedVisibilityVectorCount];
         passData.fixedLightCount = FixedLightSource.FillShaderData(
+          cameraData.camera,
           passData.fixedLightPositions,
           passData.fixedLightColors,
           passData.fixedLightFeathers,
-          passData.fixedLightLooks);
+          passData.fixedLightLooks,
+          passData.fixedVisibilityRanges);
         passData.coneLightPositions = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightDirections = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightColors = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightFeathers = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightLooks = new Vector4[ConeLightSource.MaximumVisibleCones];
-        passData.coneVisibilityRanges = new float[
-          ConeLightSource.MaximumVisibleCones * ConeLightSource.VisibilitySampleCount];
+        passData.coneVisibilityRanges = new Vector4[ConeLightSource.PackedVisibilityVectorCount];
         passData.coneEndWallPositions = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneEndWallNormals = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightCount = ConeLightSource.FillShaderData(
+          cameraData.camera,
           passData.coneLightPositions,
           passData.coneLightDirections,
           passData.coneLightColors,
@@ -367,13 +372,14 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           PropertyBlock.SetVectorArray(FixedLightColorsId, data.fixedLightColors);
           PropertyBlock.SetFloatArray(FixedLightFeathersId, data.fixedLightFeathers);
           PropertyBlock.SetVectorArray(FixedLightLooksId, data.fixedLightLooks);
+          PropertyBlock.SetVectorArray(FixedVisibilityRangesId, data.fixedVisibilityRanges);
           PropertyBlock.SetInteger(ConeLightCountId, data.coneLightCount);
           PropertyBlock.SetVectorArray(ConeLightPositionsId, data.coneLightPositions);
           PropertyBlock.SetVectorArray(ConeLightDirectionsId, data.coneLightDirections);
           PropertyBlock.SetVectorArray(ConeLightColorsId, data.coneLightColors);
           PropertyBlock.SetVectorArray(ConeLightFeathersId, data.coneLightFeathers);
           PropertyBlock.SetVectorArray(ConeLightLooksId, data.coneLightLooks);
-          PropertyBlock.SetFloatArray(ConeVisibilityRangesId, data.coneVisibilityRanges);
+          PropertyBlock.SetVectorArray(ConeVisibilityRangesId, data.coneVisibilityRanges);
           PropertyBlock.SetVectorArray(ConeEndWallPositionsId, data.coneEndWallPositions);
           PropertyBlock.SetVectorArray(ConeEndWallNormalsId, data.coneEndWallNormals);
           context.cmd.DrawProcedural(Matrix4x4.identity, data.material, 0, MeshTopology.Triangles, 3, 1, PropertyBlock);

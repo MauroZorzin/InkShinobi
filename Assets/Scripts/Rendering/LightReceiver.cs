@@ -13,6 +13,7 @@ public sealed class LightReceiver : MonoBehaviour {
 
   [SerializeField] private bool includeChildren = true;
   private Renderer[] renderers;
+  private Terrain[] terrains;
 
   private void OnEnable() => RefreshRenderers();
 
@@ -42,11 +43,16 @@ public sealed class LightReceiver : MonoBehaviour {
       : GetComponents<Renderer>();
     renderers = candidates.Where(renderer => renderer != null &&
       renderer.GetComponentInParent<LightReceiverExclusion>() == null).ToArray();
+    Terrain[] terrainCandidates = includeChildren
+      ? GetComponentsInChildren<Terrain>(true)
+      : GetComponents<Terrain>();
+    terrains = terrainCandidates.Where(terrain => terrain != null &&
+      terrain.GetComponentInParent<LightReceiverExclusion>() == null).ToArray();
     SetLayerBit(isActiveAndEnabled);
   }
 
   private void EnsureRendererCache() {
-    if (renderers == null)
+    if (renderers == null || terrains == null)
       RefreshRenderers();
   }
 
@@ -56,6 +62,14 @@ public sealed class LightReceiver : MonoBehaviour {
       if (targetRenderer == null) continue;
       uint layers = targetRenderer.renderingLayerMask;
       targetRenderer.renderingLayerMask = enabled
+        ? layers | RenderingLayerMask
+        : layers & ~RenderingLayerMask;
+    }
+    if (terrains == null) return;
+    foreach (Terrain terrain in terrains) {
+      if (terrain == null) continue;
+      uint layers = terrain.renderingLayerMask;
+      terrain.renderingLayerMask = enabled
         ? layers | RenderingLayerMask
         : layers & ~RenderingLayerMask;
     }

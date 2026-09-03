@@ -1018,7 +1018,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: MISSION COMPLETE
+  m_text: THE SHOGUN HAS FALLEN
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
   m_sharedMaterial: {fileID: -3480461615626315018, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}

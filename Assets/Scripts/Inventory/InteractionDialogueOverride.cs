@@ -11,6 +11,14 @@ public sealed class InteractionDialogueOverride : MonoBehaviour {
   [TextArea]
   [SerializeField] private string dialogue = "[X] to interact";
 
+  [Header("Active State")]
+  [Tooltip("Optional object whose active state selects the alternate dialogue below.")]
+  [SerializeField] private GameObject activeStateTarget;
+  [TextArea]
+  [SerializeField] private string activeDialogue = "[X] to interact";
+
   public bool ShowDialogue => showDialogue;
-  public string Dialogue => dialogue;
+  public string Dialogue => activeStateTarget != null && activeStateTarget.activeInHierarchy
+    ? activeDialogue
+    : dialogue;
 }
