@@ -100,7 +100,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4518090244822660568}
   - component: {fileID: 8712605500442755753}
-  - component: {fileID: 6157306825439873658}
   m_Layer: 0
   m_Name: Rock_Small_01
   m_TagString: Untagged
@@ -153,27 +152,6 @@ LODGroup:
     renderers:
     - renderer: {fileID: 3263783789295121511}
   m_Enabled: 1
---- !u!65 &6157306825439873658
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3889046910303973218}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5481094551019837031
 GameObject:
   m_ObjectHideFlags: 0
