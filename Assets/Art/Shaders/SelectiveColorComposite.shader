@@ -19,6 +19,7 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
 
       TEXTURE2D_X(_SelectiveColorMask);
       TEXTURE2D_X(_LightReceiverMask);
+      TEXTURE2D_X(_LightTintExclusionMask);
       TEXTURE2D_X(_AimPreviewColor);
 
       float _SelectiveColorIntensity;
@@ -30,6 +31,8 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
       half4 _FixedLightColors[24];
       float _FixedLightFeathers[24];
       float4 _FixedLightLooks[24];
+      float4x4 _FixedLightWorldToBounds[24];
+      float4 _FixedLightBoundsExtents[24];
       float4 _FixedVisibilityRanges[768];
 
       int _ConeLightCount;
@@ -38,6 +41,7 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
       half4 _ConeLightColors[24];
       float4 _ConeLightFeathers[24];
       float4 _ConeLightLooks[24];
+      float4 _ConeVisibilityOrigins[24];
       float4 _ConeVisibilityRanges[288];
       float4 _ConeEndWallPositions[24];
       float4 _ConeEndWallNormals[24];
@@ -100,6 +104,8 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
         half coverage = SAMPLE_TEXTURE2D_X(_SelectiveColorMask, sampler_LinearClamp, uv).a;
         half receiverCoverage = SAMPLE_TEXTURE2D_X(_LightReceiverMask, sampler_LinearClamp, uv).a;
         half receiverMask = smoothstep(0.0h, 0.15h, receiverCoverage);
+        half exclusionCoverage = SAMPLE_TEXTURE2D_X(_LightTintExclusionMask, sampler_LinearClamp, uv).a;
+        half tintAllowed = 1.0h - smoothstep(0.0h, 0.15h, exclusionCoverage);
 
         half luminance = dot(source.rgb, half3(0.2126h, 0.7152h, 0.0722h));
         half3 monochrome = luminance.xxx;
@@ -140,8 +146,18 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
               float visibleRange = SampleFixedVisibilityRange(lightIndex, horizontalDirection);
               half visibilityWeight = 1.0h - smoothstep(
                 visibleRange + 0.005, visibleRange + 0.03, horizontalDistance);
+              float4 boundsExtents = _FixedLightBoundsExtents[lightIndex];
+              half boundsWeight = 1.0h;
+              if (boundsExtents.w >= 0.0) {
+                float3 boundsPosition = mul(
+                  _FixedLightWorldToBounds[lightIndex], float4(worldPosition, 1.0)).xyz;
+                float3 edgeDistance = boundsExtents.xyz - abs(boundsPosition);
+                float minimumEdgeDistance = min(edgeDistance.x, min(edgeDistance.y, edgeDistance.z));
+                boundsWeight = smoothstep(
+                  0.0, max(boundsExtents.w, 0.0001), minimumEdgeDistance);
+              }
               half weight = (1.0h - smoothstep(innerRadius, max(innerRadius + 0.0001, radius), distanceToLight))
-                            * visibilityWeight * receiverMask;
+                            * visibilityWeight * boundsWeight;
               if (weight > strongestFixedWeight) {
                 strongestFixedWeight = weight;
                 strongestFixedLight = _FixedLightColors[lightIndex];
@@ -150,7 +166,7 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
               }
             }
 
-            half tintStrength = saturate(strongestFixedWeight * strongestFixedLight.a);
+            half tintStrength = saturate(strongestFixedWeight * strongestFixedLight.a) * tintAllowed;
             half tintLuminance = max(dot(strongestFixedLight.rgb, half3(0.2126h, 0.7152h, 0.0722h)), 0.0001h);
             half fixedFlicker = (half)EvaluateLightFlicker(strongestFixedPosition, strongestFixedLook);
             half3 tintedLight = strongestFixedLight.rgb
@@ -159,9 +175,12 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
           }
 
           if (_ConeLightCount > 0) {
-            half3 worldNormal = SampleSceneNormals(uv);
-            half floorReceiver = step(0.65h, worldNormal.y) * receiverMask;
-            half wallReceiver = (1.0h - step(0.45h, abs(worldNormal.y))) * receiverMask;
+            float3 guardSurfaceNormal = cross(ddy(worldPosition), ddx(worldPosition));
+            float guardNormalLengthSquared = dot(guardSurfaceNormal, guardSurfaceNormal);
+            guardSurfaceNormal = guardNormalLengthSquared < 0.000001
+              ? float3(0.0, 1.0, 0.0)
+              : guardSurfaceNormal * rsqrt(guardNormalLengthSquared);
+            half horizontalSurface = step(0.65h, abs((half)guardSurfaceNormal.y));
             half strongestNearWeight = 0.0h;
             half strongestFarWeight = 0.0h;
             half4 strongestNear = 0.0h;
@@ -191,26 +210,24 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
               // Sample the same horizontal ray fan used by the guard presentation so the
               // authoritative floor field stops at walls instead of shining through them.
               float halfAngle = acos(clamp(outerCosine, -1.0, 1.0));
+              float2 visibilityOffset = worldPosition.xz - _ConeVisibilityOrigins[coneIndex].xz;
+              float visibilityDistance = length(visibilityOffset);
+              float2 visibilityDirection = visibilityOffset / max(visibilityDistance, 0.0001);
+              float visibilityDirectionDot = visibilityDistance < 0.0001
+                ? 1.0
+                : dot(visibilityDirection, coneDirection);
               float signedAngle = atan2(
-                coneDirection.y * directionToSurface.x - coneDirection.x * directionToSurface.y,
-                directionDot);
+                coneDirection.y * visibilityDirection.x - coneDirection.x * visibilityDirection.y,
+                visibilityDirectionDot);
               float visibleRange = SampleConeVisibilityRange(coneIndex, signedAngle, halfAngle);
               float visibilityWeight = 1.0 - smoothstep(
-                max(0.0, visibleRange - 0.04), visibleRange + 0.01, distanceFromOrigin);
-              half floorWeight = (half)(rangeWeight * angleWeight * visibilityWeight) * floorReceiver;
-
-              // Walls only receive a compact circular mark where the guard looks directly at
-              // an end wall. Side walls intentionally receive no literal cone intersection.
-              float4 endWall = _ConeEndWallPositions[coneIndex];
-              float4 endNormal = _ConeEndWallNormals[coneIndex];
-              float radiusAtWall = max(endWall.w, 0.0001);
-              float circleDistance = distance(worldPosition, endWall.xyz);
-              float endFacing = abs(dot(normalize(worldNormal.xz), normalize(endNormal.xz)));
-              half endWallWeight = (half)(
-                (1.0 - smoothstep(radiusAtWall * 0.82, radiusAtWall, circleDistance))
-                * step(0.72, endFacing) * endNormal.w) * wallReceiver;
-
-              half weight = max(floorWeight, endWallWeight);
+                max(0.0, visibleRange - 0.04), visibleRange + 0.01, visibilityDistance);
+              // This is deliberately a contained color volume, not a physical spotlight:
+              // guard vision is painted only on the floor, never walls or the ceiling.
+              half nearGuardFloor = 1.0h - step(
+                (half)(_ConeLightPositions[coneIndex].y + 0.35), (half)worldPosition.y);
+              half weight = (half)(rangeWeight * angleWeight * visibilityWeight)
+                            * horizontalSurface * nearGuardFloor;
               bool isNearField = _ConeLightFeathers[coneIndex].z > 0.5;
               if (isNearField && weight > strongestNearWeight) {
                 strongestNearWeight = weight;
@@ -244,14 +261,16 @@ Shader "Hidden/InkShinobi/SelectiveColorComposite" {
               farTint *= 1.0h + activeOverlap * 0.12h
                          + fixedBoundary * strongestFarWeight * 0.08h;
             }
-            finalColor = lerp(finalColor, farTint, saturate(strongestFarWeight * strongestFar.a));
+            finalColor = lerp(
+              finalColor, farTint, saturate(strongestFarWeight * strongestFar.a) * tintAllowed);
 
             // Near is drawn over far. Its feather therefore reveals the pale far field directly,
             // eliminating the previous monochrome band between the two gameplay regions.
             half nearLuminance = max(dot(strongestNear.rgb, half3(0.2126h, 0.7152h, 0.0722h)), 0.0001h);
             half nearFlicker = (half)EvaluateLightFlicker(strongestNearPosition, strongestNearLook);
             half3 nearTint = strongestNear.rgb * ((half)strongestNearLook.x * nearFlicker / nearLuminance);
-            finalColor = lerp(finalColor, nearTint, saturate(strongestNearWeight * strongestNear.a));
+            finalColor = lerp(
+              finalColor, nearTint, saturate(strongestNearWeight * strongestNear.a) * tintAllowed);
           }
         }
 

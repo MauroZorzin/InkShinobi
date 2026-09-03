@@ -86,6 +86,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private static readonly int BlitScaleBiasId = Shader.PropertyToID("_BlitScaleBias");
     private static readonly int PreserveMaskId = Shader.PropertyToID("_SelectiveColorMask");
     private static readonly int LightReceiverMaskId = Shader.PropertyToID("_LightReceiverMask");
+    private static readonly int LightTintExclusionMaskId = Shader.PropertyToID("_LightTintExclusionMask");
     private static readonly int AimPreviewColorId = Shader.PropertyToID("_AimPreviewColor");
     private static readonly int IntensityId = Shader.PropertyToID("_SelectiveColorIntensity");
     private static readonly int SaturationId = Shader.PropertyToID("_SelectiveColorSaturation");
@@ -96,6 +97,8 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private static readonly int FixedLightColorsId = Shader.PropertyToID("_FixedLightColors");
     private static readonly int FixedLightFeathersId = Shader.PropertyToID("_FixedLightFeathers");
     private static readonly int FixedLightLooksId = Shader.PropertyToID("_FixedLightLooks");
+    private static readonly int FixedLightWorldToBoundsId = Shader.PropertyToID("_FixedLightWorldToBounds");
+    private static readonly int FixedLightBoundsExtentsId = Shader.PropertyToID("_FixedLightBoundsExtents");
     private static readonly int FixedVisibilityRangesId = Shader.PropertyToID("_FixedVisibilityRanges");
     private static readonly int ConeLightCountId = Shader.PropertyToID("_ConeLightCount");
     private static readonly int ConeLightPositionsId = Shader.PropertyToID("_ConeLightPositions");
@@ -103,6 +106,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     private static readonly int ConeLightColorsId = Shader.PropertyToID("_ConeLightColors");
     private static readonly int ConeLightFeathersId = Shader.PropertyToID("_ConeLightFeathers");
     private static readonly int ConeLightLooksId = Shader.PropertyToID("_ConeLightLooks");
+    private static readonly int ConeVisibilityOriginsId = Shader.PropertyToID("_ConeVisibilityOrigins");
     private static readonly int ConeVisibilityRangesId = Shader.PropertyToID("_ConeVisibilityRanges");
     private static readonly int ConeEndWallPositionsId = Shader.PropertyToID("_ConeEndWallPositions");
     private static readonly int ConeEndWallNormalsId = Shader.PropertyToID("_ConeEndWallNormals");
@@ -156,6 +160,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       public TextureHandle sourceColor;
       public TextureHandle preserveMask;
       public TextureHandle lightReceiverMask;
+      public TextureHandle lightTintExclusionMask;
       public TextureHandle aimPreviewColor;
       public TextureHandle depthTexture;
       public float intensity;
@@ -166,6 +171,8 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       public Vector4[] fixedLightColors;
       public float[] fixedLightFeathers;
       public Vector4[] fixedLightLooks;
+      public Matrix4x4[] fixedLightWorldToBounds;
+      public Vector4[] fixedLightBoundsExtents;
       public Vector4[] fixedVisibilityRanges;
       public int coneLightCount;
       public Vector4[] coneLightPositions;
@@ -173,6 +180,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       public Vector4[] coneLightColors;
       public Vector4[] coneLightFeathers;
       public Vector4[] coneLightLooks;
+      public Vector4[] coneVisibilityOrigins;
       public Vector4[] coneVisibilityRanges;
       public Vector4[] coneEndWallPositions;
       public Vector4[] coneEndWallNormals;
@@ -263,6 +271,32 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         });
       }
 
+      TextureDesc exclusionDesc = maskDesc;
+      exclusionDesc.name = "_LightTintExclusionMask";
+      TextureHandle lightTintExclusionMask = renderGraph.CreateTexture(exclusionDesc);
+
+      using (var builder = renderGraph.AddRasterRenderPass<MaskPassData>("Light Tint Exclusion Mask", out MaskPassData passData, profilingSampler)) {
+        passData.opaqueRenderers = CreateRendererList(
+          renderGraph, renderingData, cameraData, lightData, RenderQueueRange.opaque,
+          cameraData.defaultOpaqueSortFlags, CreateOpaqueMaskState(), LightReceiverExclusion.RenderingLayerMask);
+        passData.transparentRenderers = CreateRendererList(
+          renderGraph, renderingData, cameraData, lightData, RenderQueueRange.transparent,
+          SortingCriteria.CommonTransparent, CreateTransparentMaskState(), LightReceiverExclusion.RenderingLayerMask);
+
+        builder.UseRendererList(passData.opaqueRenderers);
+        builder.UseRendererList(passData.transparentRenderers);
+        builder.SetRenderAttachment(lightTintExclusionMask, 0, AccessFlags.Write);
+        if (resourceData.activeDepthTexture.IsValid())
+          builder.SetRenderAttachmentDepth(resourceData.activeDepthTexture, AccessFlags.Read);
+
+        builder.AllowPassCulling(false);
+        builder.SetRenderFunc(static (MaskPassData data, RasterGraphContext context) => {
+          context.cmd.ClearRenderTarget(RTClearFlags.Color, Color.clear, 1f, 0);
+          context.cmd.DrawRendererList(data.opaqueRenderers);
+          context.cmd.DrawRendererList(data.transparentRenderers);
+        });
+      }
+
       TextureDesc aimPreviewDesc = sourceDesc;
       aimPreviewDesc.format = GraphicsFormat.R16G16B16A16_SFloat;
       aimPreviewDesc.clearBuffer = true;
@@ -312,6 +346,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         passData.sourceColor = sourceColor;
         passData.preserveMask = preserveMask;
         passData.lightReceiverMask = lightReceiverMask;
+        passData.lightTintExclusionMask = lightTintExclusionMask;
         passData.aimPreviewColor = aimPreviewColor;
         passData.depthTexture = resourceData.activeDepthTexture;
         passData.intensity = _intensity;
@@ -321,6 +356,8 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         passData.fixedLightColors = new Vector4[FixedLightSource.MaximumVisibleLights];
         passData.fixedLightFeathers = new float[FixedLightSource.MaximumVisibleLights];
         passData.fixedLightLooks = new Vector4[FixedLightSource.MaximumVisibleLights];
+        passData.fixedLightWorldToBounds = new Matrix4x4[FixedLightSource.MaximumVisibleLights];
+        passData.fixedLightBoundsExtents = new Vector4[FixedLightSource.MaximumVisibleLights];
         passData.fixedVisibilityRanges = new Vector4[FixedLightSource.PackedVisibilityVectorCount];
         passData.fixedLightCount = FixedLightSource.FillShaderData(
           cameraData.camera,
@@ -328,12 +365,15 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           passData.fixedLightColors,
           passData.fixedLightFeathers,
           passData.fixedLightLooks,
+          passData.fixedLightWorldToBounds,
+          passData.fixedLightBoundsExtents,
           passData.fixedVisibilityRanges);
         passData.coneLightPositions = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightDirections = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightColors = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightFeathers = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneLightLooks = new Vector4[ConeLightSource.MaximumVisibleCones];
+        passData.coneVisibilityOrigins = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneVisibilityRanges = new Vector4[ConeLightSource.PackedVisibilityVectorCount];
         passData.coneEndWallPositions = new Vector4[ConeLightSource.MaximumVisibleCones];
         passData.coneEndWallNormals = new Vector4[ConeLightSource.MaximumVisibleCones];
@@ -344,6 +384,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           passData.coneLightColors,
           passData.coneLightFeathers,
           passData.coneLightLooks,
+          passData.coneVisibilityOrigins,
           passData.coneVisibilityRanges,
           passData.coneEndWallPositions,
           passData.coneEndWallNormals);
@@ -351,6 +392,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
         builder.UseTexture(sourceColor);
         builder.UseTexture(preserveMask);
         builder.UseTexture(lightReceiverMask);
+        builder.UseTexture(lightTintExclusionMask);
         builder.UseTexture(aimPreviewColor);
         builder.UseTexture(passData.depthTexture);
         if (resourceData.cameraNormalsTexture.IsValid())
@@ -361,6 +403,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           PropertyBlock.SetTexture(BlitTextureId, data.sourceColor);
           PropertyBlock.SetTexture(PreserveMaskId, data.preserveMask);
           PropertyBlock.SetTexture(LightReceiverMaskId, data.lightReceiverMask);
+          PropertyBlock.SetTexture(LightTintExclusionMaskId, data.lightTintExclusionMask);
           PropertyBlock.SetTexture(AimPreviewColorId, data.aimPreviewColor);
           PropertyBlock.SetTexture(CameraDepthTextureId, data.depthTexture);
           PropertyBlock.SetVector(BlitScaleBiasId, FullScaleBias);
@@ -372,6 +415,8 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           PropertyBlock.SetVectorArray(FixedLightColorsId, data.fixedLightColors);
           PropertyBlock.SetFloatArray(FixedLightFeathersId, data.fixedLightFeathers);
           PropertyBlock.SetVectorArray(FixedLightLooksId, data.fixedLightLooks);
+          PropertyBlock.SetMatrixArray(FixedLightWorldToBoundsId, data.fixedLightWorldToBounds);
+          PropertyBlock.SetVectorArray(FixedLightBoundsExtentsId, data.fixedLightBoundsExtents);
           PropertyBlock.SetVectorArray(FixedVisibilityRangesId, data.fixedVisibilityRanges);
           PropertyBlock.SetInteger(ConeLightCountId, data.coneLightCount);
           PropertyBlock.SetVectorArray(ConeLightPositionsId, data.coneLightPositions);
@@ -379,6 +424,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
           PropertyBlock.SetVectorArray(ConeLightColorsId, data.coneLightColors);
           PropertyBlock.SetVectorArray(ConeLightFeathersId, data.coneLightFeathers);
           PropertyBlock.SetVectorArray(ConeLightLooksId, data.coneLightLooks);
+          PropertyBlock.SetVectorArray(ConeVisibilityOriginsId, data.coneVisibilityOrigins);
           PropertyBlock.SetVectorArray(ConeVisibilityRangesId, data.coneVisibilityRanges);
           PropertyBlock.SetVectorArray(ConeEndWallPositionsId, data.coneEndWallPositions);
           PropertyBlock.SetVectorArray(ConeEndWallNormalsId, data.coneEndWallNormals);
