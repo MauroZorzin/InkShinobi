@@ -184,7 +184,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _Start_Bend_Range: 0.35
+    - _Start_Bend_Range: 0.3
     - _Start_To_Bend_Range: 1
     - _Start_to_bend_range: 1
     - _SubsurfaceIndirect: 0.25
