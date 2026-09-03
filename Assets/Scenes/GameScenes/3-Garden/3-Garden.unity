@@ -9581,9 +9581,7 @@ MonoBehaviour:
   startsOpen: 0
   autoOpenOnStart: 0
   autoCloseOnStart: 0
-  slideAxis: 0
   panelSlideDistance: 0.75
-  animationDuration: 0.35
   motionEasing: 1
   customEasingCurve:
     serializedVersion: 2
@@ -15209,22 +15207,6 @@ PrefabInstance:
       propertyPath: m_RenderingLayerMask
       value: 1073741825
       objectReference: {fileID: 0}
-    - target: {fileID: 920000000000000020, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
-      propertyPath: accentBrightness
-      value: 0.16
-      objectReference: {fileID: 0}
-    - target: {fileID: 920000000000000020, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
-      propertyPath: emissionStrength
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 920000000000000020, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
-      propertyPath: uncoloredPanelMaterial
-      value: 
-      objectReference: {fileID: 8097937903029868903, guid: b6bcc19122e29f4468c21178ae08b757, type: 3}
-    - target: {fileID: 920000000000000020, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
-      propertyPath: neutralArchitectureBrightness
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 2719994761340997940, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
       propertyPath: m_Name
       value: SlidingDoor
@@ -15238,9 +15220,9 @@ PrefabInstance:
       value: palace_loop_key
       objectReference: {fileID: 0}
     - target: {fileID: 3376696976708355168, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
-      propertyPath: animationDuration
-      value: 0.25
-      objectReference: {fileID: 0}
+      propertyPath: requiredKey
+      value: 
+      objectReference: {fileID: 11400000, guid: b10e26d49a5747018e3db2c65fa49013, type: 2}
     - target: {fileID: 3376696976708355168, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
       propertyPath: requiredKeyColor.b
       value: 1
@@ -15301,10 +15283,6 @@ PrefabInstance:
       propertyPath: m_RenderingLayerMask
       value: 1073741825
       objectReference: {fileID: 0}
-    - target: {fileID: 5569934933666237329, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
-      propertyPath: 'm_Materials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
     - target: {fileID: 7911571468214636511, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 1073741825
@@ -15313,10 +15291,6 @@ PrefabInstance:
       propertyPath: m_RenderingLayerMask
       value: 1073741825
       objectReference: {fileID: 0}
-    - target: {fileID: 7989137565661123871, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
-      propertyPath: 'm_Materials.Array.data[2]'
-      value: 
-      objectReference: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
     - target: {fileID: 8990775100483764112, guid: 9a0cbea85c48d074f8dd3bbb8d167260, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 1073741825

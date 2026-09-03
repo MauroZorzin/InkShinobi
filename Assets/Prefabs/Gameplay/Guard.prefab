@@ -791,6 +791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GuardKeyCarrier
   carriesKey: 0
+  keyDefinition: {fileID: 0}
   keyId: 
   keyWorldPrefab: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
   dropAnchor: {fileID: 0}

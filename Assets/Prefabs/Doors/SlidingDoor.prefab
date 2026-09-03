@@ -241,9 +241,7 @@ MonoBehaviour:
   startsOpen: 0
   autoOpenOnStart: 0
   autoCloseOnStart: 0
-  slideAxis: 0
   panelSlideDistance: 0.75
-  animationDuration: 0.35
   motionEasing: 1
   customEasingCurve:
     serializedVersion: 2
@@ -275,13 +273,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 136
   startsLocked: 1
+  requiredKey: {fileID: 11400000, guid: b10e26d49a5747018e3db2c65fa49013, type: 2}
   requiredKeyId: palace_loop_key
   requiredKeyColor: {r: 0.28, g: 0.72, b: 1, a: 1}
   requiredKeyColorName: Blue
-  obsoleteRequiresItemToClose: 0
   audioSource: {fileID: 9119271578723701326}
-  openStartClip: {fileID: 8300000, guid: abd8cf107319aba4fba024ce1dbe2946, type: 3}
-  closeStartClip: {fileID: 8300000, guid: 24c1795bb9d33fb4e84b164e695ff367, type: 3}
+  openStartClip: {fileID: 8300000, guid: f65db2944fac4c56b382071aef94568b, type: 3}
+  closeStartClip: {fileID: 8300000, guid: a76ec3a55fbd4d67c493182bfa05679c, type: 3}
   openEndClip: {fileID: 0}
   closeEndClip: {fileID: 0}
   audioVolume: 1
@@ -298,19 +296,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GameScripts::DoorKeyColorVisual
   colorOnlyWhenStartsLocked: 1
-  accentBrightness: 1
-  emissionStrength: 0.65
-  coloredPanelMaterial: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
-  uncoloredPanelMaterial: {fileID: 2100000, guid: a4c7397e1f2b4d76a85e0c6193fd247b, type: 2}
-  neutralArchitectureBrightness: 0.85
-  doorWallSlots: 01000000
   leftPanelSlots: 01000000
   rightPanelSlots: 02000000
   leftHandleSlots: 02000000
   rightHandleSlots: 00000000
-  defaultHandleColor: {r: 1, g: 1, b: 1, a: 1}
-  availableHandleColor: {r: 0, g: 1, b: 0, a: 1}
-  unavailableHandleColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!82 &9119271578723701326
 AudioSource:
   m_ObjectHideFlags: 0
@@ -331,10 +320,10 @@ AudioSource:
   Spatialize: 0
   SpatializePostEffects: 0
   Priority: 95
-  DopplerLevel: 1
+  DopplerLevel: 0
   MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
+  MaxDistance: 15
+  Pan2D: 1
   rolloffMode: 0
   BypassEffects: 0
   BypassListenerEffects: 0
@@ -861,7 +850,7 @@ PrefabInstance:
     - target: {fileID: 607148692035943054, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
+      objectReference: {fileID: 2100000, guid: 44c30dd402a3f134196f4bcac9aa6542, type: 2}
     - target: {fileID: 3484585302835785071, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -919,13 +908,17 @@ PrefabInstance:
       value: 1073741825
       objectReference: {fileID: 0}
     - target: {fileID: 4722056574534355857, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 7893196250525341371, guid: b6bcc19122e29f4468c21178ae08b757, type: 3}
+    - target: {fileID: 4722056574534355857, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
-      objectReference: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
+      objectReference: {fileID: 2100000, guid: 44c30dd402a3f134196f4bcac9aa6542, type: 2}
     - target: {fileID: 4722056574534355857, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: 'm_Materials.Array.data[2]'
       value: 
-      objectReference: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
+      objectReference: {fileID: 2100000, guid: 44c30dd402a3f134196f4bcac9aa6542, type: 2}
     - target: {fileID: 5186324763923987677, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -949,11 +942,15 @@ PrefabInstance:
     - target: {fileID: 7069351146097857823, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
+      objectReference: {fileID: 2100000, guid: 44c30dd402a3f134196f4bcac9aa6542, type: 2}
+    - target: {fileID: 7069351146097857823, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 7893196250525341371, guid: b6bcc19122e29f4468c21178ae08b757, type: 3}
     - target: {fileID: 7069351146097857823, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: 'm_Materials.Array.data[2]'
       value: 
-      objectReference: {fileID: 2100000, guid: c372fae4f66aff943988687b0f191fd0, type: 2}
+      objectReference: {fileID: 2100000, guid: 44c30dd402a3f134196f4bcac9aa6542, type: 2}
     - target: {fileID: 8709139096380440497, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_Name
       value: DoorVisuals

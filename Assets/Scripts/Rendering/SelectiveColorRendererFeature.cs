@@ -34,6 +34,9 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
     [Tooltip("Fullscreen material using Hidden/InkShinobi/SelectiveColorComposite.")]
     public Material compositeMaterial;
 
+    [Tooltip("Material used to preserve only the colored paper and handle slots on doors.")]
+    public Material doorAccentMaskMaterial;
+
     [Tooltip("Outline-only shader used to preserve each guard's per-renderer color while it is behind geometry.")]
     public Shader guardOccludedOutlineShader;
   }
@@ -41,19 +44,12 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
   public Settings settings = new Settings();
 
   private SelectiveColorPass _pass;
-  private Material _doorAccentMaskMaterial;
 
   public override void Create() {
-    CoreUtils.Destroy(_doorAccentMaskMaterial);
-    Shader doorAccentShader = Shader.Find("Hidden/InkShinobi/DoorAccentMask");
-    if (doorAccentShader != null)
-      _doorAccentMaskMaterial = CoreUtils.CreateEngineMaterial(doorAccentShader);
     _pass = new SelectiveColorPass();
   }
 
   protected override void Dispose(bool disposing) {
-    CoreUtils.Destroy(_doorAccentMaskMaterial);
-    _doorAccentMaskMaterial = null;
     base.Dispose(disposing);
   }
 
@@ -75,7 +71,7 @@ public sealed class SelectiveColorRendererFeature : ScriptableRendererFeature {
       settings.compositeMaterial,
       cameraSettings,
       settings.guardOccludedOutlineShader,
-      _doorAccentMaskMaterial);
+      settings.doorAccentMaskMaterial);
     _pass.renderPassEvent = settings.renderPassEvent;
     _pass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal);
     renderer.EnqueuePass(_pass);

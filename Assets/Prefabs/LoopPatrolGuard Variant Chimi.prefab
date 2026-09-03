@@ -105,6 +105,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5734512930278582093, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: keyDefinition
+      value: 
+      objectReference: {fileID: 11400000, guid: b10e26d49a5747018e3db2c65fa49013, type: 2}
+    - target: {fileID: 5734512930278582093, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: keyWorldPrefab
       value: 
       objectReference: {fileID: 4060355676401909770, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}

@@ -9,10 +9,10 @@ using UnityEngine.AI;
 /// after which the door stays unlocked and can always be opened and closed.
 /// </summary>
 public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, IInteractionCategoryProvider {
+  private const float AnimationDuration = 0.5f;
   public enum PassageState { Closed, Opening, Open, Closing }
   public enum GuardPassageResult { Granted, Waiting, WaitingForPlayerPath, Denied }
   public enum InteractionState { Open, Close, Locked, Unavailable }
-  private enum SlideAxis { LocalX, LocalZ }
   private enum MotionEasing { Linear, SmoothStep, EaseInOutSine, EaseOutCubic, EaseInOutCubic, CustomCurve }
 
   [Header("Door Panels")]
@@ -27,9 +27,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
   [SerializeField] private bool startsOpen;
   [SerializeField] private bool autoOpenOnStart;
   [SerializeField] private bool autoCloseOnStart;
-  [SerializeField] private SlideAxis slideAxis = SlideAxis.LocalX;
   [SerializeField] private float panelSlideDistance = 0.75f;
-  [SerializeField, Min(0.01f)] private float animationDuration = 0.35f;
   [SerializeField] private MotionEasing motionEasing = MotionEasing.SmoothStep;
   [SerializeField] private AnimationCurve customEasingCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
@@ -44,12 +42,11 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
   [Header("Lock")]
   [Tooltip("When enabled, this door begins locked and needs the matching key once.")]
   [SerializeField] private bool startsLocked;
-  [Tooltip("Stable id that must match the runtime id of the carried key.")]
-  [SerializeField] private string requiredKeyId = "door_key";
-  [Tooltip("Authored lock/key colour. Door-panel colouring can use this in the later visual pass.")]
-  [SerializeField] private Color requiredKeyColor = new(0.25f, 0.7f, 1f, 1f);
-  [Tooltip("Name shown in the locked interaction prompt, for example Blue or Purple.")]
-  [SerializeField] private string requiredKeyColorName = "Blue";
+  [Tooltip("Shared identity and color used by this door, the matching guard, and the world key.")]
+  [SerializeField] private DoorKeyDefinition requiredKey;
+  [SerializeField, HideInInspector] private string requiredKeyId = "door_key";
+  [SerializeField, HideInInspector] private Color requiredKeyColor = new(0.25f, 0.7f, 1f, 1f);
+  [SerializeField, HideInInspector] private string requiredKeyColorName = "Blue";
   [Header("Audio")]
   [SerializeField] private AudioSource audioSource;
   [SerializeField] private AudioClip openStartClip;
@@ -64,9 +61,10 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
   public event Action<PassageState> PassageStateChanged;
   public bool IsLocked { get; private set; }
   public bool StartsLocked => startsLocked;
-  public string RequiredKeyId => requiredKeyId;
-  public Color RequiredKeyColor => requiredKeyColor;
-  public string RequiredKeyColorName => requiredKeyColorName;
+  public DoorKeyDefinition RequiredKey => ResolveRequiredKey();
+  public string RequiredKeyId => RequiredKey != null ? RequiredKey.KeyId : requiredKeyId;
+  public Color RequiredKeyColor => RequiredKey != null ? RequiredKey.Color : requiredKeyColor;
+  public string RequiredKeyColorName => RequiredKey != null ? RequiredKey.DisplayName : requiredKeyColorName;
   public Transform LeftDoorPanel => leftDoorPanel;
   public Transform RightDoorPanel => rightDoorPanel;
   public InteractionCategory InteractionCategory => InteractionCategory.Door;
@@ -116,6 +114,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     SetPassageState(IsOpen ? PassageState.Open : PassageState.Closed);
     ApplyPanelPositions(IsOpen);
     ApplyPassageBlockingState(IsOpen);
+    SetPanelRenderersVisible(!IsOpen);
     keyColorVisual?.Apply();
   }
 
@@ -175,7 +174,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
 
     if (open && IsLocked) {
       if (!PlayerHasRequiredKey(inventory)) {
-        Debug.LogWarning($"{name}: This door requires key '{requiredKeyId}' to open.", this);
+        Debug.LogWarning($"{name}: This door requires key '{RequiredKeyId}' to open.", this);
         return false;
       }
 
@@ -301,7 +300,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
   }
 
   private bool PlayerHasRequiredKey(PlayerInventory inventory) =>
-    inventory != null && !string.IsNullOrWhiteSpace(requiredKeyId) && inventory.HasItem(requiredKeyId);
+    inventory != null && !string.IsNullOrWhiteSpace(RequiredKeyId) && inventory.HasItem(RequiredKeyId);
 
   private void NotifyGuardsOfPlayerInteraction(PlayerInventory inventory) {
     if (inventory == null) return;
@@ -340,6 +339,9 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     Vector3 leftTarget = open ? leftOpenLocalPosition : leftClosedLocalPosition;
     Vector3 rightTarget = open ? rightOpenLocalPosition : rightClosedLocalPosition;
 
+    // Closing panels must become visible before their first movement frame. Opening panels remain
+    // visible throughout the motion and disappear only once fully concealed inside the wall.
+    SetPanelRenderersVisible(true);
     SetPassageState(open ? PassageState.Opening : PassageState.Closing);
 
     // A closing door blocks immediately. An opening door stays blocked until the panels finish.
@@ -347,9 +349,9 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     PlayTransitionClip(open, true);
 
     float elapsed = 0f;
-    while (elapsed < animationDuration) {
+    while (elapsed < AnimationDuration) {
       elapsed += Time.deltaTime;
-      float t = Mathf.Clamp01(elapsed / animationDuration);
+      float t = Mathf.Clamp01(elapsed / AnimationDuration);
       float easedT = EvaluateEasing(t);
       if (leftDoorPanel != null) leftDoorPanel.localPosition = Vector3.Lerp(leftStart, leftTarget, easedT);
       if (rightDoorPanel != null) rightDoorPanel.localPosition = Vector3.Lerp(rightStart, rightTarget, easedT);
@@ -359,6 +361,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     ApplyPanelPositions(open);
     IsOpen = open;
     ApplyPassageBlockingState(open);
+    SetPanelRenderersVisible(!open);
     SetPassageState(open ? PassageState.Open : PassageState.Closed);
     if (!open && temporaryLockedGuardPassage) {
       temporaryLockedGuardPassage = false;
@@ -396,7 +399,10 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
   }
 
   private bool GuardHasRequiredKey(GuardKeyCarrier keyCarrier) =>
-    keyCarrier != null && keyCarrier.HasKey(requiredKeyId);
+    keyCarrier != null && keyCarrier.HasKey(RequiredKeyId);
+
+  private DoorKeyDefinition ResolveRequiredKey() =>
+    requiredKey != null ? requiredKey : DoorKeyDefinition.FindById(requiredKeyId);
 
   private bool HasActiveGuardTraffic() {
     PruneGuardTraffic();
@@ -509,8 +515,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
   }
 
   private void CalculateOpenPositions() {
-    Vector3 doorLocalDirection = slideAxis == SlideAxis.LocalX ? Vector3.right : Vector3.forward;
-    Vector3 worldOffset = transform.TransformDirection(doorLocalDirection).normalized * panelSlideDistance;
+    Vector3 worldOffset = transform.TransformDirection(Vector3.right).normalized * panelSlideDistance;
 
     // Panels may live below a scaled imported-model root. Convert the desired door-space movement
     // back into each panel parent's local space so model import scale never multiplies slide distance.
@@ -530,6 +535,13 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     if (rightDoorPanel != null) rightDoorPanel.localPosition = open ? rightOpenLocalPosition : rightClosedLocalPosition;
   }
 
+  private void SetPanelRenderersVisible(bool visible) {
+    Renderer leftRenderer = leftDoorPanel != null ? leftDoorPanel.GetComponent<Renderer>() : null;
+    Renderer rightRenderer = rightDoorPanel != null ? rightDoorPanel.GetComponent<Renderer>() : null;
+    if (leftRenderer != null) leftRenderer.enabled = visible;
+    if (rightRenderer != null) rightRenderer.enabled = visible;
+  }
+
   private void ApplyPassageBlockingState(bool open) {
     if (blockingCollider != null) {
       blockingCollider.isTrigger = false;
@@ -546,6 +558,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
 
 #if UNITY_EDITOR
   private void OnValidate() {
+    if (requiredKey == null) requiredKey = DoorKeyDefinition.FindById(requiredKeyId);
     if (startsLocked && startsOpen)
       Debug.LogWarning($"[PassagewayDoor] '{name}' starts open, so its initial lock will be ignored.", this);
 

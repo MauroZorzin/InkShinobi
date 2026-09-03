@@ -109,6 +109,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WorldItem
   item: {fileID: 11400000, guid: dd56920a17dddb949bf7557b3592ac16, type: 2}
   destroyOnPickup: 1
+  doorKeyDefinition: {fileID: 0}
   runtimeItemId: 
   hasColorOverride: 0
   runtimeColor: {r: 1, g: 1, b: 1, a: 1}
