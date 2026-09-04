@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9002000000000000002}
   - component: {fileID: 9002000000000000003}
   m_Layer: 0
-  m_Name: GameplayMusic
+  m_Name: Music
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -51,7 +51,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 109
+  Priority: 128
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500

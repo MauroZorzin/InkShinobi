@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 9025000411748373858}
   - component: {fileID: 4095680807780744490}
   m_Layer: 0
-  m_Name: I_Cant_Leave
+  m_Name: BacktrackDialog
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -111,7 +111,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 20}
-  m_SizeDelta: {x: 820, y: 150}
+  m_SizeDelta: {x: 780, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8453778630463320096
 CanvasRenderer:
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: -3480461615626315018, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -281,7 +281,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: -3480461615626315018, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -300,7 +300,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -418,7 +418,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: -3480461615626315018, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -437,7 +437,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -870,14 +870,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce80568e2517aaa4a8f8cd33f76829bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrokeHighlight
-  button: {fileID: 3897478909422082066}
   brushStroke: {fileID: 4872756248490685670}
-  buttonLabel: {fileID: 8800970027007464679}
   paintInDuration: 0.25
-  fadeOutDuration: 0
   audioSource: {fileID: 1362602630603794872}
   hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
-  _useWhiteTextOnHover: 0
 --- !u!1 &3606280403367318519
 GameObject:
   m_ObjectHideFlags: 0
@@ -1351,14 +1347,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce80568e2517aaa4a8f8cd33f76829bd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StrokeHighlight
-  button: {fileID: 5037857844955380720}
   brushStroke: {fileID: 3175196759508022999}
-  buttonLabel: {fileID: 3164509401353728762}
   paintInDuration: 0.25
-  fadeOutDuration: 0
   audioSource: {fileID: 3449076785778322717}
   hoverSound: {fileID: 8300000, guid: abe640b8d4538ab47a12879e5a3d3a44, type: 3}
-  _useWhiteTextOnHover: 0
 --- !u!1 &6358560816489757949
 GameObject:
   m_ObjectHideFlags: 0
@@ -1532,7 +1524,7 @@ MonoBehaviour:
   m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
-  m_sharedMaterial: {fileID: 0}
+  m_sharedMaterial: {fileID: -3480461615626315018, guid: f51db81485bbe154a9b5f1d27e9f0e1b, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1551,7 +1543,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2

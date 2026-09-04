@@ -1,110 +1,94 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>
-/// Handles main-menu button actions and confirmation dialogs.
+/// Controls main-menu navigation, confirmation dialogs, settings visibility, and related audio.
 /// </summary>
 public class MenuManager : MonoBehaviour {
   [Header("Scene Names")]
-  [Tooltip("Scene loaded when the player starts a new game.")]
-  [SerializeField] private string firstSceneName = GameProgress.FirstSceneName;
+  [SerializeField, Tooltip("Scene loaded when the player starts a new game.")]
+  private string firstSceneName = GameProgress.FirstSceneName;
 
   [Header("Buttons")]
-  [SerializeField] private Button continueButton;
-  [SerializeField] private TMP_Text continueLabel;
+  [SerializeField, Tooltip("Button used to continue from saved progress.")]
+  private Button continueButton;
+  [SerializeField, Tooltip("Text displayed by the Continue button.")]
+  private TMP_Text continueLabel;
+  [SerializeField, Tooltip("Highlights reset when the menu view changes.")]
+  private StrokeHighlight[] menuHighlights;
 
   [Header("Settings Overlay")]
-  [SerializeField] private GameObject mainMenuPanel;
-  [SerializeField] private GameObject settingsPanel;
-  [SerializeField] private SettingsManager settingsManager;
+  [SerializeField, Tooltip("Main-menu content hidden while settings are open.")]
+  private GameObject mainMenuPanel;
+  [SerializeField, Tooltip("Settings content shown over the main menu.")]
+  private GameObject settingsPanel;
+  [SerializeField, Tooltip("Controller used to refresh the settings interface.")]
+  private SettingsManager settingsManager;
 
   [Header("Transition")]
-  [SerializeField] private TMP_FontAsset savingFont;
+  [SerializeField, Tooltip("Font used by the scene-transition status label.")]
+  private TMP_FontAsset savingFont;
 
   [Header("Audio")]
-  [SerializeField] private AudioSource rainAudio;
-  [SerializeField] private AudioClip buttonClickSound;
+  [SerializeField, Tooltip("Rain ambience paused while a confirmation dialog is open.")]
+  private AudioSource rainAudio;
+  [SerializeField, Tooltip("Sound played when a main-menu button is selected.")]
+  private AudioClip buttonClickSound;
 
-  private ConfirmationModalView _newGameDialog;
-  private ConfirmationModalView _quitDialog;
+  private ConfirmationModalView _confirmationDialog;
   private bool _restartRainAfterDialog;
   private int _rainPlaybackSample;
-  private bool _settingsOpen;
 
   private void Awake() {
-    // Menus must not inherit a paused gameplay clock; particle effects such as rain use it.
     Time.timeScale = 1f;
-
-    if (continueButton == null) {
-      GameObject continueObject = GameObject.Find("Continue");
-      if (continueObject != null) continueButton = continueObject.GetComponent<Button>();
+    var canContinue = GameProgress.HasContinueProgress;
+    continueButton.interactable = canContinue;
+    if (canContinue) {
+      continueLabel.color = Color.white;
     }
-
-    bool canContinue = GameProgress.HasContinueProgress;
-    if (continueButton != null) continueButton.interactable = canContinue;
-
-    if (continueLabel == null && continueButton != null) {
-      continueLabel = continueButton.GetComponentInChildren<TMP_Text>(includeInactive: true);
-    }
-
-    if (canContinue && continueLabel != null) continueLabel.color = Color.white;
-
     SceneTransitionManager.SetSavingFont(savingFont);
-    ResolveRainAudio();
   }
 
   private void Update() {
-    if (_newGameDialog != null || _quitDialog != null) return;
-    if (Keyboard.current == null || !Keyboard.current.escapeKey.wasPressedThisFrame) return;
-
-    if (_settingsOpen) {
-      CloseSettings();
-      return;
+    var canHandleEscape = _confirmationDialog == null && Keyboard.current != null;
+    if (canHandleEscape && Keyboard.current.escapeKey.wasPressedThisFrame) {
+      if (settingsPanel.activeSelf) {
+        CloseSettings();
+      } else {
+        ShowQuitConfirmation();
+      }
     }
-
-    ShowQuitConfirmation();
   }
 
   public void StartGame() {
     if (GameProgress.HasContinueProgress) {
       ShowNewGameConfirmation();
-      return;
+    } else {
+      StartNewGame();
     }
-
-    BeginNewGame();
   }
 
   public void OpenSettings() {
-    if (settingsPanel == null) {
-      Debug.LogError("[MenuManager] SettingsPanel is not assigned.", this);
-      return;
-    }
-
-    _settingsOpen = true;
-    // This panel contains only the title and menu buttons. The camera-owned rain and ambient
-    // audio remain active behind the settings overlay.
-    if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
+    mainMenuPanel.SetActive(false);
     settingsPanel.SetActive(true);
-    settingsManager?.RefreshUi();
+    settingsManager.RefreshUi();
     DeselectMenuHighlights();
   }
 
   public void CloseSettings() {
-    if (!_settingsOpen && settingsPanel == null) return;
-
     GameSettings.Save();
-    _settingsOpen = false;
-    if (settingsPanel != null) settingsPanel.SetActive(false);
-    if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+    settingsPanel.SetActive(false);
+    mainMenuPanel.SetActive(true);
     DeselectMenuHighlights();
   }
 
   public void ContinueGame() {
-    if (!GameProgress.HasContinueProgress) return;
-
-    SceneTransitionManager.LoadScene(GameProgress.ContinueSceneName);
+    if (GameProgress.HasContinueProgress) {
+      SceneTransitionManager.LoadScene(GameProgress.ContinueSceneName);
+    }
   }
 
   public void QuitGame() {
@@ -112,31 +96,15 @@ public class MenuManager : MonoBehaviour {
   }
 
   public void PlayMenuButtonClickSound() {
-    SceneTransitionManager.PlayUiSound(
-      buttonClickSound,
-      rainAudio != null ? rainAudio.outputAudioMixerGroup : null
-    );
-  }
-
-  private void ConfirmQuitGame() {
-    CloseQuitConfirmation(resumeRain: false, QuitApplication);
-  }
-
-  private static void QuitApplication() {
-#if UNITY_EDITOR
-    UnityEditor.EditorApplication.isPlaying = false;
-#else
-    Application.Quit();
-#endif
+    SceneTransitionManager.PlayUiSound(buttonClickSound, rainAudio.outputAudioMixerGroup);
   }
 
   private void BeginNewGame() {
-    if (_newGameDialog != null) {
-      CloseNewGameConfirmation(resumeRain: false, StartNewGame);
-      return;
+    if (_confirmationDialog != null) {
+      CloseConfirmation(resumeRain: false, StartNewGame);
+    } else {
+      StartNewGame();
     }
-
-    StartNewGame();
   }
 
   private void StartNewGame() {
@@ -145,126 +113,79 @@ public class MenuManager : MonoBehaviour {
   }
 
   private void ShowNewGameConfirmation() {
-    if (_newGameDialog != null || _quitDialog != null) return;
-
-    StopRainForDialog();
-    _newGameDialog = ConfirmationModalView.Create(
-      "NewGameConfirmation",
-      "Begin a new mission?",
-      "This will erase the current path and all saved progress.",
-      "Cancel",
-      "New Game",
-      CancelNewGameConfirmation,
-      BeginNewGame
-    );
-
-    if (_newGameDialog == null) ResumeRainAfterDialog();
-  }
-
-  private void CloseNewGameConfirmation(bool resumeRain = true, System.Action onClosed = null) {
-    if (_newGameDialog == null) return;
-
-    ConfirmationModalView dialog = _newGameDialog;
-    dialog.Close(() => CompleteCloseNewGameDialog(dialog, resumeRain, onClosed));
-  }
-
-  private void CompleteCloseNewGameDialog(
-    ConfirmationModalView dialog,
-    bool resumeRain,
-    System.Action onClosed
-  ) {
-    if (_newGameDialog == dialog) _newGameDialog = null;
-
-    if (resumeRain) ResumeRainAfterDialog();
-    else _restartRainAfterDialog = false;
-    onClosed?.Invoke();
+    if (_confirmationDialog == null) {
+      OpenConfirmation("NewGameConfirmation", "Begin a new mission?", "This will erase the current path and all saved progress.", "New Game", BeginNewGame);
+    }
   }
 
   private void ShowQuitConfirmation() {
-    if (_quitDialog != null || _newGameDialog != null) return;
+    if (_confirmationDialog == null) {
+      OpenConfirmation("QuitConfirmation", "Leave the shadows?", "Are you sure you want to quit?", "Quit Game", ConfirmQuitGame);
+    }
+  }
 
+  private void OpenConfirmation(string objectName, string title, string message, string confirmText, Action onConfirm) {
     StopRainForDialog();
-    _quitDialog = ConfirmationModalView.Create(
-      "QuitConfirmation",
-      "Leave the shadows?",
-      "Are you sure you want to quit?",
-      "Cancel",
-      "Quit Game",
-      CancelQuitConfirmation,
-      ConfirmQuitGame
-    );
-
-    if (_quitDialog == null) ResumeRainAfterDialog();
+    _confirmationDialog = ConfirmationModalView.Create(objectName, title, message, "Cancel", confirmText, CancelConfirmation, onConfirm);
+    if (_confirmationDialog == null) {
+      ResumeRainAfterDialog();
+    }
   }
 
-  private void CloseQuitConfirmation(bool resumeRain = true, System.Action onClosed = null) {
-    if (_quitDialog == null) return;
-
-    ConfirmationModalView dialog = _quitDialog;
-    dialog.Close(() => CompleteCloseQuitDialog(dialog, resumeRain, onClosed));
+  private void ConfirmQuitGame() {
+    CloseConfirmation(resumeRain: false, QuitApplication);
   }
 
-  private void CompleteCloseQuitDialog(
-    ConfirmationModalView dialog,
-    bool resumeRain,
-    System.Action onClosed
-  ) {
-    if (_quitDialog == dialog) _quitDialog = null;
+  private void CancelConfirmation() {
+    CloseConfirmation(onClosed: DeselectMenuHighlights);
+  }
 
-    if (resumeRain) ResumeRainAfterDialog();
-    else _restartRainAfterDialog = false;
+  private void CloseConfirmation(bool resumeRain = true, Action onClosed = null) {
+    if (_confirmationDialog != null) {
+      ConfirmationModalView dialog = _confirmationDialog;
+      dialog.Close(() => CompleteCloseConfirmation(dialog, resumeRain, onClosed));
+    }
+  }
+
+  private void CompleteCloseConfirmation(ConfirmationModalView dialog, bool resumeRain, Action onClosed) {
+    if (_confirmationDialog == dialog) {
+      _confirmationDialog = null;
+    }
+    if (resumeRain) {
+      ResumeRainAfterDialog();
+    } else {
+      _restartRainAfterDialog = false;
+    }
     onClosed?.Invoke();
   }
 
   private void StopRainForDialog() {
-    ResolveRainAudio();
-    _restartRainAfterDialog = rainAudio != null && rainAudio.isPlaying;
-    if (!_restartRainAfterDialog) return;
-
-    _rainPlaybackSample = rainAudio.timeSamples;
-    rainAudio.Stop();
+    _restartRainAfterDialog = rainAudio.isPlaying;
+    if (_restartRainAfterDialog) {
+      _rainPlaybackSample = rainAudio.timeSamples;
+      rainAudio.Stop();
+    }
   }
 
   private void ResumeRainAfterDialog() {
-    if (_restartRainAfterDialog && rainAudio != null) {
-      if (rainAudio.clip != null) {
-        rainAudio.timeSamples = Mathf.Clamp(_rainPlaybackSample, 0, rainAudio.clip.samples - 1);
-      }
+    if (_restartRainAfterDialog) {
+      rainAudio.timeSamples = Mathf.Clamp(_rainPlaybackSample, 0, rainAudio.clip.samples - 1);
       rainAudio.Play();
     }
     _restartRainAfterDialog = false;
   }
 
-  private void ResolveRainAudio() {
-    if (rainAudio != null) return;
-
-    GameObject ambientObject = GameObject.Find("Ambient");
-    if (ambientObject != null) rainAudio = ambientObject.GetComponent<AudioSource>();
-
-    if (rainAudio != null) return;
-
-    AudioSource[] sources = FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
-    foreach (AudioSource source in sources) {
-      if (source.clip == null || !source.clip.name.Contains("rain", System.StringComparison.OrdinalIgnoreCase)) continue;
-
-      rainAudio = source;
-      break;
+  private void DeselectMenuHighlights() {
+    foreach (StrokeHighlight highlight in menuHighlights) {
+      highlight.Deselect();
     }
   }
 
-  private void CancelNewGameConfirmation() {
-    CloseNewGameConfirmation(onClosed: DeselectMenuHighlights);
-  }
-
-  private void CancelQuitConfirmation() {
-    CloseQuitConfirmation(onClosed: DeselectMenuHighlights);
-  }
-
-  private static void DeselectMenuHighlights() {
-    StrokeHighlight[] highlights = FindObjectsByType<StrokeHighlight>(
-      FindObjectsInactive.Include,
-      FindObjectsSortMode.None
-    );
-    foreach (StrokeHighlight highlight in highlights) highlight.Deselect();
+  private static void QuitApplication() {
+#if UNITY_EDITOR
+    UnityEditor.EditorApplication.isPlaying = false;
+#else
+    Application.Quit();
+#endif
   }
 }
