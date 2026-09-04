@@ -110539,6 +110539,10 @@ PrefabInstance:
       propertyPath: obstacleMask.m_Bits
       value: 334195
       objectReference: {fileID: 0}
+    - target: {fileID: 757296985388903905, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 334195
+      objectReference: {fileID: 0}
     - target: {fileID: 1745892784557871611, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: gameCamera
       value: 
@@ -110691,6 +110695,10 @@ PrefabInstance:
       propertyPath: 'patrolWaypoints.Array.data[1]'
       value: 
       objectReference: {fileID: 1291639573}
+    - target: {fileID: 5099769146857405442, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 334195
+      objectReference: {fileID: 0}
     - target: {fileID: 5185590718454657698, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 2147483649
@@ -134389,6 +134397,18 @@ PrefabInstance:
     - target: {fileID: 5344112398062848642, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873897222095774894, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
+      propertyPath: m_Size.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873897222095774894, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
+      propertyPath: m_Size.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8873897222095774894, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
+      propertyPath: m_Size.z
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9077560255023932883, guid: 1d5f27ffcfd81d24eb62c1f674cca40f, type: 3}
       propertyPath: runtimeItemId
@@ -238013,6 +238033,10 @@ PrefabInstance:
       propertyPath: obstacleMask.m_Bits
       value: 334195
       objectReference: {fileID: 0}
+    - target: {fileID: 757296985388903905, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 334195
+      objectReference: {fileID: 0}
     - target: {fileID: 1745892784557871611, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: gameCamera
       value: 
@@ -238165,6 +238189,10 @@ PrefabInstance:
       propertyPath: 'patrolWaypoints.Array.data[1]'
       value: 
       objectReference: {fileID: 2054750616}
+    - target: {fileID: 5099769146857405442, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
+      propertyPath: obstacleMask.m_Bits
+      value: 334195
+      objectReference: {fileID: 0}
     - target: {fileID: 5185590718454657698, guid: 79310ca39a84f0f42b044a05c11e5aa7, type: 3}
       propertyPath: m_RenderingLayerMask
       value: 2147483649

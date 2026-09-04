@@ -169,21 +169,21 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _Start_Bend_Range: 0.35
+    - _Start_Bend_Range: 0.3
     - _Start_To_Bend_Range: 1
     - _Start_to_bend_range: 1
     - _Surface: 0
     - _Value: 0
     - _WIND_OVERLAY: 1
-    - _Wave_Scale: 0.19
+    - _Wave_Scale: 0.44
     - _WindDensity: 0
     - _WindSpeed: 0.5
     - _WindSpeed2: 0
     - _WindStrength: 0.5
     - _Wind_Direction: 0
-    - _Wind_Speed: 0.026
-    - _Wind_Strength: 0.196
-    - _Wind_Variation: 0.14
+    - _Wind_Speed: 0.063
+    - _Wind_Strength: 0.022
+    - _Wind_Variation: 0.132
     - _WorkflowMode: 0
     - _ZTest: 4
     - _ZWrite: 1
