@@ -212,3 +212,6 @@ MonoBehaviour:
     thresholdMultiplierFar: 1
     thresholdExponent: 5
   outlineMaterial: {fileID: 2100000, guid: 41b80b8137eafd7419fe996d51670146, type: 2}
+  excludeLayers:
+    serializedVersion: 2
+    m_Bits: 266304

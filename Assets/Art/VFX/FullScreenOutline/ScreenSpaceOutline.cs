@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RenderGraphModule;
@@ -45,10 +47,13 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
   [Tooltip("Material using Hidden/RoystanOutline.")]
   [SerializeField] private Material outlineMaterial;
 
+  [Tooltip("Objects on these layers never receive an outline, regardless of depth edges.")]
+  [SerializeField] private LayerMask excludeLayers;
+
   private ScreenSpaceOutlinePass m_ScreenSpaceOutlinePass;
 
   public override void Create() {
-    m_ScreenSpaceOutlinePass = new ScreenSpaceOutlinePass(renderPassEvent, outlineSettings, outlineMaterial);
+    m_ScreenSpaceOutlinePass = new ScreenSpaceOutlinePass(renderPassEvent, outlineSettings, outlineMaterial, excludeLayers);
     // Senza questo, se la camera non ha altro post-processing attivo URP a volte disegna
     // direttamente sul backbuffer invece che su una texture intermedia e il pass va in errore
     // perche' non trova una texture su cui lavorare. Forziamo sempre una texture intermedia.
@@ -83,28 +88,38 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
     private static readonly int ThresholdMultiplierNearId = Shader.PropertyToID("_ThresholdMultiplierNear");
     private static readonly int ThresholdMultiplierFarId = Shader.PropertyToID("_ThresholdMultiplierFar");
     private static readonly int ThresholdExponentId = Shader.PropertyToID("_ThresholdExponent");
+    private static readonly int ExcludedLayerDepthTextureId = Shader.PropertyToID("_ExcludedLayerDepthTexture");
     private static readonly Vector4 FullScaleBias = new Vector4(1, 1, 0, 0);
     private static readonly MaterialPropertyBlock s_PropertyBlock = new MaterialPropertyBlock();
+    private static readonly List<ShaderTagId> ExcludedLayerShaderTags = new() { new ShaderTagId("DepthOnly") };
 
     private readonly OutlineSettings settings;
     private readonly Material outlineMaterial;
+    private readonly LayerMask excludeLayers;
 
-    public ScreenSpaceOutlinePass(RenderPassEvent renderPassEvent, OutlineSettings settings, Material outlineMaterial) {
+    public ScreenSpaceOutlinePass(RenderPassEvent renderPassEvent, OutlineSettings settings, Material outlineMaterial, LayerMask excludeLayers) {
       this.renderPassEvent = renderPassEvent;
       this.settings = settings;
       this.outlineMaterial = outlineMaterial;
+      this.excludeLayers = excludeLayers;
       profilingSampler = new ProfilingSampler("Screen Space Outline");
     }
 
     private class PassData {
       public Material material;
       public TextureHandle colorCopy;
+      public TextureHandle excludedDepth;
       public OutlineSettings settings;
     }
 
-    private static void Execute(RasterCommandBuffer cmd, RTHandle colorCopy, OutlineSettings settings, Material material) {
+    private class ExcludedLayerDepthPassData {
+      public RendererListHandle rendererList;
+    }
+
+    private static void Execute(RasterCommandBuffer cmd, RTHandle colorCopy, RTHandle excludedDepth, OutlineSettings settings, Material material) {
       s_PropertyBlock.Clear();
       s_PropertyBlock.SetTexture(BlitTextureId, colorCopy);
+      s_PropertyBlock.SetTexture(ExcludedLayerDepthTextureId, excludedDepth);
       s_PropertyBlock.SetVector(BlitScaleBiasId, FullScaleBias);
       s_PropertyBlock.SetColor(ColorId, settings.color);
       s_PropertyBlock.SetColor(FarColorId, settings.farColor);
@@ -140,22 +155,61 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
       // = bias, cioe' "copia tutto 1:1, senza ritagliare o spostare nulla").
       renderGraph.AddBlitPass(resourceData.activeColorTexture, colorCopy, Vector2.one, Vector2.zero, passName: "Outline Copy Color");
 
+      UniversalRenderingData renderingData = frameData.Get<UniversalRenderingData>();
+      UniversalCameraData cameraData = frameData.Get<UniversalCameraData>();
+      UniversalLightData lightData = frameData.Get<UniversalLightData>();
+
+      var excludedDepthDesc = renderGraph.GetTextureDesc(resourceData.activeDepthTexture);
+      excludedDepthDesc.clearBuffer = false;
+      excludedDepthDesc.name = "_ExcludedLayerDepth";
+      TextureHandle excludedDepth = renderGraph.CreateTexture(excludedDepthDesc);
+
+      FilteringSettings excludedFiltering = new(RenderQueueRange.opaque) { layerMask = excludeLayers.value };
+      DrawingSettings excludedDrawing = RenderingUtils.CreateDrawingSettings(
+        ExcludedLayerShaderTags, renderingData, cameraData, lightData, SortingCriteria.CommonOpaque);
+      NativeArray<ShaderTagId> excludedTagValues = new(1, Allocator.Temp);
+      excludedTagValues[0] = ShaderTagId.none;
+      NativeArray<RenderStateBlock> excludedStateBlocks = new(1, Allocator.Temp);
+      excludedStateBlocks[0] = new RenderStateBlock(RenderStateMask.Blend | RenderStateMask.Depth) {
+        blendState = new BlendState { blendState0 = new RenderTargetBlendState(writeMask: (ColorWriteMask)0) },
+        depthState = new DepthState(true, CompareFunction.LessEqual)
+      };
+      RendererListParams excludedListParams = new(renderingData.cullResults, excludedDrawing, excludedFiltering) {
+        tagValues = excludedTagValues,
+        stateBlocks = excludedStateBlocks,
+        isPassTagName = false
+      };
+      RendererListHandle excludedRendererList = renderGraph.CreateRendererList(excludedListParams);
+
+      using (var builder = renderGraph.AddRasterRenderPass<ExcludedLayerDepthPassData>("Outline Excluded Layer Depth", out var excludedPassData, profilingSampler)) {
+        excludedPassData.rendererList = excludedRendererList;
+        builder.UseRendererList(excludedPassData.rendererList);
+        builder.SetRenderAttachmentDepth(excludedDepth, AccessFlags.Write);
+        builder.AllowPassCulling(false);
+        builder.SetRenderFunc(static (ExcludedLayerDepthPassData data, RasterGraphContext ctx) => {
+          ctx.cmd.ClearRenderTarget(RTClearFlags.Depth, Color.clear, 1f, 0);
+          ctx.cmd.DrawRendererList(data.rendererList);
+        });
+      }
+
       // AddRasterRenderPass apre un nuovo pass nel grafo: il builder che restituisce serve a
       // dichiarare in anticipo quali texture legge/scrive
       using (var builder = renderGraph.AddRasterRenderPass<PassData>("Screen Space Outline", out var passData, profilingSampler)) {
         passData.material = outlineMaterial;
         passData.colorCopy = colorCopy;
+        passData.excludedDepth = excludedDepth;
         passData.settings = settings;
 
         // UseTexture dichiara "questo pass legge da qui"
         builder.UseTexture(colorCopy);
+        builder.UseTexture(excludedDepth);
         if (resourceData.cameraDepthTexture.IsValid())
           builder.UseTexture(resourceData.cameraDepthTexture);
 
         // SetRenderAttachment invece e' il target su cui si scrive davvero
         builder.SetRenderAttachment(resourceData.activeColorTexture, 0, AccessFlags.Write);
         builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
-          Execute(ctx.cmd, data.colorCopy, data.settings, data.material));
+          Execute(ctx.cmd, data.colorCopy, data.excludedDepth, data.settings, data.material));
       }
     }
   }

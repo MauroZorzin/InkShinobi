@@ -49,6 +49,8 @@ Shader "Hidden/RoystanOutline"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Packages/com.unity.render-pipelines.core/Runtime/Utilities/Blit.hlsl"
 
+            TEXTURE2D_X_FLOAT(_ExcludedLayerDepthTexture);
+
             CBUFFER_START(UnityPerMaterial)
                 half4 _Color;
                 half4 _FarColor;
@@ -113,6 +115,9 @@ Shader "Hidden/RoystanOutline"
                 // Sotto la soglia niente bordo
                 float depthThreshold = _DepthThreshold * depth0 * DistanceThresholdMultiplier(centerDepthLinear);
                 edgeDepth = edgeDepth > depthThreshold ? 1 : 0;
+
+                float excludedDepthLinear = LinearEyeDepth(SAMPLE_TEXTURE2D_X_LOD(_ExcludedLayerDepthTexture, sampler_PointClamp, uv, 0).r, _ZBufferParams);
+                if (abs(centerDepthLinear - excludedDepthLinear) < 0.01) edgeDepth = 0;
 
                 if (_DebugView > 0.5) return half4(edgeDepth.xxx, 1);
 
