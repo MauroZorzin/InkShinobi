@@ -787,6 +787,7 @@ MonoBehaviour:
   arrivalInkPrefab: {fileID: 6457367086810496765, guid: c59e67dd51d4e524b8f0c53f527172fb, type: 3}
   travelingInkPrefab: {fileID: 5045851490385637994, guid: a88532dc9dbd30d4e943836b248728cb, type: 3}
   departureSound: {fileID: 0}
+  takedownSoundLeadTime: 0.04
   soundVolume: 1
   pitchVariance: 0.08
   mixerGroup: {fileID: 243672017259290008, guid: 22f7751c74a73cf4a98501014e467242, type: 2}

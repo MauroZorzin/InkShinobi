@@ -31,7 +31,7 @@ public class SettingsManager : MonoBehaviour {
   private static readonly ControlEntry[] DisplayedControls = {
     new("Move", "Player", "Move"),
     new("Interact / Hide", "Player", "Interact"),
-    new("Switch Walls", "Player", "Switch"),
+    new("Switch Walls", "Space bar"),
     new("Confirm Aim", "Left Mouse Button"),
     new("Aim Distraction", "Right Mouse Button"),
     new("Pause / Back", "Player", "Exit")

@@ -97,6 +97,8 @@ public sealed class WallSwitchController : MonoBehaviour {
 
   [Header("Sound")]
   [SerializeField] private AudioClip departureSound;
+  [Tooltip("How long before the traveling ink reaches a guard to cue its takedown sound.")]
+  [SerializeField, Min(0f)] private float takedownSoundLeadTime = 0.04f;
   [Range(0f, 1f)][SerializeField] private float soundVolume = 1f;
   [Range(0f, 0.5f)][SerializeField] private float pitchVariance = 0.08f;
   [SerializeField] private AudioMixerGroup mixerGroup;
@@ -157,6 +159,7 @@ public sealed class WallSwitchController : MonoBehaviour {
     wallEndpointInset = Mathf.Max(0f, wallEndpointInset);
     markerSurfaceOffset = Mathf.Max(0f, markerSurfaceOffset);
     surfacePlaneTolerance = Mathf.Max(0f, surfacePlaneTolerance);
+    takedownSoundLeadTime = Mathf.Max(0f, takedownSoundLeadTime);
     PlayerRelativeCamera.ClampDistance(ref aimingCameraRelativePosition);
   }
 
@@ -513,6 +516,7 @@ public sealed class WallSwitchController : MonoBehaviour {
       corridorCenterLocalOffset);
     yield return WaitUnpausedRealtime(Mathf.Max(departureHoldDuration, cameraSideSwitchDuration));
     GameObject traveler = SpawnInk(travelingInkPrefab, evaluation.TrajectoryStart, direction);
+    int takedownSoundIndex = 0;
     int targetIndex = 0;
     float elapsed = 0f;
     while (elapsed < inkTravelDuration) {
@@ -526,6 +530,17 @@ public sealed class WallSwitchController : MonoBehaviour {
       Vector3 position = Vector3.Lerp(evaluation.TrajectoryStart, evaluation.TrajectoryEnd, progress);
       if (traveler != null) traveler.transform.position = position;
       preview?.SetExecutionProgress(progress);
+
+      float soundLeadProgress = takedownSoundLeadTime / Mathf.Max(inkTravelDuration, 0.01f);
+      while (takedownSoundIndex < evaluation.TakedownTargets.Count) {
+        GuardWallSwitchTarget target = evaluation.TakedownTargets[takedownSoundIndex];
+        float targetProgress = target != null
+          ? target.GetTrajectoryProgress(evaluation.TrajectoryStart, evaluation.TrajectoryEnd)
+          : 0f;
+        if (targetProgress > progress + soundLeadProgress) break;
+        if (target != null && target.IsAlive) target.CueTakedownAudio();
+        takedownSoundIndex++;
+      }
 
       bool hitSomething = false;
       while (targetIndex < evaluation.TakedownTargets.Count) {

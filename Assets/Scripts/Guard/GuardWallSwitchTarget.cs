@@ -122,10 +122,14 @@ public sealed class GuardWallSwitchTarget : MonoBehaviour {
   public void BeginTakedown(Vector3 trajectoryDirection) {
     if (dying) return;
     dying = true;
-    GuardController controller = GetComponent<GuardController>();
-    if (controller != null) controller.PlayTakedownAudio();
+    CueTakedownAudio();
     ShutDownGameplay();
     StartCoroutine(DissolveRoutine(trajectoryDirection));
+  }
+
+  public void CueTakedownAudio() {
+    GuardController controller = GetComponent<GuardController>();
+    if (controller != null) controller.PlayTakedownAudio();
   }
 
   public float GetTrajectoryProgress(Vector3 start, Vector3 end) {

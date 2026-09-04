@@ -6,7 +6,7 @@ using UnityEngine.Audio;
 /// survive scene changes. Values use PlayerPrefs because the data is small and platform-local.
 /// </summary>
 public static class GameSettings {
-  public const float DefaultMusicVolume = 0.75f;
+  public const float DefaultMusicVolume = 1f;
   public const float DefaultSfxVolume = 1f;
 
   private const string MusicVolumeKey = "Settings.Audio.Music";
