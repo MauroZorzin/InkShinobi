@@ -11,11 +11,17 @@ using UnityEngine.Rendering;
 [DisallowMultipleComponent]
 [RequireComponent(typeof(PassagewayDoor))]
 public sealed class DoorKeyColorVisual : MonoBehaviour {
-  // Match DOCS-wall.mat so an untinted door panel is visually identical to adjacent wall paper.
-  private const float PanelEmissionStrength = 0.101531535f;
+  // The paper texture is warm rather than neutral. Compensating its average colour keeps the
+  // authored key hue after the texture is multiplied by the tint in the door-paper material.
+  private static readonly Color PaperTextureNeutral = new(0.74036f, 0.65923f, 0.48930f, 1f);
+  // Both paper meshes have the same imported normal, while the right panel is rotated 180 degrees.
+  // The door-paper shader modulates this contribution by the texture, keeping the key cue
+  // readable on both halves without flattening the paper pattern.
+  private const float PanelEmissionStrength = 0.05f;
   private static readonly Color DefaultHandleColor = Color.white;
   private static readonly Color AvailableHandleColor = Color.green;
   private static readonly Color UnavailableHandleColor = Color.red;
+  private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
   private static readonly int ColorId = Shader.PropertyToID("_Color");
   private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
   private static readonly List<DoorKeyColorVisual> ActiveVisuals = new();
@@ -66,16 +72,17 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
     // Shared materials are authored on SlidingDoor.prefab. This component only uses property
     // blocks, so ExecuteAlways preview cannot create per-instance material overrides in scenes.
     if (ShouldPreservePanelColor) {
-      ApplyTint(leftRenderer, leftPanelSlots, door.RequiredKeyColor);
-      ApplyTint(rightRenderer, rightPanelSlots, door.RequiredKeyColor);
+      Color paperTint = CompensateForPaperTexture(door.RequiredKeyColor);
+      ApplyTint(leftRenderer, leftPanelSlots, paperTint, paperTint, PanelEmissionStrength);
+      ApplyTint(rightRenderer, rightPanelSlots, paperTint, paperTint, PanelEmissionStrength);
     } else {
       ClearSlots(leftRenderer, leftPanelSlots);
       ClearSlots(rightRenderer, rightPanelSlots);
     }
 
     Color handleColor = ResolveHandleColor();
-    ApplyTint(leftRenderer, leftHandleSlots, handleColor);
-    ApplyTint(rightRenderer, rightHandleSlots, handleColor);
+    ApplyTint(leftRenderer, leftHandleSlots, handleColor, Color.black, 0f);
+    ApplyTint(rightRenderer, rightHandleSlots, handleColor, Color.black, 0f);
   }
 
   private Color ResolveHandleColor() {
@@ -97,7 +104,21 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
     Apply();
   }
 
-  private void ApplyTint(Renderer targetRenderer, int[] materialSlots, Color color) {
+  private static Color CompensateForPaperTexture(Color color) {
+    float red = color.r / PaperTextureNeutral.r;
+    float green = color.g / PaperTextureNeutral.g;
+    float blue = color.b / PaperTextureNeutral.b;
+    float scale = Mathf.Max(red, green, blue);
+    if (scale <= Mathf.Epsilon) return new Color(0f, 0f, 0f, color.a);
+    return new Color(red / scale, green / scale, blue / scale, color.a);
+  }
+
+  private void ApplyTint(
+    Renderer targetRenderer,
+    int[] materialSlots,
+    Color baseColor,
+    Color emissionColor,
+    float emissionStrength) {
     if (targetRenderer == null || materialSlots == null) return;
 
     propertyBlock ??= new MaterialPropertyBlock();
@@ -113,13 +134,17 @@ public sealed class DoorKeyColorVisual : MonoBehaviour {
       float alpha = material != null && material.HasProperty(ColorId)
         ? material.GetColor(ColorId).a
         : 1f;
-      Color materialTint = new(color.r, color.g, color.b, alpha);
-      propertyBlock.SetColor(ColorId, materialTint);
-      propertyBlock.SetColor(EmissionColorId, new Color(
-        color.r * PanelEmissionStrength,
-        color.g * PanelEmissionStrength,
-        color.b * PanelEmissionStrength,
-        1f));
+      Color materialTint = new(baseColor.r, baseColor.g, baseColor.b, alpha);
+      if (material != null && material.HasProperty(BaseColorId))
+        propertyBlock.SetColor(BaseColorId, materialTint);
+      if (material != null && material.HasProperty(ColorId))
+        propertyBlock.SetColor(ColorId, materialTint);
+      if (material != null && material.HasProperty(EmissionColorId))
+        propertyBlock.SetColor(EmissionColorId, new Color(
+          emissionColor.r * emissionStrength,
+          emissionColor.g * emissionStrength,
+          emissionColor.b * emissionStrength,
+          1f));
       targetRenderer.SetPropertyBlock(propertyBlock, slot);
     }
   }

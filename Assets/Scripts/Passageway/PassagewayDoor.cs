@@ -27,7 +27,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
   [SerializeField] private bool startsOpen;
   [SerializeField] private bool autoOpenOnStart;
   [SerializeField] private bool autoCloseOnStart;
-  [SerializeField] private float panelSlideDistance = 0.75f;
+  [SerializeField] private float panelSlideDistance = 0.65f;
   [SerializeField] private MotionEasing motionEasing = MotionEasing.SmoothStep;
   [SerializeField] private AnimationCurve customEasingCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
@@ -114,7 +114,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     SetPassageState(IsOpen ? PassageState.Open : PassageState.Closed);
     ApplyPanelPositions(IsOpen);
     ApplyPassageBlockingState(IsOpen);
-    SetPanelRenderersVisible(!IsOpen);
+    SetPanelRenderersVisible(true);
     keyColorVisual?.Apply();
   }
 
@@ -339,8 +339,8 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     Vector3 leftTarget = open ? leftOpenLocalPosition : leftClosedLocalPosition;
     Vector3 rightTarget = open ? rightOpenLocalPosition : rightClosedLocalPosition;
 
-    // Closing panels must become visible before their first movement frame. Opening panels remain
-    // visible throughout the motion and disappear only once fully concealed inside the wall.
+    // Stencil clipping keeps the panels inside the doorway aperture, including while fully open.
+    // Ensure a closing door is visible before its first movement frame.
     SetPanelRenderersVisible(true);
     SetPassageState(open ? PassageState.Opening : PassageState.Closing);
 
@@ -361,7 +361,7 @@ public class PassagewayDoor : MonoBehaviour, IInteractable, IInteractionFocus, I
     ApplyPanelPositions(open);
     IsOpen = open;
     ApplyPassageBlockingState(open);
-    SetPanelRenderersVisible(!open);
+    SetPanelRenderersVisible(true);
     SetPassageState(open ? PassageState.Open : PassageState.Closed);
     if (!open && temporaryLockedGuardPassage) {
       temporaryLockedGuardPassage = false;

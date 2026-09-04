@@ -43,7 +43,7 @@ Material:
     - _Edge_Softness: 0.02
     - _Fine_Distortion: 0.04570856
     - _Fine_Noise_Scale: 23
-    - _Ink_Amount: 1
+    - _Ink_Amount: 0
     - _Noise_Scale: 5
     m_Colors:
     - _Ink_Color: {r: 0, g: 0, b: 0, a: 1}

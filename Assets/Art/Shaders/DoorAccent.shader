@@ -13,6 +13,13 @@ Shader "Hidden/InkShinobi/DoorAccentMask" {
       ZTest LEqual
       ColorMask A
 
+      Stencil {
+        Ref 64
+        ReadMask 64
+        Comp Equal
+        Pass Keep
+      }
+
       HLSLPROGRAM
       #pragma vertex Vert
       #pragma fragment Frag

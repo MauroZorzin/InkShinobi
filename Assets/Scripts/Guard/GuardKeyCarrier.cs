@@ -26,7 +26,7 @@ public sealed class GuardKeyCarrier : MonoBehaviour {
   public DoorKeyDefinition KeyDefinition => ResolveKeyDefinition();
   public string KeyId => KeyDefinition != null ? KeyDefinition.KeyId : keyId;
 
-  private void OnEnable() => ApplyDefinitionToGuard();
+  private void OnEnable() => RefreshGuardPalette();
 
   public bool HasKey(string requestedKeyId) =>
     carriesKey && !dropped && !string.IsNullOrWhiteSpace(requestedKeyId) &&
@@ -55,22 +55,22 @@ public sealed class GuardKeyCarrier : MonoBehaviour {
 
 #if UNITY_EDITOR
   private void OnValidate() {
-    if (!carriesKey) return;
-    if (keyDefinition == null) keyDefinition = DoorKeyDefinition.FindById(keyId);
-    ApplyDefinitionToGuard();
-    if (string.IsNullOrWhiteSpace(KeyId))
-      Debug.LogWarning($"[GuardKeyCarrier] '{name}' carries a key but Key Definition is missing.", this);
-    if (keyWorldPrefab == null)
-      Debug.LogWarning($"[GuardKeyCarrier] '{name}' carries a key but Key World Prefab is missing.", this);
+    if (carriesKey) {
+      if (keyDefinition == null) keyDefinition = DoorKeyDefinition.FindById(keyId);
+      if (string.IsNullOrWhiteSpace(KeyId))
+        Debug.LogWarning($"[GuardKeyCarrier] '{name}' carries a key but Key Definition is missing.", this);
+      if (keyWorldPrefab == null)
+        Debug.LogWarning($"[GuardKeyCarrier] '{name}' carries a key but Key World Prefab is missing.", this);
+    }
+    RefreshGuardPalette();
   }
 #endif
 
   private DoorKeyDefinition ResolveKeyDefinition() =>
     keyDefinition != null ? keyDefinition : DoorKeyDefinition.FindById(keyId);
 
-  private void ApplyDefinitionToGuard() {
-    if (!carriesKey || KeyDefinition == null) return;
+  private void RefreshGuardPalette() {
     GuardPaletteTint palette = GetComponent<GuardPaletteTint>();
-    if (palette != null) palette.GarmentColor = KeyDefinition.Color;
+    if (palette != null) palette.Apply();
   }
 }

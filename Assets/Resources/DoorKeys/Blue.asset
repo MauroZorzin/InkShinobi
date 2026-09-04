@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a13b7a4c8e2d4f6ab19c0e735d8241ef, type: 3}
   m_Name: Blue
   m_EditorClassIdentifier: GameScripts::DoorKeyDefinition
-  keyId: palace_loop_key
+  keyId: door_key_blue
   displayName: Blue
   color: {r: 0.28, g: 0.72, b: 1, a: 1}

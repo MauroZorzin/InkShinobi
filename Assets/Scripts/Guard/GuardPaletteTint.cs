@@ -21,6 +21,7 @@ public sealed class GuardPaletteTint : MonoBehaviour {
   [SerializeField] private SpriteRenderer targetRenderer;
 
   [Header("Garment")]
+  [Tooltip("Manual garment color. A guard carrying a defined key displays the key color instead without changing this value.")]
   [SerializeField] private Color garmentColor = new(0.28f, 0.72f, 1f, 1f);
   [SerializeField, Range(0f, 0.5f)] private float blueDetectionThreshold = 0.08f;
   [SerializeField, Range(0.001f, 0.25f)] private float detectionSoftness = 0.04f;
@@ -34,7 +35,7 @@ public sealed class GuardPaletteTint : MonoBehaviour {
   private MaterialPropertyBlock propertyBlock;
 
   public Color GarmentColor {
-    get => garmentColor;
+    get => ResolveGarmentColor();
     set {
       garmentColor = value;
       Apply();
@@ -42,7 +43,7 @@ public sealed class GuardPaletteTint : MonoBehaviour {
   }
 
   public Color OutlineColor {
-    get => useGarmentColorForOutline ? garmentColor : outlineColor;
+    get => useGarmentColorForOutline ? ResolveGarmentColor() : outlineColor;
     set {
       outlineColor = value;
       useGarmentColorForOutline = false;
@@ -85,12 +86,13 @@ public sealed class GuardPaletteTint : MonoBehaviour {
 
     EnsurePropertyBlock();
     targetRenderer.GetPropertyBlock(propertyBlock);
+    Color effectiveGarmentColor = ResolveGarmentColor();
     propertyBlock.SetFloat(EnabledId, isActiveAndEnabled ? 1f : 0f);
-    propertyBlock.SetColor(TargetColorId, garmentColor);
+    propertyBlock.SetColor(TargetColorId, effectiveGarmentColor);
     propertyBlock.SetFloat(ThresholdId, blueDetectionThreshold);
     propertyBlock.SetFloat(SoftnessId, detectionSoftness);
     propertyBlock.SetFloat(ReferenceLuminanceId, sourceGarmentLuminance);
-    SetOutlineColors(propertyBlock, useGarmentColorForOutline ? garmentColor : outlineColor);
+    SetOutlineColors(propertyBlock, useGarmentColorForOutline ? effectiveGarmentColor : outlineColor);
     targetRenderer.SetPropertyBlock(propertyBlock);
   }
 
@@ -106,6 +108,14 @@ public sealed class GuardPaletteTint : MonoBehaviour {
 
   private void EnsurePropertyBlock() {
     propertyBlock ??= new MaterialPropertyBlock();
+  }
+
+  private Color ResolveGarmentColor() {
+    GuardKeyCarrier carrier = GetComponent<GuardKeyCarrier>();
+    DoorKeyDefinition definition = carrier != null && carrier.CarriesKey
+      ? carrier.KeyDefinition
+      : null;
+    return definition != null ? definition.Color : garmentColor;
   }
 
   private static void SetOutlineColors(MaterialPropertyBlock block, Color color) {
