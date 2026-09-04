@@ -939,7 +939,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: da4e7119bc2b4702a4f2d70b0e93251c, type: 2}
     - target: {fileID: 5186324763923987677, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6069666530608283448, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -951,7 +951,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7037583038002681206, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 7069351146097857823, guid: 6bb183435e9cd414ba31052e380ad4d0, type: 3}
       propertyPath: m_RenderingLayerMask
