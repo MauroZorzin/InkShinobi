@@ -1,10 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Shared data asset mapping SurfaceType to a pool of footstep clips, picked at random each step.
-/// Referenced by every FootstepPlayer (player and guards alike) so all footsteps agree on what
-/// each surface sounds like from one place.
-/// </summary>
+/// <summary>Asset dati condiviso che mappa SurfaceType a un insieme di clip di passi, scelte a caso ad ogni passo.</summary>
 [CreateAssetMenu(fileName = "SurfaceAudioLibrary", menuName = "Audio/Surface Audio Library")]
 public class SurfaceAudioLibrary : ScriptableObject {
   [System.Serializable]
@@ -18,7 +14,6 @@ public class SurfaceAudioLibrary : ScriptableObject {
   [Tooltip("Used when no entry matches the requested surface, or the matching entry has no clips assigned.")]
   public AudioClip[] fallbackClips = System.Array.Empty<AudioClip>();
 
-  /// <summary>A random clip for the given surface, or a random fallback clip if none is configured, or null if both are empty.</summary>
   public AudioClip GetRandomClip(SurfaceType surface) {
     foreach (SurfaceClips entry in entries) {
       if (entry.surface == surface && entry.clips != null && entry.clips.Length > 0) {

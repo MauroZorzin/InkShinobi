@@ -1,10 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Starts a scene transition (via SceneTransitionManager) when something enters this trigger
-/// collider — or call TriggerTransition() directly (e.g. wired to a UI Button's OnClick). The
-/// destination scene is picked from the Editor, so no code is needed per use.
-/// </summary>
+/// <summary>Avvia una transizione di scena quando qualcosa entra in questo trigger, oppure con una chiamata diretta a TriggerTransition().</summary>
 [RequireComponent(typeof(Collider))]
 public class SceneTransitionTrigger : MonoBehaviour {
   [Tooltip("Name of the scene to load (must be added to Build Settings).")]
@@ -35,7 +31,6 @@ public class SceneTransitionTrigger : MonoBehaviour {
     TriggerTransition();
   }
 
-  /// <summary>Starts the transition to sceneName. Also callable directly, e.g. from a UI Button's OnClick.</summary>
   public void TriggerTransition() {
     if (string.IsNullOrEmpty(sceneName)) {
       Debug.LogWarning("[SceneTransitionTrigger] No sceneName set.", this);

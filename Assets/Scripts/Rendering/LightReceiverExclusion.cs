@@ -1,9 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Prevents renderers on this object and its children from receiving projected fixed or cone
-/// light color. This keeps reusable fixture geometry independent from scene-level receivers.
-/// </summary>
+/// <summary>Impedisce ai renderer di questo oggetto e dei suoi figli di ricevere il colore proiettato da luci fisse o coniche.</summary>
 [ExecuteAlways]
 [DisallowMultipleComponent]
 public sealed class LightReceiverExclusion : MonoBehaviour {

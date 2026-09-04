@@ -1,10 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Self-contained tutorial trigger zone.
-/// On player entry, enables/disables text GameObjects and player components.
-/// All logic contained here - no dependency on other managers.
-/// </summary>
+/// <summary>Zona trigger di tutorial autonoma: all'ingresso del giocatore, attiva o disattiva GameObject di testo e componenti del giocatore.</summary>
 public class TutorialTrigger : MonoBehaviour {
 
   [System.Serializable]
@@ -50,13 +46,11 @@ public class TutorialTrigger : MonoBehaviour {
   private bool _activated = false;
 
   private void Start() {
-    // Ensure collider is a trigger
     Collider col = GetComponent<Collider>();
     if (col != null) {
       col.isTrigger = true;
     }
 
-    // Find player if not assigned
     if (player == null) {
       player = GameObject.FindWithTag("Player");
       if (player == null) {
@@ -73,15 +67,11 @@ public class TutorialTrigger : MonoBehaviour {
     Execute();
   }
 
-  /// <summary>
-  /// Manually execute this trigger (for testing).
-  /// </summary>
   public void Execute() {
     if (_activated) return;
 
     _activated = true;
 
-    // Process text actions
     foreach (var textAction in textActions) {
       if (textAction.textObject == null) continue;
 
@@ -95,12 +85,10 @@ public class TutorialTrigger : MonoBehaviour {
           break;
 
         case ActionType.None:
-          // Do nothing
           break;
       }
     }
 
-    // Process component actions
     foreach (var compAction in componentActions) {
       if (string.IsNullOrEmpty(compAction.componentName) || player == null) continue;
 
@@ -121,19 +109,16 @@ public class TutorialTrigger : MonoBehaviour {
 
     bool shouldEnable = action == ActionType.Enable;
 
-    // MonoBehaviour
     if (component is MonoBehaviour monoBehaviour) {
       monoBehaviour.enabled = shouldEnable;
       return;
     }
 
-    // Collider
     if (component is Collider collider) {
       collider.enabled = shouldEnable;
       return;
     }
 
-    // Rigidbody
     if (component is Rigidbody rb) {
       if (shouldEnable) {
         rb.isKinematic = false;

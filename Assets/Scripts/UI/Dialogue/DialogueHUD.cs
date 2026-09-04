@@ -5,26 +5,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-/// <summary>
-/// Single shared HUD text element driven by three independent content sources, in priority order:
-/// Dialogue (highest) > Interaction prompt (PlayerInteractionDialogue) > Information/tutorial hints
-/// (InformationTrigger). Whichever active source has the highest priority owns the shared label;
-/// when it clears, display falls back to the next highest-priority still-active source.
-///
-/// Each source can carry its own background element (informationBackground / dialogueBackground),
-/// shown only while that source is the one currently displayed. Dialogue also reveals a portrait —
-/// there is only ever one dialogue "speaker" in this game (the player), so the portrait is a fixed
-/// image assigned once here rather than something callers pass in per message.
-///
-/// Whenever Information or Dialogue transitions from not-shown to shown (not on every repeated
-/// message while already the active source), it plays its show sound; Dialogue additionally slides
-/// its portrait in from one offscreen side. The reverse — whenever either stops being the shown
-/// source — plays its own hide sound; Dialogue's background hides immediately, but the portrait
-/// slides out to the OPPOSITE offscreen side first and is only actually hidden once that finishes.
-///
-/// One instance is expected per scene. Callers reach it via the static Instance rather than a
-/// per-caller Inspector reference.
-/// </summary>
+/// <summary>Unico elemento di testo HUD condiviso, guidato da tre fonti di contenuto in ordine di priorità: Dialogo, poi Prompt di interazione, poi Informazione.</summary>
 public class DialogueHUD : MonoBehaviour {
   private enum Source { Information = 0, Interaction = 1, Dialogue = 2 }
 
@@ -85,8 +66,7 @@ public class DialogueHUD : MonoBehaviour {
     if (dialoguePortrait != null) {
       _portraitRect = dialoguePortrait.rectTransform;
       _portraitRestPosition = _portraitRect.anchoredPosition;
-      // Parked offscreen whenever not shown — both before the first ShowDialogue and after every
-      // slide-out — so every slide-in animates from a consistent, already-correct starting point.
+      // Parcheggiato fuori schermo, così ogni scorrimento in entrata parte da una posizione coerente.
       _portraitRect.anchoredPosition = _portraitRestPosition + new Vector2(portraitSlideOffset, 0f);
     }
 
@@ -100,7 +80,6 @@ public class DialogueHUD : MonoBehaviour {
     if (Instance == this) Instance = null;
   }
 
-  /// <summary>Shows a plain hint (lowest priority). duration &lt;= 0 leaves it up until ClearInformation() is called.</summary>
   public void ShowInformation(string text, float duration = 0f) {
     StopTimer(ref _informationTimer);
     SetSlot(Source.Information, text);
@@ -112,19 +91,16 @@ public class DialogueHUD : MonoBehaviour {
     SetSlot(Source.Information, null);
   }
 
-  /// <summary>Clears the information slot only if it still contains the expected message.</summary>
   public void ClearInformationIfMatches(string expectedText) {
     int i = (int)Source.Information;
     if (!_active[i] || _text[i] != expectedText) return;
     ClearInformation();
   }
 
-  /// <summary>Driven every frame by the player's interaction dialogue policy — no duration.</summary>
   public void ShowInteractionPrompt(string text) => SetSlot(Source.Interaction, text);
 
   public void ClearInteractionPrompt() => SetSlot(Source.Interaction, null);
 
-  /// <summary>Shows a dialogue line (highest priority). duration &lt;= 0 leaves it up until ClearDialogue() is called.</summary>
   public void ShowDialogue(string text, float duration = 0f) {
     StopTimer(ref _dialogueTimer);
     SetSlot(Source.Dialogue, text);
@@ -188,9 +164,7 @@ public class DialogueHUD : MonoBehaviour {
     if (active == Source.Dialogue && dialoguePortrait != null) {
       dialoguePortrait.gameObject.SetActive(true);
     }
-    // Hiding the portrait when Dialogue stops being active is deferred to
-    // HidePortraitAfterSlideOut (triggered from PlayHideFeedback below) so it can slide off before
-    // disappearing — the background above hides immediately, only the portrait animates out.
+    // Nascondere il ritratto è rimandato a HidePortraitAfterSlideOut, così può scorrere via prima di sparire.
   }
 
   private void PlayShowFeedback(Source source) {
@@ -220,9 +194,7 @@ public class DialogueHUD : MonoBehaviour {
   private void PlayPortraitSlideIn() {
     if (_portraitRect == null) return;
     if (_portraitAnimation != null) StopCoroutine(_portraitAnimation);
-    // Always snaps to the entry side first — entry and exit use opposite offscreen sides (see
-    // PlayPortraitSlideOut), so an interrupted slide-out (currently heading the other way) doesn't
-    // just reverse in place.
+    // Si posiziona prima sul lato di entrata, perché entrata e uscita usano lati opposti fuori schermo.
     Vector2 entrySide = _portraitRestPosition + new Vector2(portraitSlideOffset, 0f);
     _portraitAnimation = StartCoroutine(AnimatePortraitSlide(entrySide, _portraitRestPosition, null));
   }

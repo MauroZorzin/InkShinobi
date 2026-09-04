@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-/// <summary>Shared identity and presentation for a door key, its matching door, and its carrier.</summary>
+/// <summary>Identità e presentazione condivise per una chiave, la porta corrispondente e chi la porta.</summary>
 [CreateAssetMenu(menuName = "Ink Shinobi/Door Key", fileName = "DoorKey")]
 public sealed class DoorKeyDefinition : ScriptableObject {
   private static DoorKeyDefinition[] cachedDefinitions;
@@ -14,10 +14,6 @@ public sealed class DoorKeyDefinition : ScriptableObject {
   public string DisplayName => displayName?.Trim() ?? string.Empty;
   public Color Color => color;
 
-  /// <summary>
-  /// Compatibility path for existing scenes that serialized only a key id. New content should
-  /// reference the definition directly.
-  /// </summary>
   public static DoorKeyDefinition FindById(string requestedKeyId) {
     if (string.IsNullOrWhiteSpace(requestedKeyId)) return null;
 

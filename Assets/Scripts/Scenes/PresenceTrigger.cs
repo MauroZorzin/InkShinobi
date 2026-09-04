@@ -1,10 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Trigger zone that enables target objects/components while the player is inside,
-/// and disables them again on exit. Unlike TutorialTrigger (one-shot, fires once and
-/// stays that way), this follows the player's presence back and forth.
-/// </summary>
+/// <summary>Zona trigger che attiva oggetti o componenti target mentre il giocatore è dentro, e li disattiva di nuovo all'uscita.</summary>
 public class PresenceTrigger : MonoBehaviour {
   [System.Serializable]
   public class ComponentToggle {

@@ -1,19 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-/// <summary>
-/// Shared trigger-volume/one-shot/dismissal/component-toggle machinery for InformationTrigger and
-/// DialogTrigger — the two differ only in which DialogueHUD slot (and therefore priority) they
-/// write to, via the Show/Clear/LogTag overrides below.
-///
-/// Fires on player entry. By default (One Shot = true) it never refires; with One Shot = false it
-/// re-arms on exit and fires again next entry. Dismissal has three modes: OnExit (clears when the
-/// player leaves the trigger volume — the GameObject is kept alive, even with destroyAfterUse set,
-/// until that actually happens, since a destroyed trigger's OnTriggerExit is not guaranteed to
-/// fire), Timed (auto-clears after Display Duration seconds regardless of the player's position), or
-/// Persistent (never auto-clears — stays up until something else overrides or clears it). Also
-/// carries TutorialTrigger's by-name component enable/disable toggles.
-/// </summary>
+/// <summary>Meccanismo condiviso di trigger-volume, one-shot, dismissione e toggle dei componenti per InformationTrigger e DialogTrigger.</summary>
 [RequireComponent(typeof(Collider))]
 public abstract class MessageTriggerBase : MonoBehaviour {
   public enum DismissMode { OnExit, Timed, Persistent }
@@ -61,7 +49,6 @@ public abstract class MessageTriggerBase : MonoBehaviour {
   private bool _activated;
   private int _enterCount;
 
-  /// <summary>Short name used in warnings — override per concrete trigger type.</summary>
   protected abstract string LogTag { get; }
 
   protected abstract void Show(string text, float timedDuration);

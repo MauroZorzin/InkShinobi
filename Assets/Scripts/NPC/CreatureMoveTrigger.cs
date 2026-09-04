@@ -1,11 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Starts a CreatureWaypointMover's route when something enters this trigger collider. Put this
-/// on any GameObject with a Collider set to "Is Trigger" (it can be the creature itself or a
-/// separate volume placed anywhere in the scene), point target at the CreatureWaypointMover to
-/// start, and narrow triggerLayerMask to whatever should be able to fire it (e.g. just the player).
-/// </summary>
+/// <summary>Avvia il percorso di un CreatureWaypointMover quando qualcosa entra in questo trigger collider.</summary>
 [RequireComponent(typeof(Collider))]
 public class CreatureMoveTrigger : MonoBehaviour {
   [Tooltip("The creature to start moving when this trigger fires.")]

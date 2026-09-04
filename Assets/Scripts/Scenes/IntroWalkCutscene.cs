@@ -2,29 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Scripted "walk forward for a bit" scene intro, independent of LinePath — the player is moved
-/// directly via CharacterController.Move() along an explicit world-space direction (flattened and
-/// normalized once at Start()), for walkDistance world units. No waypoints, no LinePath needed.
-///
-/// Temporarily takes over the CharacterController: disables LineFollowController.movementEnabled for the duration (if a
-/// LineFollowController is present — this script doesn't require one), applies its own minimal
-/// gravity (mirroring LineFollowController.ApplyGravityAndMove so the walk doesn't float on uneven
-/// ground), and drives the same Animator parameters (isRunning/Velocity) so the existing walk
-/// animation plays. LineFollowController tracks the player's position along its LinePath as its own
-/// private "distance along line" — since this script moves the CharacterController directly, that
-/// value goes stale during the walk. Handing control back re-syncs it the same way
-/// LineFollowController.Start() does (LinePath.FindClosestDistance + SetLine), so movement resumes
-/// from wherever the player actually ended up instead of clamping at the line's start/end like it
-/// hit a wall. All player gameplay input is blocked for the duration by switching the
-/// PlayerInput component to its "UI" action map (same idiom SceneTransitionManager uses for the
-/// pause dialog) — not just movement, so Interact/Switch/RotateLeft/RotateRight are blocked
-/// too, and restored to whatever map was active before once the walk finishes. The walk always plays
-/// out in full; there is no skip input.
-///
-/// Place once in a scene, e.g. on an empty "IntroWalk" GameObject — starts automatically on
-/// Start(), no trigger volume involved.
-/// </summary>
+/// <summary>Intro di scena scriptata che fa camminare il giocatore per un tratto, muovendolo direttamente via CharacterController, indipendente da LinePath.</summary>
 public class IntroWalkCutscene : MonoBehaviour {
   [Header("Player")]
   [Tooltip("Auto-finds by tag if left empty.")]
@@ -95,9 +73,7 @@ public class IntroWalkCutscene : MonoBehaviour {
 
     bool hasAuthoredWalk = authoredStart != null && authoredEnd != null;
     if (hasAuthoredWalk) {
-      // Start order between scene components is intentionally irrelevant: if LineFollowController
-      // already snapped, put the feet back at the authored arrival point; if it has not started yet,
-      // clearing currentLine prevents that later snap until this cutscene hands control back.
+      // Azzerare currentLine qui rende irrilevante l'ordine di Start tra i componenti della scena.
       if (_lineFollowController != null) _lineFollowController.currentLine = null;
       PlacePlayerFeetAt(authoredStart.position);
 

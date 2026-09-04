@@ -1,13 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-/// <summary>
-/// Walks a NavMeshAgent between a list of waypoints, in order, looping or one-shot. Starts idle;
-/// call StartMoving() to begin walking the route (see CreatureMoveTrigger for a collider-based way
-/// to do that). Movement/rotation are entirely owned by the NavMeshAgent — no CharacterController
-/// or custom animation-input pipeline involved, so this only needs a baked NavMesh under the
-/// waypoints and the creature.
-/// </summary>
+/// <summary>Muove un NavMeshAgent tra i waypoint in ordine, in loop o una tantum. Resta inattivo finché non viene chiamato StartMoving().</summary>
 [RequireComponent(typeof(NavMeshAgent))]
 public class CreatureWaypointMover : MonoBehaviour {
   [Header("Route")]
@@ -103,7 +97,6 @@ public class CreatureWaypointMover : MonoBehaviour {
     DriveAnimation();
   }
 
-  /// <summary>Starts (or restarts, from waypoint 0) walking the route.</summary>
   public void StartMoving() {
     if (waypoints == null || waypoints.Length == 0) {
       Debug.LogWarning("[CreatureWaypointMover] No waypoints assigned.", this);
@@ -117,7 +110,6 @@ public class CreatureWaypointMover : MonoBehaviour {
     SetDestinationToCurrentWaypoint();
   }
 
-  /// <summary>Stops walking in place (does not reset progress along the route — call StartMoving() to restart from waypoint 0).</summary>
   public void Stop() {
     _isActive = false;
     _isWaiting = false;

@@ -7,8 +7,7 @@ using UnityEngine.Rendering.RenderGraphModule;
 using UnityEngine.Rendering.RenderGraphModule.Util;
 using UnityEngine.Rendering.Universal;
 
-// Renderer Feature URP per l'outline a schermo intero, basata su Roystan's outline shader
-// (https://roystan.net/articles/outline-shader/).
+// Renderer Feature URP per l'outline a schermo intero, basata su Roystan's outline shader (https://roystan.net/articles/outline-shader/).
 public class ScreenSpaceOutline : ScriptableRendererFeature {
   [SerializeField] private RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingOpaques;
 
@@ -54,9 +53,7 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
 
   public override void Create() {
     m_ScreenSpaceOutlinePass = new ScreenSpaceOutlinePass(renderPassEvent, outlineSettings, outlineMaterial, excludeLayers);
-    // Senza questo, se la camera non ha altro post-processing attivo URP a volte disegna
-    // direttamente sul backbuffer invece che su una texture intermedia e il pass va in errore
-    // perche' non trova una texture su cui lavorare. Forziamo sempre una texture intermedia.
+    // Forza sempre una texture intermedia, altrimenti senza altro post-processing URP a volte disegna sul backbuffer e il pass fallisce.
     m_ScreenSpaceOutlinePass.ConfigureInput(ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Color);
   }
 
@@ -68,8 +65,6 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
     renderer.EnqueuePass(m_ScreenSpaceOutlinePass);
   }
 
-  // Un solo pass: legge la depth texture della camera, ci fa sopra il test dei bordi
-  // (Hidden/RoystanOutline) e ridisegna la scena con l'outline sovrapposto
   private class ScreenSpaceOutlinePass : ScriptableRenderPass {
     private static readonly int BlitTextureId = Shader.PropertyToID("_BlitTexture");
     private static readonly int BlitScaleBiasId = Shader.PropertyToID("_BlitScaleBias");
@@ -136,7 +131,6 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
       s_PropertyBlock.SetFloat(ThresholdMultiplierNearId, settings.thresholdMultiplierNear);
       s_PropertyBlock.SetFloat(ThresholdMultiplierFarId, settings.thresholdMultiplierFar);
       s_PropertyBlock.SetFloat(ThresholdExponentId, settings.thresholdExponent);
-      // DrawProcedural con 3 vertici e nessuna mesh e' un qualche trucco
       cmd.DrawProcedural(Matrix4x4.identity, material, 0, MeshTopology.Triangles, 3, 1, s_PropertyBlock);
     }
 
@@ -145,14 +139,12 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
 
       UniversalResourceData resourceData = frameData.Get<UniversalResourceData>();
 
-      // Cpio colore scena, non si puo scrivere e leggere la stessa texture nello stesso pass, quindi faccio un blit su una copia
+      // Copia il colore scena: non si puo' leggere e scrivere la stessa texture nello stesso pass.
       var colorDesc = renderGraph.GetTextureDesc(resourceData.activeColorTexture);
       colorDesc.msaaSamples = MSAASamples.None;
       colorDesc.clearBuffer = false;
       colorDesc.name = "_OutlineColorCopy";
       TextureHandle colorCopy = renderGraph.CreateTexture(colorDesc);
-      // AddBlitPass copia una texture nell'altra per conto nostro (Vector2.one = scale, Vector2.zero
-      // = bias, cioe' "copia tutto 1:1, senza ritagliare o spostare nulla").
       renderGraph.AddBlitPass(resourceData.activeColorTexture, colorCopy, Vector2.one, Vector2.zero, passName: "Outline Copy Color");
 
       UniversalRenderingData renderingData = frameData.Get<UniversalRenderingData>();
@@ -192,21 +184,17 @@ public class ScreenSpaceOutline : ScriptableRendererFeature {
         });
       }
 
-      // AddRasterRenderPass apre un nuovo pass nel grafo: il builder che restituisce serve a
-      // dichiarare in anticipo quali texture legge/scrive
       using (var builder = renderGraph.AddRasterRenderPass<PassData>("Screen Space Outline", out var passData, profilingSampler)) {
         passData.material = outlineMaterial;
         passData.colorCopy = colorCopy;
         passData.excludedDepth = excludedDepth;
         passData.settings = settings;
 
-        // UseTexture dichiara "questo pass legge da qui"
         builder.UseTexture(colorCopy);
         builder.UseTexture(excludedDepth);
         if (resourceData.cameraDepthTexture.IsValid())
           builder.UseTexture(resourceData.cameraDepthTexture);
 
-        // SetRenderAttachment invece e' il target su cui si scrive davvero
         builder.SetRenderAttachment(resourceData.activeColorTexture, 0, AccessFlags.Write);
         builder.SetRenderFunc((PassData data, RasterGraphContext ctx) =>
           Execute(ctx.cmd, data.colorCopy, data.excludedDepth, data.settings, data.material));

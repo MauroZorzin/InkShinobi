@@ -1,35 +1,15 @@
 using UnityEngine;
 
-/// <summary>
-/// Manages the player's authoritative stealth and visibility state.
-///
-/// Responsibilities
-/// ─────────────────
-///  - Maintain the authoritative <see cref="CurrentState"/> (<see cref="StealthState"/>).
-///  - Accept events from guards (<see cref="OnGuardStartsDetecting"/>) and
-///    light zones (<see cref="EnterLight"/>/<see cref="ExitLight"/>).
-///
-/// </summary>
+/// <summary>Gestisce lo stato autoritativo di furtività e visibilità del giocatore.</summary>
 public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
-  // -------------------------------------------------------------------------
-  // Stealth state
-  // -------------------------------------------------------------------------
-
   public enum StealthState {
-    /// <summary>No guard is detecting the player; takedown is available.</summary>
     Hidden,
-
-    /// <summary>Player is in light or briefly visible but no guard has locked on yet.</summary>
     Exposed,
-
-    /// <summary>At least one guard is actively detecting the player; takedown is locked.</summary>
     Detected
   }
 
-  /// <summary>Current stealth state. Drives which subsystems are active.</summary>
   public StealthState CurrentState { get; private set; } = StealthState.Hidden;
 
-  // Convenient shorthands kept for backwards-compatibility with other systems.
   public bool IsHidden => CurrentState == StealthState.Hidden;
   public bool IsConcealed => ResolveHidingController()?.IsConcealed == true;
   public bool IsInLight => !IsConcealed && (_lightSourceCount > 0 || ResolveExposureProvider()?.IsExposed == true);
@@ -39,7 +19,6 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   public int SeeingGuardCount { get; private set; }
   public bool IsCurrentlyVisible => !IsConcealed && SeeingGuardCount > 0;
 
-  /// <summary>Unavailable from the first visible frame through the end of confirmed detection.</summary>
   public bool CanWallSwitch => WallSwitchBlockReason == AimEntryBlockReason.None;
 
   public AimEntryBlockReason WallSwitchBlockReason {
@@ -50,10 +29,6 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // Inspector
-  // -------------------------------------------------------------------------
-
   [Header("Stealth Settings")]
   [Tooltip("Seconds of no detection before the player transitions back to Hidden.")]
   public float timeToHide = 1.0f;
@@ -61,18 +36,10 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
   [Tooltip("Optional component implementing ILightExposureProvider. If empty, a provider on this GameObject is used.")]
   [SerializeField] private MonoBehaviour lightExposureProvider;
 
-  // -------------------------------------------------------------------------
-  // Private state
-  // -------------------------------------------------------------------------
-
   private float _hiddenTimer;
   private int _lightSourceCount;
   private ILightExposureProvider _resolvedExposureProvider;
   private PlayerHidingController _hidingController;
-
-  // -------------------------------------------------------------------------
-  // Unity lifecycle
-  // -------------------------------------------------------------------------
 
   private void Awake() {
     ResolveExposureProvider();
@@ -83,10 +50,6 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
     RefreshState();
   }
 
-  // -------------------------------------------------------------------------
-  // State machine
-  // -------------------------------------------------------------------------
-
   private void UpdateHiddenTimer() {
     if (DetectingGuardCount > 0) {
       _hiddenTimer = 0f;
@@ -95,10 +58,6 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
     }
   }
 
-  /// <summary>
-  /// Re-evaluates and applies the current state every frame.
-  /// State changes are applied exactly once.
-  /// </summary>
   private void RefreshState() {
     StealthState next = ComputeState();
     if (next == CurrentState) return;
@@ -114,10 +73,6 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
     return CurrentState; // stay as-is during the hide cooldown
   }
 
-  // -------------------------------------------------------------------------
-  // Guard detection events (called by GuardController)
-  // -------------------------------------------------------------------------
-
   public void OnGuardStartsDetecting() {
     DetectingGuardCount++;
     _hiddenTimer = 0f;
@@ -131,19 +86,13 @@ public class PlayerStealthController : MonoBehaviour, IWallSwitchPermission {
 
   public void RefreshConcealmentState() => RefreshState();
 
-  /// <summary>Registers immediate line of sight, before the guard's confirmation timer completes.</summary>
   public void OnGuardStartsSeeing() {
     SeeingGuardCount++;
   }
 
-  /// <summary>Releases one guard's immediate line-of-sight contribution.</summary>
   public void OnGuardStopsSeeing() {
     SeeingGuardCount = Mathf.Max(0, SeeingGuardCount - 1);
   }
-
-  // -------------------------------------------------------------------------
-  // Light zone events (called by LightZone or LightZoneTriggerAdapter, one per active light)
-  // -------------------------------------------------------------------------
 
   public void EnterLight() {
     _lightSourceCount++;

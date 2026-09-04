@@ -1,8 +1,4 @@
-/// <summary>
-/// Fires DialogueHUD.ShowInformation/ClearInformation — the lowest-priority of its three content
-/// sources (Dialogue and the interaction prompt both take precedence over it). See
-/// MessageTriggerBase for the shared trigger-volume/dismissal/component-toggle behavior.
-/// </summary>
+/// <summary>Attiva DialogueHUD.ShowInformation/ClearInformation, la fonte con priorità più bassa tra le tre.</summary>
 public class InformationTrigger : MessageTriggerBase {
   protected override string LogTag => "InformationTrigger";
 

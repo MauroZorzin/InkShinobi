@@ -19,12 +19,7 @@ public static class OneShotVfx {
     Object.Destroy(instance.gameObject, destroyDelay);
   }
 
-  /// <summary>
-  /// Reads the worst-case value out of a MinMaxCurve regardless of which curve mode it's set to —
-  /// .constant/.constantMax are only meaningful for Constant/TwoConstants mode, and silently read
-  /// as 0 otherwise, which was collapsing destroyDelay to ~0 and killing the instance before it
-  /// ever got a visible frame.
-  /// </summary>
+  // Legge .constant o .constantMax in base alla modalità della curva, leggere quello sbagliato restituisce silenziosamente 0 e uccide l'istanza troppo presto.
   private static float GetMaxLifetime(ParticleSystem.MinMaxCurve curve) {
     switch (curve.mode) {
       case ParticleSystemCurveMode.TwoConstants:

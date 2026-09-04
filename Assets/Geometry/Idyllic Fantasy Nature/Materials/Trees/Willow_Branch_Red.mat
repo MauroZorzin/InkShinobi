@@ -151,7 +151,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
-    - _Start_Bend_Range: 0.3
+    - _Start_Bend_Range: 0.35
     - _Start_to_bend_range: 1
     - _Surface: 0
     - _Value: 0
@@ -173,7 +173,7 @@ Material:
     - _Bottom_Color: {r: 0.65882355, g: 0.2470588, b: 0.2912336, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Player_Position: {r: 287.2216, g: 15.33, b: 291.52078, a: 0}
+    - _Player_Position: {r: 70, g: 0.377, b: -25.016, a: 0}
     - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
     - _Target_Position: {r: 0, g: 0, b: 0, a: 0}
     - _TopColor: {r: 0.8769975, g: 1, b: 0, a: 0}

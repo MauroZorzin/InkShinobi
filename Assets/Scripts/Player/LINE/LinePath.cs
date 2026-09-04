@@ -1,26 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Defines one or more disjoint traceable lines ("strands") in the scene. LineFollowController
-/// locks the player's movement onto the nearest point of one strand at a time. The wall-switch
-/// system can move the player to another authored strand or LinePath.
-///
-/// Authoring (useChildrenAsPoints = true, the default):
-///  - SIMPLE: add child empty GameObjects directly under this object, in order. That's one
-///    continuous strand (unchanged from before).
-///  - MULTIPLE DISJOINT PATHS ON ONE LinePath: instead, add empty "group" GameObjects under
-///    this object (e.g. "StrandA", "StrandB"), and put each strand's waypoints as children of
-///    its own group. Each group becomes its own disjoint strand — they are never connected to
-///    each other, even though they live on the same LinePath component. Optionally add a
-///    LineStrandMarker to a group to override closedLoop/gizmo color for just that strand.
-///  - You can freely mix: a LinePath can have some ungrouped stray points ignored with a
-///    warning once grouping is detected — once ANY top-level child has its own children, this
-///    component switches into "grouped" mode and expects every strand to be a group.
-///
-/// Or skip the hierarchy entirely and assign local-space points directly via the "points" field
-/// (single strand, fallback when useChildrenAsPoints is false).
-/// </summary>
+/// <summary>Definisce uno o più tratti di linea percorribili e separati nella scena, lungo cui si muove LineFollowController.</summary>
 [DisallowMultipleComponent]
 public class LinePath : MonoBehaviour {
   [Header("Points")]
@@ -50,26 +31,18 @@ public class LinePath : MonoBehaviour {
 
   private readonly List<Strand> _strands = new List<Strand>();
 
-  /// <summary>Number of disjoint strands on this LinePath.</summary>
   public int StrandCount => _strands.Count;
 
-  /// <summary>Length of a single strand, or 0 if the index is out of range.</summary>
   public float GetStrandLength(int strandIndex) => TryGetStrand(strandIndex, out var s) ? s.length : 0f;
 
-  /// <summary>Whether a specific strand wraps (closed loop) rather than stopping at its ends.</summary>
   public bool IsStrandClosedLoop(int strandIndex) => TryGetStrand(strandIndex, out var s) && s.closedLoop;
 
-  /// <summary>Number of straight segments composing a strand.</summary>
+  /// <summary>Numero di segmenti rettilinei che compongono un tratto.</summary>
   public int GetSegmentCount(int strandIndex) {
     if (!TryGetStrand(strandIndex, out var strand) || strand.worldPoints.Length < 2) return 0;
     return strand.closedLoop ? strand.worldPoints.Length : strand.worldPoints.Length - 1;
   }
 
-  /// <summary>
-  /// Exposes one authored segment without exposing the mutable internal point arrays. This lets
-  /// screen-space selection evaluate the real path geometry rather than approximating it with
-  /// scene-wide ray samples.
-  /// </summary>
   public bool TryGetSegment(
     int strandIndex,
     int segmentIndex,
@@ -96,7 +69,6 @@ public class LinePath : MonoBehaviour {
 
   private static readonly List<LinePath> _all = new List<LinePath>();
 
-  /// <summary>All enabled LinePaths currently in the scene. Used by wall-switch targeting.</summary>
   public static IReadOnlyList<LinePath> All => _all;
 
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -121,7 +93,6 @@ public class LinePath : MonoBehaviour {
     Rebuild();
   }
 
-  /// <summary>Recomputes cached strands/points/lengths. Called automatically; call manually if you move points at runtime.</summary>
   public void Rebuild() {
     _strands.Clear();
 
@@ -132,7 +103,7 @@ public class LinePath : MonoBehaviour {
       }
 
       if (anyGroup) {
-        // Grouped mode: every top-level child with its own children is a disjoint strand.
+        // Modalità raggruppata: ogni figlio di primo livello con propri figli è un tratto separato.
         for (int i = 0; i < transform.childCount; i++) {
           var group = transform.GetChild(i);
           if (group.childCount == 0) {
@@ -150,7 +121,7 @@ public class LinePath : MonoBehaviour {
             marker != null && marker.overrideGizmoColor ? marker.gizmoColor : gizmoColor);
         }
       } else {
-        // Flat mode: all top-level children are points of a single strand.
+        // Modalità semplice: tutti i figli di primo livello sono punti di un unico tratto.
         var pts = new List<Vector3>();
         for (int i = 0; i < transform.childCount; i++) pts.Add(transform.GetChild(i).position);
         AddStrand(pts, closedLoop, gizmoColor);
@@ -173,7 +144,6 @@ public class LinePath : MonoBehaviour {
     Rebuild();
   }
 
-  /// <summary>Finds the best enabled path endpoint coincident with a source endpoint.</summary>
   public static bool TryFindConnectedEndpoint(
     LinePath sourcePath,
     int sourceStrand,
@@ -250,7 +220,6 @@ public class LinePath : MonoBehaviour {
     _strands.Add(strand);
   }
 
-  /// <summary>Returns the world position at the given distance along a specific strand.</summary>
   public Vector3 GetPointAtDistance(int strandIndex, float distance) {
     if (!TryGetStrand(strandIndex, out var s) || s.worldPoints.Length == 0) return transform.position;
     if (s.worldPoints.Length == 1) return s.worldPoints[0];
@@ -273,7 +242,6 @@ public class LinePath : MonoBehaviour {
     return s.worldPoints[s.worldPoints.Length - 1];
   }
 
-  /// <summary>Returns the normalized direction of travel (increasing distance) at the given distance along a specific strand.</summary>
   public Vector3 GetDirectionAtDistance(int strandIndex, float distance) {
     if (!TryGetStrand(strandIndex, out var s) || s.worldPoints.Length < 2) return transform.forward;
 
@@ -294,11 +262,6 @@ public class LinePath : MonoBehaviour {
     return transform.forward;
   }
 
-  /// <summary>
-  /// Finds the closest point to worldPos across ALL strands on this LinePath (including
-  /// disjoint ones), so callers don't need to know which strand a candidate is on ahead of time.
-  /// </summary>
-  /// <returns>Distance-along-strand at the closest point — pass this and strandIndex into GetPointAtDistance/SetLine.</returns>
   public float FindClosestDistance(Vector3 worldPos, out Vector3 closestPoint, out float distanceToLine, out int strandIndex) {
     closestPoint = transform.position;
     distanceToLine = float.MaxValue;
@@ -337,7 +300,6 @@ public class LinePath : MonoBehaviour {
     return bestDistAlong;
   }
 
-  /// <summary>Same as FindClosestDistance, but restricted to a strand you already know you're on (cheaper).</summary>
   public float FindClosestDistanceOnStrand(int strandIndex, Vector3 worldPos, out Vector3 closestPoint, out float distanceToLine) {
     closestPoint = transform.position;
     distanceToLine = float.MaxValue;

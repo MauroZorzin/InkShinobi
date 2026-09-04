@@ -1,13 +1,7 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-/// <summary>
-/// Fully self-contained footstep sounds — attach to any moving object/character and it works on
-/// its own: it measures its own movement by comparing position frame to frame, raycasts straight
-/// down to find the SurfaceMarker on whatever it's standing on, and plays a random clip from
-/// SurfaceAudioLibrary every stepDistance world units traveled. Nothing external needs to feed it
-/// speed or surface, and no other script needs to know it exists.
-/// </summary>
+/// <summary>Passi audio autonomi: misura il movimento, lancia un raycast verso il basso per la superficie e riproduce un clip ogni stepDistance unità.</summary>
 [DisallowMultipleComponent]
 public class FootstepPlayer : MonoBehaviour {
   [Header("Surface Detection")]

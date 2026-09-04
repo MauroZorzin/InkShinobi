@@ -1,13 +1,7 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-/// <summary>
-/// AudioSource.PlayClipAtPoint has no way to route through an AudioMixerGroup — it always plays
-/// straight to Master. This reimplements the same "temporary GameObject + AudioSource, auto-
-/// destroyed once the clip finishes" pattern, but with a mixer group, so one-shot stingers (guard
-/// barks, switch/death sounds) can be routed to a channel (e.g. "FX") instead of bypassing the
-/// mixer entirely.
-/// </summary>
+/// <summary>Come AudioSource.PlayClipAtPoint, ma instrada attraverso un AudioMixerGroup invece di andare sempre al Master.</summary>
 public static class OneShotAudio {
   public static AudioSource PlayClipAtPoint(
       AudioClip clip, Vector3 position, float volume = 1f, AudioMixerGroup mixerGroup = null, float pitchVariance = 0f) {

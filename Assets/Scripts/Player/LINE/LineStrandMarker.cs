@@ -1,10 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Optional. Drop this on a strand-group child under a LinePath (see LinePath's Points header)
-/// to override that one strand's closed-loop / gizmo color instead of inheriting LinePath's
-/// defaults. Not required — a strand without this marker just uses LinePath's settings.
-/// </summary>
+/// <summary>Override opzionale per tratto di closed-loop e colore del gizmo su un gruppo di LinePath.</summary>
 public class LineStrandMarker : MonoBehaviour {
   [Tooltip("Overrides LinePath.closedLoop for this strand only.")]
   public bool closedLoop = false;
