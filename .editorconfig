@@ -37,6 +37,8 @@ csharp_indent_labels = one_less_than_current
 
 csharp_preserve_single_line_statements = true
 csharp_preserve_single_line_blocks = true
+csharp_prefer_braces = true:error
+dotnet_diagnostic.IDE0011.severity = error
 
 # Formatting gate used by Roslyn / dotnet-format.
 dotnet_diagnostic.IDE0055.severity = error
